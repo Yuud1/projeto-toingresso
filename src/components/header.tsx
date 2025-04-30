@@ -13,18 +13,26 @@ import {
   X,
 } from "lucide-react";
 
-const Header: React.FC = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
+type HeaderProps = {
+  isScrolled?: boolean;
+};
+
+const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
+  const [isScrolledInternal, setIsScrolledInternal] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
+    if (isScrolledProp === undefined) {
+      const handleScroll = () => {
+        setIsScrolledInternal(window.scrollY > 50);
+      };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }
+  }, [isScrolledProp]);
+
+  const isScrolled = isScrolledProp ?? isScrolledInternal;
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 

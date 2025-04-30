@@ -4,13 +4,14 @@ import 'swiper/css';
 import 'swiper/css/effect-coverflow';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import { Link } from 'react-router-dom';
 
 const images = [
-  '/flyer1.jpg',
-  '/flyer2.jpeg',
-  '/flyer3.jpeg',
-  '/flyer4.webp',
-  '/background-login.png'
+  { src: '/flyer1.jpg', id: 1 },
+  { src: '/flyer2.jpeg', id: 2 },
+  { src: '/flyer3.jpeg', id: 3 },
+  { src: '/flyer4.webp', id: 4 },
+  { src: '/background-login.png', id: 5 },
 ];
 
 export default function CarrosselMain() {
@@ -40,13 +41,15 @@ export default function CarrosselMain() {
           modules={[EffectCoverflow, Pagination, Navigation, Autoplay]}
           className="w-[90%] max-w-[1000px] h-[500px]"
         >
-          {images.map((src, idx) => (
+          {images.map((image, idx) => (
             <SwiperSlide key={idx}>
-              <img
-                src={src}
-                alt={`slide-${idx}`}
-                className="w-full h-full object-cover rounded-2xl shadow-lg"
-              />
+              <Link to={`/evento/${image.id}`}>  {/* Navega para a página do evento com base no id */}
+                <img
+                  src={image.src}
+                  alt={`slide-${idx}`}
+                  className="w-full h-full object-cover rounded-2xl shadow-lg"
+                />
+              </Link>
             </SwiperSlide>
           ))}
         </Swiper>
@@ -69,4 +72,5 @@ export default function CarrosselMain() {
     </>
   );
 }
+
 
