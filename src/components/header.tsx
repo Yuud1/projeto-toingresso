@@ -2,7 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ChevronDown, MapPin, Search } from "lucide-react";
+import {
+  ChevronDown,
+  MapPin,
+  Search,
+  CalendarPlus,
+  Ticket,
+  ClipboardList,
+} from "lucide-react";
 
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -16,10 +23,12 @@ const Header: React.FC = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const baseButtonClass = "hover:bg-transparent hover:text-inherit cursor-pointer";
+
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 w-full z-50 bg-white transition-all duration-300",
+        "fixed top-0 left-0 w-full z-50 bg-white transition-all duration-300 p-5",
         isScrolled ? "shadow-md py-2" : "py-4"
       )}
     >
@@ -31,9 +40,24 @@ const Header: React.FC = () => {
               <img className="w-32" src="logo-sf.png" alt="Logo" />
             </a>
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <Button variant="ghost">Criar evento</Button>
-              <Button variant="ghost">Meus eventos</Button>
-              <Button variant="ghost">Meus ingressos</Button>
+              <Button variant="ghost" className={`flex items-center gap-2 ${baseButtonClass}`}>
+                <CalendarPlus size={16} />
+                Criar evento
+              </Button>
+              <Button variant="ghost" className={`flex items-center gap-2 ${baseButtonClass}`}>
+                <ClipboardList size={16} />
+                Meus eventos
+              </Button>
+              <Button variant="ghost" className={`flex items-center gap-2 ${baseButtonClass}`}>
+                <Ticket size={16} />
+                Meus ingressos
+              </Button>
+              {/* Foto de perfil */}
+              <img
+                src="/profile.jpg"
+                alt="Perfil"
+                className="w-10 h-10 rounded-full object-cover border"
+              />
             </div>
           </div>
         )}
@@ -78,33 +102,65 @@ const Header: React.FC = () => {
               />
             </div>
           </div>
-
           {/* Parte da direita (scroll) */}
           {isScrolled && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2 whitespace-nowrap">
-              <Button variant="outline" className="flex items-center gap-1">
+              <Button variant="outline" className={`bg-[#e2f0ff] text-[#02488C] border-none flex items-center gap-1 ${baseButtonClass}`}>
                 <MapPin size={16} />
                 Qualquer lugar
                 <ChevronDown size={16} />
               </Button>
-              <Button variant="ghost">Criar evento</Button>
-              <Button variant="ghost">Meus eventos</Button>
-              <Button variant="ghost">Meus ingressos</Button>
+              <Button variant="ghost" className={`flex items-center gap-2 ${baseButtonClass}`}>
+                <CalendarPlus size={16} />
+                Criar evento
+              </Button>
+              <Button variant="ghost" className={`flex items-center gap-2 ${baseButtonClass}`}>
+                <ClipboardList size={16} />
+                Meus eventos
+              </Button>
+              <Button variant="ghost" className={`flex items-center gap-2 ${baseButtonClass}`}>
+                <Ticket size={16} />
+                Meus ingressos
+              </Button>
+
+              {/* Foto de perfil */}
+              <img
+                src="/profile.jpg"
+                alt="Perfil"
+                className="w-10 h-10 rounded-full object-cover border"
+              />
             </div>
           )}
         </div>
-
-        {/* Filtros (só no topo) */}
+       {/* Filtros (só no topo) */}
         {!isScrolled && (
           <div className="flex justify-center flex-wrap gap-2">
-            <Button variant="outline" className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              className={`flex items-center gap-1 bg-[#e2f0ff] text-[#02488C] border-none ${baseButtonClass}`}
+            >
               <MapPin size={16} />
               Qualquer lugar
               <ChevronDown size={16} />
             </Button>
-            <Button variant="secondary" className="gap-2">Festas & Shows</Button>
-            <Button variant="secondary">Stand-up Comedy</Button>
-            <Button variant="secondary">Esportes</Button>
+            <Button
+              variant="secondary"
+              className={`gap-2 ${baseButtonClass}`}
+            >
+              Festas & Shows
+            </Button>
+            <Button
+              variant="secondary"
+              className={baseButtonClass}
+            >
+              Stand-up Comedy
+            </Button>
+            <Button
+              variant="secondary"
+              className={baseButtonClass}
+            >
+              Esportes
+            </Button>
           </div>
         )}
       </div>

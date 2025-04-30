@@ -4,6 +4,7 @@ import Register from "@/pages/Register";
 import { ForgotPasswordForm } from "@/pages/ForgotPasswordForm";
 import Home from "./pages/Home"
 
+
 function App() {
   return (
     <Router>
