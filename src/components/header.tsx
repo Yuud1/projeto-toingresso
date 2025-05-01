@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 import {
   ChevronDown,
@@ -91,6 +92,7 @@ const CidadeDropdown = () => {
 
 const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
   const [isScrolledInternal, setIsScrolledInternal] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isScrolledProp === undefined) {
@@ -134,10 +136,10 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
         {isOpen && (
           <div 
             className={cn(
-              "absolute right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50",
+              "absolute bg-white rounded-lg shadow-lg border border-gray-200 z-50",
               isMobile
-                ? "w-screen left-0 mt-2 rounded-none border-t border-gray-200"
-                : "w-56"
+                ? "fixed inset-x-0 top-[56px] w-full rounded-none border-t border-gray-200"
+                : "right-0 mt-2 w-56"
             )}
           >
             {isMobile && (
@@ -150,7 +152,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                   />
                 </div>
                 <div 
-                  onClick={() => {/* ação */}} 
+                  onClick={() => navigate('/criar-evento')} 
                   className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                 >
                   <CalendarPlus className="mr-2 h-4 w-4" />
@@ -164,7 +166,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                   <span>Meus eventos</span>
                 </div>
                 <div 
-                  onClick={() => {/* ação */}} 
+                  onClick={() => navigate('/my-tickets')} 
                   className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                 >
                   <Ticket className="mr-2 h-4 w-4" />
@@ -234,7 +236,11 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
               <img className="w-32" src="/logo-sf.png" alt="Logo" />
             </a>
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <Button variant="ghost" className={`flex items-center gap-2 ${baseButtonClass}`}>
+              <Button 
+                variant="ghost" 
+                className={`flex items-center gap-2 ${baseButtonClass}`}
+                onClick={() => navigate('/criar-evento')}
+              >
                 <CalendarPlus size={16} />
                 Criar evento
               </Button>
@@ -242,7 +248,11 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                 <ClipboardList size={16} />
                 Meus eventos
               </Button>
-              <Button variant="ghost" className={`flex items-center gap-2 ${baseButtonClass}`}>
+              <Button 
+                variant="ghost" 
+                className={`flex items-center gap-2 ${baseButtonClass}`}
+                onClick={() => navigate('/my-tickets')}
+              >
                 <Ticket size={16} />
                 Meus ingressos
               </Button>
@@ -291,9 +301,13 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
           </div>
 
           {isScrolled && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2 whitespace-nowrap">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground whitespace-nowrap">
               <CidadeDropdown />
-              <Button variant="ghost" className={`flex items-center gap-2 ${baseButtonClass}`}>
+              <Button 
+                variant="ghost" 
+                className={`flex items-center gap-2 ${baseButtonClass}`}
+                onClick={() => navigate('/criar-evento')}
+              >
                 <CalendarPlus size={16} />
                 Criar evento
               </Button>
@@ -301,7 +315,11 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                 <ClipboardList size={16} />
                 Meus eventos
               </Button>
-              <Button variant="ghost" className={`flex items-center gap-2 ${baseButtonClass}`}>
+              <Button 
+                variant="ghost" 
+                className={`flex items-center gap-2 ${baseButtonClass}`}
+                onClick={() => navigate('/my-tickets')}
+              >
                 <Ticket size={16} />
                 Meus ingressos
               </Button>

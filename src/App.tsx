@@ -7,6 +7,8 @@ import QuestionHelp from './pages/QuestionHelp';
 import Organizer  from './pages/Organizer';
 import Home from "./pages/Home"
 import Profile from './pages/Profile';
+import CreateEvent from "@/pages/CreateEvent";
+import MyTickets from "@/pages/MyTickets";
 
 
 function App() {
@@ -21,6 +23,8 @@ function App() {
         <Route path="/organizer/:id" element={<Organizer />} />
         <Route path="/" element={<Home />} />
         <Route path="/perfil" element={<Profile />} />
+        <Route path="/criar-evento" element={<CreateEvent />} />
+        <Route path="/my-tickets" element={<MyTickets />} />
       </Routes>
     </Router>
   );
