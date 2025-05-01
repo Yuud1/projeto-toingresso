@@ -1,6 +1,7 @@
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { TicketSelector } from "@/components/ticket-selector";
+import { User } from "lucide-react";
 
 const EventDetail = () => {
   const event = {
@@ -12,6 +13,12 @@ const EventDetail = () => {
     fullDescription: `Prepare-se para uma noite vibrante de música e energia com DJs renomados em um ambiente único. Vista-se para impressionar e venha curtir o pôr do sol ao som de batidas eletrizantes, com uma estrutura de iluminação e som profissional.`,
     mapUrl: "https://www.google.com/maps/embed?...",
     policy: "Evento para maiores de 18 anos. Documento com foto obrigatório. Ingressos não reembolsáveis.",
+    organizer: {
+      id: 1,
+      name: "Produções Eventos",
+      avatar: "/organizer-avatar.jpg",
+      profileUrl: "/organizer/1"
+    },
     tickets: [
       {
         id: 1,
@@ -80,6 +87,31 @@ const EventDetail = () => {
             <p className="text-[#414141] leading-relaxed whitespace-pre-line">
               {event.fullDescription}
             </p>
+
+            {/* Seção do Anunciante */}
+            <div className="mt-8 pt-8 border-t border-gray-200">
+              <h3 className="text-lg font-semibold mb-4 text-[#414141]">Organizador do evento</h3>
+              <a 
+                href={event.organizer.profileUrl}
+                className="flex items-center gap-3 hover:bg-gray-50 p-3 rounded-lg transition-colors"
+              >
+                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                  {event.organizer.avatar ? (
+                    <img 
+                      src={event.organizer.avatar} 
+                      alt={event.organizer.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-6 h-6 text-gray-500" />
+                  )}
+                </div>
+                <div>
+                  <p className="font-medium text-[#414141]">{event.organizer.name}</p>
+                  <p className="text-sm text-gray-500">Ver perfil do organizador</p>
+                </div>
+              </a>
+            </div>
           </div>
 
           {/* Ingressos */}

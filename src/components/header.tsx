@@ -29,6 +29,66 @@ type HeaderProps = {
   isScrolled?: boolean;
 };
 
+const cidadesTocantins = [
+  "Palmas",
+  "Gurupi",
+  "Araguaína",
+  "Porto Nacional",
+  "Paraíso do Tocantins",
+  "Guaraí",
+  "Dianópolis",
+  "Miracema do Tocantins",
+  "Formoso do Araguaia",
+  "Pedro Afonso",
+  "Tocantinópolis",
+];
+
+const CidadeDropdown = () => {
+  const [selectedCity, setSelectedCity] = useState("Qualquer lugar");
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <DropdownMenu 
+      open={isOpen} 
+      onOpenChange={setIsOpen}
+      modal={false}
+    >
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" className="flex items-center gap-1 bg-[#e2f0ff] text-[#02488C] border-none cursor-pointer hover:!bg-[#e2f0ff] hover:!text-[#02488C]">
+          <MapPin size={16} />
+          {selectedCity}
+          <ChevronDown size={16} />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent 
+        align="center"
+        side="bottom"
+        sideOffset={5}
+        className="w-56"
+      >
+        <DropdownMenuItem onClick={() => {
+          setSelectedCity("Qualquer lugar");
+          setIsOpen(false);
+        }}>
+          Qualquer lugar
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        {cidadesTocantins.map((cidade) => (
+          <DropdownMenuItem 
+            key={cidade} 
+            onClick={() => {
+              setSelectedCity(cidade);
+              setIsOpen(false);
+            }}
+          >
+            {cidade}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
 const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
   const [isScrolledInternal, setIsScrolledInternal] = useState(false);
 
@@ -51,74 +111,100 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
     const [isOpen, setIsOpen] = useState(false);
     
     return (
-      <DropdownMenu 
-        open={isOpen} 
-        onOpenChange={setIsOpen} 
-        modal={isMobile}
-      >
-        <DropdownMenuTrigger asChild>
-          <div className="outline-none flex items-center gap-2 border rounded-full px-2 py-1 cursor-pointer">
-            <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium">
-              LY
-            </div>
-            <button className="p-1 cursor-pointer">
-              {isOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+      <div className="relative">
+        <div 
+          onClick={() => setIsOpen(!isOpen)}
+          className="outline-none flex items-center gap-2 border rounded-full px-2 py-1 cursor-pointer hover:bg-gray-50"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              setIsOpen(!isOpen);
+            }
+          }}
+        >
+          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium">
+            LY
           </div>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-  align="start"
-  side="top"
-  sideOffset={0}
-  className={cn(
-    isMobile
-      ? "w-screen left-0 mt-2 rounded-none border-t border-gray-200"
-      : "w-56"
-  )}
->
-          {isMobile && (
-            <>
-              <div className="p-2">
-                <Input
-                  type="text"
-                  placeholder="Pesquisar eventos..."
-                  className="px-4 py-2 text-base rounded-md"
-                />
-              </div>
-              <DropdownMenuItem className="cursor-pointer hover:bg-gray-100">
-                <CalendarPlus className="mr-2 h-4 w-4" />
-                <span>Criar evento</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer hover:bg-gray-100">
-                <ClipboardList className="mr-2 h-4 w-4" />
-                <span>Meus eventos</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer hover:bg-gray-100">
-                <Ticket className="mr-2 h-4 w-4" />
-                <span>Meus ingressos</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-            </>
-          )}
-          <DropdownMenuItem className="cursor-pointer hover:bg-gray-100">
-            <User className="mr-2 h-4 w-4" />
-            <span><a href="/perfil">Minha conta</a></span>
-          </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer hover:bg-gray-100">
-            <Heart className="mr-2 h-4 w-4" />
-            <span>Favoritos</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer hover:bg-gray-100">
-            <HelpCircle className="mr-2 h-4 w-4" />
-            <span><a href="/question-help">Central de Ajuda</a></span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem className="cursor-pointer text-red-600 hover:bg-gray-100 hover:text-red-600">
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Sair</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          <div className="p-1">
+            {isOpen ? <X size={24} /> : <Menu size={24} />}
+          </div>
+        </div>
+
+        {isOpen && (
+          <div 
+            className={cn(
+              "absolute right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50",
+              isMobile
+                ? "w-screen left-0 mt-2 rounded-none border-t border-gray-200"
+                : "w-56"
+            )}
+          >
+            {isMobile && (
+              <>
+                <div className="p-2">
+                  <Input
+                    type="text"
+                    placeholder="Pesquisar eventos..."
+                    className="px-4 py-2 text-base rounded-md"
+                  />
+                </div>
+                <div 
+                  onClick={() => {/* ação */}} 
+                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                >
+                  <CalendarPlus className="mr-2 h-4 w-4" />
+                  <span>Criar evento</span>
+                </div>
+                <div 
+                  onClick={() => {/* ação */}} 
+                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                >
+                  <ClipboardList className="mr-2 h-4 w-4" />
+                  <span>Meus eventos</span>
+                </div>
+                <div 
+                  onClick={() => {/* ação */}} 
+                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                >
+                  <Ticket className="mr-2 h-4 w-4" />
+                  <span>Meus ingressos</span>
+                </div>
+                <div className="h-px bg-gray-200 my-1" />
+              </>
+            )}
+            <div 
+              onClick={() => window.location.href = '/perfil'} 
+              className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+            >
+              <User className="mr-2 h-4 w-4" />
+              <span>Minha conta</span>
+            </div>
+            <div 
+              onClick={() => {/* ação */}} 
+              className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+            >
+              <Heart className="mr-2 h-4 w-4" />
+              <span>Favoritos</span>
+            </div>
+            <div 
+              onClick={() => window.location.href = '/question-help'} 
+              className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+            >
+              <HelpCircle className="mr-2 h-4 w-4" />
+              <span>Central de Ajuda</span>
+            </div>
+            <div className="h-px bg-gray-200 my-1" />
+            <div 
+              onClick={() => {/* ação de logout */}} 
+              className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Sair</span>
+            </div>
+          </div>
+        )}
+      </div>
     );
   };
 
@@ -136,11 +222,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
             <img className="w-10" src="/icon.png" alt="Logo" />
           </a>
           <div className="flex items-center gap-3">
-            <Button variant="outline" className="flex items-center gap-1 text-sm bg-[#e2f0ff] text-[#02488C] border-none cursor-pointer hover:!bg-[#e2f0ff] hover:!text-[#02488C]">
-              <MapPin size={16} />
-              Qualquer lugar
-              <ChevronDown size={16} />
-            </Button>
+            <CidadeDropdown />
             <ProfileMenu isMobile={true} />
           </div>
         </div>
@@ -210,11 +292,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
 
           {isScrolled && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2 whitespace-nowrap">
-              <Button variant="outline" className="bg-[#e2f0ff] text-[#02488C] border-none flex items-center gap-1 cursor-pointer hover:!bg-[#e2f0ff] hover:!text-[#02488C]">
-                <MapPin size={16} />
-                Qualquer lugar
-                <ChevronDown size={16} />
-              </Button>
+              <CidadeDropdown />
               <Button variant="ghost" className={`flex items-center gap-2 ${baseButtonClass}`}>
                 <CalendarPlus size={16} />
                 Criar evento
@@ -235,14 +313,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
         {/* FILTROS (DESKTOP) */}
         {!isScrolled && (
           <div className="hidden sm:flex justify-center flex-wrap gap-2">
-            <Button
-              variant="outline"
-              className="flex items-center gap-1 bg-[#e2f0ff] text-[#02488C] border-none cursor-pointer hover:!bg-[#e2f0ff] hover:!text-[#02488C]"
-            >
-              <MapPin size={16} />
-              Qualquer lugar
-              <ChevronDown size={16} />
-            </Button>
+            <CidadeDropdown />
             <Button 
               variant="secondary" 
               className="cursor-pointer hover:bg-secondary hover:text-secondary-foreground"
