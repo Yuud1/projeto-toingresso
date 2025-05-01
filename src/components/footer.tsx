@@ -4,8 +4,8 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 text-center sm:text-left">
         {/* Logo e descrição */}
         <div>
-          <img src="/logo-branca.png" alt="Logo" className="w-32 mx-auto sm:mx-0" />
-          <p className="text-sm text-gray-300 leading-relaxed">
+          <img src="/logo-branca.png" alt="Logo" className="w-28 mx-auto sm:mx-0 mb-8 sm:mb-3" />
+          <p className="text-sm text-gray-300 leading-relaxed ">
             Descubra, participe e aproveite os melhores eventos da sua cidade.
           </p>
         </div>
@@ -34,9 +34,9 @@ const Footer = () => {
         <div>
           <h3 className="text-base font-semibold mb-3">Fale Conosco</h3>
           <ul className="space-y-2 text-sm text-gray-300">
-            <li>Email: contato@suafesta.com</li>
+            <li>Email: contato@dasilva.com</li>
             <li>Telefone: (11) 99999-9999</li>
-            <li><a href="#" className="hover:underline">Ajuda & Suporte</a></li>
+            <li><a href="/question-help" className="hover:underline">Ajuda & Suporte</a></li>
           </ul>
         </div>
       </div>
