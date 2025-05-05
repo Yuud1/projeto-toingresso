@@ -187,7 +187,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                   <span>Criar evento</span>
                 </div>
                 <div 
-                  onClick={() => {/* ação */}} 
+                  onClick={() => navigate('/meus-eventos')} 
                   className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                 >
                   <ClipboardList className="mr-2 h-4 w-4" />
@@ -339,7 +339,10 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                 <CalendarPlus size={16} />
                 Criar evento
               </Button>
-              <Button variant="ghost" className={`flex items-center gap-2 ${baseButtonClass}`}>
+              <Button 
+                variant="ghost" 
+                className={`flex items-center gap-2 ${baseButtonClass}`}
+                onClick={() => navigate('/meus-eventos')}>
                 <ClipboardList size={16} />
                 Meus eventos
               </Button>

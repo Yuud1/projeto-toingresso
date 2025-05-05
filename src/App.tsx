@@ -9,6 +9,7 @@ import Home from "./pages/Home"
 import Profile from './pages/Profile';
 import CreateEvent from "@/pages/CreateEvent";
 import MyTickets from "@/pages/MyTickets";
+import MyEvents from "@/pages/MyEvents";
 import Favorites from "@/pages/Favorites";
 import EmailConfirmation from "@/pages/EmailConfirmation";
 import EmailConfirmed from "@/pages/EmailConfirmed";
@@ -30,6 +31,7 @@ function App() {
         <Route path="/perfil" element={<Profile />} />
         <Route path="/criar-evento" element={<CreateEvent />} />
         <Route path="/meus-ingressos" element={<MyTickets />} />
+        <Route path="/meus-eventos" element={<MyEvents />} />
         <Route path="/favoritos" element={<Favorites />} />
       </Routes>
     </Router>
