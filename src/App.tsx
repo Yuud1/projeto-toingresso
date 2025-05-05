@@ -9,6 +9,9 @@ import Home from "./pages/Home"
 import Profile from './pages/Profile';
 import CreateEvent from "@/pages/CreateEvent";
 import MyTickets from "@/pages/MyTickets";
+import Favorites from "@/pages/Favorites";
+import EmailConfirmation from "@/pages/EmailConfirmation";
+import EmailConfirmed from "@/pages/EmailConfirmed";
 
 
 function App() {
@@ -18,13 +21,16 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPasswordForm />} />
+        <Route path="/confirm-email" element={<EmailConfirmation />} />
+        <Route path="/email-confirmed" element={<EmailConfirmed />} />
         <Route path="/evento/:id" element={<EventDetail />} />
         <Route path="/question-help" element={<QuestionHelp />} />
         <Route path="/organizer/:id" element={<Organizer />} />
         <Route path="/" element={<Home />} />
         <Route path="/perfil" element={<Profile />} />
         <Route path="/criar-evento" element={<CreateEvent />} />
-        <Route path="/my-tickets" element={<MyTickets />} />
+        <Route path="/meus-ingressos" element={<MyTickets />} />
+        <Route path="/favoritos" element={<Favorites />} />
       </Routes>
     </Router>
   );
