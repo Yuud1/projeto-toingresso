@@ -1,7 +1,7 @@
-import { Ticket, Globe, RefreshCw, User } from "lucide-react";
+import { ReactNode } from "react";
 
 interface Category {
-  icon: JSX.Element;
+  icon: ReactNode;
   label: string;
   count: number;
 }

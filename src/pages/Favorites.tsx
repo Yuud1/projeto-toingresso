@@ -1,9 +1,8 @@
 import { useState } from "react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Heart, Eye, Clock, Star } from "lucide-react";
+import { Eye, Clock, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface TabProps {
