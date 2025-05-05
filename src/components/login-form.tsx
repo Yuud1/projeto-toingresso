@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import { AlertCircle } from "lucide-react";
 
 export function LoginForm({
   className,
@@ -22,33 +24,47 @@ export function LoginForm({
 
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_BASE_API_URL}${
+        `${import.meta.env.VITE_API_BASE_URL}${
           import.meta.env.VITE_AUTH_LOGIN
         }`,
         {
           email,
           password,
         }
-      );
+      );    
 
       if (response.data.logged) {
         localStorage.setItem("token", response.data.token);
         window.location.href = "/";
       }
     } catch (error: any) {
-      console.log("Erro login", error);
-      setErrorMessage(error.response.data.message)
+      if (!error.response.data.emailVerified) {        
+        window.location.href = "/confirm-email"
+      }
+
+      setErrorMessage(error.response.data.message);
     }
   }
 
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props} onSubmit={handleSubmit}>
+    <form
+      className={cn("flex flex-col gap-6", className)}
+      {...props}
+      onSubmit={handleSubmit}
+    >
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Faça login na sua conta</h1>
         <p className="text-muted-foreground text-sm text-balance">
           Digite seu e-mail abaixo para acessar sua conta
         </p>
       </div>
+      {errorMessage ? (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Erro</AlertTitle>
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
+      ) : null}
       <div className="grid gap-6">
         <div className="grid gap-3">
           <Label htmlFor="email">Email</Label>

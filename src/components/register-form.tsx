@@ -25,26 +25,25 @@ export function RegisterForm({
     password: "",
   });
 
-  console.log(formData);
-
   function handleFormChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { id, value } = e.target;
 
     setFormData((prev) => ({ ...prev, [id]: value }));
   }
-
+  
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_BASE_API_URL}${
+        `${import.meta.env.VITE_API_BASE_URL}${
           import.meta.env.VITE_AUTH_REGISTER
         }`,
         formData
       );    
 
       if (response.data.isRegistered) {
-        window.location.href = "/login";
+        localStorage.setItem("token", response.data.token);
+        window.location.href = "/confirm-email";
       }
     } catch (error: any) {
       console.log("Erro ao registrar", error);
