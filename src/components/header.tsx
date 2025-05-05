@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { useUser } from "@/contexts/useContext";
 
 type HeaderProps = {
   isScrolled?: boolean;
@@ -93,7 +94,15 @@ const CidadeDropdown = () => {
 const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
   const [isScrolledInternal, setIsScrolledInternal] = useState(false);
   const navigate = useNavigate();
+  const {user} = useUser()
 
+  function getInitials(name: string): string {
+    const words = name.trim().split(" ");
+    if (words.length === 1) return words[0][0].toUpperCase();
+    return (words[0][0] + words[1][0]).toUpperCase();
+  }
+
+  
   useEffect(() => {
     if (isScrolledProp === undefined) {
       const handleScroll = () => {
@@ -126,6 +135,11 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
       };
     }, []);
 
+    function handleSair() {
+      localStorage.clear()
+      window.location.href = "/login"
+    }
+
     return (
       <div className="relative" ref={dropdownRef}>
         <div 
@@ -140,7 +154,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
           }}
         >
           <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium">
-            LY
+            {user?.name ? getInitials(user.name) : ""}
           </div>
           <div className="p-1">
             {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -216,7 +230,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
               className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
             >
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Sair</span>
+              <span onClick={handleSair}>Sair</span>
             </div>
           </div>
         )}

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { User, Camera, Facebook, Instagram, Globe } from "lucide-react";
+import { useUser } from "@/contexts/useContext";
 
 interface TabProps {
   isActive: boolean;
@@ -18,9 +19,7 @@ const Tab = ({ isActive, children, onClick }: TabProps) => {
       onClick={onClick}
       className={cn(
         "px-4 py-2 text-sm font-medium transition-colors relative",
-        isActive
-          ? "text-[#02488C]"
-          : "text-gray-500 hover:text-gray-700"
+        isActive ? "text-[#02488C]" : "text-gray-500 hover:text-gray-700"
       )}
     >
       {children}
@@ -32,7 +31,10 @@ const Tab = ({ isActive, children, onClick }: TabProps) => {
 };
 
 export default function Profile() {
-  const [activeTab, setActiveTab] = useState<"dados" | "pagamentos" | "privacidade" | "avancada">("dados");
+  const [activeTab, setActiveTab] = useState<
+    "dados" | "pagamentos" | "privacidade" | "avancada"
+  >("dados");
+  const { user } = useUser();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -86,7 +88,9 @@ export default function Profile() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg">Foto de perfil</h3>
-                    <p className="text-sm text-gray-500">JPG, GIF ou PNG. Máximo 2MB.</p>
+                    <p className="text-sm text-gray-500">
+                      JPG, GIF ou PNG. Máximo 2MB.
+                    </p>
                   </div>
                 </div>
 
@@ -95,13 +99,17 @@ export default function Profile() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Nome completo
                     </label>
-                    <Input type="text" placeholder="Seu nome completo" />
+                    <Input
+                      type="text"
+                      placeholder="Seu nome completo"
+                      value={user?.name}
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       E-mail
                     </label>
-                    <Input type="email" placeholder="seu@email.com" />
+                    <Input type="email" placeholder="seu@email.com" value={user?.email}/>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -113,15 +121,22 @@ export default function Profile() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Data de nascimento
                     </label>
-                    <Input type="date" />
+                    <Input type="date" value={user?.birthdaydata}/>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Facebook
                     </label>
                     <div className="relative">
-                      <Facebook className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                      <Input type="text" placeholder="facebook.com/seu-usuario" className="pl-10" />
+                      <Facebook
+                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                        size={16}
+                      />
+                      <Input
+                        type="text"
+                        placeholder="facebook.com/seu-usuario"
+                        className="pl-10"
+                      />
                     </div>
                   </div>
                   <div>
@@ -129,8 +144,15 @@ export default function Profile() {
                       Instagram
                     </label>
                     <div className="relative">
-                      <Instagram className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                      <Input type="text" placeholder="@seu-usuario" className="pl-10" />
+                      <Instagram
+                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                        size={16}
+                      />
+                      <Input
+                        type="text"
+                        placeholder="@seu-usuario"
+                        className="pl-10"
+                      />
                     </div>
                   </div>
                   <div className="md:col-span-2">
@@ -138,8 +160,15 @@ export default function Profile() {
                       Site
                     </label>
                     <div className="relative">
-                      <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                      <Input type="url" placeholder="https://seu-site.com" className="pl-10" />
+                      <Globe
+                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                        size={16}
+                      />
+                      <Input
+                        type="url"
+                        placeholder="https://seu-site.com"
+                        className="pl-10"
+                      />
                     </div>
                   </div>
                 </div>
@@ -155,17 +184,24 @@ export default function Profile() {
             {activeTab === "pagamentos" && (
               <div className="space-y-6">
                 <div className="bg-white p-6 rounded-lg border">
-                  <h3 className="text-lg font-semibold mb-4">Métodos de pagamento</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    Métodos de pagamento
+                  </h3>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-8 bg-gray-200 rounded"></div>
                         <div>
                           <h4 className="font-medium">Cartão de crédito</h4>
-                          <p className="text-sm text-gray-500">Terminando em 4242</p>
+                          <p className="text-sm text-gray-500">
+                            Terminando em 4242
+                          </p>
                         </div>
                       </div>
-                      <Button variant="outline" className="text-red-600 hover:text-red-700">
+                      <Button
+                        variant="outline"
+                        className="text-red-600 hover:text-red-700"
+                      >
                         Remover
                       </Button>
                     </div>
@@ -180,12 +216,16 @@ export default function Profile() {
             {activeTab === "privacidade" && (
               <div className="space-y-6">
                 <div className="bg-white p-6 rounded-lg border">
-                  <h3 className="text-lg font-semibold mb-4">Configurações de privacidade</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    Configurações de privacidade
+                  </h3>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
                         <h4 className="font-medium">Perfil público</h4>
-                        <p className="text-sm text-gray-500">Permitir que outros usuários vejam seu perfil</p>
+                        <p className="text-sm text-gray-500">
+                          Permitir que outros usuários vejam seu perfil
+                        </p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" className="sr-only peer" />
@@ -194,8 +234,13 @@ export default function Profile() {
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="font-medium">Compartilhar dados de uso</h4>
-                        <p className="text-sm text-gray-500">Permitir que usemos seus dados para melhorar nossos serviços</p>
+                        <h4 className="font-medium">
+                          Compartilhar dados de uso
+                        </h4>
+                        <p className="text-sm text-gray-500">
+                          Permitir que usemos seus dados para melhorar nossos
+                          serviços
+                        </p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" className="sr-only peer" />
@@ -206,12 +251,16 @@ export default function Profile() {
                 </div>
 
                 <div className="bg-white p-6 rounded-lg border">
-                  <h3 className="text-lg font-semibold mb-4">Preferências de notificação</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    Preferências de notificação
+                  </h3>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
                         <h4 className="font-medium">Notificações por e-mail</h4>
-                        <p className="text-sm text-gray-500">Receba atualizações sobre seus eventos</p>
+                        <p className="text-sm text-gray-500">
+                          Receba atualizações sobre seus eventos
+                        </p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" className="sr-only peer" />
@@ -221,7 +270,9 @@ export default function Profile() {
                     <div className="flex items-center justify-between">
                       <div>
                         <h4 className="font-medium">Notificações push</h4>
-                        <p className="text-sm text-gray-500">Receba alertas em tempo real</p>
+                        <p className="text-sm text-gray-500">
+                          Receba alertas em tempo real
+                        </p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" className="sr-only peer" />
@@ -236,14 +287,19 @@ export default function Profile() {
             {activeTab === "avancada" && (
               <div className="space-y-6">
                 <div className="bg-white p-6 rounded-lg border">
-                  <h3 className="text-lg font-semibold mb-4">Configurações avançadas</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    Configurações avançadas
+                  </h3>
                   <div className="space-y-6">
                     <div>
                       <h4 className="font-medium mb-2">Alterar senha</h4>
                       <div className="space-y-4">
                         <Input type="password" placeholder="Senha atual" />
                         <Input type="password" placeholder="Nova senha" />
-                        <Input type="password" placeholder="Confirmar nova senha" />
+                        <Input
+                          type="password"
+                          placeholder="Confirmar nova senha"
+                        />
                         <Button className="bg-[#02488C] text-white hover:bg-[#023a6f]">
                           Atualizar senha
                         </Button>
@@ -251,16 +307,24 @@ export default function Profile() {
                     </div>
 
                     <div className="border-t pt-6">
-                      <h4 className="font-medium mb-2 text-red-600">Zona de perigo</h4>
+                      <h4 className="font-medium mb-2 text-red-600">
+                        Zona de perigo
+                      </h4>
                       <p className="text-sm text-gray-500 mb-4">
-                        Ações irreversíveis que afetarão permanentemente sua conta
+                        Ações irreversíveis que afetarão permanentemente sua
+                        conta
                       </p>
                       <div className="space-y-4">
-                        <Button variant="outline" className="text-red-600 hover:text-red-700 border-red-200 hover:bg-red-50">
+                        <Button
+                          variant="outline"
+                          className="text-red-600 hover:text-red-700 border-red-200 hover:bg-red-50"
+                        >
                           Excluir minha conta
                         </Button>
                         <p className="text-xs text-gray-500">
-                          Ao excluir sua conta, todos os seus dados serão permanentemente removidos e não poderão ser recuperados.
+                          Ao excluir sua conta, todos os seus dados serão
+                          permanentemente removidos e não poderão ser
+                          recuperados.
                         </p>
                       </div>
                     </div>
@@ -274,4 +338,4 @@ export default function Profile() {
       <Footer />
     </div>
   );
-} 
+}
