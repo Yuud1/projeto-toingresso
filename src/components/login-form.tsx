@@ -1,24 +1,64 @@
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import axios from "axios";
+import React from "react";
+
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
+  const [email, setEmail] = React.useState<string>("");
+  const [password, setPassword] = React.useState<string>("");
+
+  // Essa mensagem de erro tu pode usar em um alert personalizado ou algo assim
+  // pra informar que o cliente errou a senha ou algo do tipo
+  const [errorMessage, setErrorMessage] = React.useState<String>();
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_API_URL}${
+          import.meta.env.VITE_AUTH_LOGIN
+        }`,
+        {
+          email,
+          password,
+        }
+      );
+
+      if (response.data.logged) {
+        localStorage.setItem("token", response.data.token);
+        window.location.href = "/";
+      }
+    } catch (error: any) {
+      console.log("Erro login", error);
+      setErrorMessage(error.response.data.message)
+    }
+  }
+
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <form className={cn("flex flex-col gap-6", className)} {...props} onSubmit={handleSubmit}>
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Faça login na sua conta</h1>
         <p className="text-muted-foreground text-sm text-balance">
-            Digite seu e-mail abaixo para acessar sua conta
+          Digite seu e-mail abaixo para acessar sua conta
         </p>
       </div>
       <div className="grid gap-6">
         <div className="grid gap-3">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="m@example.com" required />
+          <Input
+            id="email"
+            type="email"
+            placeholder="m@example.com"
+            required
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
         <div className="grid gap-3">
           <div className="flex items-center">
@@ -30,7 +70,12 @@ export function LoginForm({
               Esqueceu a senha?
             </a>
           </div>
-          <Input id="password" type="password" required />
+          <Input
+            id="password"
+            type="password"
+            required
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </div>
         <Button type="submit" className="w-full">
           Acessar
@@ -42,8 +87,8 @@ export function LoginForm({
         </div>
         <div className="grid grid-cols-2 gap-4">
           <Button variant="outline" className="w-full">
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               className="w-5 h-5"
               aria-hidden="true"
@@ -56,8 +101,8 @@ export function LoginForm({
             <span className="ml-2">Google</span>
           </Button>
           <Button variant="outline" className="w-full">
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               className="w-5 h-5"
               aria-hidden="true"
@@ -78,5 +123,5 @@ export function LoginForm({
         </a>
       </div>
     </form>
-  )
+  );
 }

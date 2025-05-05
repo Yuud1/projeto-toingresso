@@ -1,14 +1,62 @@
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
+import React from "react";
+import axios from "axios";
+import { AlertCircle } from "lucide-react";
 
 export function RegisterForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
+  // Essa mensagem de erro tu pode usar em um alert personalizado ou algo assim
+  // pra informar que o cliente errou a senha ou algo do tipo
+
+  const [errorMessage, setErrorMessage] = React.useState<String>();
+
+  const [formData, setFormData] = React.useState({
+    name: "",
+    email: "",
+    cpf: "",
+    birthdaydata: "",
+    password: "",
+  });
+
+  console.log(formData);
+
+  function handleFormChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const { id, value } = e.target;
+
+    setFormData((prev) => ({ ...prev, [id]: value }));
+  }
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_API_URL}${
+          import.meta.env.VITE_AUTH_REGISTER
+        }`,
+        formData
+      );    
+
+      if (response.data.isRegistered) {
+        window.location.href = "/login";
+      }
+    } catch (error: any) {
+      console.log("Erro ao registrar", error);
+      setErrorMessage(error.response.data.message);
+    }
+  }
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <form
+      className={cn("flex flex-col gap-6", className)}
+      {...props}
+      onSubmit={handleSubmit}
+    >
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Crie sua conta</h1>
         <p className="text-muted-foreground text-sm text-balance">
@@ -16,41 +64,85 @@ export function RegisterForm({
         </p>
       </div>
 
+      <div className="flex flex-row">
+        {errorMessage ? (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Erro</AlertTitle>
+            <AlertDescription>
+              {errorMessage}
+            </AlertDescription>
+          </Alert>
+        ) : null}
+      </div>
       <div className="grid gap-6">
         {/* Nome completo em uma linha */}
-      <div className="flex gap-4">
-      <div className="flex-1 grid gap-3">
-          <Label htmlFor="name">Nome completo</Label>
-          <Input id="name" type="text" placeholder="Seu nome completo" required />
-        </div>
+        <div className="flex gap-4">
+          <div className="flex-1 grid gap-3">
+            <Label htmlFor="name">Nome completo</Label>
+            <Input
+              id="name"
+              type="text"
+              placeholder="Seu nome completo"
+              required
+              onChange={handleFormChange}
+            />
+          </div>
 
-        <div className="flex-1 grid gap-3">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="m@example.com" required />
+          <div className="flex-1 grid gap-3">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="m@example.com"
+              required
+              onChange={handleFormChange}
+            />
+          </div>
         </div>
-      </div>
 
         {/* CPF e Data de nascimento lado a lado */}
         <div className="flex gap-4">
           <div className="flex-1 min-w-0 grid gap-3">
             <Label htmlFor="cpf">CPF</Label>
-            <Input id="cpf" type="text" placeholder="000.000.000-00" required />
+            <Input
+              id="cpf"
+              type="text"
+              placeholder="000.000.000-00"
+              required
+              onChange={handleFormChange}
+            />
           </div>
           <div className="flex-1 min-w-0 grid gap-3">
-            <Label htmlFor="birthdate">Data de Nascimento</Label>
-            <Input id="birthdate" type="date" required />
+            <Label htmlFor="birthdaydata">Data de Nascimento</Label>
+            <Input
+              id="birthdaydata"
+              type="date"
+              required
+              onChange={handleFormChange}
+            />
           </div>
         </div>
 
         <div className="flex gap-4">
           <div className="flex-1 grid gap-3">
             <Label htmlFor="password">Senha</Label>
-            <Input id="password" type="password" required />
+            <Input
+              id="password"
+              type="password"
+              required
+              onChange={handleFormChange}
+            />
           </div>
 
           <div className="flex-1 grid gap-3">
             <Label htmlFor="confirm-password">Confirmar Senha</Label>
-            <Input id="confirm-password" type="password" required />
+            <Input
+              id="confirm-password"
+              type="password"
+              required
+              onChange={handleFormChange}
+            />
           </div>
         </div>
 
@@ -66,8 +158,8 @@ export function RegisterForm({
 
         <div className="grid grid-cols-2 gap-4">
           <Button variant="outline" className="w-full">
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               className="w-5 h-5"
               aria-hidden="true"
@@ -80,8 +172,8 @@ export function RegisterForm({
             <span className="ml-2">Google</span>
           </Button>
           <Button variant="outline" className="w-full">
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               className="w-5 h-5"
               aria-hidden="true"
@@ -103,5 +195,5 @@ export function RegisterForm({
         </a>
       </div>
     </form>
-  )
+  );
 }
