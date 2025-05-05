@@ -24,7 +24,7 @@ const Footer = () => {
         <div>
           <h3 className="text-base font-semibold mb-3">Minha Conta</h3>
           <ul className="space-y-2 text-sm text-gray-300">
-            <li><a href="#" className="hover:underline">Meus ingressos</a></li>
+            <li><a href="/meus-ingressos" className="hover:underline">Meus ingressos</a></li>
             <li><a href="#" className="hover:underline">Meus eventos</a></li>
             <li><a href="/criar-evento" className="hover:underline">Criar evento</a></li>
           </ul>

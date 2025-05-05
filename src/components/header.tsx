@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -111,9 +111,23 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
 
   const ProfileMenu = ({ isMobile = false }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
     
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+          setIsOpen(false);
+        }
+      };
+
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, []);
+
     return (
-      <div className="relative">
+      <div className="relative" ref={dropdownRef}>
         <div 
           onClick={() => setIsOpen(!isOpen)}
           className="outline-none flex items-center gap-2 border rounded-full px-2 py-1 cursor-pointer hover:bg-gray-50"
@@ -166,7 +180,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                   <span>Meus eventos</span>
                 </div>
                 <div 
-                  onClick={() => navigate('/my-tickets')} 
+                  onClick={() => navigate('/meus-ingressos')} 
                   className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                 >
                   <Ticket className="mr-2 h-4 w-4" />
@@ -183,7 +197,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
               <span>Minha conta</span>
             </div>
             <div 
-              onClick={() => {/* ação */}} 
+              onClick={() => navigate('/favoritos')} 
               className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
             >
               <Heart className="mr-2 h-4 w-4" />
@@ -251,7 +265,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
               <Button 
                 variant="ghost" 
                 className={`flex items-center gap-2 ${baseButtonClass}`}
-                onClick={() => navigate('/my-tickets')}
+                onClick={() => navigate('/meus-ingressos')}
               >
                 <Ticket size={16} />
                 Meus ingressos
@@ -318,7 +332,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
               <Button 
                 variant="ghost" 
                 className={`flex items-center gap-2 ${baseButtonClass}`}
-                onClick={() => navigate('/my-tickets')}
+                onClick={() => navigate('/meus-ingressos')}
               >
                 <Ticket size={16} />
                 Meus ingressos
