@@ -247,7 +247,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
     >
       <div className="container mx-auto px-4 flex flex-col gap-4">
         {/* TOPO MOBILE */}
-        <div className="flex items-center justify-between sm:hidden">
+        <div className="flex items-center justify-between sm:hidden py-2">
           <a href="/">
             <img className="w-10" src="/icon.png" alt="Logo" />
           </a>
