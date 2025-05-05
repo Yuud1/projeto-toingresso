@@ -24,20 +24,22 @@ export default defineConfig({
         theme_color: "#ffffff",
         icons: [
           {
-            src: "logos/TOingresso_logo_128x128",
-            sizes: "128x128",
+            src: "/maskable/maskable_icon_x192.png",
+            sizes: "192x192",
             type: "image/png",
+            purpose: "any"
           },
           {
-            src: "logos/TOingresso_logo_512x512",
+            src: "/maskable/maskable_icon_x512.png",
             sizes: "512x512",
             type: "image/png",
+            purpose: "any"
           },          
           {
-            src: "logos/TOingresso_logo_512x512",
+            src: "/maskable/maskable_icon_x192.png",
             sizes: "512x512",
             type: "image/png",
-            purpose: "any maskable",
+            purpose: "maskable",
           },
         ],
       },
