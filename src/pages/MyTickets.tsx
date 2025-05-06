@@ -151,20 +151,20 @@ export default function MyTickets() {
               </Button>
             </div>
           ) : (
-            <div className="grid gap-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {filteredTickets.map((ticket) => (
-                <div key={ticket.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                  <div className="flex justify-between items-start">
-                    <div>
+                <div key={ticket.id} className="border rounded-lg hover:shadow-md transition-shadow bg-white">
+                  <div className="p-4">
+                    <div className="flex justify-between items-start mb-2">
                       <h3 className="font-semibold text-lg">{ticket.eventName}</h3>
-                      <p className="text-gray-600">Data: {new Date(ticket.eventDate).toLocaleDateString()}</p>
-                      <p className="text-gray-600">Cliente: {ticket.customerName}</p>
-                      <p className="text-gray-600">Email: {ticket.customerEmail}</p>
+                      <div className="text-right">
+                        <p className="text-sm text-gray-500">Ingresso #{ticket.ticketNumber}</p>
+                        <p className="text-sm text-gray-500">Pedido #{ticket.orderNumber}</p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm text-gray-500">Ingresso #{ticket.ticketNumber}</p>
-                      <p className="text-sm text-gray-500">Pedido #{ticket.orderNumber}</p>
-                    </div>
+                    <p className="text-gray-600 mb-1">Data: {new Date(ticket.eventDate).toLocaleDateString()}</p>
+                    <p className="text-gray-600 mb-1">Cliente: {ticket.customerName}</p>
+                    <p className="text-gray-600">Email: {ticket.customerEmail}</p>
                   </div>
                 </div>
               ))}

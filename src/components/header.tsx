@@ -272,7 +272,11 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                 <CalendarPlus size={16} />
                 Criar evento
               </Button>
-              <Button variant="ghost" className={`flex items-center gap-2 ${baseButtonClass}`}>
+              <Button 
+                variant="ghost" 
+                className={`flex items-center gap-2 ${baseButtonClass}`}
+                onClick={() => navigate('/meus-eventos')}
+              >
                 <ClipboardList size={16} />
                 Meus eventos
               </Button>
