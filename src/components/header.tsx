@@ -150,7 +150,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
         {isOpen && (
           <div 
             className={cn(
-              "absolute bg-white rounded-lg shadow-lg border border-gray-200 z-50",
+              "absolute bg-white rounded-lg shadow-lg border border-gray-200 z-50 mt-4",
               isMobile
                 ? "fixed inset-x-0 top-[56px] w-full rounded-none border-t border-gray-200"
                 : "right-0 mt-2 w-56"
