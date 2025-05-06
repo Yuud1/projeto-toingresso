@@ -39,7 +39,7 @@ export default function CarrosselMain() {
           pagination={{ clickable: true }}
           navigation
           modules={[EffectCoverflow, Pagination, Navigation, Autoplay]}
-          className="w-[90%] max-w-[1000px] h-[500px]"
+          className="w-[90%] max-w-[1000px] h-[300px] sm:h-[400px] md:h-[500px]"
         >
           {images.map((image, idx) => (
             <SwiperSlide key={idx}>

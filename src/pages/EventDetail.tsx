@@ -1,7 +1,8 @@
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { TicketSelector } from "@/components/ticket-selector";
-import { User } from "lucide-react";
+import { useState } from "react";
+import { User, Heart } from "lucide-react";
 
 const EventDetail = () => {
   const event = {
@@ -44,6 +45,8 @@ const EventDetail = () => {
     ],
   };
 
+  const [isFavorited, setIsFavorited] = useState(false);
+
   return (
     <>
       <Header isScrolled={true} />
@@ -59,14 +62,27 @@ const EventDetail = () => {
 
 
       {/* Seção principal: Info + imagem no desktop */}
+      {/* Seção principal: Info + imagem no desktop */}
       <section className="relative max-w-7xl mx-auto px-6 md:px-10 pb-12 -mt-40">
         <div className="grid md:grid-cols-2 gap-8 items-center">
           {/* Informações do evento */}
           <div className="space-y-3 text-[#414141]">
-            <h1 className="text-3xl md:text-4xl font-bold text-black">{event.title}</h1>
-            <p className="text-sm md:text-base">{event.dateTime}</p>
-            <p className="text-sm md:text-base">{event.location}</p>
-            <p className="text-base">{event.description}</p>
+            <div className="flex items-center gap-2">
+              <h1 className="text-3xl md:text-4xl font-bold text-black">{event.title}</h1>
+              <button
+                onClick={() => setIsFavorited(!isFavorited)}
+                className={`w-10 h-10 rounded-full border-2 transition-colors 
+                  flex items-center justify-center cursor-pointer
+                  ${isFavorited ? "bg-red-100 border-red-300" : "bg-transparent border-gray-300 hover:bg-gray-100"}`}
+                title="Favoritar evento"
+              >
+                <Heart
+                  className={`h-5 w-5 transition-colors ${
+                    isFavorited ? "text-red-500" : "text-gray-400"
+                  }`}
+                />
+              </button>
+            </div>
           </div>
 
           {/* Imagem lateral no desktop */}
@@ -76,7 +92,8 @@ const EventDetail = () => {
             className="w-full h-[250px] object-cover rounded-lg shadow-lg"
           />
         </div>
-      </section>
+      </section> {/* <- fechamento aqui */}
+
 
       {/* Conteúdo principal */}
       <main className="max-w-7xl mx-auto px-6 md:px-10 py-12">

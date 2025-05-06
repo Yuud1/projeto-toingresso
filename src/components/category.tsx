@@ -20,12 +20,12 @@ const categories = [
 const Category: React.FC = () => {
     return (
       <div>
-        <h2 className="text-[#414141] text-2xl font-bold mb-8 pt-8">Explore nossas coleções</h2>
-        <div className="flex flex-wrap justify-center gap-10">
+        <h2 className="text-[#414141] text-2xl font-bold mb-8 pt-8">Explore Momentos</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 place-items-center">
           {categories.map((cat, index) => (
             <div
               key={index}
-              className="flex flex-col items-center justify-center w-40 h-28 bg-white rounded-md shadow-sm hover:shadow-md cursor-pointer transition-shadow"
+              className="flex flex-col items-center justify-center w-full aspect-square max-w-[130px] bg-white rounded-md shadow-sm hover:shadow-md cursor-pointer transition-shadow"
             >
               {cat.icon}
               <span className="mt-2 text-center text-sm text-gray-700">{cat.label}</span>

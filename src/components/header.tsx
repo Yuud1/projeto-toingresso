@@ -23,9 +23,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useUser } from "@/contexts/useContext";
+import getInitials from "@/utils/getInitials";
 
 type HeaderProps = {
   isScrolled?: boolean;
@@ -46,7 +46,7 @@ const cidadesTocantins = [
 ];
 
 const CidadeDropdown = () => {
-  const [selectedCity, setSelectedCity] = useState("Qualquer lugar");
+  const [selectedCity, setSelectedCity] = useState(cidadesTocantins[0]);
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -68,13 +68,6 @@ const CidadeDropdown = () => {
         sideOffset={5}
         className="w-56"
       >
-        <DropdownMenuItem onClick={() => {
-          setSelectedCity("Qualquer lugar");
-          setIsOpen(false);
-        }}>
-          Qualquer lugar
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
         {cidadesTocantins.map((cidade) => (
           <DropdownMenuItem 
             key={cidade} 
@@ -95,13 +88,6 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
   const [isScrolledInternal, setIsScrolledInternal] = useState(false);
   const navigate = useNavigate();
   const {user} = useUser()
-
-  function getInitials(name: string): string {
-    const words = name.trim().split(" ");
-    if (words.length === 1) return words[0][0].toUpperCase();
-    return (words[0][0] + words[1][0]).toUpperCase();
-  }
-
   
   useEffect(() => {
     if (isScrolledProp === undefined) {

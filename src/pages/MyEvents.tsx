@@ -133,7 +133,7 @@ const revenueData = months.map((month, idx) => {
 })
 
 export default function MyEvents() {
-  const [events, setEvents] = useState<Event[]>(mockEvents)
+  const [events] = useState<Event[]>(mockEvents)
   const [mainTab, setMainTab] = useState<"inicio" | "dashboard">("inicio")
   const [subTab, setSubTab] = useState<"ativos" | "encerrados" | "rascunhos">("ativos")
   const [searchQuery, setSearchQuery] = useState("")
@@ -277,12 +277,12 @@ export default function MyEvents() {
                     <CardTitle className="text-sm font-medium">Total de Eventos</CardTitle>
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{dashboardMetrics.totalEvents}</div>
-                    <p className="text-xs text-muted-foreground">
-                      {dashboardMetrics.activeEvents} eventos ativos
-                    </p>
-                  </CardContent>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{dashboardMetrics.totalEvents}</div>
+                      <p className="text-xs text-muted-foreground">
+                        {dashboardMetrics.activeEvents} eventos ativos
+                      </p>
+                    </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
