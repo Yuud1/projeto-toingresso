@@ -4,6 +4,8 @@ import {
   Drama,
   Mic2,
   Presentation,
+  Church,
+  Trophy,
 } from 'lucide-react';
 
 const categories = [
@@ -11,8 +13,8 @@ const categories = [
   { icon: <Drama className="w-6 h-6" />, label: 'Teatros e Espetáculos' },
   { icon: <Mic2 className="w-6 h-6" />, label: 'Stand Up Comedy' },
   { icon: <Presentation className="w-6 h-6" />, label: 'Congressos e Palestras' },
-  { icon: <Presentation className="w-6 h-6" />, label: 'Congressos e Palestras' },
-  { icon: <Presentation className="w-6 h-6" />, label: 'Congressos e Palestras' },
+  { icon: <Church className="w-6 h-6" />, label: 'Gospel' },
+  { icon: <Trophy className="w-6 h-6" />, label: 'Esportes' },
 ];
 
 const Category: React.FC = () => {
