@@ -75,6 +75,8 @@ const Organizer = () => {
   const [organizer, setOrganizer] = useState<Organizer | null>(null);
   const [activeTab, setActiveTab] = useState<'upcoming' | 'finished'>('upcoming');
 
+  const [isFollowing, setIsFollowing] = useState(false);
+
   useEffect(() => {
     if (id) {
       // Aqui você faria a chamada para a API para buscar os dados do organizador
@@ -179,10 +181,20 @@ const Organizer = () => {
             />
           </div>
           <h1 className="mt-4 text-3xl font-bold text-center">{organizer.name}</h1>
-          <div className="flex items-center gap-2 mt-2 text-gray-600">
+          <div className="flex items-center gap-2 mt-2 mb-2 text-gray-600">
             <MapPin size={16} />
             <span>{organizer.location}</span>
           </div>
+          <button
+            onClick={() => setIsFollowing(!isFollowing)}
+            className={`px-4 py-2 rounded-md border-2 text-sm font-medium transition-colors
+              flex items-center justify-center cursor-pointer
+              ${isFollowing ? "bg-blue-100 border-none text-[#02488C]" : "bg-transparent border-gray-300 text-gray-600 hover:bg-gray-100"}`}
+            title={isFollowing ? "Deixar de seguir" : "Seguir"}
+          >
+            {isFollowing ? "Seguindo" : "Seguir"}
+          </button>
+
         </div>
 
         {/* Grid de informações */}
