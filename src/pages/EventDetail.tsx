@@ -62,7 +62,6 @@ const EventDetail = () => {
 
 
       {/* Seção principal: Info + imagem no desktop */}
-      {/* Seção principal: Info + imagem no desktop */}
       <section className="relative max-w-7xl mx-auto px-6 md:px-10 pb-12 -mt-40">
         <div className="grid md:grid-cols-2 gap-8 items-center">
           {/* Informações do evento */}
@@ -83,6 +82,9 @@ const EventDetail = () => {
                 />
               </button>
             </div>
+            <p className="text-sm md:text-base">{event.dateTime}</p>
+              <p className="text-sm md:text-base">{event.location}</p>
+              <p className="text-base">{event.description}</p>
           </div>
 
           {/* Imagem lateral no desktop */}
