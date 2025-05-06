@@ -32,20 +32,20 @@ type HeaderProps = {
 };
 
 const cidadesTocantins = [
-  "Palmas",
-  "Gurupi",
-  "Araguaína",
-  "Porto Nacional",
-  "Paraíso do Tocantins",
-  "Guaraí",
-  "Dianópolis",
-  "Miracema do Tocantins",
-  "Formoso do Araguaia",
-  "Pedro Afonso",
-  "Tocantinópolis",
+  { nome: "Palmas", sigla: "PAL" },
+  { nome: "Gurupi", sigla: "GUR" },
+  { nome: "Araguaína", sigla: "ARA" },
+  { nome: "Porto Nacional", sigla: "POR" },
+  { nome: "Paraíso do Tocantins", sigla: "PAR" },
+  { nome: "Guaraí", sigla: "GUA" },
+  { nome: "Dianópolis", sigla: "DIA" },
+  { nome: "Miracema do Tocantins", sigla: "MIR" },
+  { nome: "Formoso do Araguaia", sigla: "FOR" },
+  { nome: "Pedro Afonso", sigla: "PED" },
+  { nome: "Tocantinópolis", sigla: "TOC" },
 ];
 
-const CidadeDropdown = () => {
+const CidadeDropdown = ({ isMobile = false }: { isMobile?: boolean }) => {
   const [selectedCity, setSelectedCity] = useState(cidadesTocantins[0]);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -58,7 +58,7 @@ const CidadeDropdown = () => {
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="flex items-center gap-1 bg-[#e2f0ff] text-[#02488C] border-none cursor-pointer hover:!bg-[#e2f0ff] hover:!text-[#02488C]">
           <MapPin size={16} />
-          {selectedCity}
+          {isMobile ? selectedCity.sigla : selectedCity.nome}
           <ChevronDown size={16} />
         </Button>
       </DropdownMenuTrigger>
@@ -70,13 +70,13 @@ const CidadeDropdown = () => {
       >
         {cidadesTocantins.map((cidade) => (
           <DropdownMenuItem 
-            key={cidade} 
+            key={cidade.nome} 
             onClick={() => {
               setSelectedCity(cidade);
               setIsOpen(false);
             }}
           >
-            {cidade}
+            {cidade.nome}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
@@ -238,7 +238,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
             <img className="w-10" src="/icon.png" alt="Logo" />
           </a>
           <div className="flex items-center gap-3">
-            <CidadeDropdown />
+            <CidadeDropdown isMobile={true} />
             <ProfileMenu isMobile={true} />
           </div>
         </div>

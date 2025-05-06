@@ -15,7 +15,7 @@ export function RegisterForm({
   // Essa mensagem de erro tu pode usar em um alert personalizado ou algo assim
   // pra informar que o cliente errou a senha ou algo do tipo
 
-  const [errorMessage, setErrorMessage] = React.useState<String>();
+  const [errorMessage, setErrorMessage] = React.useState<string>();
 
   const [formData, setFormData] = React.useState({
     name: "",
@@ -45,7 +45,7 @@ export function RegisterForm({
         localStorage.setItem("token", response.data.token);
         window.location.href = "/confirm-email";
       }
-    } catch (error: any) {
+    } catch (error: any) { 
       console.log("Erro ao registrar", error);
       setErrorMessage(error.response.data.message);
     }
