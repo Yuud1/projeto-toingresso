@@ -51,7 +51,7 @@ export function TicketSelector({ eventTitle, tickets }: TicketSelectorProps) {
               <p className="text-sm text-gray-600">{ticket.description}</p>
               <p className="text-sm text-gray-600">Disponíveis: {ticket.available}</p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-col sm:flex-row">
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"

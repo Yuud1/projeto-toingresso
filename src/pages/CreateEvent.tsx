@@ -552,6 +552,7 @@ export default function CreateEvent() {
                   onCheckedChange={(checked: boolean) => 
                     setFormData({ ...formData, acceptedTerms: checked })
                   }
+                  className="cursor-pointer"
                 />
                 <div className="grid gap-1.5 leading-none">
                   <label
@@ -646,12 +647,12 @@ export default function CreateEvent() {
               {/* Navegação */}
               <div className="flex justify-between mt-8">
                 {currentStep > 1 && (
-                  <Button type="button" variant="outline" onClick={prevStep}>
+                  <Button type="button" variant="outline" onClick={prevStep} className="cursor-pointer">
                     Voltar
                   </Button>
                 )}
                 {currentStep < 6 ? (
-                  <Button type="button" onClick={nextStep} className="ml-auto">
+                  <Button type="button" onClick={nextStep} className="ml-auto cursor-pointer">
                     Próximo
                   </Button>
                 ) : (

@@ -21,17 +21,19 @@ interface TabProps {
   isActive: boolean;
   children: React.ReactNode;
   onClick: () => void;
+  className?: string; // ✅ adiciona aqui
 }
 
-const Tab = ({ isActive, children, onClick }: TabProps) => {
+const Tab = ({ isActive, children, onClick, className }: TabProps) => {
   return (
     <button
       onClick={onClick}
       className={cn(
-        "px-4 py-2 text-sm font-medium transition-colors relative",
+        "px-4 py-2 text-sm font-medium transition-colors relative cursor-pointer",
         isActive
           ? "text-[#02488C]"
-          : "text-gray-500 hover:text-gray-700"
+          : "text-gray-500 hover:text-gray-700",
+          className
       )}
     >
       {children}
@@ -116,36 +118,41 @@ export default function MyTickets() {
               <Tab
                 isActive={activeTab === "ativos"}
                 onClick={() => setActiveTab("ativos")}
+                className="cursor-pointer"
               >
                 Ativos
               </Tab>
               <Tab
                 isActive={activeTab === "pendentes"}
                 onClick={() => setActiveTab("pendentes")}
+                className="cursor-pointer"
               >
                 Pendentes
               </Tab>
               <Tab
                 isActive={activeTab === "cancelados"}
                 onClick={() => setActiveTab("cancelados")}
+                className="cursor-pointer"
               >
                 Cancelados
               </Tab>
               <Tab
                 isActive={activeTab === "encerrados"}
                 onClick={() => setActiveTab("encerrados")}
+                className="cursor-pointer"
               >
                 Encerrados
               </Tab>
             </div>
           </div>
 
+
           {filteredTickets.length === 0 ? (
             <div className="text-center py-16">
               <p className="text-gray-600 mb-4">Não há ingressos para próximos eventos</p>
               <Button 
-                onClick={() => window.location.href = "/events"}
-                className="bg-[#02488C] hover:bg-[#02488C]/90"
+                onClick={() => window.location.href = "/"}
+                className="bg-[#02488C] hover:bg-[#02488C]/90 cursor-pointer"
               >
                 ENCONTRAR EVENTOS
               </Button>
@@ -153,7 +160,7 @@ export default function MyTickets() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {filteredTickets.map((ticket) => (
-                <div key={ticket.id} className="border rounded-lg hover:shadow-md transition-shadow bg-white">
+                <div key={ticket.id} className="border rounded-lg hover:shadow-md transition-shadow bg-white cursor-pointer">
                   <div className="p-4">
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="font-semibold text-lg">{ticket.eventName}</h3>

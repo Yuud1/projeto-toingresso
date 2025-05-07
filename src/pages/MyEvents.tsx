@@ -8,6 +8,7 @@ import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { Avatar } from "@/components/ui/avatar"
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts"
+import DeleteModal from "@/components/deleteModal"
 
 interface Event {
   id: string
@@ -133,9 +134,11 @@ const revenueData = months.map((month, idx) => {
 })
 
 export default function MyEvents() {
-  const [events] = useState<Event[]>(mockEvents)
+  const [events, setEvents] = useState<Event[]>(mockEvents)
   const [mainTab, setMainTab] = useState<"inicio" | "dashboard">("inicio")
   const [subTab, setSubTab] = useState<"ativos" | "encerrados" | "rascunhos">("ativos")
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [eventToDelete, setEventToDelete] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
 
   const filteredEvents = events.filter(event => {
@@ -161,8 +164,16 @@ export default function MyEvents() {
   }
 
   const handleDelete = (eventId: string) => {
-    // Implementar lógica de exclusão
-    console.log("Excluir evento:", eventId)
+    setEventToDelete(eventId)
+    setIsDeleteModalOpen(true)
+  }
+
+  const confirmDelete = () => {
+    if (eventToDelete) {
+      setEvents((prevEvents) => prevEvents.filter((event) => event.id !== eventToDelete))
+      setEventToDelete(null)
+      setIsDeleteModalOpen(false)
+    }
   }
 
   const handleView = (eventId: string) => {
@@ -174,6 +185,13 @@ export default function MyEvents() {
     <div className="min-h-screen flex flex-col">
       <Header isScrolled={true} />
       <main className="flex-1 container mx-auto px-4 py-8 pt-24">
+      <DeleteModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onConfirm={confirmDelete}
+          title="Excluir Evento"
+          description="Tem certeza que deseja excluir este evento? Esta ação não pode ser desfeita."
+        />
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-2xl font-bold">Meus Eventos</h1>
@@ -181,14 +199,14 @@ export default function MyEvents() {
               <Tab
                 isActive={mainTab === "inicio"}
                 onClick={() => setMainTab("inicio")}
-                className="text-base"
+                className="text-base cursor-pointer"
               >
                 Início
               </Tab>
               <Tab
                 isActive={mainTab === "dashboard"}
                 onClick={() => setMainTab("dashboard")}
-                className="text-base"
+                className="text-base cursor-pointer"
               >
                 Dashboard
               </Tab>
@@ -202,18 +220,21 @@ export default function MyEvents() {
                   <Tab
                     isActive={subTab === "ativos"}
                     onClick={() => setSubTab("ativos")}
+                    className="cursor-pointer"
                   >
                     Ativos
                   </Tab>
                   <Tab
                     isActive={subTab === "encerrados"}
                     onClick={() => setSubTab("encerrados")}
+                    className="cursor-pointer"
                   >
                     Encerrados
                   </Tab>
                   <Tab
                     isActive={subTab === "rascunhos"}
                     onClick={() => setSubTab("rascunhos")}
+                    className="cursor-pointer"
                   >
                     Rascunhos
                   </Tab>
@@ -251,13 +272,13 @@ export default function MyEvents() {
                       <CardContent>
                         <p className="text-sm text-gray-500 mb-4">{event.location}</p>
                         <div className="flex justify-end space-x-2">
-                          <Button variant="outline" size="icon" onClick={() => handleView(event.id)}>
+                          <Button variant="outline" size="icon" onClick={() => handleView(event.id)} className="cursor-pointer">
                             <Eye className="h-4 w-4" />
                           </Button>
-                          <Button variant="outline" size="icon" onClick={() => handleEdit(event.id)}>
+                          <Button variant="outline" size="icon" onClick={() => handleEdit(event.id)} className="cursor-pointer">
                             <Pencil className="h-4 w-4" />
                           </Button>
-                          <Button variant="outline" size="icon" onClick={() => handleDelete(event.id)}>
+                          <Button variant="outline" size="icon" onClick={() => handleDelete(event.id)} className="cursor-pointer">
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>

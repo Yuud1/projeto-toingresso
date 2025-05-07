@@ -38,12 +38,12 @@ export function LoginForm({
         window.location.href = "/";
       }
     } catch (error: any) {
-      if (!error.response.data.emailVerified) {        
+      if (error.response.data.emailVerified === "false") {        
         window.location.href = "/confirm-email"
       }
 
       setErrorMessage(error.response.data.message);
-    }
+    }    
   }
 
   return (
@@ -93,7 +93,7 @@ export function LoginForm({
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <Button type="submit" className="w-full">
+        <Button type="submit" className="w-full cursor-pointer">
           Acessar
         </Button>
         <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
@@ -102,7 +102,7 @@ export function LoginForm({
           </span>
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full cursor-pointer">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -116,7 +116,7 @@ export function LoginForm({
             </svg>
             <span className="ml-2">Google</span>
           </Button>
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full cursor-pointer">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
