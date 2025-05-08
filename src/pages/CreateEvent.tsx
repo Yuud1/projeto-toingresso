@@ -63,11 +63,20 @@ export default function CreateEvent() {
     try {
       setLoading(true);
 
+      const data = new FormData();
+
+      if (formData.image) {
+        data.append("image", formData.image);
+      }
+
+      const { image, ...rest } = formData;
+      data.append("formData", JSON.stringify(rest));
+
       const response = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}${
           import.meta.env.VITE_CREATE_EVENT
         }`,
-        formData,
+        data,
         {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -75,8 +84,9 @@ export default function CreateEvent() {
         }
       );
 
-      if (response.data.created) {
+      if (response.data.saved) {
         setCreated(true);
+        window.location.href = "/"
       }
     } catch (error) {
       console.log("Erro ao criar Evento", error);
