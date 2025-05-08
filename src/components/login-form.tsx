@@ -14,6 +14,7 @@ export function LoginForm({
 }: React.ComponentProps<"form">) {
   const [email, setEmail] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
+  const [loading, setLoading] = React.useState(false);
 
   // Essa mensagem de erro tu pode usar em um alert personalizado ou algo assim
   // pra informar que o cliente errou a senha ou algo do tipo
@@ -21,8 +22,8 @@ export function LoginForm({
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
     try {
+      setLoading(true);
       const response = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}${
           import.meta.env.VITE_AUTH_LOGIN
@@ -31,19 +32,24 @@ export function LoginForm({
           email,
           password,
         }
-      );    
+      );
 
       if (response.data.logged) {
         localStorage.setItem("token", response.data.token);
         window.location.href = "/";
       }
-    } catch (error: any) {
-      if (error.response.data.emailVerified === "false") {        
-        window.location.href = "/confirm-email"
+    } catch (error: any) {      
+      console.log("Error", error);
+      
+      if (error.response.data.emailVerified == false) {
+        localStorage.setItem("token", error.response.data.token);
+        window.location.href = "/confirm-email";
       }
 
       setErrorMessage(error.response.data.message);
-    }    
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -93,7 +99,7 @@ export function LoginForm({
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <Button type="submit" className="w-full cursor-pointer">
+        <Button type="submit" className="w-full cursor-pointer" disabled={loading}>
           Acessar
         </Button>
         <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">

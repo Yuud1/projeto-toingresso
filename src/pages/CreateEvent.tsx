@@ -6,17 +6,24 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar, Clock, Image, Tag, Ticket } from "lucide-react";
+import axios from "axios";
 
 interface Ticket {
   name: string;
   price: number;
   quantity: number;
   description: string;
-  type: 'regular' | 'student' | 'senior' | 'free';
+  type: "regular" | "student" | "senior" | "free";
 }
 
 export default function CreateEvent() {
   const [currentStep, setCurrentStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+
+  // Se quiser fazer um card de criado e completado com sucesso usar essa variável
+  const [created, setCreated] = useState(false);
+  console.log(created);
+
   const [formData, setFormData] = useState({
     // Informações básicas
     title: "",
@@ -49,9 +56,33 @@ export default function CreateEvent() {
     acceptedTerms: false,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log(formData);
+
+    try {
+      setLoading(true);
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_CREATE_EVENT
+        }`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.data.created) {
+        setCreated(true);
+      }
+    } catch (error) {
+      console.log("Erro ao criar Evento", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,11 +92,11 @@ export default function CreateEvent() {
   };
 
   const nextStep = () => {
-    setCurrentStep(prev => prev + 1);
+    setCurrentStep((prev) => prev + 1);
   };
 
   const prevStep = () => {
-    setCurrentStep(prev => prev - 1);
+    setCurrentStep((prev) => prev - 1);
   };
 
   const renderStep = () => {
@@ -73,8 +104,10 @@ export default function CreateEvent() {
       case 1:
         return (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-800 pt-8">1. Informações Básicas</h2>
-            
+            <h2 className="text-xl font-semibold text-gray-800 pt-8">
+              1. Informações Básicas
+            </h2>
+
             {/* Nome do evento */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -83,7 +116,9 @@ export default function CreateEvent() {
               <Input
                 type="text"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
                 placeholder="Digite o nome do seu evento"
                 className="w-full"
                 required
@@ -134,10 +169,15 @@ export default function CreateEvent() {
                 Categoria *
               </label>
               <div className="relative">
-                <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <Tag
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
                 <select
                   value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, category: e.target.value })
+                  }
                   className="w-full pl-10 p-2 border rounded-md bg-white"
                   required
                 >
@@ -156,8 +196,10 @@ export default function CreateEvent() {
       case 2:
         return (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-800 pt-8">2. Data e Horário</h2>
-            
+            <h2 className="text-xl font-semibold text-gray-800 pt-8">
+              2. Data e Horário
+            </h2>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Data de Início */}
               <div>
@@ -165,11 +207,16 @@ export default function CreateEvent() {
                   Data de Início *
                 </label>
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <Calendar
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    size={20}
+                  />
                   <Input
                     type="date"
                     value={formData.startDate}
-                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, startDate: e.target.value })
+                    }
                     className="pl-10"
                     required
                   />
@@ -182,11 +229,16 @@ export default function CreateEvent() {
                   Hora de Início *
                 </label>
                 <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <Clock
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    size={20}
+                  />
                   <Input
                     type="time"
                     value={formData.startTime}
-                    onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, startTime: e.target.value })
+                    }
                     className="pl-10"
                     required
                   />
@@ -199,11 +251,16 @@ export default function CreateEvent() {
                   Data de Término *
                 </label>
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <Calendar
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    size={20}
+                  />
                   <Input
                     type="date"
                     value={formData.endDate}
-                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, endDate: e.target.value })
+                    }
                     className="pl-10"
                     required
                   />
@@ -216,11 +273,16 @@ export default function CreateEvent() {
                   Hora de Término *
                 </label>
                 <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <Clock
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    size={20}
+                  />
                   <Input
                     type="time"
                     value={formData.endTime}
-                    onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, endTime: e.target.value })
+                    }
                     className="pl-10"
                     required
                   />
@@ -233,15 +295,19 @@ export default function CreateEvent() {
       case 3:
         return (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-800 pt-8">3. Descrição do Evento</h2>
-            
+            <h2 className="text-xl font-semibold text-gray-800 pt-8">
+              3. Descrição do Evento
+            </h2>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Descrição *
               </label>
               <Textarea
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 placeholder="Descreva seu evento de forma detalhada..."
                 className="w-full h-48"
                 required
@@ -253,8 +319,10 @@ export default function CreateEvent() {
       case 4:
         return (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-800 pt-8">4. Local do Evento</h2>
-            
+            <h2 className="text-xl font-semibold text-gray-800 pt-8">
+              4. Local do Evento
+            </h2>
+
             {/* Nome do Local */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -263,7 +331,9 @@ export default function CreateEvent() {
               <Input
                 type="text"
                 value={formData.venueName}
-                onChange={(e) => setFormData({ ...formData, venueName: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, venueName: e.target.value })
+                }
                 placeholder="Ex: Teatro Municipal"
                 className="w-full"
                 required
@@ -279,7 +349,9 @@ export default function CreateEvent() {
                 <Input
                   type="text"
                   value={formData.zipCode}
-                  onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, zipCode: e.target.value })
+                  }
                   placeholder="00000-000"
                   className="w-full"
                   required
@@ -296,7 +368,9 @@ export default function CreateEvent() {
                 <Input
                   type="text"
                   value={formData.street}
-                  onChange={(e) => setFormData({ ...formData, street: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, street: e.target.value })
+                  }
                   className="w-full"
                   required
                 />
@@ -308,7 +382,9 @@ export default function CreateEvent() {
                 <Input
                   type="text"
                   value={formData.number}
-                  onChange={(e) => setFormData({ ...formData, number: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, number: e.target.value })
+                  }
                   className="w-full"
                   required
                 />
@@ -324,7 +400,9 @@ export default function CreateEvent() {
                 <Input
                   type="text"
                   value={formData.complement}
-                  onChange={(e) => setFormData({ ...formData, complement: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, complement: e.target.value })
+                  }
                   placeholder="Apto, Sala, Conjunto..."
                   className="w-full"
                 />
@@ -336,7 +414,9 @@ export default function CreateEvent() {
                 <Input
                   type="text"
                   value={formData.neighborhood}
-                  onChange={(e) => setFormData({ ...formData, neighborhood: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, neighborhood: e.target.value })
+                  }
                   className="w-full"
                   required
                 />
@@ -352,7 +432,9 @@ export default function CreateEvent() {
                 <Input
                   type="text"
                   value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, city: e.target.value })
+                  }
                   className="w-full"
                   required
                 />
@@ -363,7 +445,9 @@ export default function CreateEvent() {
                 </label>
                 <select
                   value={formData.state}
-                  onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, state: e.target.value })
+                  }
                   className="w-full p-2 border rounded-md bg-white"
                   required
                 >
@@ -380,48 +464,56 @@ export default function CreateEvent() {
       case 5:
         return (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-800 pt-8">5. Ingressos</h2>
-            
+            <h2 className="text-xl font-semibold text-gray-800 pt-8">
+              5. Ingressos
+            </h2>
+
             <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="text-lg font-medium text-gray-800 mb-4">Que tipo de ingresso você deseja criar?</h3>
-              
+              <h3 className="text-lg font-medium text-gray-800 mb-4">
+                Que tipo de ingresso você deseja criar?
+              </h3>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Tipos de Ingresso */}
-                <div 
+                <div
                   onClick={() => {
                     const newTicket: Ticket = {
                       name: "",
                       price: 0,
                       quantity: 0,
                       description: "",
-                      type: "regular"
+                      type: "regular",
                     };
                     setFormData({
                       ...formData,
-                      tickets: [...formData.tickets, newTicket]
+                      tickets: [...formData.tickets, newTicket],
                     });
                   }}
                   className="bg-white p-6 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 cursor-pointer transition-all"
                 >
                   <div className="text-center">
                     <Ticket className="w-12 h-12 mx-auto text-gray-400 mb-2" />
-                    <h4 className="font-medium text-gray-900">Ingresso Regular</h4>
-                    <p className="text-sm text-gray-500 mt-1">Ingresso com preço padrão</p>
+                    <h4 className="font-medium text-gray-900">
+                      Ingresso Regular
+                    </h4>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Ingresso com preço padrão
+                    </p>
                   </div>
                 </div>
 
-                <div 
+                <div
                   onClick={() => {
                     const newTicket: Ticket = {
                       name: "",
                       price: 0,
                       quantity: 0,
                       description: "",
-                      type: "student"
+                      type: "student",
                     };
                     setFormData({
                       ...formData,
-                      tickets: [...formData.tickets, newTicket]
+                      tickets: [...formData.tickets, newTicket],
                     });
                   }}
                   className="bg-white p-6 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 cursor-pointer transition-all"
@@ -429,7 +521,9 @@ export default function CreateEvent() {
                   <div className="text-center">
                     <Ticket className="w-12 h-12 mx-auto text-gray-400 mb-2" />
                     <h4 className="font-medium text-gray-900">Meia-Entrada</h4>
-                    <p className="text-sm text-gray-500 mt-1">Ingresso com 50% de desconto</p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Ingresso com 50% de desconto
+                    </p>
                   </div>
                 </div>
               </div>
@@ -437,10 +531,15 @@ export default function CreateEvent() {
               {/* Lista de Ingressos */}
               {formData.tickets.length > 0 && (
                 <div className="mt-8">
-                  <h4 className="font-medium text-gray-900 mb-4">Ingressos Criados</h4>
+                  <h4 className="font-medium text-gray-900 mb-4">
+                    Ingressos Criados
+                  </h4>
                   <div className="space-y-4">
                     {formData.tickets.map((ticket, index) => (
-                      <div key={index} className="bg-white p-4 rounded-lg shadow-sm">
+                      <div
+                        key={index}
+                        className="bg-white p-4 rounded-lg shadow-sm"
+                      >
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {/* Nome do Ingresso */}
                           <div>
@@ -453,7 +552,10 @@ export default function CreateEvent() {
                               onChange={(e) => {
                                 const updatedTickets = [...formData.tickets];
                                 updatedTickets[index].name = e.target.value;
-                                setFormData({ ...formData, tickets: updatedTickets });
+                                setFormData({
+                                  ...formData,
+                                  tickets: updatedTickets,
+                                });
                               }}
                               placeholder="Ex: VIP, Camarote, Pista"
                               className="w-full"
@@ -471,8 +573,13 @@ export default function CreateEvent() {
                               value={ticket.price}
                               onChange={(e) => {
                                 const updatedTickets = [...formData.tickets];
-                                updatedTickets[index].price = Number(e.target.value);
-                                setFormData({ ...formData, tickets: updatedTickets });
+                                updatedTickets[index].price = Number(
+                                  e.target.value
+                                );
+                                setFormData({
+                                  ...formData,
+                                  tickets: updatedTickets,
+                                });
                               }}
                               placeholder="R$ 0,00"
                               className="w-full"
@@ -490,8 +597,13 @@ export default function CreateEvent() {
                               value={ticket.quantity}
                               onChange={(e) => {
                                 const updatedTickets = [...formData.tickets];
-                                updatedTickets[index].quantity = Number(e.target.value);
-                                setFormData({ ...formData, tickets: updatedTickets });
+                                updatedTickets[index].quantity = Number(
+                                  e.target.value
+                                );
+                                setFormData({
+                                  ...formData,
+                                  tickets: updatedTickets,
+                                });
                               }}
                               placeholder="0"
                               className="w-full"
@@ -509,8 +621,12 @@ export default function CreateEvent() {
                               value={ticket.description}
                               onChange={(e) => {
                                 const updatedTickets = [...formData.tickets];
-                                updatedTickets[index].description = e.target.value;
-                                setFormData({ ...formData, tickets: updatedTickets });
+                                updatedTickets[index].description =
+                                  e.target.value;
+                                setFormData({
+                                  ...formData,
+                                  tickets: updatedTickets,
+                                });
                               }}
                               placeholder="Descrição do ingresso (opcional)"
                               className="w-full"
@@ -524,8 +640,13 @@ export default function CreateEvent() {
                           variant="outline"
                           className="mt-4 text-red-600 hover:text-red-700"
                           onClick={() => {
-                            const updatedTickets = formData.tickets.filter((_, i) => i !== index);
-                            setFormData({ ...formData, tickets: updatedTickets });
+                            const updatedTickets = formData.tickets.filter(
+                              (_, i) => i !== index
+                            );
+                            setFormData({
+                              ...formData,
+                              tickets: updatedTickets,
+                            });
                           }}
                         >
                           Remover Ingresso
@@ -542,14 +663,16 @@ export default function CreateEvent() {
       case 6:
         return (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-800 pt-8">6. Responsabilidades</h2>
-            
+            <h2 className="text-xl font-semibold text-gray-800 pt-8">
+              6. Responsabilidades
+            </h2>
+
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
                 <Checkbox
                   id="terms"
                   checked={formData.acceptedTerms}
-                  onCheckedChange={(checked: boolean) => 
+                  onCheckedChange={(checked: boolean) =>
                     setFormData({ ...formData, acceptedTerms: checked })
                   }
                   className="cursor-pointer"
@@ -563,12 +686,26 @@ export default function CreateEvent() {
                   </label>
                   <p className="text-sm text-gray-500">
                     Ao publicar este evento, estou de acordo com os{" "}
-                    <a href="#" className="text-blue-600 hover:underline">Termos de uso</a>,{" "}
-                    com as <a href="#" className="text-blue-600 hover:underline">Diretrizes de Comunidade</a> e{" "}
-                    com as <a href="#" className="text-blue-600 hover:underline">Regras de meia-entrada</a>,{" "}
-                    bem como declaro estar ciente da{" "}
-                    <a href="#" className="text-blue-600 hover:underline">Política de Privacidade</a> e{" "}
-                    das <a href="#" className="text-blue-600 hover:underline">Obrigatoriedades Legais</a>.
+                    <a href="#" className="text-blue-600 hover:underline">
+                      Termos de uso
+                    </a>
+                    , com as{" "}
+                    <a href="#" className="text-blue-600 hover:underline">
+                      Diretrizes de Comunidade
+                    </a>{" "}
+                    e com as{" "}
+                    <a href="#" className="text-blue-600 hover:underline">
+                      Regras de meia-entrada
+                    </a>
+                    , bem como declaro estar ciente da{" "}
+                    <a href="#" className="text-blue-600 hover:underline">
+                      Política de Privacidade
+                    </a>{" "}
+                    e das{" "}
+                    <a href="#" className="text-blue-600 hover:underline">
+                      Obrigatoriedades Legais
+                    </a>
+                    .
                   </p>
                 </div>
               </div>
@@ -592,12 +729,12 @@ export default function CreateEvent() {
               <div className="flex items-center justify-between mb-8 relative">
                 {/* Linha de progresso */}
                 <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-gray-200">
-                  <div 
+                  <div
                     className="h-full bg-[#02488C] transition-all duration-300"
                     style={{ width: `${((currentStep - 1) / 5) * 100}%` }}
                   />
                 </div>
-                
+
                 {/* Círculos de passo */}
                 {[1, 2, 3, 4, 5, 6].map((step) => (
                   <div
@@ -614,14 +751,24 @@ export default function CreateEvent() {
                       }`}
                     >
                       {step < currentStep ? (
-                        <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        <svg
+                          className="w-6 h-6 text-white"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
                         </svg>
                       ) : (
                         <span className="text-sm font-medium">{step}</span>
                       )}
                     </div>
-                    <span 
+                    <span
                       className={`absolute -bottom-6 text-xs font-medium ${
                         step === currentStep
                           ? "text-[#02488C]"
@@ -647,19 +794,28 @@ export default function CreateEvent() {
               {/* Navegação */}
               <div className="flex justify-between mt-8">
                 {currentStep > 1 && (
-                  <Button type="button" variant="outline" onClick={prevStep} className="cursor-pointer">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={prevStep}
+                    className="cursor-pointer"
+                  >
                     Voltar
                   </Button>
                 )}
                 {currentStep < 6 ? (
-                  <Button type="button" onClick={nextStep} className="ml-auto cursor-pointer">
+                  <Button
+                    type="button"
+                    onClick={nextStep}
+                    className="ml-auto cursor-pointer"
+                  >
                     Próximo
                   </Button>
                 ) : (
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     className="ml-auto"
-                    disabled={!formData.acceptedTerms}
+                    disabled={!formData.acceptedTerms || loading}
                   >
                     Publicar Evento
                   </Button>
@@ -672,4 +828,4 @@ export default function CreateEvent() {
       <Footer />
     </>
   );
-} 
+}
