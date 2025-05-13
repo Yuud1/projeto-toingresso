@@ -19,8 +19,8 @@ export default function DeleteModal({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 m-4">
         <h2 className="text-lg font-bold text-gray-800">{title}</h2>
         <p className="text-sm text-gray-600 mt-2">{description}</p>
         <div className="flex justify-end space-x-4 mt-6">

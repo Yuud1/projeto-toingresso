@@ -46,6 +46,7 @@ export default function Profile() {
           </div>
 
           <div className="border-b border-gray-200 mb-6">
+          <div className="overflow-x-auto">
             <div className="flex space-x-8">
               <Tab
                 isActive={activeTab === "dados"}
@@ -71,6 +72,7 @@ export default function Profile() {
               >
                 Avançada
               </Tab>
+            </div>
             </div>
           </div>
 

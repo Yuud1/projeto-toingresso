@@ -114,35 +114,38 @@ export default function MyTickets() {
           </div>
 
           <div className="border-b border-gray-200 mb-6">
-            <div className="flex space-x-8">
-              <Tab
-                isActive={activeTab === "ativos"}
-                onClick={() => setActiveTab("ativos")}
-                className="cursor-pointer"
-              >
-                Ativos
-              </Tab>
-              <Tab
-                isActive={activeTab === "pendentes"}
-                onClick={() => setActiveTab("pendentes")}
-                className="cursor-pointer"
-              >
-                Pendentes
-              </Tab>
-              <Tab
-                isActive={activeTab === "cancelados"}
-                onClick={() => setActiveTab("cancelados")}
-                className="cursor-pointer"
-              >
-                Cancelados
-              </Tab>
-              <Tab
-                isActive={activeTab === "encerrados"}
-                onClick={() => setActiveTab("encerrados")}
-                className="cursor-pointer"
-              >
-                Encerrados
-              </Tab>
+          <div className="overflow-x-auto">
+  <div className="flex space-x-4 sm:space-x-8 min-w-max">
+    <Tab
+      isActive={activeTab === "ativos"}
+      onClick={() => setActiveTab("ativos")}
+      className="whitespace-nowrap"
+    >
+      Ativos
+    </Tab>
+    <Tab
+      isActive={activeTab === "pendentes"}
+      onClick={() => setActiveTab("pendentes")}
+      className="whitespace-nowrap"
+    >
+      Pendentes
+    </Tab>
+    <Tab
+      isActive={activeTab === "cancelados"}
+      onClick={() => setActiveTab("cancelados")}
+      className="whitespace-nowrap"
+    >
+      Cancelados
+    </Tab>
+    <Tab
+      isActive={activeTab === "encerrados"}
+      onClick={() => setActiveTab("encerrados")}
+      className="whitespace-nowrap"
+    >
+      Encerrados
+    </Tab>
+</div>
+
             </div>
           </div>
 
