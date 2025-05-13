@@ -1,44 +1,56 @@
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
-interface DeleteModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onConfirm: () => void
-  title?: string
-  description?: string
+interface DeleteDialogProps {
+  trigger?: React.ReactNode;
+  onConfirm: () => void;
+  onClose: () => void;
+  isOpen?: boolean;
+  title?: string;
+  description?: string;
 }
 
 export default function DeleteModal({
-  isOpen,
-  onClose,
+  trigger,
   onConfirm,
+  onClose,
+  isOpen = false,
   title = "Excluir Item",
   description = "Tem certeza que deseja excluir este item? Esta ação não pode ser desfeita.",
-}: DeleteModalProps) {
-  if (!isOpen) return null
-
+}: DeleteDialogProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 m-4">
-        <h2 className="text-lg font-bold text-gray-800">{title}</h2>
-        <p className="text-sm text-gray-600 mt-2">{description}</p>
-        <div className="flex justify-end space-x-4 mt-6">
-          <Button
-            variant="outline"
-            onClick={onClose}
-            className={cn("border-gray-300 text-gray-600 hover:bg-gray-100 cursor-pointer")}
-          >
-            Cancelar
-          </Button>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
+
+        <DialogFooter className="mt-6 flex justify-end gap-2">
+          <DialogClose asChild>
+            <Button variant="outline" className="cursor-pointer">
+              Cancelar
+            </Button>
+          </DialogClose>
           <Button
             onClick={onConfirm}
             className="bg-red-600 text-white hover:bg-red-700 cursor-pointer"
           >
             Excluir
           </Button>
-        </div>
-      </div>
-    </div>
-  )
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 }
