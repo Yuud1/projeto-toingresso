@@ -11,15 +11,17 @@ interface TabProps {
   isActive: boolean;
   children: React.ReactNode;
   onClick: () => void;
+  className: string;
 }
 
-const Tab = ({ isActive, children, onClick }: TabProps) => {
+const Tab = ({ isActive, children, onClick, className }: TabProps) => {
   return (
     <button
       onClick={onClick}
       className={cn(
         "px-4 py-2 text-sm font-medium transition-colors relative",
-        isActive ? "text-[#02488C]" : "text-gray-500 hover:text-gray-700"
+        isActive ? "text-[#02488C]" : "text-gray-500 hover:text-gray-700",
+        className
       )}
     >
       {children}
@@ -29,6 +31,7 @@ const Tab = ({ isActive, children, onClick }: TabProps) => {
     </button>
   );
 };
+
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState<
@@ -51,24 +54,28 @@ export default function Profile() {
               <Tab
                 isActive={activeTab === "dados"}
                 onClick={() => setActiveTab("dados")}
+                className="cursor-pointer"
               >
                 Conta
               </Tab>
               <Tab
                 isActive={activeTab === "pagamentos"}
                 onClick={() => setActiveTab("pagamentos")}
+                className="cursor-pointer"
               >
                 Pagamentos
               </Tab>
               <Tab
                 isActive={activeTab === "privacidade"}
                 onClick={() => setActiveTab("privacidade")}
+                className="cursor-pointer"
               >
                 Privacidade
               </Tab>
               <Tab
                 isActive={activeTab === "avancada"}
                 onClick={() => setActiveTab("avancada")}
+                className="cursor-pointer"
               >
                 Avançada
               </Tab>

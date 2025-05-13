@@ -352,26 +352,48 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
         {/* FILTROS (DESKTOP) */}
         {!isScrolled && (
           <div className="hidden sm:flex justify-center flex-wrap gap-2">
-            <CidadeDropdown />
-            <Button 
-              variant="secondary" 
-              className="cursor-pointer hover:bg-secondary hover:text-secondary-foreground"
-            >
-              Festas & Shows
-            </Button>
-            <Button 
-              variant="secondary" 
-              className="cursor-pointer hover:bg-secondary hover:text-secondary-foreground"
-            >
-              Stand-up Comedy
-            </Button>
-            <Button 
-              variant="secondary" 
-              className="cursor-pointer hover:bg-secondary hover:text-secondary-foreground"
-            >
-              Esportes
-            </Button>
-          </div>
+          <CidadeDropdown />
+          
+          <Button 
+            onClick={() => {
+              const target = document.getElementById('event-grid');
+              if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            variant="secondary" 
+            className="cursor-pointer hover:bg-secondary hover:text-secondary-foreground"
+          >
+            Festas & Shows
+          </Button>
+          
+          <Button 
+            onClick={() => {
+              const target = document.getElementById('event-grid');
+              if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            variant="secondary" 
+            className="cursor-pointer hover:bg-secondary hover:text-secondary-foreground"
+          >
+            Stand-up Comedy
+          </Button>
+          
+          <Button 
+              onClick={() => {
+              const target = document.getElementById('event-grid');
+              if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            variant="secondary" 
+            className="cursor-pointer hover:bg-secondary hover:text-secondary-foreground"
+          >
+            Esportes
+          </Button>
+        </div>
+        
         )}
       </div>
     </header>

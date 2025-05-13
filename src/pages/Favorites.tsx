@@ -9,14 +9,16 @@ interface TabProps {
   isActive: boolean;
   children: React.ReactNode;
   onClick: () => void;
+  className: string;
 }
 
-const Tab = ({ isActive, children, onClick }: TabProps) => {
+const Tab = ({ isActive, children, onClick, className }: TabProps) => {
   return (
     <button
       onClick={onClick}
       className={cn(
         "px-4 py-2 text-sm font-medium transition-colors relative",
+        className,
         isActive
           ? "text-[#02488C]"
           : "text-gray-500 hover:text-gray-700"
@@ -151,12 +153,14 @@ export default function Favorites() {
               <Tab
                 isActive={activeTab === "eventos"}
                 onClick={() => setActiveTab("eventos")}
+                className="cursor-pointer"
               >
                 Eventos
               </Tab>
               <Tab
                 isActive={activeTab === "produtores"}
                 onClick={() => setActiveTab("produtores")}
+                className="cursor-pointer"
               >
                 Produtores
               </Tab>
