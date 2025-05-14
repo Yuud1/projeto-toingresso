@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { User, Heart } from "lucide-react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import EventInterface from "@/interfaces/eventInterface";
+import EventInterface from "@/interfaces/EventInterface";
 
 const EventDetail = () => {
   const {id} = useParams();
@@ -80,6 +80,7 @@ const EventDetail = () => {
             </div>
             {/* <p className="text-sm md:text-base">{event?.startDate}</p> */}
             <p className="text-sm md:text-base">{event?.neighborhood}</p>
+            <p className="text-base">{event?.startDate} {event?.startTime} até {event?.endDate}  {event?.endTime}</p>
             <p className="text-base">{event?.description}</p>
           </div>
 
@@ -91,8 +92,6 @@ const EventDetail = () => {
           />
         </div>
       </section>{" "}
-      {/* <- fechamento aqui */}
-      {/* Conteúdo principal */}
       <main className="max-w-7xl mx-auto px-6 md:px-10 py-12">
         <div className="grid md:grid-cols-[2fr_1fr] gap-12">
           {/* Descrição completa */}
@@ -102,8 +101,7 @@ const EventDetail = () => {
             </h2>
             <p className="text-[#414141] leading-relaxed whitespace-pre-line">
               {event?.description}
-            </p>
-
+            </p> 
             {/* Seção do Anunciante */}
             <div className="mt-8 pt-8 border-t border-gray-200">
               <h3 className="text-lg font-semibold mb-4 text-[#414141]">
@@ -111,9 +109,9 @@ const EventDetail = () => {
               </h3>
               <a
                 href={event?.organizer.avatarId}
-                className="flex items-center gap-3 hover:bg-gray-50 p-3 rounded-lg transition-colors"
+                className="flex items-center gap-3 hover:bg-gray-50 p-3 rounded-lg transition-colors cursor-pointer"
               >
-                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden ">
                   {event?.organizer.avatar ? (
                     <img
                       src={event.organizer.avatar}
@@ -146,7 +144,7 @@ const EventDetail = () => {
               <h3 className="font-semibold mb-2 text-[#414141]">
                 Política do Evento
               </h3>
-              <p className="text-sm text-[#414141]">{event?.description}</p>
+              <p className="text-sm text-[#414141]">{event?.policy}</p>
             </div>
           </div>
         </div>

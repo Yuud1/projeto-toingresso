@@ -23,6 +23,21 @@ export default function CreateEvent() {
   // Se quiser fazer um card de criado e completado com sucesso usar essa variável
   const [created, setCreated] = useState(false);
 
+  // Funções de formatação
+  const formatCEP = (cep: string) => {
+    if (!cep) return '';
+    cep = cep.replace(/\D/g, '');
+    if (cep.length > 5) {
+      return `${cep.slice(0, 5)}-${cep.slice(5, 8)}`;
+    }
+    return cep;
+  };
+
+  const formatNumber = (number: string) => {
+    if (!number) return '';
+    return number.replace(/\D/g, '');
+  };
+
   const [formData, setFormData] = useState({
     // Informações básicas
     title: "",
@@ -37,6 +52,7 @@ export default function CreateEvent() {
 
     // Descrição
     description: "",
+    policy: "",
 
     // Localização
     venueName: "",
@@ -70,7 +86,7 @@ export default function CreateEvent() {
         data.append("image", formData.image);
       }
 
-      const { image, ...rest } = formData;
+      const { ...rest } = formData;
       data.append("formData", JSON.stringify(rest));
 
       const token = localStorage.getItem("token");
@@ -331,159 +347,190 @@ export default function CreateEvent() {
                 required
               />
             </div>
+
+            <h2 className="text-xl font-semibold text-gray-800 pt-8">
+              4. Política do Evento
+            </h2>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Descrição *
+              </label>
+              <Textarea
+                value={formData.policy}
+                onChange={(e) =>
+                  setFormData({ ...formData, policy: e.target.value })
+                }
+                placeholder="Descreva as políticas do seu evento de forma detalhada..."
+                className="w-full h-48"
+                required
+              />
+            </div>
           </div>
         );
 
       case 4:
-        return (
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-800 pt-8">
-              4. Local do Evento
-            </h2>
+  return (
+    <div className="space-y-6">
+      <h2 className="text-xl font-semibold text-gray-800 pt-8">
+        5. Local do Evento
+      </h2>
 
-            {/* Nome do Local */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nome do Local *
-              </label>
-              <Input
-                type="text"
-                value={formData.venueName}
-                onChange={(e) =>
-                  setFormData({ ...formData, venueName: e.target.value })
-                }
-                placeholder="Ex: Teatro Municipal"
-                className="w-full"
-                required
-              />
-            </div>
+      {/* Nome do Local */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Nome do Local *
+        </label>
+        <Input
+          type="text"
+          value={formData.venueName}
+          onChange={(e) =>
+            setFormData({ ...formData, venueName: e.target.value })
+          }
+          placeholder="Ex: Teatro Municipal"
+          className="w-full"
+          required
+        />
+      </div>
 
-            {/* CEP */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  CEP *
-                </label>
-                <Input
-                  type="text"
-                  value={formData.zipCode}
-                  onChange={(e) =>
-                    setFormData({ ...formData, zipCode: e.target.value })
-                  }
-                  placeholder="00000-000"
-                  className="w-full"
-                  required
-                />
-              </div>
-            </div>
+      {/* CEP */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            CEP *
+          </label>
+          <Input
+            type="text"
+            value={formatCEP(formData.zipCode)}
+            onChange={(e) => {
+              const rawValue = e.target.value.replace(/\D/g, '');
+              setFormData({ ...formData, zipCode: rawValue });
+            }}
+            placeholder="00000-000"
+            className="w-full"
+            maxLength={9}
+            required
+          />
+        </div>
+      </div>
 
-            {/* Endereço */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Av./Rua *
-                </label>
-                <Input
-                  type="text"
-                  value={formData.street}
-                  onChange={(e) =>
-                    setFormData({ ...formData, street: e.target.value })
-                  }
-                  className="w-full"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Número *
-                </label>
-                <Input
-                  type="text"
-                  value={formData.number}
-                  onChange={(e) =>
-                    setFormData({ ...formData, number: e.target.value })
-                  }
-                  className="w-full"
-                  required
-                />
-              </div>
-            </div>
+      {/* Endereço */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Av./Rua *
+          </label>
+          <Input
+            type="text"
+            value={formData.street}
+            onChange={(e) =>
+              setFormData({ ...formData, street: e.target.value })
+            }
+            className="w-full"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Número *
+          </label>
+          <Input
+            type="text"
+            value={formatNumber(formData.number)}
+            onChange={(e) => {
+              const rawValue = e.target.value.replace(/\D/g, '');
+              setFormData({ ...formData, number: rawValue });
+            }}
+            className="w-full"
+            maxLength={6}
+            required
+          />
+        </div>
+      </div>
 
-            {/* Complemento e Bairro */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Complemento
-                </label>
-                <Input
-                  type="text"
-                  value={formData.complement}
-                  onChange={(e) =>
-                    setFormData({ ...formData, complement: e.target.value })
-                  }
-                  placeholder="Apto, Sala, Conjunto..."
-                  className="w-full"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Bairro *
-                </label>
-                <Input
-                  type="text"
-                  value={formData.neighborhood}
-                  onChange={(e) =>
-                    setFormData({ ...formData, neighborhood: e.target.value })
-                  }
-                  className="w-full"
-                  required
-                />
-              </div>
-            </div>
+      {/* Complemento e Bairro */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Complemento
+          </label>
+          <Input
+            type="text"
+            value={formData.complement}
+            onChange={(e) =>
+              setFormData({ ...formData, complement: e.target.value })
+            }
+            placeholder="Apto, Sala, Conjunto..."
+            className="w-full"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Bairro *
+          </label>
+          <Input
+            type="text"
+            value={formData.neighborhood}
+            onChange={(e) =>
+              setFormData({ ...formData, neighborhood: e.target.value })
+            }
+            className="w-full"
+            required
+          />
+        </div>
+      </div>
 
-            {/* Cidade e Estado */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Cidade *
-                </label>
-                <Input
-                  type="text"
-                  value={formData.city}
-                  onChange={(e) =>
-                    setFormData({ ...formData, city: e.target.value })
-                  }
-                  className="w-full"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Estado *
-                </label>
-                <select
-                  value={formData.state}
-                  onChange={(e) =>
-                    setFormData({ ...formData, state: e.target.value })
-                  }
-                  className="w-full p-2 border rounded-md bg-white"
-                  required
-                >
-                  <option value="">Selecione o estado</option>
-                  <option value="AC">Acre</option>
-                  <option value="AL">Alagoas</option>
-                  {/* Adicionar todos os estados */}
-                </select>
-              </div>
-            </div>
-          </div>
-        );
+      {/* Cidade e Estado */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Cidade *
+          </label>
+          <Input
+            type="text"
+            value={formData.city}
+            onChange={(e) =>
+              setFormData({ ...formData, city: e.target.value })
+            }
+            className="w-full"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Estado *
+          </label>
+          <select
+            value={formData.state}
+            onChange={(e) =>
+              setFormData({ ...formData, state: e.target.value })
+            }
+            className="w-full p-2 border rounded-md bg-white"
+            required
+          >
+            <option value="">Selecione o estado</option>
+            <option value="AC">Palmas</option>
+            <option value="AL">Gurupi</option>
+            <option value="AL">Araguaína</option>
+            <option value="AL">Porto Nacional</option>
+            <option value="AL">Paraíso do Tocantins</option>
+            <option value="AL">Guaraí</option>
+            <option value="AL">Dianópolis</option>
+            <option value="AL">Miracema do Tocantins</option>
+            <option value="AL">Formoso do Araguaia</option>
+            <option value="AL">Pedro Afonso</option>
+            <option value="AL">Tocantinópolis</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  );
 
       case 5:
         return (
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-800 pt-8">
-              5. Ingressos
+              6. Ingressos
             </h2>
 
             <div className="bg-gray-50 p-6 rounded-lg">
@@ -682,7 +729,7 @@ export default function CreateEvent() {
         return (
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-800 pt-8">
-              6. Responsabilidades
+              7. Responsabilidades
             </h2>
 
             <div className="space-y-4">
