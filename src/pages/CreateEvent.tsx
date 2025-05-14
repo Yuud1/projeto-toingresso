@@ -22,7 +22,6 @@ export default function CreateEvent() {
 
   // Se quiser fazer um card de criado e completado com sucesso usar essa variável
   const [created, setCreated] = useState(false);
-  console.log(created);
 
   const [formData, setFormData] = useState({
     // Informações básicas
@@ -54,11 +53,13 @@ export default function CreateEvent() {
 
     // Termos
     acceptedTerms: false,
+
+    // Organizador
+    token: localStorage.getItem("token"),
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
 
     try {
       setLoading(true);
@@ -72,6 +73,8 @@ export default function CreateEvent() {
       const { image, ...rest } = formData;
       data.append("formData", JSON.stringify(rest));
 
+      const token = localStorage.getItem("token");
+
       const response = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}${
           import.meta.env.VITE_CREATE_EVENT
@@ -80,15 +83,20 @@ export default function CreateEvent() {
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
       if (response.data.saved) {
         setCreated(true);
-        window.location.href = "/"
+        window.location.href = "/";
       }
-    } catch (error) {
+    } catch (error: any) {
+
+      if (!error.response.data.logged) {
+        window.location.href = "/login"
+      }
       console.log("Erro ao criar Evento", error);
     } finally {
       setLoading(false);

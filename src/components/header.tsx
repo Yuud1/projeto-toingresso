@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useNavigate, } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import {
   ChevronDown,
@@ -50,27 +50,26 @@ const CidadeDropdown = ({ isMobile = false }: { isMobile?: boolean }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <DropdownMenu 
-      open={isOpen} 
-      onOpenChange={setIsOpen}
-      modal={false}
-    >
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen} modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="flex items-center gap-1 bg-[#e2f0ff] text-[#02488C] border-none cursor-pointer hover:!bg-[#e2f0ff] hover:!text-[#02488C]">
+        <Button
+          variant="outline"
+          className="flex items-center gap-1 bg-[#e2f0ff] text-[#02488C] border-none cursor-pointer hover:!bg-[#e2f0ff] hover:!text-[#02488C]"
+        >
           <MapPin size={16} />
           {isMobile ? selectedCity.sigla : selectedCity.nome}
           <ChevronDown size={16} />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent 
+      <DropdownMenuContent
         align="center"
         side="bottom"
         sideOffset={5}
         className="w-56"
       >
         {cidadesTocantins.map((cidade) => (
-          <DropdownMenuItem 
-            key={cidade.nome} 
+          <DropdownMenuItem
+            key={cidade.nome}
             onClick={() => {
               setSelectedCity(cidade);
               setIsOpen(false);
@@ -87,8 +86,8 @@ const CidadeDropdown = ({ isMobile = false }: { isMobile?: boolean }) => {
 const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
   const [isScrolledInternal, setIsScrolledInternal] = useState(false);
   const navigate = useNavigate();
-  const {user} = useUser()
-  
+  const { user } = useUser();
+
   useEffect(() => {
     if (isScrolledProp === undefined) {
       const handleScroll = () => {
@@ -102,39 +101,45 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
 
   const isScrolled = isScrolledProp ?? isScrolledInternal;
 
-  const baseButtonClass = "cursor-pointer hover:bg-transparent hover:text-inherit";
+  const baseButtonClass =
+    "cursor-pointer hover:bg-transparent hover:text-inherit";
 
   const ProfileMenu = ({ isMobile = false }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
-    
+
     useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
-        if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        if (
+          dropdownRef.current &&
+          !dropdownRef.current.contains(event.target as Node)
+        ) {
           setIsOpen(false);
         }
       };
 
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
       return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
+        document.removeEventListener("mousedown", handleClickOutside);
       };
     }, []);
 
     function handleSair() {
-      localStorage.clear()
-      window.location.href = "/login"
+      if (localStorage.length > 0) {        
+        localStorage.clear();
+      }
+      window.location.href = "/";
     }
 
     return (
       <div className="relative" ref={dropdownRef}>
-        <div 
+        <div
           onClick={() => setIsOpen(!isOpen)}
           className="outline-none flex items-center gap-2 border rounded-full px-2 py-1 cursor-pointer hover:bg-gray-50"
           role="button"
           tabIndex={0}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
+            if (e.key === "Enter" || e.key === " ") {
               setIsOpen(!isOpen);
             }
           }}
@@ -148,7 +153,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
         </div>
 
         {isOpen && (
-          <div 
+          <div
             className={cn(
               "absolute bg-white rounded-lg shadow-lg border border-gray-200 z-50 mt-4",
               isMobile
@@ -165,22 +170,24 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                     className="px-4 py-2 text-base rounded-md"
                   />
                 </div>
-                <div 
-                  onClick={() => navigate('/criar-evento')} 
-                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                >
-                  <CalendarPlus className="mr-2 h-4 w-4" />
-                  <span>Criar evento</span>
-                </div>
-                <div 
-                  onClick={() => navigate('/meus-eventos')} 
+                {user === null ? null : (
+                  <div
+                    onClick={() => navigate("/criar-evento")}
+                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                  >
+                    <CalendarPlus className="mr-2 h-4 w-4" />
+                    <span>Criar evento</span>
+                  </div>
+                )}
+                <div
+                  onClick={() => navigate("/meus-eventos")}
                   className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                 >
                   <ClipboardList className="mr-2 h-4 w-4" />
                   <span>Meus eventos</span>
                 </div>
-                <div 
-                  onClick={() => navigate('/meus-ingressos')} 
+                <div
+                  onClick={() => navigate("/meus-ingressos")}
                   className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                 >
                   <Ticket className="mr-2 h-4 w-4" />
@@ -189,30 +196,32 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                 <div className="h-px bg-gray-200 my-1" />
               </>
             )}
-            <div 
-              onClick={() => window.location.href = '/perfil'} 
+            <div
+              onClick={() => (window.location.href = "/perfil")}
               className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
             >
               <User className="mr-2 h-4 w-4" />
               <span>Minha conta</span>
             </div>
-            <div 
-              onClick={() => navigate('/favoritos')} 
+            <div
+              onClick={() => navigate("/favoritos")}
               className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
             >
               <Heart className="mr-2 h-4 w-4" />
               <span>Favoritos</span>
             </div>
-            <div 
-              onClick={() => window.location.href = '/question-help'} 
+            <div
+              onClick={() => (window.location.href = "/question-help")}
               className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
             >
               <HelpCircle className="mr-2 h-4 w-4" />
               <span>Central de Ajuda</span>
             </div>
             <div className="h-px bg-gray-200 my-1" />
-            <div 
-              onClick={() => {/* ação de logout */}} 
+            <div
+              onClick={() => {
+                /* ação de logout */
+              }}
               className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
             >
               <LogOut className="mr-2 h-4 w-4" />
@@ -250,26 +259,28 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
               <img className="w-32" src="/logo-sf.png" alt="Logo" />
             </a>
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <Button 
-                variant="ghost" 
+              {user === null ? null : (
+                <Button
+                  variant="ghost"
+                  className={`flex items-center gap-2 ${baseButtonClass}`}
+                  onClick={() => navigate("/criar-evento")}
+                >
+                  <CalendarPlus size={16} />
+                  Criar evento
+                </Button>
+              )}
+              <Button
+                variant="ghost"
                 className={`flex items-center gap-2 ${baseButtonClass}`}
-                onClick={() => navigate('/criar-evento')}
-              >
-                <CalendarPlus size={16} />
-                Criar evento
-              </Button>
-              <Button 
-                variant="ghost" 
-                className={`flex items-center gap-2 ${baseButtonClass}`}
-                onClick={() => navigate('/meus-eventos')}
+                onClick={() => navigate("/meus-eventos")}
               >
                 <ClipboardList size={16} />
                 Meus eventos
               </Button>
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 className={`flex items-center gap-2 ${baseButtonClass}`}
-                onClick={() => navigate('/meus-ingressos')}
+                onClick={() => navigate("/meus-ingressos")}
               >
                 <Ticket size={16} />
                 Meus ingressos
@@ -321,25 +332,29 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
           {isScrolled && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground whitespace-nowrap">
               <CidadeDropdown />
-              <Button 
-                variant="ghost" 
+
+              {user === null ? null : (
+                <Button
+                  variant="ghost"
+                  className={`flex items-center gap-2 ${baseButtonClass}`}
+                  onClick={() => navigate("/criar-evento")}
+                >
+                  <CalendarPlus size={16} />
+                  Criar evento
+                </Button>
+              )}
+              <Button
+                variant="ghost"
                 className={`flex items-center gap-2 ${baseButtonClass}`}
-                onClick={() => navigate('/criar-evento')}
+                onClick={() => navigate("/meus-eventos")}
               >
-                <CalendarPlus size={16} />
-                Criar evento
-              </Button>
-              <Button 
-                variant="ghost" 
-                className={`flex items-center gap-2 ${baseButtonClass}`}
-                onClick={() => navigate('/meus-eventos')}>
                 <ClipboardList size={16} />
                 Meus eventos
               </Button>
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 className={`flex items-center gap-2 ${baseButtonClass}`}
-                onClick={() => navigate('/meus-ingressos')}
+                onClick={() => navigate("/meus-ingressos")}
               >
                 <Ticket size={16} />
                 Meus ingressos
@@ -352,48 +367,47 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
         {/* FILTROS (DESKTOP) */}
         {!isScrolled && (
           <div className="hidden sm:flex justify-center flex-wrap gap-2">
-          <CidadeDropdown />
-          
-          <Button 
-            onClick={() => {
-              const target = document.getElementById('event-grid');
-              if (target) {
-                target.scrollIntoView({ behavior: 'smooth' });
-              }
-            }}
-            variant="secondary" 
-            className="cursor-pointer hover:bg-secondary hover:text-secondary-foreground"
-          >
-            Festas & Shows
-          </Button>
-          
-          <Button 
-            onClick={() => {
-              const target = document.getElementById('event-grid');
-              if (target) {
-                target.scrollIntoView({ behavior: 'smooth' });
-              }
-            }}
-            variant="secondary" 
-            className="cursor-pointer hover:bg-secondary hover:text-secondary-foreground"
-          >
-            Stand-up Comedy
-          </Button>
-          
-          <Button 
+            <CidadeDropdown />
+
+            <Button
               onClick={() => {
-              const target = document.getElementById('event-grid');
-              if (target) {
-                target.scrollIntoView({ behavior: 'smooth' });
-              }
-            }}
-            variant="secondary" 
-            className="cursor-pointer hover:bg-secondary hover:text-secondary-foreground"
-          >
-            Esportes
-          </Button>
-        </div>
-        
+                const target = document.getElementById("event-grid");
+                if (target) {
+                  target.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
+              variant="secondary"
+              className="cursor-pointer hover:bg-secondary hover:text-secondary-foreground"
+            >
+              Festas & Shows
+            </Button>
+
+            <Button
+              onClick={() => {
+                const target = document.getElementById("event-grid");
+                if (target) {
+                  target.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
+              variant="secondary"
+              className="cursor-pointer hover:bg-secondary hover:text-secondary-foreground"
+            >
+              Stand-up Comedy
+            </Button>
+
+            <Button
+              onClick={() => {
+                const target = document.getElementById("event-grid");
+                if (target) {
+                  target.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
+              variant="secondary"
+              className="cursor-pointer hover:bg-secondary hover:text-secondary-foreground"
+            >
+              Esportes
+            </Button>
+          </div>
         )}
       </div>
     </header>
