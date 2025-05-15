@@ -353,7 +353,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                 "flex items-center gap-4 text-sm text-muted-foreground whitespace-nowrap"
               )}
             >
-              <CidadeDropdown />
+          
               {user ? (
                 <>
                   <Button
