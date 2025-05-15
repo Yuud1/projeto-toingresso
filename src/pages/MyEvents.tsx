@@ -9,6 +9,7 @@ import Footer from "@/components/footer"
 import { Avatar } from "@/components/ui/avatar"
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts"
 import DeleteModal from "@/components/deleteModal"
+import GenericModal from "@/components/genericModal"
 
 interface Event {
   id: string
@@ -140,6 +141,8 @@ export default function MyEvents() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [eventToDelete, setEventToDelete] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
 
   const filteredEvents = events.filter(event => {
     const matchesTab = event.status === subTab
@@ -177,21 +180,78 @@ export default function MyEvents() {
   }
 
   const handleView = (eventId: string) => {
-    // Implementar lógica de visualização
-    console.log("Visualizar evento:", eventId)
+    const event = events.find(e => e.id === eventId)
+    if (event) {
+      setSelectedEvent(event)
+      setIsViewModalOpen(true)
+    }
   }
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header isScrolled={true} />
       <main className="flex-1 container mx-auto px-4 py-8 pt-24">
-      <DeleteModal
+        <DeleteModal
           isOpen={isDeleteModalOpen}
           onClose={() => setIsDeleteModalOpen(false)}
           onConfirm={confirmDelete}
           title="Excluir Evento"
           description="Tem certeza que deseja excluir este evento? Esta ação não pode ser desfeita."
         />
+
+        <GenericModal
+          isOpen={isViewModalOpen}
+          onClose={() => setIsViewModalOpen(false)}
+          title={selectedEvent?.title || "Detalhes do Evento"}
+          showFooter={false}
+        >
+          {selectedEvent && (
+            <div className="space-y-4">
+              <div>
+                <h4 className="text-sm font-medium">Data</h4>
+                <p className="text-sm text-gray-600">
+                  {new Date(selectedEvent.date).toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                  })}
+                </p>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium">Local</h4>
+                <p className="text-sm text-gray-600">{selectedEvent.location}</p>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium">Descrição</h4>
+                <p className="text-sm text-gray-600">{selectedEvent.description}</p>
+              </div>
+              {selectedEvent.status !== "rascunhos" && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="text-sm font-medium">Ingressos Vendidos</h4>
+                    <p className="text-sm text-gray-600">
+                      {selectedEvent.ticketsSold} / {selectedEvent.totalTickets}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium">Receita</h4>
+                    <p className="text-sm text-gray-600">
+                      R$ {selectedEvent.revenue?.toLocaleString('pt-BR', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      })}
+                    </p>
+                  </div>
+                </div>
+              )}
+              <div>
+                <h4 className="text-sm font-medium">Status</h4>
+                <p className="text-sm text-gray-600 capitalize">{selectedEvent.status}</p>
+              </div>
+            </div>
+          )}
+        </GenericModal>
+
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-2xl font-bold">Meus Eventos</h1>
@@ -230,13 +290,6 @@ export default function MyEvents() {
                     className="cursor-pointer"
                   >
                     Encerrados
-                  </Tab>
-                  <Tab
-                    isActive={subTab === "rascunhos"}
-                    onClick={() => setSubTab("rascunhos")}
-                    className="cursor-pointer"
-                  >
-                    Rascunhos
                   </Tab>
                 </div>
                 <div className="relative w-full sm:w-64 order-1 sm:order-2">

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import {
   ChevronDown,
@@ -87,7 +87,10 @@ const CidadeDropdown = ({ isMobile = false }: { isMobile?: boolean }) => {
 const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
   const [isScrolledInternal, setIsScrolledInternal] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useUser();
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
 
   useEffect(() => {
     if (isScrolledProp === undefined) {
@@ -99,6 +102,12 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
       return () => window.removeEventListener("scroll", handleScroll);
     }
   }, [isScrolledProp]);
+
+  useEffect(() => {
+    if (location.pathname.startsWith("/criar-evento")) setActiveMenu("criar-evento");
+    else if (location.pathname.startsWith("/meus-eventos")) setActiveMenu("meus-eventos");
+    else if (location.pathname.startsWith("/meus-ingressos")) setActiveMenu("meus-ingressos");
+  }, [location.pathname]);
 
   const isScrolled = isScrolledProp ?? isScrolledInternal;
 
@@ -339,38 +348,55 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
             <a href="/">
               <img className="w-32" src="/logo-sf.png" alt="Logo" />
             </a>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              {
-                user == null ? null :
-              user
-              ? 
-              (
-
+            <div
+              className={cn(
+                "flex items-center gap-4 text-sm text-muted-foreground whitespace-nowrap"
+              )}
+            >
+              <CidadeDropdown />
+              {user ? (
                 <>
                   <Button
                     variant="ghost"
-                    className={`flex items-center gap-2 ${baseButtonClass}`}
-                    onClick={() => navigate("/criar-evento")}
+                    className={`relative flex items-center gap-2 ${baseButtonClass}`}
+                    onClick={() => {
+                      setActiveMenu("criar-evento");
+                      navigate("/criar-evento");
+                    }}
                   >
                     <CalendarPlus size={16} />
                     Criar evento
+                    {activeMenu === "criar-evento" && (
+                      <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#02488C]" />
+                    )}
                   </Button>
-
                   <Button
                     variant="ghost"
-                    className={`flex items-center gap-2 ${baseButtonClass}`}
-                    onClick={() => navigate("/meus-eventos")}
+                    className={`relative flex items-center gap-2 ${baseButtonClass}`}
+                    onClick={() => {
+                      setActiveMenu("meus-eventos");
+                      navigate("/meus-eventos");
+                    }}
                   >
                     <ClipboardList size={16} />
                     Meus eventos
+                    {activeMenu === "meus-eventos" && (
+                      <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#02488C]" />
+                    )}
                   </Button>
                   <Button
                     variant="ghost"
-                    className={`flex items-center gap-2 ${baseButtonClass}`}
-                    onClick={() => navigate("/meus-ingressos")}
+                    className={`relative flex items-center gap-2 ${baseButtonClass}`}
+                    onClick={() => {
+                      setActiveMenu("meus-ingressos");
+                      navigate("/meus-ingressos");
+                    }}
                   >
                     <Ticket size={16} />
                     Meus ingressos
+                    {activeMenu === "meus-ingressos" && (
+                      <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#02488C]" />
+                    )}
                   </Button>
                   <ProfileMenu />
                 </>
@@ -380,8 +406,8 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                   className="flex items-center gap-2 cursor-pointer"
                   onClick={() => navigate("/login")}
                 >
-                  <LogIn size={15} />
-                  <span>Login</span>
+                  <LogIn size={16} />
+                  <span>Entrar</span>
                 </Button>
               )}
             </div>
@@ -428,38 +454,55 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
           </div>
 
           {isScrolled && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground whitespace-nowrap">
+            <div
+              className={cn(
+                "flex items-center gap-4 text-sm text-muted-foreground whitespace-nowrap"
+              )}
+            >
               <CidadeDropdown />
-              {
-                user == null ? null :
-              user
-              ? 
-              (
+              {user ? (
                 <>
                   <Button
                     variant="ghost"
-                    className={`flex items-center gap-2 ${baseButtonClass}`}
-                    onClick={() => navigate("/criar-evento")}
+                    className={`relative flex items-center gap-2 ${baseButtonClass}`}
+                    onClick={() => {
+                      setActiveMenu("criar-evento");
+                      navigate("/criar-evento");
+                    }}
                   >
                     <CalendarPlus size={16} />
                     Criar evento
+                    {activeMenu === "criar-evento" && (
+                      <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#02488C]" />
+                    )}
                   </Button>
-
                   <Button
                     variant="ghost"
-                    className={`flex items-center gap-2 ${baseButtonClass}`}
-                    onClick={() => navigate("/meus-eventos")}
+                    className={`relative flex items-center gap-2 ${baseButtonClass}`}
+                    onClick={() => {
+                      setActiveMenu("meus-eventos");
+                      navigate("/meus-eventos");
+                    }}
                   >
                     <ClipboardList size={16} />
                     Meus eventos
+                    {activeMenu === "meus-eventos" && (
+                      <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#02488C]" />
+                    )}
                   </Button>
                   <Button
                     variant="ghost"
-                    className={`flex items-center gap-2 ${baseButtonClass}`}
-                    onClick={() => navigate("/meus-ingressos")}
+                    className={`relative flex items-center gap-2 ${baseButtonClass}`}
+                    onClick={() => {
+                      setActiveMenu("meus-ingressos");
+                      navigate("/meus-ingressos");
+                    }}
                   >
                     <Ticket size={16} />
                     Meus ingressos
+                    {activeMenu === "meus-ingressos" && (
+                      <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#02488C]" />
+                    )}
                   </Button>
                   <ProfileMenu />
                 </>
@@ -484,39 +527,57 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
 
             <Button
               onClick={() => {
+                setActiveFilter("festas-shows");
                 const target = document.getElementById("event-grid");
                 if (target) {
                   target.scrollIntoView({ behavior: "smooth" });
                 }
               }}
               variant="secondary"
-              className="cursor-pointer hover:bg-secondary hover:text-secondary-foreground"
+              className={cn(
+                "relative cursor-pointer px-4 py-2",
+                activeFilter === "festas-shows"
+                  ? "!bg-[#02488C] !text-white"
+                  : "!bg-white !text-[#02488C]"
+              )}
             >
               Festas & Shows
             </Button>
 
             <Button
               onClick={() => {
+                setActiveFilter("standup");
                 const target = document.getElementById("event-grid");
                 if (target) {
                   target.scrollIntoView({ behavior: "smooth" });
                 }
               }}
               variant="secondary"
-              className="cursor-pointer hover:bg-secondary hover:text-secondary-foreground"
+              className={cn(
+                "relative cursor-pointer px-4 py-2",
+                activeFilter === "standup"
+                  ? "!bg-[#02488C] !text-white"
+                  : "!bg-white !text-[#02488C]"
+              )}
             >
               Stand-up Comedy
             </Button>
 
             <Button
               onClick={() => {
+                setActiveFilter("esportes");
                 const target = document.getElementById("event-grid");
                 if (target) {
                   target.scrollIntoView({ behavior: "smooth" });
                 }
               }}
               variant="secondary"
-              className="cursor-pointer hover:bg-secondary hover:text-secondary-foreground"
+              className={cn(
+                "relative cursor-pointer px-4 py-2",
+                activeFilter === "esportes"
+                  ? "!bg-[#02488C] !text-white"
+                  : "!bg-white !text-[#02488C]"
+              )}
             >
               Esportes
             </Button>

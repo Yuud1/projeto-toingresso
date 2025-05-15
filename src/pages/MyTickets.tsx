@@ -21,7 +21,7 @@ interface TabProps {
   isActive: boolean;
   children: React.ReactNode;
   onClick: () => void;
-  className?: string; // ✅ adiciona aqui
+  className?: string;
 }
 
 const Tab = ({ isActive, children, onClick, className }: TabProps) => {
@@ -167,10 +167,7 @@ export default function MyTickets() {
                   <div className="p-4">
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="font-semibold text-lg">{ticket.eventName}</h3>
-                      <div className="text-right">
-                        <p className="text-sm text-gray-500">Ingresso #{ticket.ticketNumber}</p>
-                        <p className="text-sm text-gray-500">Pedido #{ticket.orderNumber}</p>
-                      </div>
+
                     </div>
                     <p className="text-gray-600 mb-1">Data: {new Date(ticket.eventDate).toLocaleDateString()}</p>
                     <p className="text-gray-600 mb-1">Cliente: {ticket.customerName}</p>
