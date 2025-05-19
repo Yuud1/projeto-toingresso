@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Music2, Drama, Mic2, Presentation, Church, Trophy, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Music2,
+  Drama,
+  Mic2,
+  Presentation,
+  Church,
+  Trophy,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -30,10 +39,16 @@ const mockEvents = [
     city: "Porto Alegre",
   },
   {
-    id: 5,
-    title: "Campeonato de Futebol",
-    image: "https://source.unsplash.com/random/400x300?soccer",
-    city: "Porto Alegre",
+    id: 6,
+    title: "Festival Gospel",
+    image: "https://source.unsplash.com/random/400x300?church",
+    city: "Salvador",
+  },
+  {
+    id: 6,
+    title: "Festival Gospel",
+    image: "https://source.unsplash.com/random/400x300?church",
+    city: "Salvador",
   },
   {
     id: 6,
@@ -51,6 +66,7 @@ const mockEvents = [
 
 const Category: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -69,20 +85,28 @@ const Category: React.FC = () => {
     <div>
       <h2 className="text-[#414141] text-2xl font-bold mb-8 pt-8">Explore Momentos</h2>
 
-      {/* Categorias */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 place-items-center mb-10">
-        {categories.map((cat, index) => (
-          <div
-            key={index}
-            className="flex flex-col items-center justify-center w-full aspect-square max-w-[130px] bg-white rounded-md shadow-sm hover:shadow-md cursor-pointer transition-shadow"
-          >
-            {cat.icon}
-            <span className="mt-2 text-center text-sm text-gray-700">{cat.label}</span>
-          </div>
-        ))}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 place-items-center mb-10" id="filter-grid">
+        {categories.map((cat, index) => {
+          const isActive = activeCategory === cat.label;
+
+          return (
+            <div
+              key={index}
+              onClick={() => setActiveCategory(cat.label)}
+              className={`flex flex-col items-center justify-center w-full aspect-square max-w-[130px] rounded-md shadow-sm cursor-pointer transition-all
+                ${isActive ? 'bg-[#02488C] text-white shadow-md' : 'bg-white text-gray-700 hover:shadow-md'}
+              `}
+            >
+              <div className={`transition-colors ${isActive ? 'text-white' : 'text-[#02488C]'}`}>
+                {cat.icon}
+              </div>
+              <span className="mt-2 text-center text-sm">{cat.label}</span>
+            </div>
+          );
+        })}
       </div>
 
-      <div className="relative">
+      <div className="relative min-h-[250px]">
         {showCarousel ? (
           <>
             <Swiper
@@ -120,11 +144,10 @@ const Category: React.FC = () => {
                 </SwiperSlide>
               ))}
             </Swiper>
-            {/* Botões arredondados */}
-            <button className="swiper-button-prev ">
+            <button className="swiper-button-prev absolute top-1/2 -left-4 transform -translate-y-1/2 z-10">
               <ChevronLeft className="w-6 h-6" />
             </button>
-            <button className="swiper-button-next">
+            <button className="swiper-button-next absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
               <ChevronRight className="w-6 h-6" />
             </button>
           </>

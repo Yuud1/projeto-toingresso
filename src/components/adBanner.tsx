@@ -8,7 +8,7 @@ const AdBanner: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto mt-15 mb-5 px-4">
+    <div className="max-w-7xl mx-auto mt-10 mb-5 px-4">
       <a
         href={banner.link}
         target="_blank"
