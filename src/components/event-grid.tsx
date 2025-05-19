@@ -1,4 +1,4 @@
-import EventInterface from "@/interfaces/eventInterface";
+import EventInterface from "@/interfaces/EventInterface";
 import axios from "axios";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -35,7 +35,7 @@ const EventGrid = () => {
       <h2 className="text-2xl font-bold text-[#414141] mb-6">
         Próximos Eventos
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         {events.map((event) => (
           <Link
             key={event._id}

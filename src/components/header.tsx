@@ -429,7 +429,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
           >
             {isScrolled && (
               <a href="/">
-                <img className="w-12" src="/icon.png" alt="Logo" />
+                <img className="w-11" src="/icon.png" alt="Logo" />
               </a>
             )}
             <div
@@ -528,7 +528,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
             <Button
               onClick={() => {
                 setActiveFilter("festas-shows");
-                const target = document.getElementById("event-grid");
+                const target = document.getElementById("filter-grid");
                 if (target) {
                   target.scrollIntoView({ behavior: "smooth" });
                 }
@@ -547,7 +547,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
             <Button
               onClick={() => {
                 setActiveFilter("standup");
-                const target = document.getElementById("event-grid");
+                const target = document.getElementById("filter-grid");
                 if (target) {
                   target.scrollIntoView({ behavior: "smooth" });
                 }
@@ -566,7 +566,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
             <Button
               onClick={() => {
                 setActiveFilter("esportes");
-                const target = document.getElementById("event-grid");
+                const target = document.getElementById("filter-grid");
                 if (target) {
                   target.scrollIntoView({ behavior: "smooth" });
                 }
