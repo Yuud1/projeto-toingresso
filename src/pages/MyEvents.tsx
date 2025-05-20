@@ -10,6 +10,7 @@ import { Avatar } from "@/components/ui/avatar"
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts"
 import DeleteModal from "@/components/deleteModal"
 import GenericModal from "@/components/genericModal"
+import { EditEventModal } from "@/components/editEventModal"
 
 interface Event {
   id: string
@@ -21,6 +22,11 @@ interface Event {
   ticketsSold?: number
   totalTickets?: number
   revenue?: number
+  category?: string
+  image?: string
+  policy?: string
+  venueName?: string
+  time?: string
 }
 
 interface Sale {
@@ -68,7 +74,10 @@ const mockEvents: Event[] = [
     status: "ativos",
     ticketsSold: 150,
     totalTickets: 200,
-    revenue: 6000
+    revenue: 6000,
+    category: "shows",
+    venueName: "Arena Show",
+    time: "20:00"
   },
   {
     id: "2",
@@ -79,7 +88,10 @@ const mockEvents: Event[] = [
     status: "encerrados",
     ticketsSold: 500,
     totalTickets: 500,
-    revenue: 4500
+    revenue: 4500,
+    category: "shows",
+    venueName: "Parque da Cidade",
+    time: "18:00"
   },
   {
     id: "3",
@@ -90,7 +102,10 @@ const mockEvents: Event[] = [
     status: "rascunhos",
     ticketsSold: 0,
     totalTickets: 100,
-    revenue: 0
+    revenue: 0,
+    category: "teatro",
+    venueName: "Teatro Municipal",
+    time: "19:30"
   },
   {
     id: "4",
@@ -101,7 +116,10 @@ const mockEvents: Event[] = [
     status: "ativos",
     ticketsSold: 300,
     totalTickets: 400,
-    revenue: 5000
+    revenue: 5000,
+    category: "cursos",
+    venueName: "Centro de Convenções",
+    time: "09:00"
   },
   {
     id: "5",
@@ -112,7 +130,10 @@ const mockEvents: Event[] = [
     status: "encerrados",
     ticketsSold: 100,
     totalTickets: 120,
-    revenue: 4800
+    revenue: 4800,
+    category: "cursos",
+    venueName: "Espaço Criativo",
+    time: "14:00"
   }
 ]
 
@@ -142,6 +163,7 @@ export default function MyEvents() {
   const [eventToDelete, setEventToDelete] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
 
   const filteredEvents = events.filter(event => {
@@ -162,8 +184,20 @@ export default function MyEvents() {
   }
 
   const handleEdit = (eventId: string) => {
-    // Implementar lógica de edição
-    console.log("Editar evento:", eventId)
+    const event = events.find(e => e.id === eventId)
+    if (event) {
+      setSelectedEvent(event)
+      setIsEditModalOpen(true)
+    }
+  }
+
+  const handleSaveEvent = (updatedEvent: Event) => {
+    setEvents(prevEvents => 
+      prevEvents.map(event => 
+        event.id === updatedEvent.id ? updatedEvent : event
+      )
+    )
+    setIsEditModalOpen(false)
   }
 
   const handleDelete = (eventId: string) => {
@@ -251,6 +285,13 @@ export default function MyEvents() {
             </div>
           )}
         </GenericModal>
+
+        <EditEventModal
+          event={selectedEvent}
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onSave={handleSaveEvent}
+        />
 
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-8">
