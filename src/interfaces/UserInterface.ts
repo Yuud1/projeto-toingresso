@@ -9,4 +9,8 @@ export default interface UserInterface {
     type: string;
     enum: ["user", "superUser", "admin"];
   };
+  mysite: string,
+  instagram: string,
+  facebook: string,
+  phoneNumber: string,
 }

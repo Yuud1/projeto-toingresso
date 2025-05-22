@@ -23,4 +23,5 @@ export default interface EventInterface{
     tickets: [TicketInterface],
     organizer: OrganizerInterface
     acceptedTerms:  Boolean,
+    policy: string,
   }

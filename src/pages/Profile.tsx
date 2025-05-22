@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { User, Camera, Facebook, Instagram, Globe } from "lucide-react";
 import { useUser } from "@/contexts/useContext";
+import axios from "axios";
 
 interface TabProps {
   isActive: boolean;
@@ -32,12 +33,92 @@ const Tab = ({ isActive, children, onClick, className }: TabProps) => {
   );
 };
 
-
 export default function Profile() {
   const [activeTab, setActiveTab] = useState<
     "dados" | "pagamentos" | "privacidade" | "avancada"
   >("dados");
   const { user } = useUser();
+
+  // Lógica alterar dados usuário
+
+  const [formData, setFormData] = useState({});
+
+  // Se quiser fazer algum componente de modal pra mostrar que foi salvo com sucesso
+  // é com essa variável aqui que tu vai mexer
+  const [statusSaving, setStatusSaving] = useState(false);
+  // o log é só pra buildar o projeto se não ele reclama de erro
+  // depois que fizer o componente remover esse log
+  console.log(statusSaving);
+  
+
+  const [errorMessage, setErrorMessage] = useState();
+  const [loading, setLoading] = useState(false);
+
+  const token = localStorage.getItem("token");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const name = e.target.name;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      setStatusSaving(false);
+
+      const response = await axios.put(
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_UPDATE_USER_DATA
+        }`,
+        { formData },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.updated) {
+        setStatusSaving(true);
+        window.location.href = "/perfil";
+      }
+    } catch (error: any) {
+      console.log(error);
+      setErrorMessage(error.response.data.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      setStatusSaving(false)
+
+      const response = await axios.delete(
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_DELETE_USER
+        }`,        
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.deleted) {
+        localStorage.clear();
+        window.location.href = "/login"
+      }
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -49,37 +130,37 @@ export default function Profile() {
           </div>
 
           <div className="border-b border-gray-200 mb-6">
-          <div className="overflow-x-auto">
-            <div className="flex space-x-8">
-              <Tab
-                isActive={activeTab === "dados"}
-                onClick={() => setActiveTab("dados")}
-                className="cursor-pointer"
-              >
-                Conta
-              </Tab>
-              <Tab
-                isActive={activeTab === "pagamentos"}
-                onClick={() => setActiveTab("pagamentos")}
-                className="cursor-pointer"
-              >
-                Pagamentos
-              </Tab>
-              <Tab
-                isActive={activeTab === "privacidade"}
-                onClick={() => setActiveTab("privacidade")}
-                className="cursor-pointer"
-              >
-                Privacidade
-              </Tab>
-              <Tab
-                isActive={activeTab === "avancada"}
-                onClick={() => setActiveTab("avancada")}
-                className="cursor-pointer"
-              >
-                Avançada
-              </Tab>
-            </div>
+            <div className="overflow-x-auto">
+              <div className="flex space-x-8">
+                <Tab
+                  isActive={activeTab === "dados"}
+                  onClick={() => setActiveTab("dados")}
+                  className="cursor-pointer"
+                >
+                  Conta
+                </Tab>
+                <Tab
+                  isActive={activeTab === "pagamentos"}
+                  onClick={() => setActiveTab("pagamentos")}
+                  className="cursor-pointer"
+                >
+                  Pagamentos
+                </Tab>
+                <Tab
+                  isActive={activeTab === "privacidade"}
+                  onClick={() => setActiveTab("privacidade")}
+                  className="cursor-pointer"
+                >
+                  Privacidade
+                </Tab>
+                <Tab
+                  isActive={activeTab === "avancada"}
+                  onClick={() => setActiveTab("avancada")}
+                  className="cursor-pointer"
+                >
+                  Avançada
+                </Tab>
+              </div>
             </div>
           </div>
 
@@ -111,26 +192,45 @@ export default function Profile() {
                     <Input
                       type="text"
                       placeholder="Seu nome completo"
-                      value={user?.name}
+                      defaultValue={user?.name}
+                      name="name"
+                      onChange={handleChange}
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       E-mail
                     </label>
-                    <Input type="email" placeholder="seu@email.com" value={user?.email}/>
+                    <Input
+                      type="email"
+                      name="email"
+                      placeholder="seu@email.com"
+                      defaultValue={user?.email}
+                      onChange={handleChange}
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Telefone
                     </label>
-                    <Input type="tel" placeholder="(00) 00000-0000" />
+                    <Input
+                      type="tel"
+                      name="phoneNumber"
+                      placeholder="(00) 00000-0000"
+                      defaultValue={user?.phoneNumber}
+                      onChange={handleChange}
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Data de nascimento
                     </label>
-                    <Input type="date" value={user?.birthdaydata}/>
+                    <Input
+                      type="date"
+                      name="birthdaydata"
+                      defaultValue={user?.birthdaydata}
+                      onChange={handleChange}
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -145,6 +245,9 @@ export default function Profile() {
                         type="text"
                         placeholder="facebook.com/seu-usuario"
                         className="pl-10"
+                        name="facebook"
+                        defaultValue={user?.facebook}
+                        onChange={handleChange}
                       />
                     </div>
                   </div>
@@ -161,6 +264,9 @@ export default function Profile() {
                         type="text"
                         placeholder="@seu-usuario"
                         className="pl-10"
+                        name="instagram"
+                        defaultValue={user?.instagram}
+                        onChange={handleChange}
                       />
                     </div>
                   </div>
@@ -177,13 +283,20 @@ export default function Profile() {
                         type="url"
                         placeholder="https://seu-site.com"
                         className="pl-10"
+                        name="mysite"
+                        defaultValue={user?.mysite}
+                        onChange={handleChange}
                       />
                     </div>
                   </div>
                 </div>
 
                 <div className="flex justify-end">
-                  <Button className="bg-[#02488C] text-white hover:bg-[#023a6f]">
+                  <Button
+                    className="bg-[#02488C] text-white hover:bg-[#023a6f]"
+                    onClick={handleSubmit}
+                    disabled={loading}
+                  >
                     Salvar alterações
                   </Button>
                 </div>
@@ -303,13 +416,28 @@ export default function Profile() {
                     <div>
                       <h4 className="font-medium mb-2">Alterar senha</h4>
                       <div className="space-y-4">
-                        <Input type="password" placeholder="Senha atual" />
-                        <Input type="password" placeholder="Nova senha" />
+                        <Input
+                          type="password"
+                          placeholder="Nova senha"
+                          name="newPassword"
+                          onChange={handleChange}
+                        />
                         <Input
                           type="password"
                           placeholder="Confirmar nova senha"
+                          name="confirmNewPassword"
+                          onChange={handleChange}
                         />
-                        <Button className="bg-[#02488C] text-white hover:bg-[#023a6f]">
+                        <div className=" w-full h-full">
+                          <p className="text-sm text-destructive">
+                            {errorMessage}
+                          </p>
+                        </div>
+                        <Button
+                          className="bg-[#02488C] text-white hover:bg-[#023a6f]"
+                          disabled={loading}
+                          onClick={handleSubmit}
+                        >
                           Atualizar senha
                         </Button>
                       </div>
@@ -326,7 +454,9 @@ export default function Profile() {
                       <div className="space-y-4">
                         <Button
                           variant="outline"
-                          className="text-red-600 hover:text-red-700 border-red-200 hover:bg-red-50"
+                          className="border-red-500 text-destructive hover:bg-red-500 hover:text-white cursor-pointer"
+                          disabled={loading}
+                          onClick={handleDelete}
                         >
                           Excluir minha conta
                         </Button>

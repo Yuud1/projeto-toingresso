@@ -11,8 +11,7 @@ const EventDetail = () => {
   const {id} = useParams();
 
   const [isFavorited, setIsFavorited] = useState(false);
-  const [event, setEvents] = useState<EventInterface | undefined>(undefined);
-
+  const [event, setEvents] = useState<EventInterface | undefined>(undefined);  
   
   useEffect(() => {
     try {
@@ -108,7 +107,7 @@ const EventDetail = () => {
                 Organizador do evento
               </h3>
               <a
-                href={event?.organizer.avatarId}
+                href={event?.organizer.avatar}
                 className="flex items-center gap-3 hover:bg-gray-50 p-3 rounded-lg transition-colors cursor-pointer"
               >
                 <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden ">
