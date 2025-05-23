@@ -11,19 +11,23 @@ import {
 } from "@/components/ui/dialog";
 import { Minus, Plus } from "lucide-react";
 import TicketInterface from "@/interfaces/TicketInterface";
-
+import axios from "axios";
 
 interface TicketSelectorProps {
   eventTitle: string;
-  tickets: TicketInterface[];
+  tickets: TicketInterface[];  
 }
 
-export function TicketSelector({ eventTitle, tickets }: TicketSelectorProps) {
+export function TicketSelector({
+  eventTitle,
+  tickets,
+}: TicketSelectorProps) {
   const [open, setOpen] = useState(false);
   const [selectedTickets, setSelectedTickets] = useState<{
     [key: string]: number;
-  }>({});
-
+  }>({});  
+  const [loadingBuyButton, setLoadingBuyButton] = useState(false);
+  
   const handleQuantityChange = (ticket_id: string, change: number) => {
     setSelectedTickets((prev) => {
       const currentQuantity = prev[ticket_id] || 0;
@@ -54,6 +58,30 @@ export function TicketSelector({ eventTitle, tickets }: TicketSelectorProps) {
     },
     0
   );
+
+  const handleSubmit = async () => {
+    try {
+      setLoadingBuyButton(true);
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_EVENT_PAY}`,
+        {selectedTickets},
+        {
+          headers:{
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          }
+        }
+      );
+
+      if (response.data.init_point) {
+        window.location.href = response.data.init_point
+      }
+      
+    } catch (error) {
+      console.log("Erro ao realizar pagamento", error);
+    } finally{
+      setLoadingBuyButton(false)
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -126,7 +154,7 @@ export function TicketSelector({ eventTitle, tickets }: TicketSelectorProps) {
 
           <div className="space-y-4 py-4">
             {Object.entries(selectedTickets).map(([ticket_id, quantity]) => {
-              const ticket = tickets.find((t) => t._id === (ticket_id));
+              const ticket = tickets.find((t) => t._id === ticket_id);
               return (
                 <div key={ticket_id} className="flex justify-between text-sm">
                   <span>
@@ -150,7 +178,11 @@ export function TicketSelector({ eventTitle, tickets }: TicketSelectorProps) {
             >
               Cancelar
             </Button>
-            <Button className="bg-[#FEC800] text-black hover:bg-[#e5b700] cursor-pointer">
+            <Button
+              className="bg-[#FEC800] text-black hover:bg-[#e5b700] cursor-pointer"
+              onClick={handleSubmit}
+              disabled={loadingBuyButton}
+            >
               Confirmar Compra
             </Button>
           </DialogFooter>
