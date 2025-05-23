@@ -486,7 +486,7 @@ export default function MyEvents() {
                   <p className="text-gray-600 mb-4">Não há eventos {subTab}</p>
                   <Button
                     onClick={() => (window.location.href = "/criar-evento")}
-                    className="bg-[#02488C] hover:bg-[#02488C]/90"
+                    className="bg-[#02488C] hover:bg-[#02488C]/90 cursor-pointer"
                   >
                     CRIAR EVENTO
                   </Button>

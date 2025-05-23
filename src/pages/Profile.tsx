@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { Button } from "@/components/ui/button";
@@ -38,20 +38,13 @@ export default function Profile() {
     "dados" | "pagamentos" | "privacidade" | "avancada"
   >("dados");
   const { user } = useUser();
-
-  // Lógica alterar dados usuário
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const [formData, setFormData] = useState({});
-
-  // Se quiser fazer algum componente de modal pra mostrar que foi salvo com sucesso
-  // é com essa variável aqui que tu vai mexer
   const [statusSaving, setStatusSaving] = useState(false);
-  // o log é só pra buildar o projeto se não ele reclama de erro
-  // depois que fizer o componente remover esse log
-  console.log(statusSaving);
-  
-
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
 
   const token = localStorage.getItem("token");
@@ -66,19 +59,48 @@ export default function Profile() {
     }));
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
   const handleSubmit = async () => {
     try {
       setLoading(true);
       setStatusSaving(false);
 
+      const submitData = new FormData();
+      
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== undefined) {
+          submitData.append(key, value as string);
+        }
+      });
+
+      if (selectedFile) {
+        submitData.append('profileImage', selectedFile);
+      }
+
       const response = await axios.put(
         `${import.meta.env.VITE_API_BASE_URL}${
           import.meta.env.VITE_UPDATE_USER_DATA
         }`,
-        { formData },
+        submitData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
           },
         }
       );
@@ -89,7 +111,7 @@ export default function Profile() {
       }
     } catch (error: any) {
       console.log(error);
-      setErrorMessage(error.response.data.message);
+      setErrorMessage(error.response?.data?.message || "Erro ao atualizar perfil");
     } finally {
       setLoading(false);
     }
@@ -97,7 +119,7 @@ export default function Profile() {
 
   const handleDelete = async () => {
     try {
-      setStatusSaving(false)
+      setStatusSaving(false);
 
       const response = await axios.delete(
         `${import.meta.env.VITE_API_BASE_URL}${
@@ -112,9 +134,10 @@ export default function Profile() {
 
       if (response.data.deleted) {
         localStorage.clear();
-        window.location.href = "/login"
+        window.location.href = "/login";
       }
     } catch (error) {
+      setErrorMessage("Erro ao excluir conta");
     } finally {
       setLoading(false);
     }
@@ -169,12 +192,36 @@ export default function Profile() {
               <div className="space-y-6">
                 <div className="flex items-center gap-6">
                   <div className="relative">
-                    <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
-                      <User size={40} className="text-gray-400" />
+                    <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden cursor-pointer">
+                      {previewImage ? (
+                        <img 
+                          src={previewImage} 
+                          alt="Preview" 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : user?.profileImage ? (
+                        <img 
+                          src={user.profileImage} 
+                          alt="Profile" 
+                          className="w-full h-full object-cover "
+                        />
+                      ) : (
+                        <User size={40} className="text-gray-400" />
+                      )}
                     </div>
-                    <button className="absolute bottom-0 right-0 bg-[#02488C] text-white p-2 rounded-full hover:bg-[#023a6f] transition-colors">
+                    <button 
+                      onClick={triggerFileInput}
+                      className="absolute bottom-0 cursor-pointer right-0 bg-[#02488C] text-white p-2 rounded-full hover:bg-[#023a6f] transition-colors"
+                    >
                       <Camera size={16} />
                     </button>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleImageChange}
+                      accept="image/*"
+                      className="hidden"
+                    />
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg">Foto de perfil</h3>
@@ -297,9 +344,19 @@ export default function Profile() {
                     onClick={handleSubmit}
                     disabled={loading}
                   >
-                    Salvar alterações
+                    {loading ? "Salvando..." : "Salvar alterações"}
                   </Button>
                 </div>
+                {statusSaving && (
+                  <div className="text-green-600 text-sm text-right">
+                    Alterações salvas com sucesso!
+                  </div>
+                )}
+                {errorMessage && (
+                  <div className="text-red-600 text-sm text-right">
+                    {errorMessage}
+                  </div>
+                )}
               </div>
             )}
 
@@ -428,7 +485,7 @@ export default function Profile() {
                           name="confirmNewPassword"
                           onChange={handleChange}
                         />
-                        <div className=" w-full h-full">
+                        <div className="w-full h-full">
                           <p className="text-sm text-destructive">
                             {errorMessage}
                           </p>
@@ -438,7 +495,7 @@ export default function Profile() {
                           disabled={loading}
                           onClick={handleSubmit}
                         >
-                          Atualizar senha
+                          {loading ? "Atualizando..." : "Atualizar senha"}
                         </Button>
                       </div>
                     </div>

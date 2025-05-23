@@ -1,11 +1,27 @@
 const Footer = () => {
+  const scrollToFilterGrid = (event: React.MouseEvent, category?: string) => {
+    event.preventDefault();
+    const filterGridElement = document.getElementById('filter-grid');
+    
+    if (filterGridElement) {
+      // Se você quiser adicionar lógica para filtrar por categoria
+      if (category) {
+        // Aqui você pode adicionar lógica para setar o filtro da categoria
+        // Por exemplo, usando um contexto ou estado global
+        console.log(`Filtrar por: ${category}`);
+      }
+      
+      filterGridElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <footer className="bg-[#414141] text-white pt-10 pb-6">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 text-center sm:text-left">
         {/* Logo e descrição */}
         <div>
           <img src="/logo-branca.png" alt="Logo" className="w-28 mx-auto sm:mx-0 mb-8 sm:mb-3" />
-          <p className="text-sm text-gray-300 leading-relaxed ">
+          <p className="text-sm text-gray-300 leading-relaxed">
             Descubra, participe e aproveite os melhores eventos da sua cidade.
           </p>
         </div>
@@ -14,9 +30,33 @@ const Footer = () => {
         <div>
           <h3 className="text-base font-semibold mb-3">Eventos</h3>
           <ul className="space-y-2 text-sm text-gray-300">
-            <li><a href="#" className="hover:underline">Festas & Shows</a></li>
-            <li><a href="#" className="hover:underline">Stand-up Comedy</a></li>
-            <li><a href="#" className="hover:underline">Esportes</a></li>
+            <li>
+              <a 
+                href="#festas-shows" 
+                className="hover:underline"
+                onClick={(e) => scrollToFilterGrid(e, 'Festas & Shows')}
+              >
+                Festas & Shows
+              </a>
+            </li>
+            <li>
+              <a 
+                href="#stand-up" 
+                className="hover:underline"
+                onClick={(e) => scrollToFilterGrid(e, 'Stand-up Comedy')}
+              >
+                Stand-up Comedy
+              </a>
+            </li>
+            <li>
+              <a 
+                href="#esportes" 
+                className="hover:underline"
+                onClick={(e) => scrollToFilterGrid(e, 'Esportes')}
+              >
+                Esportes
+              </a>
+            </li>
           </ul>
         </div>
 
