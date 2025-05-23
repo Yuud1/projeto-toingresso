@@ -13,48 +13,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar, Clock, Image, Tag, Ticket } from "lucide-react";
 import { format } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
-
-interface Ticket {
-  name: string;
-  price: number;
-  quantity: number;
-  description: string;
-  type: "regular" | "student" | "senior" | "free";
-}
-
-interface Event {
-  id: string;
-  title: string;
-  startDate: string;
-  endDate: string;
-  startTime: string;
-  endTime: string;
-  venueName: string;
-  description: string;
-  policy: string;
-  category?: string;
-  image?: string;
-  zipCode?: string;
-  street?: string;
-  number?: string;
-  complement?: string;
-  neighborhood?: string;
-  city?: string;
-  state?: string;
-  tickets: Ticket[];
-  acceptedTerms: boolean;
-}
+import EventInterface from "@/interfaces/EventInterface";
+import TicketInterface from "@/interfaces/TicketInterface";
+import axios from "axios";
 
 interface EditEventModalProps {
-  event: Event | null;
+  event: EventInterface | null;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (updatedEvent: Event) => void;
+  onSave: (updatedEvent: EventInterface) => void;
 }
 
 const formatCEP = (cep: string) => {
-  if (!cep) return '';
-  cep = cep.replace(/\D/g, '');
+  if (!cep) return "";
+  cep = cep.replace(/\D/g, "");
   if (cep.length > 5) {
     return `${cep.slice(0, 5)}-${cep.slice(5, 8)}`;
   }
@@ -62,12 +34,17 @@ const formatCEP = (cep: string) => {
 };
 
 const formatNumber = (number: string) => {
-  if (!number) return '';
-  return number.replace(/\D/g, '');
+  if (!number) return "";
+  return number.replace(/\D/g, "");
 };
 
-export function EditEventModal({ event, isOpen, onClose, onSave }: EditEventModalProps) {
-  const [editedEvent, setEditedEvent] = useState<Event | null>(null);
+export function EditEventModal({
+  event,
+  isOpen,
+  onClose,
+  onSave,
+}: EditEventModalProps) {
+  const [editedEvent, setEditedEvent] = useState<EventInterface | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
 
   useEffect(() => {
@@ -75,18 +52,22 @@ export function EditEventModal({ event, isOpen, onClose, onSave }: EditEventModa
       setEditedEvent({
         ...event,
         tickets: event.tickets || [],
-        acceptedTerms: event.acceptedTerms || false
+        acceptedTerms: event.acceptedTerms || false,
       });
       setCurrentStep(1);
     }
   }, [event]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     if (!editedEvent) return;
-    
+
     setEditedEvent({
       ...editedEvent,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -96,22 +77,40 @@ export function EditEventModal({ event, isOpen, onClose, onSave }: EditEventModa
       reader.onload = (event) => {
         setEditedEvent({
           ...editedEvent,
-          image: event.target?.result as string
+          image: event.target?.result as string,
         });
       };
       reader.readAsDataURL(e.target.files[0]);
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (editedEvent) {
-      onSave(editedEvent);
-      onClose();
+      try {
+        const response = await axios.put(
+          `${import.meta.env.VITE_API_BASE_URL}${
+            import.meta.env.VITE_EVENT_UPDATEID
+          }`,
+          { editedEvent },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+      
+        if (response.data.edited) {          
+          onSave(editedEvent);
+          onClose();
+        }
+      } catch (error) {
+        console.log("Erro ao editar evento", error)
+      }
     }
   };
 
-  const nextStep = () => setCurrentStep(prev => prev + 1);
-  const prevStep = () => setCurrentStep(prev => prev - 1);
+  const nextStep = () => setCurrentStep((prev) => prev + 1);
+  const prevStep = () => setCurrentStep((prev) => prev - 1);
 
   if (!editedEvent) return null;
 
@@ -136,7 +135,10 @@ export function EditEventModal({ event, isOpen, onClose, onSave }: EditEventModa
             </div>
 
             {[1, 2, 3, 4, 5, 6].map((step) => (
-              <div key={step} className="relative z-10 flex flex-col items-center">
+              <div
+                key={step}
+                className="relative z-10 flex flex-col items-center"
+              >
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
                     step === currentStep
@@ -147,8 +149,18 @@ export function EditEventModal({ event, isOpen, onClose, onSave }: EditEventModa
                   }`}
                 >
                   {step < currentStep ? (
-                    <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    <svg
+                      className="w-6 h-6 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                   ) : (
                     <span className="text-sm font-medium">{step}</span>
@@ -221,9 +233,9 @@ export function EditEventModal({ event, isOpen, onClose, onSave }: EditEventModa
                     </p>
                     {editedEvent.image && (
                       <div className="mt-2">
-                        <img 
-                          src={editedEvent.image} 
-                          alt="Preview" 
+                        <img
+                          src={editedEvent.image}
+                          alt="Preview"
                           className="max-h-40 mx-auto rounded-md"
                         />
                       </div>
@@ -260,91 +272,102 @@ export function EditEventModal({ event, isOpen, onClose, onSave }: EditEventModa
             </div>
           )}
 
-       {currentStep === 2 && (
-  <div className="space-y-6">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Data de Início *
-        </label>
-        <div className="relative">
-          <Calendar
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            size={20}
-          />
-          <Input
-            type="date"
-            name="startDate"
-            value={editedEvent.startDate ? format(new Date(editedEvent.startDate), "yyyy-MM-dd") : ""}
-            onChange={handleChange}
-            className="pl-10"
-            required
-          />
-        </div>
-      </div>
+          {currentStep === 2 && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Data de Início *
+                  </label>
+                  <div className="relative">
+                    <Calendar
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                      size={20}
+                    />
+                    <Input
+                      type="date"
+                      name="startDate"
+                      value={
+                        editedEvent.startDate
+                          ? format(
+                              new Date(editedEvent.startDate),
+                              "yyyy-MM-dd"
+                            )
+                          : ""
+                      }
+                      onChange={handleChange}
+                      className="pl-10"
+                      required
+                    />
+                  </div>
+                </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Hora de Início *
-        </label>
-        <div className="relative">
-          <Clock
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            size={20}
-          />
-          <Input
-            type="time"
-            name="startTime"
-            value={editedEvent.startTime || "19:00"}
-            onChange={handleChange}
-            className="pl-10"
-            required
-          />
-        </div>
-      </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Hora de Início *
+                  </label>
+                  <div className="relative">
+                    <Clock
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                      size={20}
+                    />
+                    <Input
+                      type="time"
+                      name="startTime"
+                      value={editedEvent.startTime || "19:00"}
+                      onChange={handleChange}
+                      className="pl-10"
+                      required
+                    />
+                  </div>
+                </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Data de Término *
-        </label>
-        <div className="relative">
-          <Calendar
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            size={20}
-          />
-          <Input
-            type="date"
-            name="endDate"
-            value={editedEvent.endDate ? format(new Date(editedEvent.endDate), "yyyy-MM-dd") : ""}
-            onChange={handleChange}
-            className="pl-10"
-            required
-          />
-        </div>
-      </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Data de Término *
+                  </label>
+                  <div className="relative">
+                    <Calendar
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                      size={20}
+                    />
+                    <Input
+                      type="date"
+                      name="endDate"
+                      value={
+                        editedEvent.endDate
+                          ? format(new Date(editedEvent.endDate), "yyyy-MM-dd")
+                          : ""
+                      }
+                      onChange={handleChange}
+                      className="pl-10"
+                      required
+                    />
+                  </div>
+                </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Hora de Término *
-        </label>
-        <div className="relative">
-          <Clock
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            size={20}
-          />
-          <Input
-            type="time"
-            name="endTime"
-            value={editedEvent.endTime || "22:00"}
-            onChange={handleChange}
-            className="pl-10"
-            required
-          />
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Hora de Término *
+                  </label>
+                  <div className="relative">
+                    <Clock
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                      size={20}
+                    />
+                    <Input
+                      type="time"
+                      name="endTime"
+                      value={editedEvent.endTime || "22:00"}
+                      onChange={handleChange}
+                      className="pl-10"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {currentStep === 3 && (
             <div className="space-y-6">
@@ -408,14 +431,14 @@ export function EditEventModal({ event, isOpen, onClose, onSave }: EditEventModa
                     name="zipCode"
                     value={formatCEP(editedEvent.zipCode || "")}
                     onChange={(e) => {
-                      const rawValue = e.target.value.replace(/\D/g, '');
+                      const rawValue = e.target.value.replace(/\D/g, "");
                       handleChange({
                         ...e,
                         target: {
                           ...e.target,
                           name: "zipCode",
-                          value: rawValue
-                        }
+                          value: rawValue,
+                        },
                       });
                     }}
                     placeholder="00000-000"
@@ -450,14 +473,14 @@ export function EditEventModal({ event, isOpen, onClose, onSave }: EditEventModa
                     name="number"
                     value={formatNumber(editedEvent.number || "")}
                     onChange={(e) => {
-                      const rawValue = e.target.value.replace(/\D/g, '');
+                      const rawValue = e.target.value.replace(/\D/g, "");
                       handleChange({
                         ...e,
                         target: {
                           ...e.target,
                           name: "number",
-                          value: rawValue
-                        }
+                          value: rawValue,
+                        },
                       });
                     }}
                     className="w-full"
@@ -556,12 +579,14 @@ export function EditEventModal({ event, isOpen, onClose, onSave }: EditEventModa
                   {/* Tipos de Ingresso */}
                   <div
                     onClick={() => {
-                      const newTicket: Ticket = {
+                      const newTicket: TicketInterface = {
                         name: "",
                         price: 0,
                         quantity: 0,
                         description: "",
                         type: "regular",
+                        _id: "",
+                        soldQuantity: 0,
                       };
                       setEditedEvent({
                         ...editedEvent,
@@ -583,12 +608,14 @@ export function EditEventModal({ event, isOpen, onClose, onSave }: EditEventModa
 
                   <div
                     onClick={() => {
-                      const newTicket: Ticket = {
+                      const newTicket: TicketInterface = {
                         name: "",
                         price: 0,
                         quantity: 0,
                         description: "",
                         type: "student",
+                        _id: "",
+                        soldQuantity: 0,
                       };
                       setEditedEvent({
                         ...editedEvent,
@@ -599,7 +626,9 @@ export function EditEventModal({ event, isOpen, onClose, onSave }: EditEventModa
                   >
                     <div className="text-center">
                       <Ticket className="w-12 h-12 mx-auto text-gray-400 mb-2" />
-                      <h4 className="font-medium text-gray-900">Meia-Entrada</h4>
+                      <h4 className="font-medium text-gray-900">
+                        Meia-Entrada
+                      </h4>
                       <p className="text-sm text-gray-500 mt-1">
                         Ingresso com 50% de desconto
                       </p>
@@ -629,7 +658,9 @@ export function EditEventModal({ event, isOpen, onClose, onSave }: EditEventModa
                                 type="text"
                                 value={ticket.name}
                                 onChange={(e) => {
-                                  const updatedTickets = [...editedEvent.tickets];
+                                  const updatedTickets = [
+                                    ...editedEvent.tickets,
+                                  ];
                                   updatedTickets[index].name = e.target.value;
                                   setEditedEvent({
                                     ...editedEvent,
@@ -651,7 +682,9 @@ export function EditEventModal({ event, isOpen, onClose, onSave }: EditEventModa
                                 type="number"
                                 value={ticket.price}
                                 onChange={(e) => {
-                                  const updatedTickets = [...editedEvent.tickets];
+                                  const updatedTickets = [
+                                    ...editedEvent.tickets,
+                                  ];
                                   updatedTickets[index].price = Number(
                                     e.target.value
                                   );
@@ -675,7 +708,9 @@ export function EditEventModal({ event, isOpen, onClose, onSave }: EditEventModa
                                 type="number"
                                 value={ticket.quantity}
                                 onChange={(e) => {
-                                  const updatedTickets = [...editedEvent.tickets];
+                                  const updatedTickets = [
+                                    ...editedEvent.tickets,
+                                  ];
                                   updatedTickets[index].quantity = Number(
                                     e.target.value
                                   );
@@ -699,7 +734,9 @@ export function EditEventModal({ event, isOpen, onClose, onSave }: EditEventModa
                                 type="text"
                                 value={ticket.description}
                                 onChange={(e) => {
-                                  const updatedTickets = [...editedEvent.tickets];
+                                  const updatedTickets = [
+                                    ...editedEvent.tickets,
+                                  ];
                                   updatedTickets[index].description =
                                     e.target.value;
                                   setEditedEvent({
@@ -753,7 +790,7 @@ export function EditEventModal({ event, isOpen, onClose, onSave }: EditEventModa
                     onCheckedChange={(checked: boolean) => {
                       setEditedEvent({
                         ...editedEvent,
-                        acceptedTerms: checked
+                        acceptedTerms: checked,
                       });
                     }}
                     className="cursor-pointer"

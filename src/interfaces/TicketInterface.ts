@@ -4,5 +4,6 @@ export default interface TicketInterface  {
   price: number,
   description: string,
   quantity: number,
-  type: string, enum: ["regular", "student"],
+  soldQuantity: number,
+  type: "regular" | "student" | "senior" | "free";
 };

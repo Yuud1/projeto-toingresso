@@ -111,7 +111,7 @@ export default function CreateEvent() {
     } catch (error: any) {
 
       if (!error.response.data.logged) {
-        window.location.href = "/login"
+        
       }
       console.log("Erro ao criar Evento", error);
     } finally {
