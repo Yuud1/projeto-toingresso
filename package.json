@@ -26,6 +26,8 @@
     "lucide-react": "^0.503.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-input-mask": "^2.0.4",
+    "react-number-format": "^5.4.4",
     "react-router-dom": "^7.5.3",
     "recharts": "^2.15.3",
     "swiper": "^11.2.7",

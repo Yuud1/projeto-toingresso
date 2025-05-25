@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar, Clock, Image, Tag, Ticket } from "lucide-react";
+import { NumericFormat } from 'react-number-format';
 import axios from "axios";
 
 interface Ticket {
@@ -20,8 +21,7 @@ export default function CreateEvent() {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  // Se quiser fazer um card de criado e completado com sucesso usar essa variável
-  const [created, setCreated] = useState(false);
+  const [setCreated] = useState(false);
 
   // Funções de formatação
   const formatCEP = (cep: string) => {
@@ -111,7 +111,7 @@ export default function CreateEvent() {
     } catch (error: any) {
 
       if (!error.response.data.logged) {
-        
+
       }
       console.log("Erro ao criar Evento", error);
     } finally {
@@ -489,9 +489,11 @@ export default function CreateEvent() {
           <Input
             type="text"
             value={formData.city}
-            onChange={(e) =>
-              setFormData({ ...formData, city: e.target.value })
-            }
+            onChange={(e) => {
+              // Remove números e mantém apenas letras, espaços e hífens
+              const filteredValue = e.target.value.replace(/[0-9]/g, '');
+              setFormData({ ...formData, city: filteredValue });
+            }}
             className="w-full"
             required
           />
@@ -633,21 +635,24 @@ export default function CreateEvent() {
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                               Preço *
                             </label>
-                            <Input
-                              type="number"
+                            <NumericFormat
                               value={ticket.price}
-                              onChange={(e) => {
+                              onValueChange={({ floatValue }) => {
                                 const updatedTickets = [...formData.tickets];
-                                updatedTickets[index].price = Number(
-                                  e.target.value
-                                );
+                                updatedTickets[index].price = floatValue ?? 0;
                                 setFormData({
                                   ...formData,
                                   tickets: updatedTickets,
                                 });
                               }}
+                              thousandSeparator="."
+                              decimalSeparator=","
+                              prefix="R$ "
+                              allowNegative={false}
+                              decimalScale={2}
+                              fixedDecimalScale
                               placeholder="R$ 0,00"
-                              className="w-full"
+                              className="w-full border rounded px-3 py-2"
                               required
                             />
                           </div>
@@ -661,17 +666,19 @@ export default function CreateEvent() {
                               type="number"
                               value={ticket.quantity}
                               onChange={(e) => {
-                                const updatedTickets = [...formData.tickets];
-                                updatedTickets[index].quantity = Number(
-                                  e.target.value
-                                );
-                                setFormData({
-                                  ...formData,
-                                  tickets: updatedTickets,
-                                });
+                                const value = Number(e.target.value);
+                                if (value >= 0) {
+                                  const updatedTickets = [...formData.tickets];
+                                  updatedTickets[index].quantity = value;
+                                  setFormData({
+                                    ...formData,
+                                    tickets: updatedTickets,
+                                  });
+                                }
                               }}
                               placeholder="0"
                               className="w-full"
+                              min="0"
                               required
                             />
                           </div>
@@ -703,7 +710,7 @@ export default function CreateEvent() {
                         <Button
                           type="button"
                           variant="outline"
-                          className="mt-4 text-red-600 hover:text-red-700"
+                          className="mt-4 text-red-600 hover:text-red-700 cursor-pointer"
                           onClick={() => {
                             const updatedTickets = formData.tickets.filter(
                               (_, i) => i !== index

@@ -4,10 +4,9 @@ const Footer = () => {
     const filterGridElement = document.getElementById('filter-grid');
     
     if (filterGridElement) {
-      // Se você quiser adicionar lógica para filtrar por categoria
+      //logica
       if (category) {
-        // Aqui você pode adicionar lógica para setar o filtro da categoria
-        // Por exemplo, usando um contexto ou estado global
+        //set filter
         console.log(`Filtrar por: ${category}`);
       }
       

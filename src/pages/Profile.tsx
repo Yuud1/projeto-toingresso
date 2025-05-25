@@ -340,7 +340,7 @@ export default function Profile() {
 
                 <div className="flex justify-end">
                   <Button
-                    className="bg-[#02488C] text-white hover:bg-[#023a6f]"
+                    className="bg-[#02488C] text-white hover:bg-[#023a6f] cursor-pointer "
                     onClick={handleSubmit}
                     disabled={loading}
                   >
@@ -384,7 +384,7 @@ export default function Profile() {
                         Remover
                       </Button>
                     </div>
-                    <Button className="w-full bg-[#02488C] text-white hover:bg-[#023a6f]">
+                    <Button className="w-full bg-[#02488C] text-white hover:bg-[#023a6f] cursor-pointer">
                       Adicionar novo método
                     </Button>
                   </div>
@@ -491,7 +491,7 @@ export default function Profile() {
                           </p>
                         </div>
                         <Button
-                          className="bg-[#02488C] text-white hover:bg-[#023a6f]"
+                          className="bg-[#02488C] text-white hover:bg-[#023a6f] cursor-pointer"
                           disabled={loading}
                           onClick={handleSubmit}
                         >
