@@ -91,6 +91,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
   const { user } = useUser();
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  
 
   useEffect(() => {
     if (isScrolledProp === undefined) {

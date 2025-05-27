@@ -379,7 +379,7 @@ export default function Profile() {
                       </div>
                       <Button
                         variant="outline"
-                        className="text-red-600 hover:text-red-700"
+                        className="text-red-600 hover:text-red-700 cursor-pointer"
                       >
                         Remover
                       </Button>

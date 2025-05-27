@@ -1,15 +1,15 @@
+import { FaInstagram, FaWhatsapp } from 'react-icons/fa';
+
 const Footer = () => {
   const scrollToFilterGrid = (event: React.MouseEvent, category?: string) => {
     event.preventDefault();
     const filterGridElement = document.getElementById('filter-grid');
-    
+
     if (filterGridElement) {
-      //logica
       if (category) {
-        //set filter
         console.log(`Filtrar por: ${category}`);
       }
-      
+
       filterGridElement.scrollIntoView({ behavior: 'smooth' });
     }
   };
@@ -30,8 +30,8 @@ const Footer = () => {
           <h3 className="text-base font-semibold mb-3">Eventos</h3>
           <ul className="space-y-2 text-sm text-gray-300">
             <li>
-              <a 
-                href="#festas-shows" 
+              <a
+                href="#festas-shows"
                 className="hover:underline"
                 onClick={(e) => scrollToFilterGrid(e, 'Festas & Shows')}
               >
@@ -39,8 +39,8 @@ const Footer = () => {
               </a>
             </li>
             <li>
-              <a 
-                href="#stand-up" 
+              <a
+                href="#stand-up"
                 className="hover:underline"
                 onClick={(e) => scrollToFilterGrid(e, 'Stand-up Comedy')}
               >
@@ -48,8 +48,8 @@ const Footer = () => {
               </a>
             </li>
             <li>
-              <a 
-                href="#esportes" 
+              <a
+                href="#esportes"
                 className="hover:underline"
                 onClick={(e) => scrollToFilterGrid(e, 'Esportes')}
               >
@@ -80,10 +80,48 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Linha inferior */}
-      <div className="mt-10 border-t border-gray-600 pt-4 text-center text-sm text-gray-400 px-6">
-        © {new Date().getFullYear()} TOingresso. Todos os direitos reservados.
-      </div>
+      {/* Linha inferior com termos e redes sociais */}
+{/* Linha inferior com termos e redes sociais */}
+<div className="mt-10 border-t border-gray-600 pt-6 px-4 sm:px-6 md:px-12 lg:px-20 text-sm text-gray-400">
+  <div className="flex flex-col items-center md:flex-row md:items-center justify-between gap-6 text-center md:text-left">
+    
+    {/* Termos e links */}
+    <ul className="flex flex-col md:flex-row flex-wrap justify-center md:justify-start gap-2 md:gap-4 text-gray-300">
+      <li><a href="#" className="hover:underline">Termos de uso</a></li>
+      <li><a href="#" className="hover:underline">Diretrizes de Comunidade</a></li>
+      <li><a href="#" className="hover:underline">Política de Privacidade</a></li>
+      <li><a href="#" className="hover:underline">Obrigatoriedades Legais</a></li>
+      <li><a href="#" className="hover:underline">Regras de meia-entrada</a></li>
+    </ul>
+
+    {/* Redes sociais */}
+    <div className="flex justify-center md:justify-end gap-4">
+      <a
+        href="https://www.instagram.com/seuperfil"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-gray-300 hover:text-white transition-colors"
+        aria-label="Instagram"
+      >
+        <FaInstagram size={18} />
+      </a>
+      <a
+        href="https://wa.me/5511999999999"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-gray-300 hover:text-white transition-colors"
+        aria-label="WhatsApp"
+      >
+        <FaWhatsapp size={18} />
+      </a>
+    </div>
+  </div>
+
+  <p className="mt-6 mb-4 text-center text-xs text-gray-500">
+    © {new Date().getFullYear()} TOingresso. Todos os direitos reservados.
+  </p>
+</div>
+
     </footer>
   );
 };
