@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar, Clock, Image, Tag, Ticket } from "lucide-react";
-import { NumericFormat } from 'react-number-format';
+import { NumericFormat } from "react-number-format";
 import axios from "axios";
 import { toast } from "sonner";
+import FormBuilder from "@/components/form-builder";
 
 interface Ticket {
   name: string;
@@ -37,6 +38,7 @@ interface FormData {
   city: string;
   state: string;
   tickets: Ticket[];
+  isFree: boolean;
   acceptedTerms: boolean;
   token: string | null;
 }
@@ -68,6 +70,7 @@ export default function CreateEvent() {
   const [loading, setLoading] = useState(false);
   const [created, setCreated] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [clickedGratuito, setClickedGratuito] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     title: "",
@@ -88,6 +91,7 @@ export default function CreateEvent() {
     city: "",
     state: "",
     tickets: [],
+    isFree: false,
     acceptedTerms: false,
     token: localStorage.getItem("token"),
   });
@@ -98,50 +102,67 @@ export default function CreateEvent() {
 
     switch (currentStep) {
       case 1: // Informações Básicas
-        if (!formData.title.trim()) newErrors.title = "Nome do evento é obrigatório";
+        if (!formData.title.trim())
+          newErrors.title = "Nome do evento é obrigatório";
         if (!formData.category) newErrors.category = "Categoria é obrigatória";
         break;
 
       case 2: // Data e Horário
-        if (!formData.startDate) newErrors.startDate = "Data de início é obrigatória";
-        if (!formData.startTime) newErrors.startTime = "Hora de início é obrigatória";
-        if (!formData.endDate) newErrors.endDate = "Data de término é obrigatória";
-        if (!formData.endTime) newErrors.endTime = "Hora de término é obrigatória";
-        
+        if (!formData.startDate)
+          newErrors.startDate = "Data de início é obrigatória";
+        if (!formData.startTime)
+          newErrors.startTime = "Hora de início é obrigatória";
+        if (!formData.endDate)
+          newErrors.endDate = "Data de término é obrigatória";
+        if (!formData.endTime)
+          newErrors.endTime = "Hora de término é obrigatória";
+
         // Validação adicional para datas
         if (formData.startDate && formData.endDate) {
           const startDate = new Date(formData.startDate);
           const endDate = new Date(formData.endDate);
-          
+
           if (endDate < startDate) {
-            newErrors.endDate = "Data de término não pode ser anterior à data de início";
+            newErrors.endDate =
+              "Data de término não pode ser anterior à data de início";
           }
         }
         break;
 
       case 3: // Descrição
-        if (!formData.description.trim()) newErrors.description = "Descrição é obrigatória";
-        if (!formData.policy.trim()) newErrors.policy = "Política do evento é obrigatória";
+        if (!formData.description.trim())
+          newErrors.description = "Descrição é obrigatória";
+        if (!formData.policy.trim())
+          newErrors.policy = "Política do evento é obrigatória";
         break;
 
       case 4: // Local
-        if (!formData.venueName.trim()) newErrors.venueName = "Nome do local é obrigatório";
-        if (!formData.zipCode || formData.zipCode.length < 8) newErrors.zipCode = "CEP inválido";
+        if (!formData.venueName.trim())
+          newErrors.venueName = "Nome do local é obrigatório";
+        if (!formData.zipCode || formData.zipCode.length < 8)
+          newErrors.zipCode = "CEP inválido";
         if (!formData.street.trim()) newErrors.street = "Rua é obrigatória";
         if (!formData.number.trim()) newErrors.number = "Número é obrigatório";
-        if (!formData.neighborhood.trim()) newErrors.neighborhood = "Bairro é obrigatório";
+        if (!formData.neighborhood.trim())
+          newErrors.neighborhood = "Bairro é obrigatório";
         if (!formData.city.trim()) newErrors.city = "Cidade é obrigatória";
         if (!formData.state) newErrors.state = "Estado é obrigatório";
         break;
 
       case 5: // Ingressos
-        if (formData.tickets.length === 0) {
+        if (formData.tickets.length === 0 && formData.isFree === false) {
           newErrors.tickets = "Pelo menos um tipo de ingresso é obrigatório";
         } else {
           formData.tickets.forEach((ticket, index) => {
-            if (!ticket.name.trim()) newErrors[`ticket-${index}-name`] = "Nome do ingresso é obrigatório";
-            if (ticket.price <= 0) newErrors[`ticket-${index}-price`] = "Preço deve ser maior que zero";
-            if (ticket.quantity <= 0) newErrors[`ticket-${index}-quantity`] = "Quantidade deve ser maior que zero";
+            if (!ticket.name.trim())
+              newErrors[`ticket-${index}-name`] =
+                "Nome do ingresso é obrigatório";
+            if (ticket.price <= 0)
+              newErrors[`ticket-${index}-price`] =
+                "Preço deve ser maior que zero";
+            if (ticket.quantity <= 0)
+              newErrors[`ticket-${index}-quantity`] =
+                "Quantidade deve ser maior que zero";
           });
         }
         break;
@@ -156,8 +177,8 @@ export default function CreateEvent() {
 
   // Funções de formatação memoizadas
   const formatCEP = useCallback((cep: string) => {
-    if (!cep) return '';
-    cep = cep.replace(/\D/g, '');
+    if (!cep) return "";
+    cep = cep.replace(/\D/g, "");
     if (cep.length > 5) {
       return `${cep.slice(0, 5)}-${cep.slice(5, 8)}`;
     }
@@ -165,75 +186,83 @@ export default function CreateEvent() {
   }, []);
 
   const formatNumber = useCallback((number: string) => {
-    if (!number) return '';
-    return number.replace(/\D/g, '');
+    if (!number) return "";
+    return number.replace(/\D/g, "");
   }, []);
 
   // Manipuladores de eventos memoizados
-  const handleImageChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData(prev => ({ ...prev, image: e.target.files![0] }));
-    }
-  }, []);
+  const handleImageChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files[0]) {
+        setFormData((prev) => ({ ...prev, image: e.target.files![0] }));
+      }
+    },
+    []
+  );
 
   const nextStep = useCallback(() => {
     if (validateCurrentStep()) {
-      setCurrentStep(prev => Math.min(prev + 1, 6));
+      setCurrentStep((prev) => Math.min(prev + 1, 6));
     } else {
       toast.error("Por favor, preencha todos os campos obrigatórios");
     }
   }, [validateCurrentStep]);
 
   const prevStep = useCallback(() => {
-    setCurrentStep(prev => Math.max(prev - 1, 1));
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
   }, []);
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.acceptedTerms) {
-      toast.error("Você deve aceitar os termos e condições");
-      return;
-    }
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
 
-    if (!validateCurrentStep()) {
-      toast.error("Por favor, preencha todos os campos obrigatórios");
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const data = new FormData();
-
-      if (formData.image) {
-        data.append("image", formData.image);
+      if (!formData.acceptedTerms) {
+        toast.error("Você deve aceitar os termos e condições");
+        return;
       }
 
-      const { image, ...rest } = formData;
-      data.append("formData", JSON.stringify(rest));
+      if (!validateCurrentStep()) {
+        toast.error("Por favor, preencha todos os campos obrigatórios");
+        return;
+      }
 
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_CREATE_EVENT}`,
-        data,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${formData.token}`,
-          },
+      try {
+        setLoading(true);
+        const data = new FormData();
+
+        if (formData.image) {
+          data.append("image", formData.image);
         }
-      );
 
-      if (response.data.saved) {
-        setCreated(true);
-        toast.success("Evento criado com sucesso!");
+        const { image, ...rest } = formData;
+        data.append("formData", JSON.stringify(rest));
+
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_BASE_URL}${
+            import.meta.env.VITE_CREATE_EVENT
+          }`,
+          data,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${formData.token}`,
+            },
+          }
+        );
+
+        if (response.data.saved) {
+          setCreated(true);
+          toast.success("Evento criado com sucesso!");
+        }
+      } catch (error) {
+        console.error("Erro ao criar Evento", error);
+        toast.error("Erro ao criar evento. Por favor, tente novamente.");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Erro ao criar Evento", error);
-      toast.error("Erro ao criar evento. Por favor, tente novamente.");
-    } finally {
-      setLoading(false);
-    }
-  }, [formData, validateCurrentStep]);
+    },
+    [formData, validateCurrentStep]
+  );
 
   // Efeito para redirecionar após criação
   useEffect(() => {
@@ -267,8 +296,18 @@ export default function CreateEvent() {
             }`}
           >
             {step < currentStep ? (
-              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <svg
+                className="w-6 h-6 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
             ) : (
               <span className="text-sm font-medium">{step}</span>
@@ -299,12 +338,21 @@ export default function CreateEvent() {
   const renderNavigation = () => (
     <div className="flex justify-between mt-8">
       {currentStep > 1 && (
-        <Button type="button" variant="outline" onClick={prevStep} className="cursor-pointer">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={prevStep}
+          className="cursor-pointer"
+        >
           Voltar
         </Button>
       )}
       {currentStep < 6 ? (
-        <Button type="button" onClick={nextStep} className="ml-auto cursor-pointer">
+        <Button
+          type="button"
+          onClick={nextStep}
+          className="ml-auto cursor-pointer"
+        >
           Próximo
         </Button>
       ) : (
@@ -355,9 +403,10 @@ export default function CreateEvent() {
   );
 
   // Função para renderizar mensagem de erro
-  const renderError = (field: string) => (
-    errors[field] && <p className="mt-1 text-sm text-red-600">{errors[field]}</p>
-  );
+  const renderError = (field: string) =>
+    errors[field] && (
+      <p className="mt-1 text-sm text-red-600">{errors[field]}</p>
+    );
 
   // Componente para renderizar cada passo do formulário
   const renderStep = () => {
@@ -365,14 +414,20 @@ export default function CreateEvent() {
       case 1:
         return (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-800 pt-8">1. Informações Básicas</h2>
+            <h2 className="text-xl font-semibold text-gray-800 pt-8">
+              1. Informações Básicas
+            </h2>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Nome do evento *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Nome do evento *
+              </label>
               <Input
                 type="text"
                 value={formData.title}
-                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, title: e.target.value }))
+                }
                 placeholder="Digite o nome do seu evento"
                 className="w-full"
                 required
@@ -381,23 +436,37 @@ export default function CreateEvent() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Imagem de divulgação</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Imagem de divulgação
+              </label>
               {renderImageUpload()}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Categoria *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Categoria *
+              </label>
               <div className="relative">
-                <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <Tag
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
                 <select
                   value={formData.category}
-                  onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      category: e.target.value,
+                    }))
+                  }
                   className="w-full pl-10 p-2 border rounded-md bg-white"
                   required
                 >
                   <option value="">Selecione uma categoria</option>
                   {CATEGORIES.map((cat) => (
-                    <option key={cat.value} value={cat.value}>{cat.label}</option>
+                    <option key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -409,32 +478,65 @@ export default function CreateEvent() {
       case 2:
         return (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-800 pt-8">2. Data e Horário</h2>
+            <h2 className="text-xl font-semibold text-gray-800 pt-8">
+              2. Data e Horário
+            </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
-                { field: "startDate", label: "Data de Início", error: errors.startDate },
-                { field: "startTime", label: "Hora de Início", error: errors.startTime },
-                { field: "endDate", label: "Data de Término", error: errors.endDate },
-                { field: "endTime", label: "Hora de Término", error: errors.endTime },
+                {
+                  field: "startDate",
+                  label: "Data de Início",
+                  error: errors.startDate,
+                },
+                {
+                  field: "startTime",
+                  label: "Hora de Início",
+                  error: errors.startTime,
+                },
+                {
+                  field: "endDate",
+                  label: "Data de Término",
+                  error: errors.endDate,
+                },
+                {
+                  field: "endTime",
+                  label: "Hora de Término",
+                  error: errors.endTime,
+                },
               ].map((item, idx) => (
                 <div key={idx}>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">{item.label} *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {item.label} *
+                  </label>
                   <div className="relative">
                     {item.label.includes("Hora") ? (
-                      <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                      <Clock
+                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                        size={20}
+                      />
                     ) : (
-                      <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                      <Calendar
+                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                        size={20}
+                      />
                     )}
                     <Input
                       type={item.label.includes("Hora") ? "time" : "date"}
                       value={formData[item.field as keyof FormData] as string}
-                      onChange={(e) => setFormData(prev => ({ ...prev, [item.field]: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          [item.field]: e.target.value,
+                        }))
+                      }
                       className="pl-10"
                       required
                     />
                   </div>
-                  {item.error && <p className="mt-1 text-sm text-red-600">{item.error}</p>}
+                  {item.error && (
+                    <p className="mt-1 text-sm text-red-600">{item.error}</p>
+                  )}
                 </div>
               ))}
             </div>
@@ -444,13 +546,22 @@ export default function CreateEvent() {
       case 3:
         return (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-800 pt-8">3. Descrição do Evento</h2>
+            <h2 className="text-xl font-semibold text-gray-800 pt-8">
+              3. Descrição do Evento
+            </h2>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Descrição *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Descrição *
+              </label>
               <Textarea
                 value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
                 placeholder="Descreva seu evento de forma detalhada..."
                 className="w-full h-48"
                 required
@@ -458,13 +569,19 @@ export default function CreateEvent() {
               {renderError("description")}
             </div>
 
-            <h2 className="text-xl font-semibold text-gray-800 pt-8">4. Política do Evento</h2>
+            <h2 className="text-xl font-semibold text-gray-800 pt-8">
+              4. Política do Evento
+            </h2>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Descrição *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Descrição *
+              </label>
               <Textarea
                 value={formData.policy}
-                onChange={(e) => setFormData(prev => ({ ...prev, policy: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, policy: e.target.value }))
+                }
                 placeholder="Descreva as políticas do seu evento de forma detalhada..."
                 className="w-full h-48"
                 required
@@ -477,14 +594,23 @@ export default function CreateEvent() {
       case 4:
         return (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-800 pt-8">5. Local do Evento</h2>
+            <h2 className="text-xl font-semibold text-gray-800 pt-8">
+              5. Local do Evento
+            </h2>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Nome do Local *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Nome do Local *
+              </label>
               <Input
                 type="text"
                 value={formData.venueName}
-                onChange={(e) => setFormData(prev => ({ ...prev, venueName: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    venueName: e.target.value,
+                  }))
+                }
                 placeholder="Ex: Teatro Municipal"
                 className="w-full"
                 required
@@ -494,13 +620,15 @@ export default function CreateEvent() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">CEP *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  CEP *
+                </label>
                 <Input
                   type="text"
                   value={formatCEP(formData.zipCode)}
                   onChange={(e) => {
-                    const rawValue = e.target.value.replace(/\D/g, '');
-                    setFormData(prev => ({ ...prev, zipCode: rawValue }));
+                    const rawValue = e.target.value.replace(/\D/g, "");
+                    setFormData((prev) => ({ ...prev, zipCode: rawValue }));
                   }}
                   placeholder="00000-000"
                   className="w-full"
@@ -513,24 +641,30 @@ export default function CreateEvent() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Av./Rua *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Av./Rua *
+                </label>
                 <Input
                   type="text"
                   value={formData.street}
-                  onChange={(e) => setFormData(prev => ({ ...prev, street: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, street: e.target.value }))
+                  }
                   className="w-full"
                   required
                 />
                 {renderError("street")}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Número *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Número *
+                </label>
                 <Input
                   type="text"
                   value={formatNumber(formData.number)}
                   onChange={(e) => {
-                    const rawValue = e.target.value.replace(/\D/g, '');
-                    setFormData(prev => ({ ...prev, number: rawValue }));
+                    const rawValue = e.target.value.replace(/\D/g, "");
+                    setFormData((prev) => ({ ...prev, number: rawValue }));
                   }}
                   className="w-full"
                   maxLength={6}
@@ -542,21 +676,35 @@ export default function CreateEvent() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Complemento</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Complemento
+                </label>
                 <Input
                   type="text"
                   value={formData.complement}
-                  onChange={(e) => setFormData(prev => ({ ...prev, complement: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      complement: e.target.value,
+                    }))
+                  }
                   placeholder="Apto, Sala, Conjunto..."
                   className="w-full"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Bairro *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Bairro *
+                </label>
                 <Input
                   type="text"
                   value={formData.neighborhood}
-                  onChange={(e) => setFormData(prev => ({ ...prev, neighborhood: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      neighborhood: e.target.value,
+                    }))
+                  }
                   className="w-full"
                   required
                 />
@@ -566,13 +714,15 @@ export default function CreateEvent() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Cidade *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Cidade *
+                </label>
                 <Input
                   type="text"
                   value={formData.city}
                   onChange={(e) => {
-                    const filteredValue = e.target.value.replace(/[0-9]/g, '');
-                    setFormData(prev => ({ ...prev, city: filteredValue }));
+                    const filteredValue = e.target.value.replace(/[0-9]/g, "");
+                    setFormData((prev) => ({ ...prev, city: filteredValue }));
                   }}
                   className="w-full"
                   required
@@ -580,16 +730,22 @@ export default function CreateEvent() {
                 {renderError("city")}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Estado *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Estado *
+                </label>
                 <select
                   value={formData.state}
-                  onChange={(e) => setFormData(prev => ({ ...prev, state: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, state: e.target.value }))
+                  }
                   className="w-full p-2 border rounded-md bg-white"
                   required
                 >
                   <option value="">Selecione o estado</option>
                   {CITIES.map((city) => (
-                    <option key={city.sigla} value={city.sigla}>{city.nome}</option>
+                    <option key={city.sigla} value={city.sigla}>
+                      {city.nome}
+                    </option>
                   ))}
                 </select>
                 {renderError("state")}
@@ -601,14 +757,24 @@ export default function CreateEvent() {
       case 5:
         return (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-800 pt-8">6. Ingressos</h2>
+            <h2 className="text-xl font-semibold text-gray-800 pt-8">
+              6. Ingressos
+            </h2>
 
             {errors.tickets && (
               <div className="bg-red-50 border-l-4 border-red-500 p-4">
                 <div className="flex">
                   <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    <svg
+                      className="h-5 w-5 text-red-500"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                   </div>
                   <div className="ml-3">
@@ -623,55 +789,112 @@ export default function CreateEvent() {
                 Que tipo de ingresso você deseja criar?
               </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[
-                  { type: "regular", label: "Ingresso Regular", description: "Ingresso com preço padrão" },
-                  { type: "student", label: "Meia-Entrada", description: "Ingresso com 50% de desconto" },
-                ].map((ticketType, idx) => (
-                  <div
-                    key={idx}
-                    onClick={() => {
-                      const newTicket: Ticket = {
-                        name: "",
-                        price: 0,
-                        quantity: 0,
-                        description: "",
-                        type: ticketType.type as Ticket["type"],
-                      };
-                      setFormData(prev => ({
-                        ...prev,
-                        tickets: [...prev.tickets, newTicket],
-                      }));
-                      setErrors(prev => ({ ...prev, tickets: "" }));
-                    }}
-                    className="bg-white p-6 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 cursor-pointer transition-all"
-                  >
-                    <div className="text-center">
-                      <Ticket className="w-12 h-12 mx-auto text-gray-400 mb-2" />
-                      <h4 className="font-medium text-gray-900">{ticketType.label}</h4>
-                      <p className="text-sm text-gray-500 mt-1">{ticketType.description}</p>
+                  {
+                    type: "regular",
+                    label: "Ingresso Regular",
+                    description: "Ingresso com preço padrão",
+                  },
+                  {
+                    type: "student",
+                    label: "Meia-Entrada",
+                    description: "Ingresso com 50% de desconto",
+                  },
+                  {
+                    type: "free",
+                    label: "Gratuito",
+                    description:
+                      "Valide seu evento com formulário de inscrição",
+                  },
+                ].map((ticketType, idx) => {
+                  return (
+                    <div
+                      key={idx}
+                      onClick={() => {
+                        const newTicket: Ticket = {
+                          name: "",
+                          price: 0,
+                          quantity: 0,
+                          description: "",
+                          type: ticketType.type as Ticket["type"],
+                        };
+
+                        if (ticketType.type != "free") {
+                          setFormData((prev) => ({
+                            ...prev,
+                            tickets: [...prev.tickets, newTicket],
+                          }));
+                        } else {
+                          setFormData((prev) => ({
+                            ...prev,
+                            tickets: [],
+                          }));
+                        }
+
+                        setErrors((prev) => ({ ...prev, tickets: "" }));
+
+                        // Se for o ingresso gratuito (índice 2), avançar o step
+                        if (ticketType.type === "free") {
+                          setFormData((prev) => ({
+                            ...prev,
+                            isFree: true,
+                          }));
+                          setClickedGratuito(true);
+                        } else {
+                          setFormData((prev) => ({
+                            ...prev,
+                            isFree: false,
+                          }));
+                          setClickedGratuito(false);
+                        }
+                      }}
+                      className="bg-white p-6 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 cursor-pointer transition-all"
+                    >
+                      <div className="text-center">
+                        <Ticket className="w-12 h-12 mx-auto text-gray-400 mb-2" />
+                        <h4 className="font-medium text-gray-900">
+                          {ticketType.label}
+                        </h4>
+                        <p className="text-sm text-gray-500 mt-1">
+                          {ticketType.description}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {formData.tickets.length > 0 && (
                 <div className="mt-8">
-                  <h4 className="font-medium text-gray-900 mb-4">Ingressos Criados</h4>
+                  <h4 className="font-medium text-gray-900 mb-4">
+                    Ingressos Criados
+                  </h4>
                   <div className="space-y-4">
                     {formData.tickets.map((ticket, index) => (
-                      <div key={index} className="bg-white p-4 rounded-lg shadow-sm">
+                      <div
+                        key={index}
+                        className="bg-white p-4 rounded-lg shadow-sm"
+                      >
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Ingresso *</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Nome do Ingresso *
+                            </label>
                             <Input
                               type="text"
                               value={ticket.name}
                               onChange={(e) => {
                                 const updatedTickets = [...formData.tickets];
                                 updatedTickets[index].name = e.target.value;
-                                setFormData(prev => ({ ...prev, tickets: updatedTickets }));
-                                setErrors(prev => ({ ...prev, [`ticket-${index}-name`]: "" }));
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  tickets: updatedTickets,
+                                }));
+                                setErrors((prev) => ({
+                                  ...prev,
+                                  [`ticket-${index}-name`]: "",
+                                }));
                               }}
                               placeholder="Ex: VIP, Camarote, Pista"
                               className="w-full"
@@ -681,14 +904,22 @@ export default function CreateEvent() {
                           </div>
 
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Preço *</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Preço *
+                            </label>
                             <NumericFormat
                               value={ticket.price}
                               onValueChange={({ floatValue }) => {
                                 const updatedTickets = [...formData.tickets];
                                 updatedTickets[index].price = floatValue ?? 0;
-                                setFormData(prev => ({ ...prev, tickets: updatedTickets }));
-                                setErrors(prev => ({ ...prev, [`ticket-${index}-price`]: "" }));
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  tickets: updatedTickets,
+                                }));
+                                setErrors((prev) => ({
+                                  ...prev,
+                                  [`ticket-${index}-price`]: "",
+                                }));
                               }}
                               thousandSeparator="."
                               decimalSeparator=","
@@ -704,7 +935,9 @@ export default function CreateEvent() {
                           </div>
 
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Quantidade Disponível *</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Quantidade Disponível *
+                            </label>
                             <Input
                               type="number"
                               value={ticket.quantity}
@@ -713,8 +946,14 @@ export default function CreateEvent() {
                                 if (value >= 0) {
                                   const updatedTickets = [...formData.tickets];
                                   updatedTickets[index].quantity = value;
-                                  setFormData(prev => ({ ...prev, tickets: updatedTickets }));
-                                  setErrors(prev => ({ ...prev, [`ticket-${index}-quantity`]: "" }));
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    tickets: updatedTickets,
+                                  }));
+                                  setErrors((prev) => ({
+                                    ...prev,
+                                    [`ticket-${index}-quantity`]: "",
+                                  }));
                                 }
                               }}
                               placeholder="0"
@@ -726,14 +965,20 @@ export default function CreateEvent() {
                           </div>
 
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Descrição
+                            </label>
                             <Input
                               type="text"
                               value={ticket.description}
                               onChange={(e) => {
                                 const updatedTickets = [...formData.tickets];
-                                updatedTickets[index].description = e.target.value;
-                                setFormData(prev => ({ ...prev, tickets: updatedTickets }));
+                                updatedTickets[index].description =
+                                  e.target.value;
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  tickets: updatedTickets,
+                                }));
                               }}
                               placeholder="Descrição do ingresso (opcional)"
                               className="w-full"
@@ -746,8 +991,13 @@ export default function CreateEvent() {
                           variant="outline"
                           className="mt-4 text-red-600 hover:text-red-700 cursor-pointer"
                           onClick={() => {
-                            const updatedTickets = formData.tickets.filter((_, i) => i !== index);
-                            setFormData(prev => ({ ...prev, tickets: updatedTickets }));
+                            const updatedTickets = formData.tickets.filter(
+                              (_, i) => i !== index
+                            );
+                            setFormData((prev) => ({
+                              ...prev,
+                              tickets: updatedTickets,
+                            }));
                           }}
                         >
                           Remover Ingresso
@@ -758,13 +1008,16 @@ export default function CreateEvent() {
                 </div>
               )}
             </div>
+            {clickedGratuito ? <FormBuilder></FormBuilder> : null}
           </div>
         );
 
       case 6:
         return (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-800 pt-8">7. Responsabilidades</h2>
+            <h2 className="text-xl font-semibold text-gray-800 pt-8">
+              7. Responsabilidades
+            </h2>
 
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
@@ -772,7 +1025,7 @@ export default function CreateEvent() {
                   id="terms"
                   checked={formData.acceptedTerms}
                   onCheckedChange={(checked: boolean) =>
-                    setFormData(prev => ({ ...prev, acceptedTerms: checked }))
+                    setFormData((prev) => ({ ...prev, acceptedTerms: checked }))
                   }
                   className="cursor-pointer"
                 />
@@ -785,15 +1038,26 @@ export default function CreateEvent() {
                   </label>
                   <p className="text-sm text-gray-500">
                     Ao publicar este evento, estou de acordo com os{" "}
-                    <a href="#" className="text-blue-600 hover:underline">Termos de uso</a>
+                    <a href="#" className="text-blue-600 hover:underline">
+                      Termos de uso
+                    </a>
                     , com as{" "}
-                    <a href="#" className="text-blue-600 hover:underline">Diretrizes de Comunidade</a>{" "}
+                    <a href="#" className="text-blue-600 hover:underline">
+                      Diretrizes de Comunidade
+                    </a>{" "}
                     e com as{" "}
-                    <a href="#" className="text-blue-600 hover:underline">Regras de meia-entrada</a>
+                    <a href="#" className="text-blue-600 hover:underline">
+                      Regras de meia-entrada
+                    </a>
                     , bem como declaro estar ciente da{" "}
-                    <a href="#" className="text-blue-600 hover:underline">Política de Privacidade</a>{" "}
+                    <a href="#" className="text-blue-600 hover:underline">
+                      Política de Privacidade
+                    </a>{" "}
                     e das{" "}
-                    <a href="#" className="text-blue-600 hover:underline">Obrigatoriedades Legais</a>.
+                    <a href="#" className="text-blue-600 hover:underline">
+                      Obrigatoriedades Legais
+                    </a>
+                    .
                   </p>
                 </div>
               </div>
