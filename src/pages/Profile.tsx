@@ -3,8 +3,9 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { User, Camera, Facebook, Instagram, Globe } from "lucide-react";
+import { User, Camera, Facebook, Instagram, Globe } from 'lucide-react';
 import { useUser } from "@/contexts/useContext";
 import axios from "axios";
 
@@ -32,6 +33,13 @@ const Tab = ({ isActive, children, onClick, className }: TabProps) => {
     </button>
   );
 };
+
+const tabOptions = [
+  { value: "dados", label: "Conta" },
+  { value: "pagamentos", label: "Pagamentos" },
+  { value: "privacidade", label: "Privacidade" },
+  { value: "avancada", label: "Avançada" }
+] as const;
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState<
@@ -152,39 +160,39 @@ export default function Profile() {
             <h1 className="text-2xl font-bold mb-4">Minha Conta</h1>
           </div>
 
-          <div className="border-b border-gray-200 mb-6">
-            <div className="overflow-x-auto">
-              <div className="flex space-x-8">
+          {/* Desktop Tabs */}
+          <div className="hidden sm:block border-b border-gray-200 mb-6">
+            <div className="flex space-x-8">
+              {tabOptions.map((option) => (
                 <Tab
-                  isActive={activeTab === "dados"}
-                  onClick={() => setActiveTab("dados")}
+                  key={option.value}
+                  isActive={activeTab === option.value}
+                  onClick={() => setActiveTab(option.value)}
                   className="cursor-pointer"
                 >
-                  Conta
+                  {option.label}
                 </Tab>
-                <Tab
-                  isActive={activeTab === "pagamentos"}
-                  onClick={() => setActiveTab("pagamentos")}
-                  className="cursor-pointer"
-                >
-                  Pagamentos
-                </Tab>
-                <Tab
-                  isActive={activeTab === "privacidade"}
-                  onClick={() => setActiveTab("privacidade")}
-                  className="cursor-pointer"
-                >
-                  Privacidade
-                </Tab>
-                <Tab
-                  isActive={activeTab === "avancada"}
-                  onClick={() => setActiveTab("avancada")}
-                  className="cursor-pointer"
-                >
-                  Avançada
-                </Tab>
-              </div>
+              ))}
             </div>
+          </div>
+
+          {/* Mobile Dropdown */}
+          <div className="sm:hidden mb-6">
+            <Select
+              value={activeTab}
+              onValueChange={(value: "dados" | "pagamentos" | "privacidade" | "avancada") => setActiveTab(value)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Selecione uma seção" />
+              </SelectTrigger>
+              <SelectContent>
+                {tabOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="min-h-[calc(100vh-300px)]">
@@ -195,13 +203,13 @@ export default function Profile() {
                     <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden cursor-pointer">
                       {previewImage ? (
                         <img 
-                          src={previewImage} 
+                          src={previewImage || "/placeholder.svg"} 
                           alt="Preview" 
                           className="w-full h-full object-cover"
                         />
                       ) : user?.profileImage ? (
                         <img 
-                          src={user.profileImage} 
+                          src={user.profileImage || "/placeholder.svg"} 
                           alt="Profile" 
                           className="w-full h-full object-cover "
                         />

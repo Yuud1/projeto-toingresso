@@ -3,8 +3,9 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { Search } from "lucide-react";
+import { Search } from 'lucide-react';
 
 interface Ticket {
   id: string;
@@ -75,8 +76,25 @@ const mockTickets: Ticket[] = [
     customerName: "Pedro Oliveira",
     customerEmail: "pedro@email.com",
     orderNumber: "ORDER-003"
+  },
+  {
+    id: "4",
+    eventName: "Concerto Clássico",
+    eventDate: "2024-02-28",
+    ticketNumber: "TICKET-004",
+    status: "encerrados",
+    customerName: "Ana Costa",
+    customerEmail: "ana@email.com",
+    orderNumber: "ORDER-004"
   }
 ];
+
+const statusOptions = [
+  { value: "ativos", label: "Ativos" },
+  { value: "pendentes", label: "Pendentes" },
+  { value: "cancelados", label: "Cancelados" },
+  { value: "encerrados", label: "Encerrados" }
+] as const;
 
 export default function MyTickets() {
   const [activeTab, setActiveTab] = useState<"ativos" | "pendentes" | "cancelados" | "encerrados">("ativos");
@@ -113,42 +131,39 @@ export default function MyTickets() {
             </div>
           </div>
 
-          <div className="border-b border-gray-200 mb-6">
-          <div className="overflow-x-auto">
-  <div className="flex space-x-4 sm:space-x-8 min-w-max">
-    <Tab
-      isActive={activeTab === "ativos"}
-      onClick={() => setActiveTab("ativos")}
-      className="whitespace-nowrap"
-    >
-      Ativos
-    </Tab>
-    <Tab
-      isActive={activeTab === "pendentes"}
-      onClick={() => setActiveTab("pendentes")}
-      className="whitespace-nowrap"
-    >
-      Pendentes
-    </Tab>
-    <Tab
-      isActive={activeTab === "cancelados"}
-      onClick={() => setActiveTab("cancelados")}
-      className="whitespace-nowrap"
-    >
-      Cancelados
-    </Tab>
-    <Tab
-      isActive={activeTab === "encerrados"}
-      onClick={() => setActiveTab("encerrados")}
-      className="whitespace-nowrap"
-    >
-      Encerrados
-    </Tab>
-</div>
-
+          {/* Desktop Tabs */}
+          <div className="hidden sm:block border-b border-gray-200 mb-6">
+            <div className="flex space-x-8">
+              {statusOptions.map((option) => (
+                <Tab
+                  key={option.value}
+                  isActive={activeTab === option.value}
+                  onClick={() => setActiveTab(option.value)}
+                >
+                  {option.label}
+                </Tab>
+              ))}
             </div>
           </div>
 
+          {/* Mobile Dropdown */}
+          <div className="sm:hidden mb-6">
+            <Select
+              value={activeTab}
+              onValueChange={(value: "ativos" | "pendentes" | "cancelados" | "encerrados") => setActiveTab(value)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Selecione o status" />
+              </SelectTrigger>
+              <SelectContent>
+                {statusOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           {filteredTickets.length === 0 ? (
             <div className="text-center py-16">
@@ -167,7 +182,6 @@ export default function MyTickets() {
                   <div className="p-4">
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="font-semibold text-lg">{ticket.eventName}</h3>
-
                     </div>
                     <p className="text-gray-600 mb-1">Data: {new Date(ticket.eventDate).toLocaleDateString()}</p>
                     <p className="text-gray-600 mb-1">Cliente: {ticket.customerName}</p>
@@ -182,4 +196,4 @@ export default function MyTickets() {
       <Footer />
     </div>
   );
-} 
+}
