@@ -436,7 +436,7 @@ export default function PrivacyPolicy() {
                 Voltar
               </Button>
               <Button
-                onClick={() => (window.location.href = "/diretrizes-comunidade")}
+                onClick={() => (window.location.href = "/diretrizes-da-comunidade")}
                 className="bg-[#02488C] hover:bg-[#02488C]/90 cursor-pointer"
               >
                 Ver Diretrizes da Comunidade
