@@ -113,8 +113,12 @@ export default function MyEvents() {
         if (response.data.events) {
           setEvents(response.data.events)
         }
-      } catch (error) {
+      } catch (error: any) {
         console.log("Error", error)
+
+        if (error.response.data.logged === false) {
+          window.location.href= "/login"
+        }
       }
     }
 

@@ -65,14 +65,13 @@ interface InterfaceFormBuilder {
 
 type FormValues = Record<string, string | boolean | string[]>;
 
-export default function FormBuilder({
+export default function FormBuilder({  
   setForm,
 }: InterfaceFormBuilder): JSX.Element {
   const [fields, setFields] = useState<FormField[]>([]);
   const [newFieldType, setNewFieldType] = useState<FieldType>("text");
   const [formTitle, setFormTitle] = useState<string>("Meu Formulário");
-  const [formValues, setFormValues] = useState<FormValues>({});
-  console.log(fields);
+  const [formValues, setFormValues] = useState<FormValues>({});  
 
   // Resetar valores do formulário quando os campos mudam
   useEffect(() => {

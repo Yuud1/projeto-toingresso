@@ -79,8 +79,11 @@ const EventDetail = () => {
             {/* <p className="text-sm md:text-base">{event?.startDate}</p> */}
             <p className="text-sm md:text-base">{event?.neighborhood}</p>
             <p className="text-base">
-              {event?.startDate?.toLocaleDateString()} {event?.startTime} até{" "}
-              {event?.endDate?.toLocaleDateString()} {event?.endTime}
+              {event?.startDate &&
+                new Date(event.startDate).toLocaleDateString()}{" "}
+              {event?.startTime} até{" "}
+              {event?.endDate && new Date(event.endDate).toLocaleDateString()}{" "}
+              {event?.endTime}
             </p>
 
             <p className="text-base">{event?.description}</p>
