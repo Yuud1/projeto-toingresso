@@ -81,7 +81,6 @@ export default function MyEvents() {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<EventInterface | null>(null)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   //  Calculo do revenue atualizado da silva
   const revenueData = months.map((month, idx) => {

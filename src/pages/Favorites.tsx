@@ -202,7 +202,8 @@ const Carousel = ({ items, renderItem, title, icon }: CarouselProps) => {
   const [scrollPosition, setScrollPosition] = useState(0)
   const [maxScroll, setMaxScroll] = useState(0)
   const [itemWidth, setItemWidth] = useState(0)
-
+  console.log(maxScroll);
+  
   useEffect(() => {
     if (carouselRef.current) {
       const scrollWidth = carouselRef.current.scrollWidth
