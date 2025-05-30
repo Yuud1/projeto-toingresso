@@ -8,11 +8,11 @@ import axios from "axios";
 import EventInterface from "@/interfaces/EventInterface";
 
 const EventDetail = () => {
-  const {id} = useParams();
+  const { id } = useParams();
 
   const [isFavorited, setIsFavorited] = useState(false);
-  const [event, setEvents] = useState<EventInterface | undefined>(undefined);  
-  
+  const [event, setEvents] = useState<EventInterface | undefined>(undefined);
+
   useEffect(() => {
     try {
       async function getEvento() {
@@ -33,7 +33,6 @@ const EventDetail = () => {
       }
 
       getEvento();
-
     } catch (error) {
       console.log("Fudeu", error);
     }
@@ -79,7 +78,11 @@ const EventDetail = () => {
             </div>
             {/* <p className="text-sm md:text-base">{event?.startDate}</p> */}
             <p className="text-sm md:text-base">{event?.neighborhood}</p>
-            <p className="text-base">{event?.startDate} {event?.startTime} até {event?.endDate}  {event?.endTime}</p>
+            <p className="text-base">
+              {event?.startDate?.toLocaleDateString()} {event?.startTime} até{" "}
+              {event?.endDate?.toLocaleDateString()} {event?.endTime}
+            </p>
+
             <p className="text-base">{event?.description}</p>
           </div>
 
@@ -100,7 +103,7 @@ const EventDetail = () => {
             </h2>
             <p className="text-[#414141] leading-relaxed whitespace-pre-line">
               {event?.description}
-            </p> 
+            </p>
             {/* Seção do Anunciante */}
             <div className="mt-8 pt-8 border-t border-gray-200">
               <h3 className="text-lg font-semibold mb-4 text-[#414141]">
@@ -136,7 +139,10 @@ const EventDetail = () => {
           {/* Ingressos */}
           <div>
             <h2 className="text-xl font-bold mb-4 text-[#414141]">Ingressos</h2>
-            <TicketSelector eventTitle={event?.title ?? ""} tickets={event?.tickets ?? []} />
+            <TicketSelector
+              eventTitle={event?.title ?? ""}
+              tickets={event?.tickets ?? []}
+            />
 
             {/* Política */}
             <div className="mt-8 p-4 border border-gray-300 rounded-lg bg-gray-50">

@@ -10,38 +10,8 @@ import { NumericFormat } from "react-number-format";
 import axios from "axios";
 import { toast } from "sonner";
 import FormBuilder from "@/components/form-builder";
-
-interface TicketType {
-  name: string;
-  price: number;
-  quantity: number;
-  description: string;
-  type: "regular" | "student" | "senior" | "free";
-}
-
-interface FormData {
-  title: string;
-  image: File | null;
-  category: string;
-  startDate: string;
-  startTime: string;
-  endDate: string;
-  endTime: string;
-  description: string;
-  policy: string;
-  venueName: string;
-  zipCode: string;
-  street: string;
-  number: string;
-  complement: string;
-  neighborhood: string;
-  city: string;
-  state: string;
-  tickets: TicketType[];
-  isFree: boolean;
-  acceptedTerms: boolean;
-  token: string | null;
-}
+import FormDataInterface from "@/interfaces/FormDataInterface";
+import TicketType from "@/interfaces/TicketTypeInterface";
 
 const CITIES = [
   { nome: "Palmas", sigla: "PAL" },
@@ -72,12 +42,13 @@ export default function CreateEvent() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [clickedGratuito, setClickedGratuito] = useState(false);
 
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<FormDataInterface>({
     title: "",
     image: null,
     category: "",
     startDate: "",
     startTime: "",
+    formTitle: "",    
     endDate: "",
     endTime: "",
     description: "",
@@ -92,10 +63,11 @@ export default function CreateEvent() {
     state: "",
     tickets: [],
     isFree: false,
+    customFields:[],
     acceptedTerms: false,
     token: localStorage.getItem("token"),
   });
-
+  
   // Função para validar os campos da etapa atual
   const validateCurrentStep = useCallback(() => {
     const newErrors: Record<string, string> = {};
@@ -608,7 +580,7 @@ export default function CreateEvent() {
                     )}
                     <Input
                       type={item.label.includes("Hora") ? "time" : "date"}
-                      value={formData[item.field as keyof FormData] as string}
+                      value={formData[item.field as keyof FormDataInterface] as string}
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
@@ -909,6 +881,7 @@ export default function CreateEvent() {
                           setFormData((prev) => ({
                             ...prev,
                             tickets: [...prev.tickets, newTicket],
+                            customFields: [],
                           }));
                         } else {
                           setFormData((prev) => ({
@@ -1093,7 +1066,7 @@ export default function CreateEvent() {
                 </div>
               )}
             </div>
-            {clickedGratuito ? <FormBuilder></FormBuilder> : null}
+            {clickedGratuito ? <FormBuilder form={formData} setForm={setFormData} ></FormBuilder> : null}
           </div>
         );
 
