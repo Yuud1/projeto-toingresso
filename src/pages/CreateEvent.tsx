@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar, Clock, Image, Tag, Ticket } from "lucide-react";
+import { Calendar, Clock, ImageIcon, Tag, Ticket } from 'lucide-react';
 import { NumericFormat } from "react-number-format";
 import axios from "axios";
 import { toast } from "sonner";
 import FormBuilder from "@/components/form-builder";
 
-interface Ticket {
+interface TicketType {
   name: string;
   price: number;
   quantity: number;
@@ -37,7 +37,7 @@ interface FormData {
   neighborhood: string;
   city: string;
   state: string;
-  tickets: Ticket[];
+  tickets: TicketType[];
   isFree: boolean;
   acceptedTerms: boolean;
   token: string | null;
@@ -275,64 +275,149 @@ export default function CreateEvent() {
   }, [created]);
 
   // Componente para renderizar o progresso
-  const renderProgressSteps = () => (
-    <div className="flex items-center justify-between mb-8 relative">
-      <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-gray-200">
-        <div
-          className="h-full bg-[#02488C] transition-all duration-300"
-          style={{ width: `${((currentStep - 1) / 5) * 100}%` }}
-        />
+  const renderProgressSteps = () => {
+  const totalSteps = 6;
+  const steps = [1, 2, 3, 4, 5, 6];
+  const stepLabels = ["Informações", "Data/Hora", "Descrição", "Local", "Ingressos", "Termos"];
+
+  return (
+    <>
+      {/* Desktop version - mostra todos os steps */}
+      <div className="hidden md:flex items-center justify-between mb-8 relative">
+        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-gray-200">
+          <div
+            className="h-full bg-[#02488C] transition-all duration-300"
+            style={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
+          />
+        </div>
+
+        {steps.map((step) => (
+          <div key={step} className="relative z-10 flex flex-col items-center">
+            <div
+              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+                step === currentStep
+                  ? "bg-[#02488C] text-white border-4 border-[#e2f0ff] ring-4 ring-[#02488C]/20"
+                  : step < currentStep
+                  ? "bg-[#02488C] text-white"
+                  : "bg-white border-2 border-gray-300 text-gray-500"
+              }`}
+            >
+              {step < currentStep ? (
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              ) : (
+                <span className="text-sm font-medium">{step}</span>
+              )}
+            </div>
+            <span
+              className={`absolute -bottom-6 text-xs font-medium whitespace-nowrap ${
+                step === currentStep
+                  ? "text-[#02488C]"
+                  : step < currentStep
+                  ? "text-[#02488C]"
+                  : "text-gray-500"
+              }`}
+            >
+              {stepLabels[step - 1]}
+            </span>
+          </div>
+        ))}
       </div>
 
-      {[1, 2, 3, 4, 5, 6].map((step) => (
-        <div key={step} className="relative z-10 flex flex-col items-center">
+      {/* Mobile version - mostra apenas anterior, atual e próximo */}
+      <div className="md:hidden mb-8">
+        {/* Progress bar */}
+        <div className="w-full h-1 bg-gray-200 mb-6">
           <div
-            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
-              step === currentStep
-                ? "bg-[#02488C] text-white border-4 border-[#e2f0ff] ring-4 ring-[#02488C]/20"
-                : step < currentStep
-                ? "bg-[#02488C] text-white"
-                : "bg-white border-2 border-gray-300 text-gray-500"
-            }`}
+            className="h-full bg-[#02488C] transition-all duration-300"
+            style={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
+          />
+        </div>
+
+        {/* Steps container */}
+        <div className="flex items-center justify-center space-x-4">
+          {/* Lógica simplificada para mostrar apenas os steps relevantes */}
+          {(() => {
+  // Determina quais steps mostrar
+  let stepsToShow = [];
+  
+  if (currentStep === 1) {
+    // No primeiro step, mostrar apenas atual e próximo
+    stepsToShow = [1, 2];
+  } else if (currentStep === 6) {
+    // No último step, mostrar apenas anterior e atual
+    stepsToShow = [5, 6];
+  } else {
+    // Nos steps intermediários, mostrar anterior, atual e próximo
+    stepsToShow = [currentStep - 1, currentStep, currentStep + 1];
+  }
+  
+  return stepsToShow.map(step => (
+    <div key={step} className="flex flex-col items-center">
+      <div
+        className={`w-8 h-8 rounded-full flex items-center justify-center ${
+          step === currentStep
+            ? "bg-[#02488C] text-white border-2 border-[#e2f0ff] ring-2 ring-[#02488C]/20"
+            : step < currentStep
+            ? "bg-[#02488C] text-white"
+            : "bg-white border-2 border-gray-300 text-gray-500"
+        }`}
+      >
+        {step < currentStep ? (
+          <svg
+            className="w-4 h-4 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
           >
-            {step < currentStep ? (
-              <svg
-                className="w-6 h-6 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            ) : (
-              <span className="text-sm font-medium">{step}</span>
-            )}
-          </div>
-          <span
-            className={`absolute -bottom-6 text-xs font-medium ${
-              step === currentStep
-                ? "text-[#02488C]"
-                : step < currentStep
-                ? "text-[#02488C]"
-                : "text-gray-500"
-            }`}
-          >
-            {step === 1 && "Informações"}
-            {step === 2 && "Data/Hora"}
-            {step === 3 && "Descrição"}
-            {step === 4 && "Local"}
-            {step === 5 && "Ingressos"}
-            {step === 6 && "Termos"}
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+        ) : (
+          <span className="text-sm font-medium">{step}</span>
+        )}
+      </div>
+      <span
+        className={`mt-2 text-xs font-medium text-center whitespace-nowrap ${
+          step === currentStep
+            ? "text-[#02488C]"
+            : step < currentStep
+            ? "text-[#02488C]"
+            : "text-gray-500"
+        }`}
+      >
+        {stepLabels[step - 1]}
+      </span>
+    </div>
+  ));
+})()}
+        </div>
+
+        {/* Current step indicator */}
+        <div className="text-center mt-4">
+          <span className="text-sm text-gray-600">
+            Etapa {currentStep} de {totalSteps}
           </span>
         </div>
-      ))}
-    </div>
+      </div>
+    </>
   );
+};
 
   // Componente para renderizar a navegação
   const renderNavigation = () => (
@@ -372,7 +457,7 @@ export default function CreateEvent() {
     <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-gray-400 transition-colors">
       <div className="space-y-2 text-center">
         <div className="mx-auto h-12 w-12 text-gray-400">
-          <Image size={48} className="mx-auto" />
+          <ImageIcon size={48} className="mx-auto" />
         </div>
         <div className="flex text-sm text-gray-600">
           <label
@@ -812,12 +897,12 @@ export default function CreateEvent() {
                     <div
                       key={idx}
                       onClick={() => {
-                        const newTicket: Ticket = {
+                        const newTicket: TicketType = {
                           name: "",
                           price: 0,
                           quantity: 0,
                           description: "",
-                          type: ticketType.type as Ticket["type"],
+                          type: ticketType.type as TicketType["type"],
                         };
 
                         if (ticketType.type != "free") {
