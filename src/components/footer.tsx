@@ -213,11 +213,11 @@ const Footer = () => {
         {/* Desktop - termos inline */}
         <div className="hidden sm:flex flex-col items-center md:flex-row md:items-center justify-between gap-6 text-center md:text-left px-10">
           <ul className="flex flex-wrap justify-center md:justify-start gap-2 md:gap-4 text-gray-300">
-            <li><a href="#" className="hover:underline">Termos de uso</a></li>
-            <li><a href="#" className="hover:underline">Diretrizes de Comunidade</a></li>
-            <li><a href="#" className="hover:underline">Política de Privacidade</a></li>
-            <li><a href="#" className="hover:underline">Obrigatoriedades Legais</a></li>
-            <li><a href="#" className="hover:underline">Regras de meia-entrada</a></li>
+            <li><a href="/termos-de-uso" className="hover:underline">Termos de uso</a></li>
+            <li><a href="/diretrizes-da-comunidade" className="hover:underline">Diretrizes de Comunidade</a></li>
+            <li><a href="/politica-de-privacidade" className="hover:underline">Política de Privacidade</a></li>
+            <li><a href="/obrigatoriedades-legais" className="hover:underline">Obrigatoriedades Legais</a></li>
+            <li><a href="/regra-da-meia-entrada" className="hover:underline">Regras de meia-entrada</a></li>
           </ul>
 
           <div className="flex justify-center md:justify-end gap-4">
