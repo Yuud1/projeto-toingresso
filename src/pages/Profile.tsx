@@ -207,9 +207,9 @@ export default function Profile() {
                           alt="Preview" 
                           className="w-full h-full object-cover"
                         />
-                      ) : user?.profileImage ? (
+                      ) : user?.avatar ? (
                         <img 
-                          src={user.profileImage || "/placeholder.svg"} 
+                          src={user.avatar || "/placeholder.svg"} 
                           alt="Profile" 
                           className="w-full h-full object-cover "
                         />

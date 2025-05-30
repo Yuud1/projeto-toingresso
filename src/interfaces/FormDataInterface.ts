@@ -1,18 +1,16 @@
 import CustomFieldInterface from "./CustomFieldInterface";
-import OrganizerInterface from "./OrganizerInterface";
-import TicketInterface from "./TicketInterface";
+import TicketType from "./TicketTypeInterface";
 
-export default interface EventInterface {
-  _id: string;
+export default interface FormDataInterface {
   title: string;
-  image: string;
-  imageId: string;
+  image: File | null;
   category: string;
-  startDate: Date;
+  startDate: string;
   startTime: string;
-  endDate: Date;
+  endDate: string;
   endTime: string;
   description: string;
+  policy: string;
   venueName: string;
   zipCode: string;
   street: string;
@@ -21,11 +19,10 @@ export default interface EventInterface {
   neighborhood: string;
   city: string;
   state: string;
-  tickets: TicketInterface[];
-  organizer: OrganizerInterface;
+  tickets: TicketType[];
+  isFree: boolean;
   acceptedTerms: boolean;
-  policy: string;
-  status: "active" | "finished" | "editing";
-  formTitle?: String;
+  token: string | null;
+  formTitle: string;
   customFields: CustomFieldInterface[];
 }

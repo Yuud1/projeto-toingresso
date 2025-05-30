@@ -10,4 +10,6 @@ export default interface UserInterface {
   instagram: string;
   facebook: string;
   phoneNumber: string;
+  avatar: string,
+  
 }

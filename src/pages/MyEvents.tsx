@@ -81,7 +81,6 @@ export default function MyEvents() {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<EventInterface | null>(null)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   //  Calculo do revenue atualizado da silva
   const revenueData = months.map((month, idx) => {
@@ -114,8 +113,12 @@ export default function MyEvents() {
         if (response.data.events) {
           setEvents(response.data.events)
         }
-      } catch (error) {
+      } catch (error: any) {
         console.log("Error", error)
+
+        if (error.response.data.logged === false) {
+          window.location.href= "/login"
+        }
       }
     }
 
