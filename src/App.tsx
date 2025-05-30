@@ -13,6 +13,11 @@ import MyEvents from "@/pages/MyEvents";
 import Favorites from "@/pages/Favorites";
 import EmailConfirmation from "@/pages/EmailConfirmation";
 import EmailConfirmed from "@/pages/EmailConfirmed";
+import TermsOfUse from "@/pages/TermsOfUse";
+import CommunityGuidelines from "@/pages/CommunityGuidelines";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import LegalObligations from "@/pages/LegalObligations";
+import HalfPriceRules from "@/pages/HalfPriceRules";
 
 
 function App() {
@@ -33,6 +38,11 @@ function App() {
         <Route path="/meus-ingressos" element={<MyTickets />} />
         <Route path="/meus-eventos" element={<MyEvents />} />
         <Route path="/favoritos" element={<Favorites />} />
+        <Route path="/termos-de-uso" element={<TermsOfUse />} />
+        <Route path="/diretrizes-da-comunidade" element={<CommunityGuidelines />} />
+        <Route path="/politica-de-privacidade" element={<PrivacyPolicy />} />
+        <Route path="/obrigatoriedades-legais" element={<LegalObligations />} />
+        <Route path="/regra-da-meia-entrada" element={<HalfPriceRules />} />
       </Routes>
     </Router>
   );
