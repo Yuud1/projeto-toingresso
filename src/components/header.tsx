@@ -91,7 +91,6 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
   const { user } = useUser();
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
-  
 
   useEffect(() => {
     if (isScrolledProp === undefined) {
@@ -105,9 +104,12 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
   }, [isScrolledProp]);
 
   useEffect(() => {
-    if (location.pathname.startsWith("/criar-evento")) setActiveMenu("criar-evento");
-    else if (location.pathname.startsWith("/meus-eventos")) setActiveMenu("meus-eventos");
-    else if (location.pathname.startsWith("/meus-ingressos")) setActiveMenu("meus-ingressos");
+    if (location.pathname.startsWith("/criar-evento"))
+      setActiveMenu("criar-evento");
+    else if (location.pathname.startsWith("/meus-eventos"))
+      setActiveMenu("meus-eventos");
+    else if (location.pathname.startsWith("/meus-ingressos"))
+      setActiveMenu("meus-ingressos");
   }, [location.pathname]);
 
   const isScrolled = isScrolledProp ?? isScrolledInternal;
@@ -115,203 +117,209 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
   const baseButtonClass =
     "cursor-pointer hover:bg-transparent hover:text-inherit";
 
- const ProfileMenu = ({ isMobile = false }: { isMobile?: boolean }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const ProfileMenu = ({ isMobile = false }: { isMobile?: boolean }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (
+          dropdownRef.current &&
+          !dropdownRef.current.contains(event.target as Node)
+        ) {
+          setIsOpen(false);
+        }
+      };
+
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    function handleSair() {
+      if (localStorage.length > 0) {
+        localStorage.clear();
       }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  function handleSair() {
-    if (localStorage.length > 0) {        
-      localStorage.clear();
+      window.location.href = "/login";
     }
-    window.location.href = "/login";
-  }
 
-  if (user === null) return null;
+    if (!user) {
+      return null;
+    }
 
-  return (
-    <div className="relative" ref={dropdownRef}>
-      <div
-        onClick={() => setIsOpen(!isOpen)}
-        className="outline-none flex items-center gap-2 border rounded-full px-2 py-1 cursor-pointer hover:bg-gray-50"
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            setIsOpen(!isOpen);
-          }
-        }}
-      >
-        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium">
-          {user?.name ? getInitials(user.name) : ""}
-        </div>
-        <div className="p-1">
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
-        </div>
-      </div>
-
-      {isOpen && (
+    return (
+      <div className="relative" ref={dropdownRef}>
         <div
-          className={cn(
-            "absolute bg-white rounded-lg shadow-lg border border-gray-200 z-50 mt-4",
-            isMobile
-              ? "fixed inset-x-0 top-[56px] w-full rounded-none border-t border-gray-200"
-              : "right-0 mt-2 w-56"
-          )}
+          onClick={() => setIsOpen(!isOpen)}
+          className="outline-none flex items-center gap-2 border rounded-full px-2 py-1 cursor-pointer hover:bg-gray-50"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              setIsOpen(!isOpen);
+            }
+          }}
         >
-          {/* Conteúdo para mobile */}
-          {isMobile && (
-            <>
-              <div className="p-2">
-                <Input
-                  type="text"
-                  placeholder="Pesquisar eventos..."
-                  className="px-4 py-2 text-base rounded-md"
-                />
-              </div>
-
-              <div
-                onClick={() => {
-                  navigate("/criar-evento");
-                  setIsOpen(false);
-                }}
-                className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-              >
-                <CalendarPlus className="mr-2 h-4 w-4" />
-                <span>Criar evento</span>
-              </div>
-
-              <div
-                onClick={() => {
-                  navigate("/meus-eventos");
-                  setIsOpen(false);
-                }}
-                className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-              >
-                <ClipboardList className="mr-2 h-4 w-4" />
-                <span>Meus eventos</span>
-              </div>
-
-              <div
-                onClick={() => {
-                  navigate("/meus-ingressos");
-                  setIsOpen(false);
-                }}
-                className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-              >
-                <Ticket className="mr-2 h-4 w-4" />
-                <span>Meus ingressos</span>
-              </div>
-
-              <div className="h-px bg-gray-200 my-1" />
-
-              <div
-                onClick={() => {
-                  navigate("/perfil");
-                  setIsOpen(false);
-                }}
-                className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-              >
-                <User className="mr-2 h-4 w-4" />
-                <span>Minha conta</span>
-              </div>
-
-              <div
-                onClick={() => {
-                  navigate("/favoritos");
-                  setIsOpen(false);
-                }}
-                className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-              >
-                <Heart className="mr-2 h-4 w-4" />
-                <span>Favoritos</span>
-              </div>
-
-              <div
-                onClick={() => {
-                  navigate("/question-help");
-                  setIsOpen(false);
-                }}
-                className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-              >
-                <HelpCircle className="mr-2 h-4 w-4" />
-                <span>Central de Ajuda</span>
-              </div>
-
-              <div className="h-px bg-gray-200 my-1" />
-
-              <div
-                onClick={handleSair}
-                className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Sair</span>
-              </div>
-            </>
-          )}
-
-          {/* Conteúdo para desktop */}
-          {!isMobile && (
-            <>
-              <div
-                onClick={() => {
-                  navigate("/perfil");
-                  setIsOpen(false);
-                }}
-                className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-              >
-                <User className="mr-2 h-4 w-4" />
-                <span>Minha conta</span>
-              </div>
-
-              <div
-                onClick={() => {
-                  navigate("/favoritos");
-                  setIsOpen(false);
-                }}
-                className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-              >
-                <Heart className="mr-2 h-4 w-4" />
-                <span>Favoritos</span>
-              </div>
-
-              <div
-                onClick={() => {
-                  navigate("/question-help");
-                  setIsOpen(false);
-                }}
-                className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-              >
-                <HelpCircle className="mr-2 h-4 w-4" />
-                <span>Central de Ajuda</span>
-              </div>
-
-              <div className="h-px bg-gray-200 my-1" />
-
-              <div
-                onClick={handleSair}
-                className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Sair</span>
-              </div>
-            </>
-          )}
+          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium">
+            {user?.name ? getInitials(user.name) : ""}
+          </div>
+          <div className="p-1">
+            {isOpen ? <X size={24} /> : <Menu size={24} />}
+          </div>
         </div>
-      )}
-    </div>
-  );
-};
+
+        {isOpen && (
+          <div
+            className={cn(
+              "absolute bg-white rounded-lg shadow-lg border border-gray-200 z-50 mt-4",
+              isMobile
+                ? "fixed inset-x-0 top-[56px] w-full rounded-none border-t border-gray-200"
+                : "right-0 mt-2 w-56"
+            )}
+          >
+            {/* Conteúdo para mobile */}
+            {isMobile && (
+              <>
+                <div className="p-2">
+                  <Input
+                    type="text"
+                    placeholder="Pesquisar eventos..."
+                    className="px-4 py-2 text-base rounded-md"
+                  />
+                </div>
+
+                <div
+                  onClick={() => {
+                    navigate("/criar-evento");
+                    setIsOpen(false);
+                  }}
+                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                >
+                  <CalendarPlus className="mr-2 h-4 w-4" />
+                  <span>Criar evento</span>
+                </div>
+
+                <div
+                  onClick={() => {
+                    navigate("/meus-eventos");
+                    setIsOpen(false);
+                  }}
+                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                >
+                  <ClipboardList className="mr-2 h-4 w-4" />
+                  <span>Meus eventos</span>
+                </div>
+
+                <div
+                  onClick={() => {
+                    navigate("/meus-ingressos");
+                    setIsOpen(false);
+                  }}
+                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                >
+                  <Ticket className="mr-2 h-4 w-4" />
+                  <span>Meus ingressos</span>
+                </div>
+
+                <div className="h-px bg-gray-200 my-1" />
+
+                <div
+                  onClick={() => {
+                    navigate("/perfil");
+                    setIsOpen(false);
+                  }}
+                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Minha conta</span>
+                </div>
+
+                <div
+                  onClick={() => {
+                    navigate("/favoritos");
+                    setIsOpen(false);
+                  }}
+                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                >
+                  <Heart className="mr-2 h-4 w-4" />
+                  <span>Favoritos</span>
+                </div>
+
+                <div
+                  onClick={() => {
+                    navigate("/question-help");
+                    setIsOpen(false);
+                  }}
+                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                >
+                  <HelpCircle className="mr-2 h-4 w-4" />
+                  <span>Central de Ajuda</span>
+                </div>
+
+                <div className="h-px bg-gray-200 my-1" />
+
+                <div
+                  onClick={handleSair}
+                  className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sair</span>
+                </div>
+              </>
+            )}
+
+            {/* Conteúdo para desktop */}
+            {!isMobile && (
+              <>
+                <div
+                  onClick={() => {
+                    navigate("/perfil");
+                    setIsOpen(false);
+                  }}
+                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Minha conta</span>
+                </div>
+
+                <div
+                  onClick={() => {
+                    navigate("/favoritos");
+                    setIsOpen(false);
+                  }}
+                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                >
+                  <Heart className="mr-2 h-4 w-4" />
+                  <span>Favoritos</span>
+                </div>
+
+                <div
+                  onClick={() => {
+                    navigate("/question-help");
+                    setIsOpen(false);
+                  }}
+                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                >
+                  <HelpCircle className="mr-2 h-4 w-4" />
+                  <span>Central de Ajuda</span>
+                </div>
+
+                <div className="h-px bg-gray-200 my-1" />
+
+                <div
+                  onClick={handleSair}
+                  className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sair</span>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <header
@@ -354,7 +362,6 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                 "flex items-center gap-4 text-sm text-muted-foreground whitespace-nowrap"
               )}
             >
-          
               {user ? (
                 <>
                   <Button

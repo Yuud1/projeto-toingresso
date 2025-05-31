@@ -4,8 +4,15 @@ import Category from "../components/category";
 import EventGrid from "../components/event-grid";
 import AdBanner from "../components/adBanner";
 import Footer from "../components/footer";
+import { useUser } from "@/contexts/useContext";
 
 export default function Home() {
+  const {isLoading} = useUser()
+
+  if (isLoading) {
+    return null;
+  }
+  
   return (
     <>
       <Header />

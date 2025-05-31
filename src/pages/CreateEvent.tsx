@@ -40,8 +40,8 @@ export default function CreateEvent() {
   const [loading, setLoading] = useState(false);
   const [created, setCreated] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [clickedGratuito, setClickedGratuito] = useState(false);
-
+  const [clickedGratuito, setClickedGratuito] = useState(false);  
+  
   const [formData, setFormData] = useState<FormDataInterface>({
     title: "",
     image: null,
@@ -66,6 +66,7 @@ export default function CreateEvent() {
     customFields:[],
     acceptedTerms: false,
     token: localStorage.getItem("token"),
+    status: "editing"
   });
   
   // Função para validar os campos da etapa atual

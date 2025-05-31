@@ -19,11 +19,12 @@ export type MaskType =
   | "custom";
 
 export default interface CustomFieldInterface {
-  id: string;
+  _id: string;
   label: string;
   type: FieldType;
   placeholder?: string;
   required: boolean;
   options?: string[];
-  maskType?: MaskType
+  maskType: MaskType,
+  mask: string,
 }

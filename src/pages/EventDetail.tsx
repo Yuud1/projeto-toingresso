@@ -6,12 +6,16 @@ import { User, Heart } from "lucide-react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import EventInterface from "@/interfaces/EventInterface";
+import FreeEventForm from "@/components/FreeEventForm";
+import Subscribed from "./Subscribed";
 
 const EventDetail = () => {
   const { id } = useParams();
 
   const [isFavorited, setIsFavorited] = useState(false);
   const [event, setEvents] = useState<EventInterface | undefined>(undefined);
+  const [subscribed, setSubscribed] = useState(false);
+  const [qrCode, setQrCode] = useState(null);
 
   useEffect(() => {
     try {
@@ -38,6 +42,10 @@ const EventDetail = () => {
     }
   }, [id]);
 
+  if (!event || !id) {
+    return null;
+  }
+
   return (
     <>
       <Header isScrolled={true} />
@@ -50,6 +58,9 @@ const EventDetail = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent"></div>
       </div>
       {/* Seção principal: Info + imagem no desktop */}
+
+      {subscribed ? (<Subscribed qrCode={qrCode} open={subscribed} onOpenChange={setSubscribed}></Subscribed>) : null}
+      
       <section className="relative max-w-7xl mx-auto px-6 md:px-10 pb-12 -mt-40">
         <div className="grid md:grid-cols-2 gap-8 items-center">
           {/* Informações do evento */}
@@ -140,21 +151,46 @@ const EventDetail = () => {
           </div>
 
           {/* Ingressos */}
-          <div>
-            <h2 className="text-xl font-bold mb-4 text-[#414141]">Ingressos</h2>
-            <TicketSelector
-              eventTitle={event?.title ?? ""}
-              tickets={event?.tickets ?? []}
-            />
+          {event?.isFree ? (
+            <div>
+              <h2 className="text-xl font-bold mb-4 text-[#414141]">
+                {event.formTitle ? event.formTitle : "Formulário de Inscrição"}
+              </h2>
 
-            {/* Política */}
-            <div className="mt-8 p-4 border border-gray-300 rounded-lg bg-gray-50">
-              <h3 className="font-semibold mb-2 text-[#414141]">
-                Política do Evento
-              </h3>
-              <p className="text-sm text-[#414141]">{event?.policy}</p>
+              <FreeEventForm
+                customFields={event?.customFields ?? []}
+                eventId={event._id}
+                setSubscribed={setSubscribed}
+                setQrCode={setQrCode}
+              />
+
+              {/* Política */}
+              <div className="mt-8 p-4 border border-gray-300 rounded-lg bg-gray-50">
+                <h3 className="font-semibold mb-2 text-[#414141]">
+                  Política do Evento
+                </h3>
+                <p className="text-sm text-[#414141]">{event?.policy}</p>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div>
+              <h2 className="text-xl font-bold mb-4 text-[#414141]">
+                Ingressos
+              </h2>
+              <TicketSelector
+                eventTitle={event?.title ?? ""}
+                tickets={event?.tickets ?? []}
+              />
+
+              {/* Política */}
+              <div className="mt-8 p-4 border border-gray-300 rounded-lg bg-gray-50">
+                <h3 className="font-semibold mb-2 text-[#414141]">
+                  Política do Evento
+                </h3>
+                <p className="text-sm text-[#414141]">{event?.policy}</p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Mapa */}

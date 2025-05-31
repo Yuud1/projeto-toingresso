@@ -20,6 +20,7 @@ export default interface FormDataInterface {
   city: string;
   state: string;
   tickets: TicketType[];
+  status: "active" | "finished" | "editing";
   isFree: boolean;
   acceptedTerms: boolean;
   token: string | null;

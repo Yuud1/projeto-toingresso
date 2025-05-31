@@ -23,6 +23,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Trash2, Plus, ArrowUp, ArrowDown } from "lucide-react";
 import FormDataInterface from "@/interfaces/FormDataInterface";
+import EventInterface from "@/interfaces/EventInterface";
+import { applyMask } from "@/utils/formatUtils";
 
 type FieldType =
   | "text"
@@ -31,6 +33,7 @@ type FieldType =
   | "textarea"
   | "select"
   | "checkbox"
+  | "date"
   | "radio";
 type MaskType =
   | "none"
@@ -43,7 +46,7 @@ type MaskType =
   | "custom";
 
 interface FormField {
-  id: string;
+  _id: string;
   type: FieldType;
   label: string;
   placeholder?: string;
@@ -59,32 +62,34 @@ interface MaskOption {
 }
 
 interface InterfaceFormBuilder {
-  form: FormDataInterface;
-  setForm: React.Dispatch<React.SetStateAction<FormDataInterface>>;
+  form: FormDataInterface | EventInterface;
+  setForm: any;
 }
 
 type FormValues = Record<string, string | boolean | string[]>;
 
-export default function FormBuilder({  
+export default function FormBuilder({
+  form,
   setForm,
 }: InterfaceFormBuilder): JSX.Element {
-  const [fields, setFields] = useState<FormField[]>([]);
+  const [fields, setFields] = useState<FormField[]>(form.customFields ?? []);
   const [newFieldType, setNewFieldType] = useState<FieldType>("text");
   const [formTitle, setFormTitle] = useState<string>("Meu Formulário");
-  const [formValues, setFormValues] = useState<FormValues>({});  
-
+  const [formValues, setFormValues] = useState<FormValues>({});
+  console.log(form.customFields);
+  
   // Resetar valores do formulário quando os campos mudam
   useEffect(() => {
     const initialValues: FormValues = {};
     fields.forEach((field: FormField) => {
-      initialValues[field.id] = "";
+      initialValues[field._id] = "";
     });
     setFormValues(initialValues);
   }, [fields.length]);
 
   // Atualiznado fields
   useEffect(() => {
-    setForm((prev) => ({
+    setForm((prev: any) => ({
       ...prev,
       customFields: fields,
     }));
@@ -92,7 +97,7 @@ export default function FormBuilder({
 
   const addField = (): void => {
     const newField: FormField = {
-      id: Date.now().toString(),
+      _id: Date.now().toString(),
       type: newFieldType,
       label: `Campo ${fields.length + 1}`,
       placeholder: "",
@@ -106,31 +111,33 @@ export default function FormBuilder({
       maskType: "none",
     };
     setFields([...fields, newField]);
-    setForm((prev) => ({
+    setForm((prev: any) => ({
       ...prev,
       customFields: [...prev.customFields, newField],
     }));
   };
 
   const removeField = (id: string): void => {
-    setFields(fields.filter((field: FormField) => field.id !== id));
-    setForm((prev) => ({
+    setFields(fields.filter((field: FormField) => field._id !== id));
+    setForm((prev: any) => ({
       ...prev,
-      customFields: prev.customFields?.filter((field) => field.id !== id),
+      customFields: prev.customFields?.filter((field: any) => field._id !== id),
     }));
   };
 
   const updateField = (id: string, updates: Partial<FormField>): void => {
+    console.log(updates);
+    
     setFields(
       fields.map((field: FormField) =>
-        field.id === id ? { ...field, ...updates } : field
+        field._id === id ? { ...field, ...updates } : field
       )
     );
   };
 
   const moveField = (id: string, direction: "up" | "down"): void => {
     const index: number = fields.findIndex(
-      (field: FormField) => field.id === id
+      (field: FormField) => field._id === id
     );
     if (
       (direction === "up" && index > 0) ||
@@ -148,7 +155,7 @@ export default function FormBuilder({
 
   const addOption = (fieldId: string): void => {
     const field: FormField | undefined = fields.find(
-      (f: FormField) => f.id === fieldId
+      (f: FormField) => f._id === fieldId
     );
     if (field && field.options) {
       const newOptionIndex = field.options.length + 1;
@@ -164,7 +171,7 @@ export default function FormBuilder({
     value: string
   ): void => {
     const field: FormField | undefined = fields.find(
-      (f: FormField) => f.id === fieldId
+      (f: FormField) => f._id === fieldId
     );
 
     if (field && field.options) {
@@ -177,7 +184,7 @@ export default function FormBuilder({
 
   const removeOption = (fieldId: string, optionIndex: number): void => {
     const field: FormField | undefined = fields.find(
-      (f: FormField) => f.id === fieldId
+      (f: FormField) => f._id === fieldId
     );
     if (field && field.options && field.options.length > 1) {
       const newOptions: string[] = field.options.filter(
@@ -192,7 +199,7 @@ export default function FormBuilder({
     value: string | boolean | string[]
   ): void => {
     const field: FormField | undefined = fields.find(
-      (f: FormField) => f.id === fieldId
+      (f: FormField) => f._id === fieldId
     );
 
     if (field) {
@@ -212,156 +219,6 @@ export default function FormBuilder({
         [fieldId]: formattedValue,
       });
     }
-  };
-
-  const applyMask = (
-    value: string,
-    maskType: MaskType,
-    customMask?: string
-  ): string => {
-    if (!value) return value;
-
-    // Remove todos os caracteres não numéricos para aplicar a máscara
-    const numbers: string = value.replace(/\D/g, "");
-
-    switch (maskType) {
-      case "cpf":
-        return formatCPF(numbers);
-      case "cnpj":
-        return formatCNPJ(numbers);
-      case "phone":
-        return formatPhone(numbers);
-      case "cep":
-        return formatCEP(numbers);
-      case "date":
-        return formatDate(numbers);
-      case "currency":
-        return formatCurrency(numbers);
-      case "custom":
-        return formatCustom(value, customMask || "");
-      default:
-        return value;
-    }
-  };
-
-  const formatCPF = (numbers: string): string => {
-    const limitedNumbers: string = numbers.slice(0, 11);
-
-    if (limitedNumbers.length <= 3) {
-      return limitedNumbers;
-    } else if (limitedNumbers.length <= 6) {
-      return `${limitedNumbers.slice(0, 3)}.${limitedNumbers.slice(3)}`;
-    } else if (limitedNumbers.length <= 9) {
-      return `${limitedNumbers.slice(0, 3)}.${limitedNumbers.slice(
-        3,
-        6
-      )}.${limitedNumbers.slice(6)}`;
-    } else {
-      return `${limitedNumbers.slice(0, 3)}.${limitedNumbers.slice(
-        3,
-        6
-      )}.${limitedNumbers.slice(6, 9)}-${limitedNumbers.slice(9)}`;
-    }
-  };
-
-  const formatCNPJ = (numbers: string): string => {
-    const limitedNumbers: string = numbers.slice(0, 14);
-
-    if (limitedNumbers.length <= 2) {
-      return limitedNumbers;
-    } else if (limitedNumbers.length <= 5) {
-      return `${limitedNumbers.slice(0, 2)}.${limitedNumbers.slice(2)}`;
-    } else if (limitedNumbers.length <= 8) {
-      return `${limitedNumbers.slice(0, 2)}.${limitedNumbers.slice(
-        2,
-        5
-      )}.${limitedNumbers.slice(5)}`;
-    } else if (limitedNumbers.length <= 12) {
-      return `${limitedNumbers.slice(0, 2)}.${limitedNumbers.slice(
-        2,
-        5
-      )}.${limitedNumbers.slice(5, 8)}/${limitedNumbers.slice(8)}`;
-    } else {
-      return `${limitedNumbers.slice(0, 2)}.${limitedNumbers.slice(
-        2,
-        5
-      )}.${limitedNumbers.slice(5, 8)}/${limitedNumbers.slice(
-        8,
-        12
-      )}-${limitedNumbers.slice(12)}`;
-    }
-  };
-
-  const formatPhone = (numbers: string): string => {
-    const limitedNumbers: string = numbers.slice(0, 11);
-
-    if (limitedNumbers.length <= 2) {
-      return `(${limitedNumbers}`;
-    } else if (limitedNumbers.length <= 7) {
-      return `(${limitedNumbers.slice(0, 2)}) ${limitedNumbers.slice(2)}`;
-    } else {
-      return `(${limitedNumbers.slice(0, 2)}) ${limitedNumbers.slice(
-        2,
-        7
-      )}-${limitedNumbers.slice(7)}`;
-    }
-  };
-
-  const formatCEP = (numbers: string): string => {
-    const limitedNumbers: string = numbers.slice(0, 8);
-
-    if (limitedNumbers.length <= 5) {
-      return limitedNumbers;
-    } else {
-      return `${limitedNumbers.slice(0, 5)}-${limitedNumbers.slice(5)}`;
-    }
-  };
-
-  const formatDate = (numbers: string): string => {
-    const limitedNumbers: string = numbers.slice(0, 8);
-
-    if (limitedNumbers.length <= 2) {
-      return limitedNumbers;
-    } else if (limitedNumbers.length <= 4) {
-      return `${limitedNumbers.slice(0, 2)}/${limitedNumbers.slice(2)}`;
-    } else {
-      return `${limitedNumbers.slice(0, 2)}/${limitedNumbers.slice(
-        2,
-        4
-      )}/${limitedNumbers.slice(4)}`;
-    }
-  };
-
-  const formatCurrency = (numbers: string): string => {
-    if (numbers === "") return "";
-
-    // Converte para número e formata como moeda
-    const amount: number = Number.parseInt(numbers) / 100;
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(amount);
-  };
-
-  const formatCustom = (value: string, mask: string): string => {
-    if (!mask) return value;
-
-    let result = "";
-    let valueIndex = 0;
-
-    for (let i = 0; i < mask.length && valueIndex < value.length; i++) {
-      if (mask[i] === "#") {
-        result += value[valueIndex];
-        valueIndex++;
-      } else {
-        result += mask[i];
-        if (value[valueIndex] === mask[i]) {
-          valueIndex++;
-        }
-      }
-    }
-
-    return result;
   };
 
   // Função para obter o valor seguro para exibição (com fallback apenas para renderização)
@@ -390,8 +247,8 @@ export default function FormBuilder({
             placeholder={
               field.placeholder || `Digite ${field.label.toLowerCase()}`
             }
-            value={(formValues[field.id] as string) || ""}
-            onChange={(e) => handleInputChange(field.id, e.target.value)}
+            value={(formValues[field._id] as string) || ""}
+            onChange={(e) => handleInputChange(field._id, e.target.value)}
           />
         );
       case "textarea":
@@ -400,16 +257,16 @@ export default function FormBuilder({
             placeholder={
               field.placeholder || `Digite ${field.label.toLowerCase()}`
             }
-            value={(formValues[field.id] as string) || ""}
-            onChange={(e) => handleInputChange(field.id, e.target.value)}
+            value={(formValues[field._id] as string) || ""}
+            onChange={(e) => handleInputChange(field._id, e.target.value)}
           />
         );
       case "select":
         return (
           <Select
-            value={(formValues[field.id] as string) || ""}
+            value={(formValues[field._id] as string) || ""}
             onValueChange={(value: string) =>
-              handleInputChange(field.id, value)
+              handleInputChange(field._id, value)
             }
           >
             <SelectTrigger className="w-full">
@@ -434,8 +291,8 @@ export default function FormBuilder({
           <div className="space-y-2 p-2">
             <Label>{field.label}</Label>
             {field.options?.map((option, index) => {
-              const currentValues = Array.isArray(formValues[field.id])
-                ? (formValues[field.id] as string[])
+              const currentValues = Array.isArray(formValues[field._id])
+                ? (formValues[field._id] as string[])
                 : [];
 
               const optionValue =
@@ -447,13 +304,13 @@ export default function FormBuilder({
                     checked={currentValues.includes(optionValue)}
                     onCheckedChange={(checked: boolean) => {
                       if (checked) {
-                        handleInputChange(field.id, [
+                        handleInputChange(field._id, [
                           ...currentValues,
                           optionValue,
                         ]);
                       } else {
                         handleInputChange(
-                          field.id,
+                          field._id,
                           currentValues.filter((item) => item !== optionValue)
                         );
                       }
@@ -474,14 +331,14 @@ export default function FormBuilder({
                 <div key={index} className="flex items-center space-x-2">
                   <input
                     type="radio"
-                    name={field.id}
+                    name={field._id}
                     value={getSafeSelectValue(option, index)}
                     checked={
-                      (formValues[field.id] as string) ===
+                      (formValues[field._id] as string) ===
                       getSafeSelectValue(option, index)
                     }
                     onChange={(e) =>
-                      handleInputChange(field.id, e.target.value)
+                      handleInputChange(field._id, e.target.value)
                     }
                   />
                   <span className="text-sm">
@@ -517,7 +374,7 @@ export default function FormBuilder({
         </h1>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-1 gap-4 sm:gap-6">
         {/* Editor */}
         <div className="space-y-4">
           <Card>
@@ -531,7 +388,10 @@ export default function FormBuilder({
                   id="form-title"
                   value={formTitle}
                   onChange={(e) => {
-                    setForm((prev) => ({ ...prev, formTitle: e.target.value }));
+                    setForm((prev: any) => ({
+                      ...prev,
+                      formTitle: e.target.value,
+                    }));
                     setFormTitle(e.target.value);
                   }}
                   placeholder="Digite o título do formulário"
@@ -587,7 +447,7 @@ export default function FormBuilder({
                 </p>
               ) : (
                 fields.map((field: FormField, index: number) => (
-                  <Card key={field.id} className="p-3 sm:p-4">
+                  <Card key={field._id} className="p-3 sm:p-4">
                     <div className="space-y-3">
                       <div className="flex items-center justify-between flex-wrap gap-2">
                         <span className="font-medium capitalize">
@@ -597,7 +457,7 @@ export default function FormBuilder({
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => moveField(field.id, "up")}
+                            onClick={() => moveField(field._id, "up")}
                             disabled={index === 0}
                           >
                             <ArrowUp className="w-3 h-3" />
@@ -605,7 +465,7 @@ export default function FormBuilder({
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => moveField(field.id, "down")}
+                            onClick={() => moveField(field._id, "down")}
                             disabled={index === fields.length - 1}
                           >
                             <ArrowDown className="w-3 h-3" />
@@ -613,7 +473,7 @@ export default function FormBuilder({
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => removeField(field.id)}
+                            onClick={() => removeField(field._id)}
                           >
                             <Trash2 className="w-3 h-3" />
                           </Button>
@@ -622,12 +482,12 @@ export default function FormBuilder({
 
                       <div className="grid grid-cols-1 gap-3">
                         <div>
-                          <Label htmlFor={`label-${field.id}`}>Rótulo</Label>
+                          <Label htmlFor={`label-${field._id}`}>Rótulo</Label>
                           <Input
-                            id={`label-${field.id}`}
+                            id={`label-${field._id}`}
                             value={field.label}
                             onChange={(e) =>
-                              updateField(field.id, { label: e.target.value })
+                              updateField(field._id, { label: e.target.value })
                             }
                             placeholder="Digite o rótulo do campo"
                           />
@@ -638,9 +498,9 @@ export default function FormBuilder({
                             <Label>{field.label}</Label>
                             {field.options.map((option) => {
                               const currentValues = Array.isArray(
-                                formValues[field.id]
+                                formValues[field._id]
                               )
-                                ? (formValues[field.id] as string[])
+                                ? (formValues[field._id] as string[])
                                 : [];
 
                               return (
@@ -652,13 +512,13 @@ export default function FormBuilder({
                                     checked={currentValues.includes(option)}
                                     onCheckedChange={(checked: boolean) => {
                                       if (checked) {
-                                        handleInputChange(field.id, [
+                                        handleInputChange(field._id, [
                                           ...currentValues,
                                           option,
                                         ]);
                                       } else {
                                         handleInputChange(
-                                          field.id,
+                                          field._id,
                                           currentValues.filter(
                                             (item) => item !== option
                                           )
@@ -676,14 +536,14 @@ export default function FormBuilder({
                         {/* Opção de máscara para campos de texto e número */}
                         {(field.type === "text" || field.type === "number") && (
                           <div className="space-y-2">
-                            <Label htmlFor={`mask-${field.id}`}>Máscara</Label>
+                            <Label htmlFor={`mask-${field._id}`}>Máscara</Label>
                             <Select
                               value={field.maskType || "none"}
                               onValueChange={(value: MaskType) =>
-                                updateField(field.id, { maskType: value })
+                                updateField(field._id, { maskType: value })
                               }
                             >
-                              <SelectTrigger id={`mask-${field.id}`}>
+                              <SelectTrigger id={`mask-${field._id}`}>
                                 <SelectValue placeholder="Selecione uma máscara" />
                               </SelectTrigger>
                               <SelectContent>
@@ -700,14 +560,14 @@ export default function FormBuilder({
 
                             {field.maskType === "custom" && (
                               <div className="mt-2">
-                                <Label htmlFor={`custom-mask-${field.id}`}>
+                                <Label htmlFor={`custom-mask-${field._id}`}>
                                   Máscara personalizada
                                 </Label>
                                 <Input
-                                  id={`custom-mask-${field.id}`}
+                                  id={`custom-mask-${field._id}`}
                                   value={field.mask || ""}
                                   onChange={(e) =>
-                                    updateField(field.id, {
+                                    updateField(field._id, {
                                       mask: e.target.value,
                                     })
                                   }
@@ -725,8 +585,9 @@ export default function FormBuilder({
                         <div className="flex items-center space-x-2">
                           <Switch
                             checked={field.required}
+                            defaultChecked={true}
                             onCheckedChange={(checked: boolean) =>
-                              updateField(field.id, { required: checked })
+                              updateField(field._id, { required: checked })
                             }
                           />
                           <Label>Campo obrigatório</Label>
@@ -744,7 +605,7 @@ export default function FormBuilder({
                                     value={option}
                                     onChange={(e) =>
                                       updateOption(
-                                        field.id,
+                                        field._id,
                                         optionIndex,
                                         e.target.value
                                       )
@@ -755,7 +616,7 @@ export default function FormBuilder({
                                     size="sm"
                                     variant="ghost"
                                     onClick={() =>
-                                      removeOption(field.id, optionIndex)
+                                      removeOption(field._id, optionIndex)
                                     }
                                     disabled={field.options!.length <= 1}
                                     className="shrink-0"
@@ -768,7 +629,7 @@ export default function FormBuilder({
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => addOption(field.id)}
+                              onClick={() => addOption(field._id)}
                               className="w-full sm:w-auto"
                             >
                               <Plus className="w-3 h-3 mr-1" />
@@ -799,7 +660,7 @@ export default function FormBuilder({
                 </CardHeader>
                 <CardContent className="space-y-4 p-4">
                   {fields.map((field: FormField) => (
-                    <div key={field.id} className="space-y-2">
+                    <div key={field._id} className="space-y-2">
                       {field.type !== "checkbox" && (
                         <Label>
                           {field.label}

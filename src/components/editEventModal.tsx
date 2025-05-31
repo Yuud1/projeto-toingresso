@@ -16,6 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import EventInterface from "@/interfaces/EventInterface";
 import TicketInterface from "@/interfaces/TicketInterface";
 import axios from "axios";
+import FormBuilder from "./form-builder";
 
 interface EditEventModalProps {
   event: EventInterface | null;
@@ -116,7 +117,7 @@ export function EditEventModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-full max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Editar Evento: {editedEvent.title}</DialogTitle>
           <DialogDescription>
@@ -564,7 +565,7 @@ export function EditEventModal({
             </div>
           )}
 
-          {currentStep === 5 && (
+          {currentStep === 5 && !event?.isFree ? (                     
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-800 pt-8">
                 Ingressos
@@ -774,7 +775,12 @@ export function EditEventModal({
                 )}
               </div>
             </div>
-          )}
+          ): currentStep === 5 && event?.isFree && event ?
+          (
+            <FormBuilder form={event} setForm={setEditedEvent}></FormBuilder> 
+          ) :
+          null
+          }
 
           {currentStep === 6 && (
             <div className="space-y-6">

@@ -27,5 +27,6 @@ export default interface EventInterface {
   policy: string;
   status: "active" | "finished" | "editing";
   formTitle?: String;
+  isFree: boolean;
   customFields: CustomFieldInterface[];
 }
