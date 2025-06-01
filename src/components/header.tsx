@@ -88,7 +88,8 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
   const [isScrolledInternal, setIsScrolledInternal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useUser();
+  const { user } = useUser();  
+  
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
 

@@ -1,3 +1,5 @@
+import UserTicketsInterface from "./UserTicketsInterface";
+
 export default interface UserInterface {
   _id: string;
   name: string;
@@ -11,5 +13,5 @@ export default interface UserInterface {
   facebook: string;
   phoneNumber: string;
   avatar: string,
-  
+  tickets: UserTicketsInterface[]
 }
