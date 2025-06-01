@@ -22,6 +22,7 @@ const CommunityGuidelines = lazy(() => import("@/pages/CommunityGuidelines"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const LegalObligations = lazy(() => import("@/pages/LegalObligations"));
 const HalfPriceRules = lazy(() => import("@/pages/HalfPriceRules"));
+const ScannerPage = lazy(() => import("@/pages/ScannerPage"));
 
 function App() {
   return (
@@ -46,7 +47,8 @@ function App() {
           <Route path="/diretrizes-da-comunidade" element={<CommunityGuidelines />} />
           <Route path="/politica-de-privacidade" element={<PrivacyPolicy />} />
           <Route path="/obrigatoriedades-legais" element={<LegalObligations />} />
-          <Route path="/regra-da-meia-entrada" element={<HalfPriceRules />} />
+          <Route path="/regra-da-meia-entrada" element={<HalfPriceRules />} />          
+          <Route path="/scan" element={<ScannerPage />} />          
         </Routes>
       </Suspense>
     </Router>
