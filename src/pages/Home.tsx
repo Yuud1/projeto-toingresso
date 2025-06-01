@@ -1,11 +1,11 @@
-import Header from "@/components/header";
-import CarrosselMain from "../components/carrosselMain";
-import Category from "../components/category";
-import EventGrid from "../components/event-grid";
-import AdBanner from "../components/adBanner";
-import Footer from "../components/footer";
+import Header from "@/components/Header";
+import CarrosselMain from "../components/CarrosselMain";
+import Category from "../components/Category";
+import EventGrid from "../components/Event-grid";
+import AdBanner from "../components/AdBanner";
+import Footer from "../components/Footer";
 import { useUser } from "@/contexts/useContext";
-import LoadingPage from "./LoadingPage";
+import LoadingPage from "./loadingPage";
 
 export default function Home() {
   const {isLoading} = useUser()

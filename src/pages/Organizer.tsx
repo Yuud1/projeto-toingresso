@@ -1,5 +1,5 @@
-import Header from "@/components/header";
-import Footer from "@/components/footer";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { Calendar, MapPin, Mail, Phone, Globe, Facebook, Instagram } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";

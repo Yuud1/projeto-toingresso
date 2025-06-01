@@ -1,13 +1,13 @@
-import Header from "@/components/header";
-import Footer from "@/components/footer";
-import { TicketSelector } from "@/components/ticket-selector";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { TicketSelector } from "@/components/TicketSelector";
 import { useEffect, useState } from "react";
 import { User, Heart } from "lucide-react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import EventInterface from "@/interfaces/EventInterface";
 import FreeEventForm from "@/components/FreeEventForm";
-import Subscribed from "./Subscribed";
+import Subscribed from "@/pages/subscribed";
 
 const EventDetail = () => {
   const { id } = useParams();

@@ -10,11 +10,11 @@ import {
   RefreshCw,
   User,
 } from "lucide-react";
-import Footer from "../components/footer";
-import Header from "../components/header";
-import { FeedbackForm } from "../components/feedback-form";
-import { FAQStats } from "../components/faq-stats";
-import { PopularCategories } from "../components/popular-categories";
+import Footer from "../components/Footer";
+import Header from "../components/Header";
+import { FeedbackForm } from "../components/FeedbackForm";
+import { FAQStats } from "../components/FaqStats";
+import { PopularCategories } from "../components/PopularCategories";
 import {
   getStats,
   recordQuestionView,

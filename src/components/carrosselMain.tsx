@@ -43,7 +43,7 @@ export default function CarrosselMain() {
         >
           {images.map((image, idx) => (
             <SwiperSlide key={idx}>
-              <Link to={`/evento/${image.id}`}>  {/* Navega para a página do evento com base no id */}
+              <Link to={`/evento/${image.id}`}>
                 <img
                   src={image.src}
                   alt={`slide-${idx}`}

@@ -1,4 +1,4 @@
-import QrCodeScanner from "@/components/qrcodeScanner";
+import QrCodeScanner from "@/components/QrcodeScanner";
 import { useState } from "react";
 
 

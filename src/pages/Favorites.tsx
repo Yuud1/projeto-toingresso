@@ -2,8 +2,8 @@
 
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
-import Header from "@/components/header"
-import Footer from "@/components/footer"
+import Header from "@/components/Header"
+import Footer from "@/components/Footer"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { Eye, Clock, Star } from "lucide-react"

@@ -16,7 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import EventInterface from "@/interfaces/EventInterface";
 import TicketInterface from "@/interfaces/TicketInterface";
 import axios from "axios";
-import FormBuilder from "./form-builder";
+import FormBuilder from "./FormBuilder";
 
 interface EditEventModalProps {
   event: EventInterface | null;

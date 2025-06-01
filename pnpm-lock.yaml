@@ -7855,6 +7855,7 @@ snapshots:
       clsx: 2.1.1
       date-fns: 4.1.0
       firebase: 11.7.3
+      html5-qrcode: 2.3.8
       lucide-react: 0.503.0(react@19.1.0)
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
