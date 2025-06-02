@@ -4,15 +4,8 @@ import Category from "../components/Category";
 import EventGrid from "../components/Event-grid";
 import AdBanner from "../components/AdBanner";
 import Footer from "../components/Footer";
-import { useUser } from "@/contexts/useContext";
-import LoadingPage from "./LoadingPage";
 
 export default function Home() {
-  const {isLoading} = useUser()
-
-  if (isLoading) {
-    return <LoadingPage/>;
-  }
   
   return (
     <>

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Eye, EyeOff } from "lucide-react";
 
 export function LoginForm({
   className,
@@ -14,10 +14,8 @@ export function LoginForm({
 }: React.ComponentProps<"form">) {
   const [email, setEmail] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
+  const [showPassword, setShowPassword] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
-
-  // Essa mensagem de erro tu pode usar em um alert personalizado ou algo assim
-  // pra informar que o cliente errou a senha ou algo do tipo
   const [errorMessage, setErrorMessage] = React.useState<String>();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -25,9 +23,7 @@ export function LoginForm({
     try {
       setLoading(true);
       const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}${
-          import.meta.env.VITE_AUTH_LOGIN
-        }`,
+        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_AUTH_LOGIN}`,
         {
           email,
           password,
@@ -38,10 +34,10 @@ export function LoginForm({
         localStorage.setItem("token", response.data.token);
         window.location.href = "/";
       }
-    } catch (error: any) {      
+    } catch (error: any) {
       console.log("Error", error);
-      
-      if (error.response.data.emailVerified == false) {
+
+      if (error.response.data.emailVerified === false) {
         localStorage.setItem("token", error.response.data.token);
         window.location.href = "/confirm-email";
       }
@@ -92,12 +88,27 @@ export function LoginForm({
               Esqueceu a senha?
             </a>
           </div>
-          <Input
-            id="password"
-            type="password"
-            required
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              required
+              onChange={(e) => setPassword(e.target.value)}
+              className="pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+              tabIndex={-1}
+            >
+              {showPassword ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
+            </button>
+          </div>
         </div>
         <Button type="submit" className="w-full cursor-pointer" disabled={loading}>
           Acessar

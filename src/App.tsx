@@ -1,6 +1,5 @@
-import { Suspense, lazy } from "react";
+import { lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Loading from "@/pages/LoadingPage";
 
 const Login = lazy(() => import("@/pages/Login"));
 const Register = lazy(() => import("@/pages/Register"));
@@ -30,7 +29,6 @@ const AdminLogin = lazy(() => import("@/pages/admin/Login"));
 function App() {
   return (
     <Router>
-      <Suspense fallback={<Loading />}>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -57,7 +55,6 @@ function App() {
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
         </Routes>
-      </Suspense>
     </Router>
   );
 }
