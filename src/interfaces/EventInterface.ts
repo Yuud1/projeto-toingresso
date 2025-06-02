@@ -29,4 +29,5 @@ export default interface EventInterface {
   formTitle?: String;
   isFree: boolean;
   customFields: CustomFieldInterface[];
+  ticketActivationToken: string
 }
