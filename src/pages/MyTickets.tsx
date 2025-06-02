@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "@/components/header";
+import Footer from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
 import { useUser } from "@/contexts/useContext";
 import UserTicketsInterface from "@/interfaces/UserTicketsInterface";
-import Subscribed from "./subscribed";
+import Subscribed from "./Subscribed";
 
 interface TabProps {
   isActive: boolean;

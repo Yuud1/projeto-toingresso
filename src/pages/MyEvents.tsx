@@ -23,8 +23,8 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "@/components/header";
+import Footer from "@/components/footer";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import axios from "axios";
 import type EventInterface from "@/interfaces/EventInterface";
