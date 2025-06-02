@@ -1,9 +1,7 @@
-"use client"
-
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
-import Header from "@/components/header"
-import Footer from "@/components/footer"
+import Header from "@/components/Header"
+import Footer from "@/components/Footer"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { Eye, Clock, Star } from "lucide-react"
@@ -103,7 +101,6 @@ const mockEvents = {
   ],
 }
 
-// Dados de exemplo para produtores
 const mockProducers = [
   {
     id: 1,
@@ -210,9 +207,8 @@ const Carousel = ({ items, renderItem, title, icon }: CarouselProps) => {
       const clientWidth = carouselRef.current.clientWidth
       setMaxScroll(scrollWidth - clientWidth)
 
-      // Estimar a largura de um item + gap
       if (items.length > 0) {
-        setItemWidth(scrollWidth / items.length + 16) // 16px é o gap
+        setItemWidth(scrollWidth / items.length + 16)
       }
     }
   }, [items.length, carouselRef])
@@ -232,7 +228,6 @@ const Carousel = ({ items, renderItem, title, icon }: CarouselProps) => {
         </div>
       </div>
 
-      {/* Mobile Carousel */}
       <div
         className="sm:hidden overflow-x-auto scrollbar-hide snap-x snap-mandatory flex gap-4 pb-4"
         ref={carouselRef}
@@ -245,14 +240,12 @@ const Carousel = ({ items, renderItem, title, icon }: CarouselProps) => {
         ))}
       </div>
 
-      {/* Desktop Grid */}
       <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
         {items.map((item) => (
           <div key={item.id}>{renderItem(item)}</div>
         ))}
       </div>
 
-      {/* Carousel Indicators */}
       <div className="sm:hidden flex justify-center mt-2 gap-1">
         {items.map((_, index) => (
           <div
@@ -282,7 +275,6 @@ export default function Favorites() {
             <h1 className="text-2xl font-bold mb-4">Favoritos</h1>
           </div>
 
-          {/* Desktop Tabs */}
           <div className="hidden sm:block border-b border-gray-200 mb-6">
             <div className="flex space-x-8">
               {tabOptions.map((option) => (
@@ -298,7 +290,6 @@ export default function Favorites() {
             </div>
           </div>
 
-          {/* Mobile Dropdown */}
           <div className="sm:hidden mb-6">
             <Select value={activeTab} onValueChange={(value: "eventos" | "produtores") => setActiveTab(value)}>
               <SelectTrigger className="w-full">
@@ -317,7 +308,6 @@ export default function Favorites() {
           <div className="min-h-[calc(100vh-300px)]">
             {activeTab === "eventos" ? (
               <div className="space-y-8 sm:space-y-10">
-                {/* Eventos mais vistos */}
                 <Carousel
                   items={mockEvents.mostViewed}
                   renderItem={(event) => <EventCard event={event} />}
@@ -325,7 +315,6 @@ export default function Favorites() {
                   icon={<Eye className="text-[#02488C] flex-shrink-0" size={18} />}
                 />
 
-                {/* Vistos recentemente */}
                 <Carousel
                   items={mockEvents.recentlyViewed}
                   renderItem={(event) => <EventCard event={event} />}
@@ -333,7 +322,6 @@ export default function Favorites() {
                   icon={<Clock className="text-[#02488C] flex-shrink-0" size={18} />}
                 />
 
-                {/* Recomendados - mantido como grid para comparação */}
                 <section>
                   <div className="flex items-center gap-2 mb-3 sm:mb-4">
                     <Star className="text-[#02488C] flex-shrink-0" size={18} />

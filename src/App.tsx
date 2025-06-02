@@ -2,7 +2,6 @@ import { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Loading from "@/pages/LoadingPage";
 
-// Lazy loading das páginas
 const Login = lazy(() => import("@/pages/Login"));
 const Register = lazy(() => import("@/pages/Register"));
 const ForgotPasswordForm = lazy(() => import("@/pages/ForgotPasswordForm"));
@@ -25,8 +24,8 @@ const HalfPriceRules = lazy(() => import("@/pages/HalfPriceRules"));
 const ScannerPage = lazy(() => import("@/pages/ScannerPage"));
 
 // Páginas Admin
-const AdminDashboard = lazy(() => import("@/pages/admin/dashboard"));
-const AdminLogin = lazy(() => import("@/pages/admin/login"));
+const AdminDashboard = lazy(() => import("@/pages/admin/Dashboard"));
+const AdminLogin = lazy(() => import("@/pages/admin/Login"));
 
 function App() {
   return (

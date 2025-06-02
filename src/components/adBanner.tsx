@@ -1,7 +1,6 @@
 import React from 'react';
 
 const AdBanner: React.FC = () => {
-  // Mock fixo de propaganda
   const banner = {
     image: 'https://picsum.photos/1200/350',
     link: 'https://seusite.com/promo',

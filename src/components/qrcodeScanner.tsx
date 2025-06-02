@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useRef, useEffect } from "react";
 import { Camera, Lock, Unlock, Scan } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -69,7 +67,6 @@ export default function QRScanner() {
     setError("");
 
     try {
-      // Substitua pela URL da sua API
       const response = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}${
           import.meta.env.VITE_VALIDATE_TICKET_TOKEN
@@ -147,7 +144,6 @@ export default function QRScanner() {
     stopScanning();
   };
 
-  // Simular detecção de QR code (em produção, use uma biblioteca como qr-scanner)
   const simulateQRDetection = () => {
     const mockQRData = `QR-${Date.now()}`;
     setScannedData(mockQRData);
@@ -226,7 +222,6 @@ export default function QRScanner() {
           </CardHeader>
         </Card>
 
-        {/* Scanner */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -277,7 +272,6 @@ export default function QRScanner() {
           </CardContent>
         </Card>
 
-        {/* Resultado */}
         {scannedData && (
           <Card>
             <CardHeader>
@@ -291,7 +285,6 @@ export default function QRScanner() {
           </Card>
         )}
 
-        {/* Histórico */}
         {scanHistory.length > 0 && (
           <Card>
             <CardHeader>
