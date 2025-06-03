@@ -219,24 +219,51 @@ const mockParticipants: EventParticipant[] = [
   },
 ]
 
+// Corrigir o mockEvents para corresponder à interface EventInterface
 const mockEvents: EventInterface[] = [
   {
     _id: "mock-event-1",
     title: "Workshop de React Avançado",
-    description: "Curso completo de React com hooks, context e performance",
+    image: "/placeholder.svg?height=300&width=400",
+    imageId: "mock-image-id-1",
+    category: "Tecnologia",
     startDate: "2024-01-15T09:00:00Z",
+    startTime: "09:00",
     endDate: "2024-01-15T18:00:00Z",
+    endTime: "18:00",
+    description: "Curso completo de React com hooks, context e performance",
+    venueName: "Centro de Convenções",
+    zipCode: "01234-567",
+    street: "Rua da Tecnologia",
+    number: "123",
+    complement: "Sala 45",
     neighborhood: "Centro - São Paulo",
+    city: "São Paulo",
+    state: "SP",
     status: "finished",
     tickets: [
       {
-        type: "Regular",
+        _id: "1",
+        description: "Ingresso com acesso a todas as palestras",
+        name: "Ingresso Regular",
+        type: "regular",
         price: 150,
         quantity: 50,
         soldQuantity: 45,
       },
     ],
+    organizer: {
+      id: "org-1",
+      name: "Tech Events Brasil",
+      avatar: "/placeholder.svg?height=100&width=100",
+      avatarId: "s"
+    },
+    acceptedTerms: true,
+    policy: "Política de cancelamento: reembolso até 7 dias antes do evento",
+    isFree: false,
+    customFields: [],
     ticketActivationToken: "REACT2024",
+    formTitle: "Inscrição para Workshop de React Avançado",
   },
 ]
 
@@ -271,7 +298,7 @@ export default function MyEvents() {
     courseDescription: "",
     template: "modern",
   })
-  const [checkouts, setCheckouts] = useState<CheckoutData[]>(mockCheckouts)
+  const [checkouts] = useState<CheckoutData[]>(mockCheckouts)
 
   // Estados para aba de certificados
   const [selectedEventForCertificate, setSelectedEventForCertificate] = useState<string>("")
@@ -288,7 +315,7 @@ export default function MyEvents() {
   })
   const [isGenerating, setIsGenerating] = useState(false)
   const [previewMode, setPreviewMode] = useState(false)
-  const [participants, setParticipants] = useState<EventParticipant[]>(mockParticipants)
+  const [participants] = useState<EventParticipant[]>(mockParticipants)
 
   const templates = [
     { id: "modern", name: "Moderno", description: "Design limpo e contemporâneo" },

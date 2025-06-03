@@ -86,7 +86,7 @@ export default function Profile() {
       })),
     )
 
-    console.log(`Cartão ${cardId} definido como padrão`)
+     console.log(`Cartão ${cardId} definido como padrão`)
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

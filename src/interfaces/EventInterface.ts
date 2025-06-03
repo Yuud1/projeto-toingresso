@@ -8,9 +8,9 @@ export default interface EventInterface {
   image: string;
   imageId: string;
   category: string;
-  startDate: Date;
+  startDate: string;
   startTime: string;
-  endDate: Date;
+  endDate: string;
   endTime: string;
   description: string;
   venueName: string;
@@ -26,7 +26,7 @@ export default interface EventInterface {
   acceptedTerms: boolean;
   policy: string;
   status: "active" | "finished" | "editing";
-  formTitle?: String;
+  formTitle?: string;
   isFree: boolean;
   customFields: CustomFieldInterface[];
   ticketActivationToken: string

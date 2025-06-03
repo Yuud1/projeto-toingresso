@@ -6,7 +6,6 @@ const Register = lazy(() => import("@/pages/Register"));
 const ForgotPasswordForm = lazy(() => import("@/pages/ForgotPasswordForm"));
 const EventDetail = lazy(() => import("@/pages/EventDetail"));
 const QuestionHelp = lazy(() => import("@/pages/QuestionHelp"));
-const Organizer = lazy(() => import("@/pages/Organizer"));
 const Home = lazy(() => import("@/pages/Home"));
 const Profile = lazy(() => import("@/pages/Profile"));
 const CreateEvent = lazy(() => import("@/pages/CreateEvent"));
@@ -38,7 +37,6 @@ function App() {
           <Route path="/email-confirmed" element={<EmailConfirmed />} />
           <Route path="/evento/:id" element={<EventDetail />} />
           <Route path="/question-help" element={<QuestionHelp />} />
-          <Route path="/organizer/:id" element={<Organizer />} />
           <Route path="/" element={<Home />} />
           <Route path="/perfil" element={<Profile />} />
           <Route path="/criar-evento" element={<CreateEvent />} />
