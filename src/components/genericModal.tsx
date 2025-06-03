@@ -23,6 +23,7 @@ interface GenericModalProps {
   children?: ReactNode;
   variant?: "default" | "destructive" | "success";
   showFooter?: boolean;
+  className?: string;
 }
 
 export default function GenericModal({
