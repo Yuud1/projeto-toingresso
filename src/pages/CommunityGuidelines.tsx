@@ -1,8 +1,6 @@
-"use client"
-
 import type React from "react"
-import Header from "@/components/header"
-import Footer from "@/components/footer"
+import Header from "@/components/Header"
+import Footer from "@/components/Footer"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -47,14 +45,12 @@ export default function CommunityGuidelines() {
       <Header isScrolled={true} />
       <main className="flex-1 container mx-auto px-4 py-8 pt-24">
         <div className="max-w-4xl mx-auto">
-          {/* Header da página */}
           <div className="text-center mb-8">
             <h1 className="text-2xl sm:text-3xl font-bold mb-4">Diretrizes da Comunidade</h1>
             <p className="text-gray-600 mb-2">Construindo uma comunidade segura e respeitosa</p>
             <p className="text-sm text-gray-500">Última atualização: {lastUpdated}</p>
           </div>
 
-          {/* Introdução */}
           <Card className="mb-8 bg-blue-50 border-blue-200">
             <CardContent className="p-6">
               <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
@@ -66,7 +62,6 @@ export default function CommunityGuidelines() {
             </CardContent>
           </Card>
 
-          {/* Seções das diretrizes */}
           <div className="space-y-6">
             <GuidelineSection icon={<UserCheck className="text-[#02488C]" size={20} />} title="1. Princípios Básicos">
               <div className="space-y-3">

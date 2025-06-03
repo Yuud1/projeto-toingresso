@@ -1,4 +1,4 @@
-import QRScanner from "@/components/qrcodeScanner";
+import QRScanner from "@/components/QrcodeScanner";
 
 function ScannerPage() {
   return <QRScanner />;

@@ -23,8 +23,8 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import Header from "@/components/header";
-import Footer from "@/components/footer";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import axios from "axios";
 import type EventInterface from "@/interfaces/EventInterface";
@@ -42,9 +42,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import DeleteModal from "@/components/deleteModal";
-import GenericModal from "@/components/genericModal";
-import { EditEventModal } from "@/components/editEventModal";
+import DeleteModal from "@/components/DeleteModal";
+import GenericModal from "@/components/GenericModal";
+import { EditEventModal } from "@/components/EditEventModal";
 
 interface TabProps {
   isActive: boolean;

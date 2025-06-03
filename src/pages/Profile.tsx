@@ -1,15 +1,15 @@
 import type React from "react"
 
 import { useState, useRef } from "react"
-import Header from "@/components/header"
-import Footer from "@/components/footer"
+import Header from "@/components/Header"
+import Footer from "@/components/Footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { User, Camera, Facebook, Instagram, Globe } from "lucide-react"
 import { useUser } from "@/contexts/useContext"
-import AddCardForm from "../components/addCardForm"
+import AddCardForm from "../components/AddCardForm"
 import axios from "axios"
 
 interface TabProps {
@@ -86,7 +86,6 @@ export default function Profile() {
       })),
     )
 
-    // Aqui você chamaria sua API para atualizar no backend
     console.log(`Cartão ${cardId} definido como padrão`)
   }
 

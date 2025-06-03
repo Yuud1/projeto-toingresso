@@ -85,7 +85,6 @@ const Footer = () => {
             )}
           </div>
 
-          {/* Minha Conta Dropdown */}
           <div className="border-b border-gray-600 pb-2">
             <button 
               className="flex items-center justify-between w-full text-base font-semibold"
@@ -103,7 +102,6 @@ const Footer = () => {
             )}
           </div>
 
-          {/* Fale Conosco Dropdown */}
           <div className="border-b border-gray-600 pb-2">
             <button 
               className="flex items-center justify-between w-full text-base font-semibold"

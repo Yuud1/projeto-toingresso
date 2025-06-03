@@ -10,8 +10,8 @@ import {
   RefreshCw,
   User,
 } from "lucide-react";
-import Footer from "../components/footer";
-import Header from "../components/header";
+import Footer from "../components/Footer";
+import Header from "../components/Header";
 import { FeedbackForm } from "../components/FeedbackForm";
 import { FAQStats } from "../components/FaqStats";
 import { PopularCategories } from "../components/PopularCategories";
