@@ -51,7 +51,6 @@ function App() {
           <Route path="/scan" element={<ScannerPage />} />
           <Route path="/certificados" element={<CertificateGenerator />} />
 
-          {/* Rotas Admin */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
         </Routes>
