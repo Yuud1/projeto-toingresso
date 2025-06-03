@@ -17,6 +17,11 @@ const EventDetail = () => {
   const [subscribed, setSubscribed] = useState(false);
   const [qrCode, setQrCode] = useState(null);
 
+  const [showFull, setShowFull] = useState(false);
+  const togglePolicy = () => setShowFull((prev) => !prev);
+  const policy = event?.policy || "";
+  const visibleText = showFull ? policy : `${policy.slice(0, 60)}...`;
+
   useEffect(() => {
     try {
       async function getEvento() {
@@ -58,9 +63,13 @@ const EventDetail = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent"></div>
       </div>
       {/* Seção principal: Info + imagem no desktop */}
-
-      {subscribed ? (<Subscribed qrCode={qrCode} open={subscribed} onOpenChange={setSubscribed}></Subscribed>) : null}
-      
+      {subscribed ? (
+        <Subscribed
+          qrCode={qrCode}
+          open={subscribed}
+          onOpenChange={setSubscribed}
+        ></Subscribed>
+      ) : null}
       <section className="relative max-w-7xl mx-auto px-6 md:px-10 pb-12 -mt-40">
         <div className="grid md:grid-cols-2 gap-8 items-center">
           {/* Informações do evento */}
@@ -152,7 +161,7 @@ const EventDetail = () => {
 
           {/* Ingressos */}
           {event?.isFree ? (
-            <div>
+            <div className="w-full max-w-[30rem]">
               <h2 className="text-xl font-bold mb-4 text-[#414141]">
                 {event.formTitle ? event.formTitle : "Formulário de Inscrição"}
               </h2>
@@ -165,11 +174,25 @@ const EventDetail = () => {
               />
 
               {/* Política */}
-              <div className="mt-8 p-4 border border-gray-300 rounded-lg bg-gray-50">
+              <div className="mt-8 p-4 border border-gray-300 rounded-lg bg-gray-50 w-w-md">
                 <h3 className="font-semibold mb-2 text-[#414141]">
                   Política do Evento
                 </h3>
-                <p className="text-sm text-[#414141]">{event?.policy}</p>
+
+                <div className="w-full">
+                  <p className="text-sm text-[#414141] break-words whitespace-pre-line">
+                    {visibleText}
+                  </p>
+
+                  {policy.length > 55 && (
+                    <button
+                      onClick={togglePolicy}
+                      className="mt-2 text-blue-600 hover:underline text-sm"
+                    >
+                      {showFull ? "Ver menos" : "Ver mais"}
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ) : (
