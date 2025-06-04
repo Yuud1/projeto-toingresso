@@ -30,10 +30,11 @@ export default function QRScanner() {
     const qrElement = document.getElementById(qrCodeRegionId);
     if (!qrElement) {
       console.error(`Elemento com id=${qrCodeRegionId} não encontrado.`);
+      setError("Erro interno. Elemento não encontrado.");
       return;
     }
 
-    // Se já existe um scanner, pare e limpe antes de criar um novo
+    // Se já existe um scanner, para e limpa antes de iniciar outro
     if (scanner) {
       scanner
         .stop()
@@ -44,52 +45,66 @@ export default function QRScanner() {
         })
         .catch((err) => {
           console.error("Erro ao parar scanner existente:", err);
-          createAndStartScanner(); // Tenta criar um novo scanner mesmo se houver erro
+          createAndStartScanner(); // Tenta iniciar mesmo que pare falhe
         });
     } else {
       createAndStartScanner();
     }
   };
 
-  const createAndStartScanner = () => {
-    setScanned(false);
-    const html5QrCode = new Html5Qrcode(qrCodeRegionId);
-    setScanner(html5QrCode);
+  const createAndStartScanner = async () => {
+    try {
+      // ✅ Solicita permissão da câmera
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      // Fecha o stream imediatamente, pois só foi usado para obter permissão
+      stream.getTracks().forEach((track) => track.stop());
 
-    const config = {
-      fps: 10,
-      qrbox: { width: 250, height: 250 },
-      formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
-    };
+      setScanned(false);
+      setError("");
 
-    html5QrCode
-      .start(
+      const html5QrCode = new Html5Qrcode(qrCodeRegionId);
+      setScanner(html5QrCode);
+
+      const config = {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+      };
+
+      await html5QrCode.start(
         { facingMode: "environment" },
         config,
         (decodedText) => {
           if (!isScanning.current) {
             isScanning.current = true;
+
+            console.log(`QR Code detectado: ${decodedText}`);
+            setResult(decodedText);
+            setScanned(true);
+
             html5QrCode
               .stop()
-              .then(() => {                
+              .then(() => {
                 html5QrCode.clear();
                 setScanner(null);
-                setScanned(true);
-                setResult(decodedText)
               })
               .catch((err) => {
-                setScanned(false);
                 console.error("Erro ao parar scanner após leitura:", err);
               });
           }
         },
-        () => {}
-      )
-      .catch((err) => {        
-        setScanned(false);
-        console.error("Erro ao iniciar o scanner:", err);
-        setError("Falha ao iniciar a câmera. Verifique as permissões.");
-      });
+        (errorMessage) => {
+          // ❗ Pode ignorar pequenos erros de decodificação
+          console.warn(`Erro de decodificação: ${errorMessage}`);
+        }
+      );
+    } catch (err) {
+      console.error("Erro ao acessar a câmera:", err);
+      setError(
+        "Não foi possível acessar a câmera. Verifique as permissões do navegador."
+      );
+      setScanned(false);
+    }
   };
 
   const stopScanner = () => {
@@ -140,7 +155,10 @@ export default function QRScanner() {
       if (response.data.validated) {
         setIsAuthenticated(true);
         setError("");
-        sessionStorage.setItem("validationToken", response.data.validationToken);
+        sessionStorage.setItem(
+          "validationToken",
+          response.data.validationToken
+        );
       }
     } catch (err: any) {
       setError(err.response?.data?.message || "Erro ao validar token");
@@ -179,11 +197,11 @@ export default function QRScanner() {
             { headers: { Authorization: `Bearer ${result}` } }
           );
           if (response.data.message) {
-              setResult(response.data.message)
+            setResult(response.data.message);
           }
         } catch (error: any) {
           if (error.response.data.message) {
-            setResult(error.response.data.message)
+            setResult(error.response.data.message);
           }
           console.log("Erro ao enviar requisição qr", error);
         }
