@@ -1,22 +1,28 @@
-import type React from "react"
+import type React from "react";
 
-import { useState, useRef } from "react"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { cn } from "@/lib/utils"
-import { User, Camera, Facebook, Instagram, Globe } from "lucide-react"
-import { useUser } from "@/contexts/useContext"
-import AddCardForm from "../components/AddCardForm"
-import axios from "axios"
+import { useState, useRef } from "react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+import { User, Camera, Facebook, Instagram, Globe } from "lucide-react";
+import { useUser } from "@/contexts/useContext";
+import AddCardForm from "../components/AddCardForm";
+import axios from "axios";
 
 interface TabProps {
-  isActive: boolean
-  children: React.ReactNode
-  onClick: () => void
-  className: string
+  isActive: boolean;
+  children: React.ReactNode;
+  onClick: () => void;
+  className: string;
 }
 
 const Tab = ({ isActive, children, onClick, className }: TabProps) => {
@@ -26,36 +32,41 @@ const Tab = ({ isActive, children, onClick, className }: TabProps) => {
       className={cn(
         "px-4 py-2 text-sm font-medium transition-colors relative",
         isActive ? "text-[#02488C]" : "text-gray-500 hover:text-gray-700",
-        className,
+        className
       )}
     >
       {children}
-      {isActive && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#02488C]" />}
+      {isActive && (
+        <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#02488C]" />
+      )}
     </button>
-  )
-}
+  );
+};
 
 const tabOptions = [
   { value: "dados", label: "Conta" },
   { value: "pagamentos", label: "Pagamentos" },
   { value: "privacidade", label: "Privacidade" },
   { value: "avancada", label: "Avançada" },
-] as const
+] as const;
 
 export default function Profile() {
-  const [activeTab, setActiveTab] = useState<"dados" | "pagamentos" | "privacidade" | "avancada">("dados")
-  const { user } = useUser()
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const [previewImage, setPreviewImage] = useState<string | null>(null)
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [activeTab, setActiveTab] = useState<
+    "dados" | "pagamentos" | "privacidade" | "avancada"
+  >("dados");
+  const { user } = useUser();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const [formData, setFormData] = useState({})
-  const [statusSaving, setStatusSaving] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | undefined>()
-  const [loading, setLoading] = useState(false)
-  const [showAddCard, setShowAddCard] = useState(false)
+  const [formData, setFormData] = useState({});
+  const [statusSaving, setStatusSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>();
+  const [loading, setLoading] = useState(false);
+  const [showAddCard, setShowAddCard] = useState(false);
+  console.log(formData);
 
-  const token = localStorage.getItem("token")
+  const token = localStorage.getItem("token");
 
   const [cards, setCards] = useState([
     {
@@ -76,120 +87,135 @@ export default function Profile() {
       brand: "AMEX",
       isDefault: false,
     },
-  ])
+  ]);
 
   const setDefaultCard = (cardId: string) => {
     setCards(
       cards.map((card) => ({
         ...card,
         isDefault: card.id === cardId,
-      })),
-    )
+      }))
+    );
 
-    console.log(`Cartão ${cardId} definido como padrão`)
-  }
+    console.log(`Cartão ${cardId} definido como padrão`);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    const name = e.target.name
+    const value = e.target.value;
+    const name = e.target.name;
 
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
-      setSelectedFile(file)
-      const reader = new FileReader()
+      setSelectedFile(file);
+      const reader = new FileReader();
       reader.onloadend = () => {
-        setPreviewImage(reader.result as string)
-      }
-      reader.readAsDataURL(file)
+        setPreviewImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   const triggerFileInput = () => {
-    fileInputRef.current?.click()
-  }
+    fileInputRef.current?.click();
+  };
 
   const handleSubmit = async () => {
     try {
-      setLoading(true)
-      setStatusSaving(false)
+      setLoading(true);
+      setStatusSaving(false);
 
-      const submitData = new FormData()
+      const submitData = new FormData();
 
       Object.entries(formData).forEach(([key, value]) => {
         if (value !== undefined) {
-          submitData.append(key, value as string)
+          submitData.append(key, value as string);
         }
-      })
+      });
 
       if (selectedFile) {
-        submitData.append("profileImage", selectedFile)
+        submitData.append("profileImage", selectedFile);
       }
 
       const response = await axios.put(
-        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_UPDATE_USER_DATA}`,
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_UPDATE_USER_DATA
+        }`,
         submitData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
-        },
-      )
+        }
+      );
 
       if (response.data.updated) {
-        setStatusSaving(true)
-        window.location.href = "/perfil"
+        setStatusSaving(true);
+        window.location.href = "/perfil";
       }
     } catch (error: any) {
-      console.log(error)
-      setErrorMessage(error.response?.data?.message || "Erro ao atualizar perfil")
+      console.log(error);
+      setErrorMessage(
+        error.response?.data?.message || "Erro ao atualizar perfil"
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleDelete = async () => {
     try {
-      setStatusSaving(false)
+      setStatusSaving(false);
 
-      const response = await axios.delete(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_DELETE_USER}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      const response = await axios.delete(
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_DELETE_USER
+        }`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.data.deleted) {
-        localStorage.clear()
-        window.location.href = "/login"
+        localStorage.clear();
+        window.location.href = "/login";
       }
     } catch (error) {
-      setErrorMessage("Erro ao excluir conta")
+      setErrorMessage("Erro ao excluir conta");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleAddCard = (cardData: any) => {
-    console.log("Novo cartão adicionado:", cardData)
+    console.log("Novo cartão adicionado:", cardData);
 
     // Função para detectar a bandeira do cartão
     const detectCardBrand = (cardNumber: string) => {
-      const cleanNumber = cardNumber.replace(/\s/g, "")
+      const cleanNumber = cardNumber.replace(/\s/g, "");
 
-      if (cleanNumber.startsWith("4")) return "VISA"
-      if (cleanNumber.startsWith("5") || cleanNumber.startsWith("2")) return "MASTERCARD"
-      if (cleanNumber.startsWith("34") || cleanNumber.startsWith("37")) return "AMEX"
-      if (cleanNumber.startsWith("636368") || cleanNumber.startsWith("438935") || cleanNumber.startsWith("504175"))
-        return "ELO"
-      return "OUTRO"
-    }
+      if (cleanNumber.startsWith("4")) return "VISA";
+      if (cleanNumber.startsWith("5") || cleanNumber.startsWith("2"))
+        return "MASTERCARD";
+      if (cleanNumber.startsWith("34") || cleanNumber.startsWith("37"))
+        return "AMEX";
+      if (
+        cleanNumber.startsWith("636368") ||
+        cleanNumber.startsWith("438935") ||
+        cleanNumber.startsWith("504175")
+      )
+        return "ELO";
+      return "OUTRO";
+    };
 
     // Criar um novo cartão com os dados recebidos
     const newCard = {
@@ -197,7 +223,7 @@ export default function Profile() {
       last4: cardData.cardNumber.slice(-4),
       brand: detectCardBrand(cardData.cardNumber),
       isDefault: cardData.isDefault || false,
-    }
+    };
 
     // Se o novo cartão for definido como padrão, atualiza os outros
     if (newCard.isDefault) {
@@ -205,14 +231,14 @@ export default function Profile() {
         cards.map((card) => ({
           ...card,
           isDefault: false,
-        })),
-      )
+        }))
+      );
     }
 
     // Adiciona o novo cartão à lista
-    setCards([...cards, newCard])
-    setShowAddCard(false)
-  }
+    setCards([...cards, newCard]);
+    setShowAddCard(false);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -243,7 +269,9 @@ export default function Profile() {
           <div className="sm:hidden mb-6">
             <Select
               value={activeTab}
-              onValueChange={(value: "dados" | "pagamentos" | "privacidade" | "avancada") => setActiveTab(value)}
+              onValueChange={(
+                value: "dados" | "pagamentos" | "privacidade" | "avancada"
+              ) => setActiveTab(value)}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Selecione uma seção" />
@@ -296,13 +324,17 @@ export default function Profile() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg">Foto de perfil</h3>
-                    <p className="text-sm text-gray-500">JPG, GIF ou PNG. Máximo 2MB.</p>
+                    <p className="text-sm text-gray-500">
+                      JPG, GIF ou PNG. Máximo 2MB.
+                    </p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Nome completo</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nome completo
+                    </label>
                     <Input
                       type="text"
                       placeholder="Seu nome completo"
@@ -312,7 +344,9 @@ export default function Profile() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      E-mail
+                    </label>
                     <Input
                       type="email"
                       name="email"
@@ -322,7 +356,9 @@ export default function Profile() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Telefone
+                    </label>
                     <Input
                       type="tel"
                       name="phoneNumber"
@@ -332,11 +368,20 @@ export default function Profile() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Data de nascimento</label>
-                    <Input type="date" name="birthdaydata" defaultValue={user?.birthdaydata} onChange={handleChange} />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Data de nascimento
+                    </label>
+                    <Input
+                      type="date"
+                      name="birthdaydata"
+                      defaultValue={user?.birthdaydata}
+                      onChange={handleChange}
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Facebook</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Facebook
+                    </label>
                     <div className="relative">
                       <Facebook
                         className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
@@ -353,7 +398,24 @@ export default function Profile() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Instagram</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Cpf
+                    </label>
+                    <div className="relative">
+                      <Input
+                        type="text"
+                        placeholder="000.000.000-00"
+                        className="pl-10"
+                        name="cpf"
+                        defaultValue={user?.cpf}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Instagram
+                    </label>
                     <div className="relative">
                       <Instagram
                         className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
@@ -370,9 +432,14 @@ export default function Profile() {
                     </div>
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Site</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Site
+                    </label>
                     <div className="relative">
-                      <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                      <Globe
+                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                        size={16}
+                      />
                       <Input
                         type="url"
                         placeholder="https://seu-site.com"
@@ -395,23 +462,31 @@ export default function Profile() {
                   </Button>
                 </div>
                 {statusSaving && (
-                  <div className="text-green-600 text-sm text-right">Alterações salvas com sucesso!</div>
+                  <div className="text-green-600 text-sm text-right">
+                    Alterações salvas com sucesso!
+                  </div>
                 )}
-                {errorMessage && <div className="text-red-600 text-sm text-right">{errorMessage}</div>}
+                {errorMessage && (
+                  <div className="text-red-600 text-sm text-right">
+                    {errorMessage}
+                  </div>
+                )}
               </div>
             )}
 
             {activeTab === "pagamentos" && (
               <div className="space-y-6">
                 <div className="bg-white p-6 rounded-lg border">
-                  <h3 className="text-lg font-semibold mb-4">Métodos de pagamento</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    Métodos de pagamento
+                  </h3>
                   <div className="space-y-4">
                     {cards.map((card) => (
                       <div
                         key={card.id}
                         className={cn(
                           "flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg gap-4",
-                          card.isDefault && "border-[#02488C] bg-blue-50",
+                          card.isDefault && "border-[#02488C] bg-blue-50"
                         )}
                       >
                         <div className="flex items-center gap-4">
@@ -419,7 +494,9 @@ export default function Profile() {
                             {card.brand === "VISA" && (
                               <div className="w-full h-full bg-gradient-to-r from-blue-600 to-blue-700 flex items-center justify-center relative">
                                 <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent"></div>
-                                <span className="relative z-10 font-bold tracking-wider">VISA</span>
+                                <span className="relative z-10 font-bold tracking-wider">
+                                  VISA
+                                </span>
                               </div>
                             )}
                             {card.brand === "MASTERCARD" && (
@@ -434,19 +511,27 @@ export default function Profile() {
                             {card.brand === "AMEX" && (
                               <div className="w-full h-full bg-gradient-to-r from-green-600 to-teal-600 flex items-center justify-center relative">
                                 <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent"></div>
-                                <span className="relative z-10 font-bold text-xs">AMEX</span>
+                                <span className="relative z-10 font-bold text-xs">
+                                  AMEX
+                                </span>
                               </div>
                             )}
                             {card.brand === "ELO" && (
                               <div className="w-full h-full bg-gradient-to-r from-yellow-500 to-orange-500 flex items-center justify-center relative">
                                 <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent"></div>
-                                <span className="relative z-10 font-bold text-xs">ELO</span>
+                                <span className="relative z-10 font-bold text-xs">
+                                  ELO
+                                </span>
                               </div>
                             )}
-                            {!["VISA", "MASTERCARD", "AMEX", "ELO"].includes(card.brand) && (
+                            {!["VISA", "MASTERCARD", "AMEX", "ELO"].includes(
+                              card.brand
+                            ) && (
                               <div className="w-full h-full bg-gradient-to-r from-gray-600 to-gray-700 flex items-center justify-center relative">
                                 <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent"></div>
-                                <span className="relative z-10 font-bold text-xs">{card.brand}</span>
+                                <span className="relative z-10 font-bold text-xs">
+                                  {card.brand}
+                                </span>
                               </div>
                             )}
                             {/* Chip do cartão */}
@@ -461,7 +546,9 @@ export default function Profile() {
                                 </span>
                               )}
                             </div>
-                            <p className="text-sm text-gray-500">Terminando em {card.last4}</p>
+                            <p className="text-sm text-gray-500">
+                              Terminando em {card.last4}
+                            </p>
                           </div>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
@@ -499,12 +586,16 @@ export default function Profile() {
             {activeTab === "privacidade" && (
               <div className="space-y-6">
                 <div className="bg-white p-6 rounded-lg border">
-                  <h3 className="text-lg font-semibold mb-4">Configurações de privacidade</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    Configurações de privacidade
+                  </h3>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
                         <h4 className="font-medium">Perfil público</h4>
-                        <p className="text-sm text-gray-500">Permitir que outros usuários vejam seu perfil</p>
+                        <p className="text-sm text-gray-500">
+                          Permitir que outros usuários vejam seu perfil
+                        </p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" className="sr-only peer" />
@@ -513,9 +604,12 @@ export default function Profile() {
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="font-medium">Compartilhar dados de uso</h4>
+                        <h4 className="font-medium">
+                          Compartilhar dados de uso
+                        </h4>
                         <p className="text-sm text-gray-500">
-                          Permitir que usemos seus dados para melhorar nossos serviços
+                          Permitir que usemos seus dados para melhorar nossos
+                          serviços
                         </p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
@@ -527,12 +621,16 @@ export default function Profile() {
                 </div>
 
                 <div className="bg-white p-6 rounded-lg border">
-                  <h3 className="text-lg font-semibold mb-4">Preferências de notificação</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    Preferências de notificação
+                  </h3>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
                         <h4 className="font-medium">Notificações por e-mail</h4>
-                        <p className="text-sm text-gray-500">Receba atualizações sobre seus eventos</p>
+                        <p className="text-sm text-gray-500">
+                          Receba atualizações sobre seus eventos
+                        </p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" className="sr-only peer" />
@@ -542,7 +640,9 @@ export default function Profile() {
                     <div className="flex items-center justify-between">
                       <div>
                         <h4 className="font-medium">Notificações push</h4>
-                        <p className="text-sm text-gray-500">Receba alertas em tempo real</p>
+                        <p className="text-sm text-gray-500">
+                          Receba alertas em tempo real
+                        </p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" className="sr-only peer" />
@@ -557,12 +657,19 @@ export default function Profile() {
             {activeTab === "avancada" && (
               <div className="space-y-6">
                 <div className="bg-white p-6 rounded-lg border">
-                  <h3 className="text-lg font-semibold mb-4">Configurações avançadas</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    Configurações avançadas
+                  </h3>
                   <div className="space-y-6">
                     <div>
                       <h4 className="font-medium mb-2">Alterar senha</h4>
                       <div className="space-y-4">
-                        <Input type="password" placeholder="Nova senha" name="newPassword" onChange={handleChange} />
+                        <Input
+                          type="password"
+                          placeholder="Nova senha"
+                          name="newPassword"
+                          onChange={handleChange}
+                        />
                         <Input
                           type="password"
                           placeholder="Confirmar nova senha"
@@ -570,7 +677,9 @@ export default function Profile() {
                           onChange={handleChange}
                         />
                         <div className="w-full h-full">
-                          <p className="text-sm text-destructive">{errorMessage}</p>
+                          <p className="text-sm text-destructive">
+                            {errorMessage}
+                          </p>
                         </div>
                         <Button
                           className="bg-[#02488C] text-white hover:bg-[#023a6f] cursor-pointer"
@@ -583,9 +692,12 @@ export default function Profile() {
                     </div>
 
                     <div className="border-t pt-6">
-                      <h4 className="font-medium mb-2 text-red-600">Zona de perigo</h4>
+                      <h4 className="font-medium mb-2 text-red-600">
+                        Zona de perigo
+                      </h4>
                       <p className="text-sm text-gray-500 mb-4">
-                        Ações irreversíveis que afetarão permanentemente sua conta
+                        Ações irreversíveis que afetarão permanentemente sua
+                        conta
                       </p>
                       <div className="space-y-4">
                         <Button
@@ -597,7 +709,8 @@ export default function Profile() {
                           Excluir minha conta
                         </Button>
                         <p className="text-xs text-gray-500">
-                          Ao excluir sua conta, todos os seus dados serão permanentemente removidos e não poderão ser
+                          Ao excluir sua conta, todos os seus dados serão
+                          permanentemente removidos e não poderão ser
                           recuperados.
                         </p>
                       </div>
@@ -610,9 +723,13 @@ export default function Profile() {
         </div>
       </main>
 
-      <AddCardForm isOpen={showAddCard} onClose={() => setShowAddCard(false)} onSave={handleAddCard} />
+      <AddCardForm
+        isOpen={showAddCard}
+        onClose={() => setShowAddCard(false)}
+        onSave={handleAddCard}
+      />
 
       <Footer />
     </div>
-  )
+  );
 }
