@@ -194,7 +194,7 @@ export default function QRScanner() {
   }, [scanned]);
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="min-h-[60vh] flex items-center justify-center p-4">
       {!isAuthenticated ? (
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
@@ -235,7 +235,7 @@ export default function QRScanner() {
           </CardContent>
         </Card>
       ) : (
-        <Card className="w-full max-w-md">
+        <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-center text-xl">
               Leitor de QR Code

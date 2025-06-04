@@ -13,6 +13,7 @@ import {
   Calendar,
   Ticket,
   TrendingUp,
+  Copy,
   ChevronDown,
   Home,
   BarChart3,
@@ -25,8 +26,10 @@ import {
   UserCheck,
   FileImage,
   Loader2,
+  ScanEye,
   BookOpen,
   User,
+  Lock,
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
@@ -46,6 +49,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { useToast } from "@/hooks/use-toast"
+import { useNavigate } from "react-router-dom"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode"
 
 interface TabProps {
   isActive: boolean
@@ -116,13 +122,13 @@ const Tab = ({ isActive, children, onClick, className }: TabProps) => {
 const mainTabOptions = [
   { value: "inicio", label: "Início", icon: Home },
   { value: "dashboard", label: "Dashboard", icon: BarChart3 },
+  { value: "scan", label: "Scan", icon: ScanEye },
   { value: "certificados", label: "Certificados", icon: Award },
 ] as const
 
 // Opções para os subtabs
 const subTabOptions = [
   { value: "active", label: "Ativos" },
-  { value: "editing", label: "Editando" },
   { value: "finished", label: "Encerrados" },
 ] as const
 
@@ -256,7 +262,7 @@ const mockEvents: EventInterface[] = [
       id: "org-1",
       name: "Tech Events Brasil",
       avatar: "/placeholder.svg?height=100&width=100",
-      avatarId: "s"
+      avatarId: "s",
     },
     acceptedTerms: true,
     policy: "Política de cancelamento: reembolso até 7 dias antes do evento",
@@ -274,8 +280,8 @@ export default function MyEvents() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const [events, setEvents] = useState<EventInterface[]>([])
-  const [mainTab, setMainTab] = useState<"inicio" | "dashboard" | "certificados">("inicio")
-  const [subTab, setSubTab] = useState<"active" | "finished" | "editing">("active")
+  const [mainTab, setMainTab] = useState<"inicio" | "dashboard" | "certificados" | "scan">("inicio")
+  const [subTab, setSubTab] = useState<"active" | "finished">("active")
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [eventToDelete, setEventToDelete] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
@@ -283,6 +289,18 @@ export default function MyEvents() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<EventInterface | null>(null)
   const [ticketToken, setTicketToken] = useState<string | undefined>(undefined)
+  const navigate = useNavigate()
+
+  // Estados para o scanner QR
+  const [scannerToken, setScannerToken] = useState("")
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [scannerError, setScannerError] = useState("")
+  const [scanResult, setScanResult] = useState<string | null>(null)
+  const [scanner, setScanner] = useState<Html5Qrcode | null>(null)
+  const [scanned, setScanned] = useState(false)
+  const qrCodeRegionId = "qr-code-region"
+  const isScanning = useRef(false)
 
   // Estados para funcionalidades do dashboard
   const [hideValues, setHideValues] = useState(false)
@@ -323,6 +341,174 @@ export default function MyEvents() {
     { id: "minimal", name: "Minimalista", description: "Design simples e focado" },
     { id: "elegant", name: "Elegante", description: "Sofisticado com detalhes dourados" },
   ]
+
+  // Funções do scanner QR
+  const startScanner = () => {
+    const qrElement = document.getElementById(qrCodeRegionId)
+    if (!qrElement) {
+      console.error(`Elemento com id=${qrCodeRegionId} não encontrado.`)
+      return
+    }
+
+    // Se já existe um scanner, pare e limpe antes de criar um novo
+    if (scanner) {
+      scanner
+        .stop()
+        .then(() => {
+          scanner.clear()
+          setScanner(null)
+          createAndStartScanner()
+        })
+        .catch((err) => {
+          console.error("Erro ao parar scanner existente:", err)
+          createAndStartScanner() // Tenta criar um novo scanner mesmo se houver erro
+        })
+    } else {
+      createAndStartScanner()
+    }
+  }
+
+  const createAndStartScanner = () => {
+    setScanned(false)
+    const html5QrCode = new Html5Qrcode(qrCodeRegionId)
+    setScanner(html5QrCode)
+
+    const config = {
+      fps: 10,
+      qrbox: { width: 250, height: 250 },
+      formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+    }
+
+    html5QrCode
+      .start(
+        { facingMode: "environment" },
+        config,
+        (decodedText) => {
+          if (!isScanning.current) {
+            isScanning.current = true
+            html5QrCode
+              .stop()
+              .then(() => {
+                html5QrCode.clear()
+                setScanner(null)
+                setScanned(true)
+                setScanResult(decodedText)
+              })
+              .catch((err) => {
+                setScanned(false)
+                console.error("Erro ao parar scanner após leitura:", err)
+              })
+          }
+        },
+        () => {},
+      )
+      .catch((err) => {
+        setScanned(false)
+        console.error("Erro ao iniciar o scanner:", err)
+        setScannerError("Falha ao iniciar a câmera. Verifique as permissões.")
+      })
+  }
+
+  const stopScanner = () => {
+    if (scanner) {
+      scanner
+        .stop()
+        .then(() => {
+          scanner.clear()
+          setScanner(null)
+          isScanning.current = false
+          console.log("Scanner parado manualmente.")
+        })
+        .catch((err) => {
+          console.error("Erro ao parar scanner:", err)
+        })
+    }
+  }
+
+  const resetScanner = () => {
+    setScanResult(null)
+    isScanning.current = false
+    stopScanner()
+    startScanner()
+  }
+
+  const validateToken = async () => {
+    if (!scannerToken.trim()) {
+      setScannerError("Por favor, insira um token")
+      return
+    }
+
+    setIsLoading(true)
+    setScannerError("")
+
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_VALIDATE_TICKET_TOKEN}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${scannerToken}`,
+          },
+        },
+      )
+
+      if (response.data.validated) {
+        setIsAuthenticated(true)
+        setScannerError("")
+        sessionStorage.setItem("validationToken", response.data.validationToken)
+      }
+    } catch (err: any) {
+      setScannerError(err.response?.data?.message || "Erro ao validar token")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const logout = () => {
+    stopScanner()
+    setIsAuthenticated(false)
+    setScannerToken("")
+    setScanResult(null)
+    setScanner(null)
+  }
+
+  // Effect para iniciar scanner quando autenticado
+  useEffect(() => {
+    if (isAuthenticated && scanResult === null && mainTab === "scan") {
+      startScanner()
+    }
+
+    return () => {
+      if (mainTab !== "scan") {
+        stopScanner()
+      }
+    }
+  }, [isAuthenticated, scanResult, mainTab])
+
+  // Effect para processar resultado do scan
+  useEffect(() => {
+    if (scanned && scanResult) {
+      const sendQrResult = async () => {
+        try {
+          const response = await axios.post(
+            `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_EVENT_SCAN_TICKET}`,
+            { dispositiveToken: sessionStorage.getItem("validationToken") },
+            { headers: { Authorization: `Bearer ${scanResult}` } },
+          )
+          if (response.data.message) {
+            setScanResult(response.data.message)
+          }
+        } catch (error: any) {
+          if (error.response.data.message) {
+            setScanResult(error.response.data.message)
+          }
+          console.log("Erro ao enviar requisição qr", error)
+        }
+      }
+
+      sendQrResult()
+    }
+  }, [scanned, scanResult])
 
   //  Calculo do revenue atualizado da silva
   const revenueData = months.map((month, idx) => {
@@ -391,7 +577,8 @@ export default function MyEvents() {
   }, [])
 
   const filteredEvents = events.filter((event) => {
-    const matchesTab = event.status === subTab
+    const matchesTab =
+      subTab === "active" ? event.status === "active" || event.status === "editing" : event.status === subTab
     const matchesSearch =
       searchQuery === "" ||
       event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -725,6 +912,23 @@ export default function MyEvents() {
     }
   }
 
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      toast({
+        title: "Copiado!",
+        description: "O token foi copiado para a área de transferência.",
+      })
+    } catch (err) {
+      toast({
+        title: "Erro ao copiar",
+        description: "Não foi possível copiar o token.",
+        variant: "destructive",
+      })
+      console.error("Falha ao copiar texto: ", err)
+    }
+  }
+
   // Função para formatar valores monetários
   const formatCurrency = (value: number) => {
     if (hideValues) return "R$ ***"
@@ -738,19 +942,6 @@ export default function MyEvents() {
   const formatNumber = (value: number) => {
     if (hideValues) return "***"
     return value.toString()
-  }
-
-  // Função para associar evento ao certificado
-  const handleAssociateCertificate = (eventId: string) => {
-    const event = events.find((e) => e._id === eventId)
-    if (event) {
-      setCertificateAssociation({
-        ...certificateAssociation,
-        eventId: eventId,
-        courseName: event.title,
-      })
-      setIsCertificateModalOpen(true)
-    }
   }
 
   // Função para salvar associação de certificado
@@ -768,26 +959,6 @@ export default function MyEvents() {
     } catch (error) {
       toast({
         title: "Erro ao salvar associação",
-        description: "Tente novamente em alguns instantes.",
-        variant: "destructive",
-      })
-    }
-  }
-
-  // Função para gerar certificados automaticamente
-  const handleGenerateCertificatesForEvent = async (eventId: string) => {
-    try {
-      // Aqui você faria a chamada para sua API para gerar certificados
-      // para todos os participantes do evento
-      console.log("Gerando certificados para evento:", eventId)
-
-      toast({
-        title: "Certificados gerados!",
-        description: "Certificados foram gerados para todos os participantes.",
-      })
-    } catch (error) {
-      toast({
-        title: "Erro ao gerar certificados",
         description: "Tente novamente em alguns instantes.",
         variant: "destructive",
       })
@@ -929,34 +1100,28 @@ export default function MyEvents() {
 
               <div className="flex flex-col gap-1">
                 <h4 className="text-sm font-medium">Gerar token de ativação de tickets</h4>
-
                 <div className="flex flex-col gap-4">
-                  <Input
-                    type="text"
-                    placeholder="token"
-                    defaultValue={selectedEvent.ticketActivationToken || ticketToken}
-                  ></Input>
-                  <Button onClick={() => handleGenerateActivationTicketsToken(selectedEvent._id)} className="w-1/4">
-                    Gerar Token
-                  </Button>
-                </div>
-              </div>
-
-              {/* Seção de Certificados */}
-              <div className="border-t pt-4">
-                <h4 className="text-sm font-medium mb-3">Certificados</h4>
-                <div className="flex gap-2">
-                  <Button onClick={() => handleAssociateCertificate(selectedEvent._id)} variant="outline" size="sm">
-                    <Award className="h-4 w-4 mr-2" />
-                    Associar Certificado
-                  </Button>
+                  <div className="flex gap-2">
+                    <Input
+                      type="text"
+                      placeholder="token"
+                      defaultValue={selectedEvent.ticketActivationToken || ticketToken}
+                      readOnly
+                      className="flex-1"
+                    />
+                    <Button
+                      onClick={() => copyToClipboard(selectedEvent.ticketActivationToken || ticketToken || "")}
+                      variant="outline"
+                      disabled={!selectedEvent.ticketActivationToken && !ticketToken}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
                   <Button
-                    onClick={() => handleGenerateCertificatesForEvent(selectedEvent._id)}
-                    variant="outline"
-                    size="sm"
+                    onClick={() => handleGenerateActivationTicketsToken(selectedEvent._id)}
+                    className="w-1/4 cursor-pointer"
                   >
-                    <Download className="h-4 w-4 mr-2" />
-                    Gerar Certificados
+                    Gerar Token
                   </Button>
                 </div>
               </div>
@@ -1188,7 +1353,7 @@ export default function MyEvents() {
                 <Tab
                   key={option.value}
                   isActive={mainTab === option.value}
-                  onClick={() => setMainTab(option.value as "inicio" | "dashboard" | "certificados")}
+                  onClick={() => setMainTab(option.value as "inicio" | "dashboard" | "certificados" | "scan")}
                   className="text-base cursor-pointer"
                 >
                   <div className="flex items-center">
@@ -1214,7 +1379,7 @@ export default function MyEvents() {
                     <DropdownMenuItem
                       key={option.value}
                       className={cn("cursor-pointer", mainTab === option.value && "bg-muted")}
-                      onClick={() => setMainTab(option.value as "inicio" | "dashboard" | "certificados")}
+                      onClick={() => setMainTab(option.value as "inicio" | "dashboard" | "certificados" | "scan")}
                     >
                       <div className="flex items-center">
                         <option.icon className="h-4 w-4 mr-2" />
@@ -1227,15 +1392,103 @@ export default function MyEvents() {
             </div>
           </div>
 
+          {mainTab === "scan" && (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-lg font-semibold">Scanner de Ingressos</h2>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ScanEye className="h-5 w-5" />
+                    Leitor QR Code
+                  </CardTitle>
+                  <CardDescription>Escaneie os QR Codes dos ingressos para validar a entrada</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="min-h-[60vh] flex items-center justify-center p-4">
+                    {!isAuthenticated ? (
+                      <Card className="w-full max-w-md">
+                        <CardHeader className="text-center">
+                          <div className="mx-auto mb-4 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                            <Lock className="w-6 h-6 text-blue-600" />
+                          </div>
+                          <CardTitle className="text-2xl">Acesso ao Scanner</CardTitle>
+                          <CardDescription>Insira seu token para acessar o scanner de QR code</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="token">Token de Acesso</Label>
+                            <Input
+                              id="token"
+                              type="password"
+                              placeholder="Digite seu token"
+                              value={scannerToken}
+                              onChange={(e) => setScannerToken(e.target.value)}
+                              onKeyPress={(e) => e.key === "Enter" && validateToken()}
+                            />
+                          </div>
+
+                          {scannerError && (
+                            <Alert variant="destructive">
+                              <AlertDescription>{scannerError}</AlertDescription>
+                            </Alert>
+                          )}
+
+                          <Button onClick={validateToken} disabled={isLoading} className="w-full">
+                            {isLoading ? "Validando..." : "Acessar Scanner"}
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      <Card className="w-full">
+                        <CardHeader>
+                          <CardTitle className="text-center text-xl">Leitor de QR Code</CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex flex-col items-center gap-4">
+                          {!scanResult ? (
+                            <>
+                              <div
+                                id={qrCodeRegionId}
+                                className={scanResult ? "hidden" : "w-full"}
+                                style={{ minHeight: "250px" }}
+                              />
+                              <p className="text-muted-foreground text-sm">Aponte sua câmera para um QR Code</p>
+                              <Button variant="outline" onClick={stopScanner} className="w-full">
+                                Parar Scanner
+                              </Button>
+                              <Button variant="destructive" onClick={logout} className="w-full">
+                                Sair
+                              </Button>
+                            </>
+                          ) : (
+                            <div className="flex flex-col items-center gap-2">
+                              <Badge variant="secondary">QR Code Detectado</Badge>
+                              <p className="break-all text-sm text-muted-foreground">{scanResult}</p>
+                              <Button variant="outline" onClick={resetScanner} className="w-full">
+                                Ler Novamente
+                              </Button>
+                              <Button variant="destructive" onClick={logout} className="w-full">
+                                Sair
+                              </Button>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
           {mainTab === "inicio" && (
             <>
               <div className="flex flex-col gap-4 mb-6">
                 {/* Mobile Dropdown para subtabs */}
                 <div className="md:hidden w-full mb-2">
-                  <Select
-                    value={subTab}
-                    onValueChange={(value) => setSubTab(value as "active" | "editing" | "finished")}
-                  >
+                  <Select value={subTab} onValueChange={(value) => setSubTab(value as "active" | "finished")}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder={getCurrentSubTabLabel()} />
                     </SelectTrigger>
@@ -1255,7 +1508,7 @@ export default function MyEvents() {
                     <Tab
                       key={option.value}
                       isActive={subTab === option.value}
-                      onClick={() => setSubTab(option.value as "active" | "editing" | "finished")}
+                      onClick={() => setSubTab(option.value as "active" | "finished")}
                       className="cursor-pointer"
                     >
                       {option.label}
@@ -1334,18 +1587,7 @@ export default function MyEvents() {
             <div className="space-y-6">
               {/* Controles do Dashboard */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <h2 className="text-lg font-semibold">Analytics</h2>
                 <div className="flex gap-2 w-full sm:w-auto">
-                  {/* Mobile: apenas ícones */}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsCheckoutModalOpen(true)}
-                    className="flex-1 sm:flex-none"
-                  >
-                    <Receipt className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Últimos Checkouts</span>
-                  </Button>
                   <Button
                     variant="outline"
                     size="sm"
@@ -1411,7 +1653,7 @@ export default function MyEvents() {
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 <Card
                   className="cursor-pointer hover:shadow-md transition-shadow"
-                  onClick={() => setIsCheckoutModalOpen(true)}
+                  onClick={() => navigate("/event-arrivals")} // Mudança aqui
                 >
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Últimos Checkouts</CardTitle>
@@ -1419,7 +1661,7 @@ export default function MyEvents() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{formatNumber(checkouts.length)}</div>
-                    <p className="text-xs text-muted-foreground">Clique para ver detalhes</p>
+                    <p className="text-xs text-muted-foreground">Clique para ver chegadas em tempo real</p>
                   </CardContent>
                 </Card>
 

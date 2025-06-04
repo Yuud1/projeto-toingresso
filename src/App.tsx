@@ -21,6 +21,8 @@ const LegalObligations = lazy(() => import("@/pages/LegalObligations"));
 const HalfPriceRules = lazy(() => import("@/pages/HalfPriceRules"));
 const ScannerPage = lazy(() => import("@/pages/ScannerPage"));
 const CertificateGenerator = lazy(() => import("@/pages/CertificateGenerator"));
+const Checkout = lazy(() => import("@/pages/Checkout"));
+const EventArrivals = lazy(() => import("@/pages/EventArrivals"));
 
 // Páginas Admin
 const AdminDashboard = lazy(() => import("@/pages/admin/Dashboard"));
@@ -50,6 +52,8 @@ function App() {
           <Route path="/regra-da-meia-entrada" element={<HalfPriceRules />} />          
           <Route path="/scan" element={<ScannerPage />} />
           <Route path="/certificados" element={<CertificateGenerator />} />
+          <Route path="/checkouts" element={<Checkout />} />
+          <Route path="/event-arrivals" element={<EventArrivals />} />
 
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />

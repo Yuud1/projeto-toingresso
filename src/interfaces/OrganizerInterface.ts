@@ -3,5 +3,4 @@ export default interface OrganizerInterface {
   name: string;
   avatar: string;
   avatarId: string;
-  
 }
