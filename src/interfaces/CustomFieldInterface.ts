@@ -6,7 +6,7 @@ export type FieldType =
   | "checkbox"
   | "radio"
   | "date"
-  | "textarea"; // Adicione textarea aqui, se for necessário no form
+  | "textarea";
 
 export type MaskType =
   | "none"

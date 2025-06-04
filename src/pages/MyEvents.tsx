@@ -1,8 +1,6 @@
-"use client"
-
 import type React from "react"
 import { useEffect, useState, useRef } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardImage } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
   Pencil,
@@ -1119,7 +1117,7 @@ export default function MyEvents() {
                   </div>
                   <Button
                     onClick={() => handleGenerateActivationTicketsToken(selectedEvent._id)}
-                    className="w-1/4 cursor-pointer"
+                    className="w-full sm:w-1/2 md:w-1/4 cursor-pointer"
                   >
                     Gerar Token
                   </Button>
@@ -1143,10 +1141,6 @@ export default function MyEvents() {
                     </div>
                   )
                 })}
-              <div>
-                <h4 className="text-sm font-medium">Status</h4>
-                <p className="text-sm text-gray-600 capitalize">{selectedEvent.status}</p>
-              </div>
             </div>
           )}
         </GenericModal>
@@ -1545,6 +1539,7 @@ export default function MyEvents() {
                     <Card key={event._id} className="hover:shadow-md transition-shadow">
                       <CardHeader>
                         <CardTitle className="line-clamp-1">{event.title}</CardTitle>
+                        <CardImage className="w-">{event.image}</CardImage>
                         <CardDescription>{new Date(event.startDate).toLocaleDateString()}</CardDescription>
                       </CardHeader>
                       <CardContent>

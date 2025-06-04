@@ -38,6 +38,16 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
+function CardImage({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-image"
+      className={cn("leading-none font-semibold", className)}
+      {...props}
+    />
+  )
+}
+
 function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -86,6 +96,7 @@ export {
   CardHeader,
   CardFooter,
   CardTitle,
+  CardImage,
   CardAction,
   CardDescription,
   CardContent,

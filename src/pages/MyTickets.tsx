@@ -43,7 +43,6 @@ const Tab = ({ isActive, children, onClick, className }: TabProps) => {
 
 const statusOptions = [
   { value: "ativo", label: "Ativos" },
-  { value: "pendente", label: "Pendentes" },
   { value: "cancelado", label: "Cancelados" },
   { value: "encerrado", label: "Encerrados" },
 ] as const;
@@ -56,7 +55,7 @@ export default function MyTickets() {
   }
 
   const [activeTab, setActiveTab] = useState<
-    "ativo" | "pendente" | "cancelado" | "encerrado"
+    "ativo" | "cancelado" | "encerrado"
   >("ativo");
   const [searchQuery, setSearchQuery] = useState("");
   const [tickets, setTickets] = useState<UserTicketsInterface[] | undefined>(
@@ -131,7 +130,7 @@ export default function MyTickets() {
             <Select
               value={activeTab}
               onValueChange={(
-                value: "ativo" | "pendente" | "cancelado" | "encerrado"
+                value: "ativo" | "cancelado" | "encerrado"
               ) => setActiveTab(value)}
             >
               <SelectTrigger className="w-full">
