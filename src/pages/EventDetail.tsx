@@ -201,7 +201,7 @@ const EventDetail = () => {
                 Ingressos
               </h2>
               <TicketSelector
-                eventTitle={event?.title ?? ""}
+                event={event}
                 tickets={event?.tickets ?? []}
               />
 

@@ -304,7 +304,7 @@ export default function CertificateGenerator() {
     if (!canvas) return
 
     const link = document.createElement("a")
-    link.download = `certificado-${certificateData.studentName.replace(/\s+/g, "-").toLowerCase()}-${certificateData.certificateId}.png`
+    link.download = `certificado-${certificateData.studentName.replace(/\s+/g, "-").toLowerCase()}-${certificateData.certificateId}.pdf`
     link.href = canvas.toDataURL()
     link.click()
 

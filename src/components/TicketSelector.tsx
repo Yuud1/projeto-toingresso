@@ -12,14 +12,15 @@ import {
 import { Minus, Plus } from "lucide-react";
 import TicketInterface from "@/interfaces/TicketInterface";
 import axios from "axios";
+import EventInterface from "@/interfaces/EventInterface";
 
 interface TicketSelectorProps {
-  eventTitle: string;
+  event: EventInterface
   tickets: TicketInterface[];  
 }
 
 export function TicketSelector({
-  eventTitle,
+  event,
   tickets,
 }: TicketSelectorProps) {
   const [open, setOpen] = useState(false);
@@ -64,7 +65,7 @@ export function TicketSelector({
       setLoadingBuyButton(true);
       const response = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_EVENT_PAY}`,
-        {selectedTickets},
+        {selectedTickets, eventId: event._id},
         {
           headers:{
             Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -148,7 +149,7 @@ export function TicketSelector({
             <DialogTitle>Confirmar Compra</DialogTitle>
             <DialogDescription>
               Você está prestes a adquirir {totalTickets} ingresso
-              {totalTickets > 1 ? "s" : ""} para <strong>{eventTitle}</strong>.
+              {totalTickets > 1 ? "s" : ""} para <strong>{event.title}</strong>.
             </DialogDescription>
           </DialogHeader>
 
