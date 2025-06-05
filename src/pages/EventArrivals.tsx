@@ -1,14 +1,12 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect } from "react";
 import {
   DragDropContext,
   Droppable,
   Draggable,
   type DropResult,
   type DroppableProvided,
-  type DraggableProvided,
-  type DraggableStateSnapshot,
-  type DroppableStateSnapshot,
-} from "react-beautiful-dnd"
+  type DraggableProvided,  
+} from "react-beautiful-dnd";
 import {
   User,
   Settings,
@@ -32,38 +30,38 @@ import {
   AlertCircle,
   List,
   Grid,
-} from "lucide-react"
-import type CustomFieldInterface from "../interfaces/CustomFieldInterface"
-import type { FieldType } from "../interfaces/CustomFieldInterface"
+} from "lucide-react";
+import type CustomFieldInterface from "../interfaces/CustomFieldInterface";
+import type { FieldType } from "../interfaces/CustomFieldInterface";
 
 interface UserTicketsInterface {
-  _id: string
-  eventId: string
-  ticketType: string
-  purchaseDate: string
-  isUsed: boolean
+  _id: string;
+  eventId: string;
+  ticketType: string;
+  purchaseDate: string;
+  isUsed: boolean;
 }
 
 interface UserInterface {
-  _id: string
-  name: string
-  cpf: string
-  email: string
-  emailVerified: string
-  birthdaydata: string
-  type: "user" | "superUser" | "admin"
-  mysite: string
-  instagram: string
-  facebook: string
-  phoneNumber: string
-  avatar: string
-  tickets: UserTicketsInterface[]
-  customFields?: Record<string, string>
+  _id: string;
+  name: string;
+  cpf: string;
+  email: string;
+  emailVerified: string;
+  birthdaydata: string;
+  type: "user" | "superUser" | "admin";
+  mysite: string;
+  instagram: string;
+  facebook: string;
+  phoneNumber: string;
+  avatar: string;
+  tickets: UserTicketsInterface[];
+  customFields?: Record<string, string>;
 }
 
 interface EventArrival extends UserInterface {
-  arrivalTime: string
-  isNew: boolean
+  arrivalTime: string;
+  isNew: boolean;
 }
 
 // Mock data para o evento
@@ -72,7 +70,7 @@ const eventData = {
   date: "15 de Janeiro, 2024",
   time: "09:00 - 18:00",
   location: "Centro de Convenções - São Paulo",
-}
+};
 
 // Mock data para chegadas
 const mockArrivals: EventArrival[] = [
@@ -142,7 +140,7 @@ const mockArrivals: EventArrival[] = [
       interesse: "UI/UX, Figma",
     },
   },
-]
+];
 
 // Campos padrão disponíveis
 const defaultFields = [
@@ -151,8 +149,12 @@ const defaultFields = [
   { id: "email", label: "Email", icon: <Mail size={16} /> },
   { id: "phoneNumber", label: "Telefone", icon: <Phone size={16} /> },
   { id: "mysite", label: "Website", icon: <Globe size={16} /> },
-  { id: "birthdaydata", label: "Data de Nascimento", icon: <Calendar size={16} /> },
-]
+  {
+    id: "birthdaydata",
+    label: "Data de Nascimento",
+    icon: <Calendar size={16} />,
+  },
+];
 
 // Campos personalizados de exemplo
 const initialCustomFields: CustomFieldInterface[] = [
@@ -183,95 +185,107 @@ const initialCustomFields: CustomFieldInterface[] = [
     maskType: "none",
     mask: "",
   },
-]
+];
 
 export default function EventArrivalsPage() {
-  const [arrivals, setArrivals] = useState<EventArrival[]>(mockArrivals)
-  const [currentTime, setCurrentTime] = useState(new Date())
-  const [isConfigMode, setIsConfigMode] = useState(true)
-  const [selectedFields, setSelectedFields] = useState<string[]>(["name", "instagram"])
-  const [customFields, setCustomFields] = useState<CustomFieldInterface[]>(initialCustomFields)
-  const [selectedCustomFields, setSelectedCustomFields] = useState<string[]>(["cargo", "empresa"])
-  const [showArrivalTime, setShowArrivalTime] = useState(true)
-  const [cardStyle, setCardStyle] = useState<"grid" | "list">("grid")
-  const [previewMode, setPreviewMode] = useState(false)
-  const [customFieldValues, setCustomFieldValues] = useState<Record<string, string>>({})
+  const [arrivals, setArrivals] = useState<EventArrival[]>(mockArrivals);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [isConfigMode, setIsConfigMode] = useState(true);
+  const [selectedFields, setSelectedFields] = useState<string[]>([
+    "name",
+    "instagram",
+  ]);
+  const [customFields, setCustomFields] =
+    useState<CustomFieldInterface[]>(initialCustomFields);
+  const [selectedCustomFields, setSelectedCustomFields] = useState<string[]>([
+    "cargo",
+    "empresa",
+  ]);
+  const [showArrivalTime, setShowArrivalTime] = useState(true);
+  const [cardStyle, setCardStyle] = useState<"grid" | "list">("grid");
+  const [previewMode, setPreviewMode] = useState(false);
+  const [customFieldValues] = useState<
+    Record<string, string>
+  >({});
+  console.log(customFieldValues);
 
   // Atualiza o relógio a cada segundo
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTime(new Date())
-    }, 1000)
+      setCurrentTime(new Date());
+    }, 1000);
 
-    return () => clearInterval(timer)
-  }, [])
+    return () => clearInterval(timer);
+  }, []);
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString("pt-BR", {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
-    })
-  }
+    });
+  };
 
   const getInitials = (name: string) => {
     return name
       .split(" ")
       .map((n) => n[0])
       .join("")
-      .toUpperCase()
-  }
+      .toUpperCase();
+  };
 
   const formatArrivalTime = (arrivalTime: string) => {
     return new Date(arrivalTime).toLocaleTimeString("pt-BR", {
       hour: "2-digit",
       minute: "2-digit",
-    })
-  }
+    });
+  };
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return ""
-    return new Date(dateString).toLocaleDateString("pt-BR")
-  }
+    if (!dateString) return "";
+    return new Date(dateString).toLocaleDateString("pt-BR");
+  };
 
   const handleDragEnd = (result: DropResult) => {
-    if (!result.destination) return
+    if (!result.destination) return;
 
     if (result.type === "defaultFields") {
-      const items = Array.from(selectedFields)
-      const [reorderedItem] = items.splice(result.source.index, 1)
-      items.splice(result.destination.index, 0, reorderedItem)
-      setSelectedFields(items)
+      const items = Array.from(selectedFields);
+      const [reorderedItem] = items.splice(result.source.index, 1);
+      items.splice(result.destination.index, 0, reorderedItem);
+      setSelectedFields(items);
     } else if (result.type === "customFields") {
-      const items = Array.from(selectedCustomFields)
-      const [reorderedItem] = items.splice(result.source.index, 1)
-      items.splice(result.destination.index, 0, reorderedItem)
-      setSelectedCustomFields(items)
+      const items = Array.from(selectedCustomFields);
+      const [reorderedItem] = items.splice(result.source.index, 1);
+      items.splice(result.destination.index, 0, reorderedItem);
+      setSelectedCustomFields(items);
     }
-  }
+  };
 
-    const handleCustomFieldChange = (fieldId: string, value: string) => {
-    setCustomFieldValues(prev => ({
-      ...prev,
-      [fieldId]: value
-    }))
-  }
+  // const handleCustomFieldChange = (fieldId: string, value: string) => {
+  //   setCustomFieldValues((prev) => ({
+  //     ...prev,
+  //     [fieldId]: value,
+  //   }));
+  // };
 
   const toggleField = (fieldId: string) => {
     if (selectedFields.includes(fieldId)) {
-      setSelectedFields(selectedFields.filter((id) => id !== fieldId))
+      setSelectedFields(selectedFields.filter((id) => id !== fieldId));
     } else {
-      setSelectedFields([...selectedFields, fieldId])
+      setSelectedFields([...selectedFields, fieldId]);
     }
-  }
+  };
 
   const toggleCustomField = (fieldId: string) => {
     if (selectedCustomFields.includes(fieldId)) {
-      setSelectedCustomFields(selectedCustomFields.filter((id) => id !== fieldId))
+      setSelectedCustomFields(
+        selectedCustomFields.filter((id) => id !== fieldId)
+      );
     } else {
-      setSelectedCustomFields([...selectedCustomFields, fieldId])
+      setSelectedCustomFields([...selectedCustomFields, fieldId]);
     }
-  }
+  };
 
   const addNewCustomField = () => {
     const newField: CustomFieldInterface = {
@@ -282,48 +296,58 @@ export default function EventArrivalsPage() {
       required: false,
       maskType: "none",
       mask: "",
-    }
-    setCustomFields([...customFields, newField])
-    setSelectedCustomFields([...selectedCustomFields, newField.label.toLowerCase()])
-  }
+    };
+    setCustomFields([...customFields, newField]);
+    setSelectedCustomFields([
+      ...selectedCustomFields,
+      newField.label.toLowerCase(),
+    ]);
+  };
 
-  const updateCustomField = (id: string, updates: Partial<CustomFieldInterface>) => {
-    setCustomFields(customFields.map((field) => (field._id === id ? { ...field, ...updates } : field)))
-  }
+  const updateCustomField = (
+    id: string,
+    updates: Partial<CustomFieldInterface>
+  ) => {
+    setCustomFields(
+      customFields.map((field) =>
+        field._id === id ? { ...field, ...updates } : field
+      )
+    );
+  };
 
   const removeCustomField = (id: string) => {
-    setCustomFields(customFields.filter((field) => field._id !== id))
+    setCustomFields(customFields.filter((field) => field._id !== id));
     setSelectedCustomFields(
       selectedCustomFields.filter(
         (fieldId) =>
           !customFields
             .find((f) => f._id === id)
             ?.label.toLowerCase()
-            .includes(fieldId),
-      ),
-    )
-  }
+            .includes(fieldId)
+      )
+    );
+  };
 
   const saveConfiguration = () => {
-    setIsConfigMode(false)
+    setIsConfigMode(false);
     // Aqui você poderia salvar a configuração no backend
-  }
+  };
 
   const getFieldValue = (arrival: EventArrival, fieldId: string) => {
     if (fieldId === "birthdaydata") {
-      return formatDate(arrival[fieldId])
+      return formatDate(arrival[fieldId]);
     }
-    return arrival[fieldId as keyof EventArrival] || ""
-  }
+    return arrival[fieldId as keyof EventArrival] || "";
+  };
 
   const getCustomFieldValue = (arrival: EventArrival, fieldLabel: string) => {
-    return arrival.customFields?.[fieldLabel.toLowerCase()] || ""
-  }
+    return arrival.customFields?.[fieldLabel.toLowerCase()] || "";
+  };
 
   const getFieldIcon = (fieldId: string) => {
-    const field = defaultFields.find((f) => f.id === fieldId)
-    return field?.icon || <Info size={16} />
-  }
+    const field = defaultFields.find((f) => f.id === fieldId);
+    return field?.icon || <Info size={16} />;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -332,7 +356,9 @@ export default function EventArrivalsPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-center md:text-left">
-              <h1 className="text-2xl md:text-3xl font-bold text-[#02488C] mb-2">{eventData.title}</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-[#02488C] mb-2">
+                {eventData.title}
+              </h1>
               <div className="flex flex-wrap items-center gap-4 text-gray-600">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-[#02488C]" />
@@ -351,7 +377,9 @@ export default function EventArrivalsPage() {
 
             <div className="flex items-center gap-4">
               <div className="text-center">
-                <div className="text-xl md:text-2xl font-mono font-bold text-gray-800">{formatTime(currentTime)}</div>
+                <div className="text-xl md:text-2xl font-mono font-bold text-gray-800">
+                  {formatTime(currentTime)}
+                </div>
                 <div className="text-xs text-gray-500">Horário atual</div>
               </div>
 
@@ -364,7 +392,9 @@ export default function EventArrivalsPage() {
                 }`}
               >
                 <Settings size={18} />
-                <span>{isConfigMode ? "Salvar Configuração" : "Configurar"}</span>
+                <span>
+                  {isConfigMode ? "Salvar Configuração" : "Configurar"}
+                </span>
               </button>
             </div>
           </div>
@@ -376,14 +406,18 @@ export default function EventArrivalsPage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-6 border-b border-gray-200 bg-gray-50">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-800">Configuração de Exibição</h2>
+                <h2 className="text-xl font-bold text-gray-800">
+                  Configuração de Exibição
+                </h2>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setPreviewMode(!previewMode)}
                     className="px-3 py-1.5 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-1.5 text-sm"
                   >
                     <Eye size={16} />
-                    <span>{previewMode ? "Ocultar Preview" : "Mostrar Preview"}</span>
+                    <span>
+                      {previewMode ? "Ocultar Preview" : "Mostrar Preview"}
+                    </span>
                   </button>
                   <button
                     onClick={saveConfiguration}
@@ -402,7 +436,9 @@ export default function EventArrivalsPage() {
                 <div className="space-y-6">
                   {/* Estilo de Exibição */}
                   <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <h3 className="text-lg font-medium text-gray-800 mb-4">Estilo de Exibição</h3>
+                    <h3 className="text-lg font-medium text-gray-800 mb-4">
+                      Estilo de Exibição
+                    </h3>
                     <div className="flex gap-4">
                       <button
                         onClick={() => setCardStyle("grid")}
@@ -414,7 +450,10 @@ export default function EventArrivalsPage() {
                       >
                         <div className="grid grid-cols-2 gap-1">
                           {[1, 2, 3, 4].map((i) => (
-                            <div key={i} className="w-6 h-6 bg-gray-300 rounded"></div>
+                            <div
+                              key={i}
+                              className="w-6 h-6 bg-gray-300 rounded"
+                            ></div>
                           ))}
                         </div>
                         <span className="text-sm font-medium">Grid</span>
@@ -429,7 +468,10 @@ export default function EventArrivalsPage() {
                       >
                         <div className="flex flex-col gap-1 w-full">
                           {[1, 2, 3].map((i) => (
-                            <div key={i} className="w-full h-4 bg-gray-300 rounded"></div>
+                            <div
+                              key={i}
+                              className="w-full h-4 bg-gray-300 rounded"
+                            ></div>
                           ))}
                         </div>
                         <span className="text-sm font-medium">Lista</span>
@@ -439,13 +481,17 @@ export default function EventArrivalsPage() {
 
                   {/* Campos Padrão */}
                   <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <h3 className="text-lg font-medium text-gray-800 mb-4">Campos Padrão</h3>
+                    <h3 className="text-lg font-medium text-gray-800 mb-4">
+                      Campos Padrão
+                    </h3>
                     <div className="space-y-2">
                       {defaultFields.map((field) => (
                         <div
                           key={field.id}
                           className={`p-3 rounded-md border flex items-center justify-between ${
-                            selectedFields.includes(field.id) ? "border-[#02488C] bg-[#02488C]/5" : "border-gray-200"
+                            selectedFields.includes(field.id)
+                              ? "border-[#02488C] bg-[#02488C]/5"
+                              : "border-gray-200"
                           }`}
                         >
                           <div className="flex items-center gap-3">
@@ -460,7 +506,11 @@ export default function EventArrivalsPage() {
                                 : "bg-gray-100 text-gray-500 hover:bg-gray-200"
                             }`}
                           >
-                            {selectedFields.includes(field.id) ? <Check size={16} /> : <Plus size={16} />}
+                            {selectedFields.includes(field.id) ? (
+                              <Check size={16} />
+                            ) : (
+                              <Plus size={16} />
+                            )}
                           </button>
                         </div>
                       ))}
@@ -469,7 +519,9 @@ export default function EventArrivalsPage() {
 
                   {/* Opções Adicionais */}
                   <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <h3 className="text-lg font-medium text-gray-800 mb-4">Opções Adicionais</h3>
+                    <h3 className="text-lg font-medium text-gray-800 mb-4">
+                      Opções Adicionais
+                    </h3>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -479,10 +531,16 @@ export default function EventArrivalsPage() {
                         <button
                           onClick={() => setShowArrivalTime(!showArrivalTime)}
                           className={`p-1.5 rounded-md ${
-                            showArrivalTime ? "bg-[#02488C] text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                            showArrivalTime
+                              ? "bg-[#02488C] text-white"
+                              : "bg-gray-100 text-gray-500 hover:bg-gray-200"
                           }`}
                         >
-                          {showArrivalTime ? <Check size={16} /> : <X size={16} />}
+                          {showArrivalTime ? (
+                            <Check size={16} />
+                          ) : (
+                            <X size={16} />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -493,7 +551,9 @@ export default function EventArrivalsPage() {
                 <div className="space-y-6">
                   <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-medium text-gray-800">Campos Personalizados</h3>
+                      <h3 className="text-lg font-medium text-gray-800">
+                        Campos Personalizados
+                      </h3>
                       <button
                         onClick={addNewCustomField}
                         className="px-3 py-1.5 rounded-md bg-[#FEC800] text-gray-800 hover:bg-[#e0b000] flex items-center gap-1.5 text-sm"
@@ -504,17 +564,34 @@ export default function EventArrivalsPage() {
                     </div>
 
                     <DragDropContext onDragEnd={handleDragEnd}>
-                      <Droppable droppableId="customFieldsList" type="customFields">
-                        {(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-                          <div className="space-y-3" ref={provided.innerRef} {...provided.droppableProps}>
+                      <Droppable
+                        droppableId="customFieldsList"
+                        type="customFields"
+                      >
+                        {(
+                          provided: DroppableProvided,                          
+                        ) => (
+                          <div
+                            className="space-y-3"
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                          >
                             {customFields.map((field, index) => (
-                              <Draggable key={field._id} draggableId={field._id} index={index}>
-                                {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
+                              <Draggable
+                                key={field._id}
+                                draggableId={field._id}
+                                index={index}
+                              >
+                                {(
+                                  provided: DraggableProvided,                                  
+                                ) => (
                                   <div
                                     ref={provided.innerRef}
                                     {...provided.draggableProps}
                                     className={`p-3 rounded-md border ${
-                                      selectedCustomFields.includes(field.label.toLowerCase())
+                                      selectedCustomFields.includes(
+                                        field.label.toLowerCase()
+                                      )
                                         ? "border-[#02488C] bg-[#02488C]/5"
                                         : "border-gray-200"
                                     }`}
@@ -522,32 +599,49 @@ export default function EventArrivalsPage() {
                                     <div className="flex items-center justify-between mb-2">
                                       <div className="flex items-center gap-2">
                                         <div {...provided.dragHandleProps}>
-                                          <GripVertical size={16} className="text-gray-400" />
+                                          <GripVertical
+                                            size={16}
+                                            className="text-gray-400"
+                                          />
                                         </div>
                                         <input
                                           type="text"
                                           value={field.label}
-                                          onChange={(e) => updateCustomField(field._id, { label: e.target.value })}
+                                          onChange={(e) =>
+                                            updateCustomField(field._id, {
+                                              label: e.target.value,
+                                            })
+                                          }
                                           className="font-medium bg-transparent border-b border-dashed border-gray-300 focus:border-[#02488C] focus:outline-none px-1"
                                         />
                                       </div>
                                       <div className="flex items-center gap-2">
                                         <button
-                                          onClick={() => toggleCustomField(field.label.toLowerCase())}
+                                          onClick={() =>
+                                            toggleCustomField(
+                                              field.label.toLowerCase()
+                                            )
+                                          }
                                           className={`p-1.5 rounded-md ${
-                                            selectedCustomFields.includes(field.label.toLowerCase())
+                                            selectedCustomFields.includes(
+                                              field.label.toLowerCase()
+                                            )
                                               ? "bg-[#02488C] text-white"
                                               : "bg-gray-100 text-gray-500 hover:bg-gray-200"
                                           }`}
                                         >
-                                          {selectedCustomFields.includes(field.label.toLowerCase()) ? (
+                                          {selectedCustomFields.includes(
+                                            field.label.toLowerCase()
+                                          ) ? (
                                             <Check size={16} />
                                           ) : (
                                             <Plus size={16} />
                                           )}
                                         </button>
                                         <button
-                                          onClick={() => removeCustomField(field._id)}
+                                          onClick={() =>
+                                            removeCustomField(field._id)
+                                          }
                                           className="p-1.5 rounded-md bg-red-100 text-red-500 hover:bg-red-200"
                                         >
                                           <Trash2 size={16} />
@@ -558,7 +652,9 @@ export default function EventArrivalsPage() {
                                       <select
                                         value={field.type}
                                         onChange={(e) =>
-                                          updateCustomField(field._id, { type: e.target.value as FieldType })
+                                          updateCustomField(field._id, {
+                                            type: e.target.value as FieldType,
+                                          })
                                         }
                                         className="text-xs p-1 border border-gray-300 rounded bg-white"
                                       >
@@ -570,7 +666,11 @@ export default function EventArrivalsPage() {
                                       <input
                                         type="text"
                                         value={field.placeholder || ""}
-                                        onChange={(e) => updateCustomField(field._id, { placeholder: e.target.value })}
+                                        onChange={(e) =>
+                                          updateCustomField(field._id, {
+                                            placeholder: e.target.value,
+                                          })
+                                        }
                                         placeholder="Placeholder"
                                         className="text-xs p-1 border border-gray-300 rounded flex-1"
                                       />
@@ -579,10 +679,17 @@ export default function EventArrivalsPage() {
                                           type="checkbox"
                                           id={`required-${field._id}`}
                                           checked={field.required}
-                                          onChange={(e) => updateCustomField(field._id, { required: e.target.checked })}
+                                          onChange={(e) =>
+                                            updateCustomField(field._id, {
+                                              required: e.target.checked,
+                                            })
+                                          }
                                           className="mr-1"
                                         />
-                                        <label htmlFor={`required-${field._id}`} className="text-xs">
+                                        <label
+                                          htmlFor={`required-${field._id}`}
+                                          className="text-xs"
+                                        >
                                           Obrigatório
                                         </label>
                                       </div>
@@ -614,7 +721,9 @@ export default function EventArrivalsPage() {
                   {/* Preview */}
                   {previewMode && (
                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                      <h3 className="text-lg font-medium text-gray-800 mb-4">Preview</h3>
+                      <h3 className="text-lg font-medium text-gray-800 mb-4">
+                        Preview
+                      </h3>
                       <div className="bg-white border border-gray-200 rounded-lg p-4 max-w-sm mx-auto">
                         <div className="flex flex-col items-center">
                           <div className="relative mb-4">
@@ -625,14 +734,18 @@ export default function EventArrivalsPage() {
                           </div>
 
                           {selectedFields.includes("name") && (
-                            <h3 className="font-bold text-lg text-gray-800 mb-2">Ana Silva</h3>
+                            <h3 className="font-bold text-lg text-gray-800 mb-2">
+                              Ana Silva
+                            </h3>
                           )}
 
                           {selectedFields
                             .filter((f) => f !== "name")
                             .map((fieldId) => {
-                              const field = defaultFields.find((f) => f.id === fieldId)
-                              if (!field) return null
+                              const field = defaultFields.find(
+                                (f) => f.id === fieldId
+                              );
+                              if (!field) return null;
 
                               return (
                                 <div
@@ -644,37 +757,42 @@ export default function EventArrivalsPage() {
                                     {fieldId === "instagram"
                                       ? "@ana_silva_dev"
                                       : fieldId === "email"
-                                        ? "ana@email.com"
-                                        : fieldId === "phoneNumber"
-                                          ? "(11) 98765-4321"
-                                          : fieldId === "mysite"
-                                            ? "anasilva.dev"
-                                            : fieldId === "birthdaydata"
-                                              ? "15/05/1990"
-                                              : ""}
+                                      ? "ana@email.com"
+                                      : fieldId === "phoneNumber"
+                                      ? "(11) 98765-4321"
+                                      : fieldId === "mysite"
+                                      ? "anasilva.dev"
+                                      : fieldId === "birthdaydata"
+                                      ? "15/05/1990"
+                                      : ""}
                                   </span>
                                 </div>
-                              )
+                              );
                             })}
 
                           {selectedCustomFields.map((fieldId) => {
-                            const field = customFields.find((f) => f.label.toLowerCase() === fieldId)
-                            if (!field) return null
+                            const field = customFields.find(
+                              (f) => f.label.toLowerCase() === fieldId
+                            );
+                            if (!field) return null;
 
                             return (
-                              <div key={fieldId} className="flex items-center justify-center gap-2 mb-1 text-gray-600">
+                              <div
+                                key={fieldId}
+                                className="flex items-center justify-center gap-2 mb-1 text-gray-600"
+                              >
                                 <Info size={16} />
                                 <span className="text-sm">
                                   {fieldId === "cargo"
                                     ? "Desenvolvedora Frontend"
                                     : fieldId === "empresa"
-                                      ? "TechCorp"
-                                      : fieldId === "interesse"
-                                        ? "React, TypeScript"
-                                        : field.label}
+                                    ? "TechCorp"
+                                    : fieldId === "interesse"
+                                    ? "React, TypeScript"
+                                    : field.label}
                                 </span>
                               </div>
-                            )
+                            );
                           })}
 
                           {showArrivalTime && (
@@ -699,16 +817,26 @@ export default function EventArrivalsPage() {
                   <UserCheck className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-800">Participantes do Evento</h2>
-                  <p className="text-sm text-gray-600">Acompanhe em tempo real quem está chegando</p>
+                  <h2 className="text-xl font-bold text-gray-800">
+                    Participantes do Evento
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    Acompanhe em tempo real quem está chegando
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setCardStyle(cardStyle === "grid" ? "list" : "grid")}
+                  onClick={() =>
+                    setCardStyle(cardStyle === "grid" ? "list" : "grid")
+                  }
                   className="p-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200"
                 >
-                  {cardStyle === "grid" ? <List size={18} /> : <Grid size={18} />}
+                  {cardStyle === "grid" ? (
+                    <List size={18} />
+                  ) : (
+                    <Grid size={18} />
+                  )}
                 </button>
                 <button
                   onClick={() => setArrivals([...arrivals])}
@@ -724,8 +852,12 @@ export default function EventArrivalsPage() {
                 <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-100 rounded-full mb-6">
                   <UserCheck className="h-10 w-10 text-[#02488C]" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-4">Aguardando Chegadas</h2>
-                <p className="text-gray-600 text-lg">As chegadas dos participantes aparecerão aqui em tempo real</p>
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                  Aguardando Chegadas
+                </h2>
+                <p className="text-gray-600 text-lg">
+                  As chegadas dos participantes aparecerão aqui em tempo real
+                </p>
               </div>
             ) : (
               <div
@@ -740,13 +872,25 @@ export default function EventArrivalsPage() {
                     key={arrival._id}
                     className={`
                       bg-white border border-gray-200 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-md
-                      ${cardStyle === "list" ? "flex items-center p-4 gap-4" : ""}
-                      ${arrival.isNew ? "animate-pulse border-green-400 shadow-sm" : ""}
+                      ${
+                        cardStyle === "list"
+                          ? "flex items-center p-4 gap-4"
+                          : ""
+                      }
+                      ${
+                        arrival.isNew
+                          ? "animate-pulse border-green-400 shadow-sm"
+                          : ""
+                      }
                     `}
                   >
                     <div
                       className={`
-                      ${cardStyle === "list" ? "flex-shrink-0" : "p-6 text-center"}
+                      ${
+                        cardStyle === "list"
+                          ? "flex-shrink-0"
+                          : "p-6 text-center"
+                      }
                     `}
                     >
                       <div
@@ -758,7 +902,11 @@ export default function EventArrivalsPage() {
                         <div
                           className={`
                           rounded-full bg-[#02488C] flex items-center justify-center text-white font-bold
-                          ${cardStyle === "list" ? "w-12 h-12 text-sm" : "w-16 h-16 text-xl"}
+                          ${
+                            cardStyle === "list"
+                              ? "w-12 h-12 text-sm"
+                              : "w-16 h-16 text-xl"
+                          }
                         `}
                         >
                           {getInitials(arrival.name)}
@@ -769,14 +917,22 @@ export default function EventArrivalsPage() {
 
                     <div
                       className={`
-                      ${cardStyle === "list" ? "flex-1" : "text-center px-4 pb-6"}
+                      ${
+                        cardStyle === "list"
+                          ? "flex-1"
+                          : "text-center px-4 pb-6"
+                      }
                     `}
                     >
                       {selectedFields.includes("name") && (
                         <h3
                           className={`
                           font-bold text-gray-800 
-                          ${cardStyle === "list" ? "text-base mb-1" : "text-lg mb-2"}
+                          ${
+                            cardStyle === "list"
+                              ? "text-base mb-1"
+                              : "text-lg mb-2"
+                          }
                         `}
                         >
                           {arrival.name}
@@ -786,45 +942,57 @@ export default function EventArrivalsPage() {
                       <div
                         className={`
                         space-y-1
-                        ${cardStyle === "list" ? "flex flex-wrap gap-x-4 gap-y-1" : ""}
+                        ${
+                          cardStyle === "list"
+                            ? "flex flex-wrap gap-x-4 gap-y-1"
+                            : ""
+                        }
                       `}
                       >
                         {selectedFields
                           .filter((f) => f !== "name")
                           .map((fieldId) => {
-                            const value = getFieldValue(arrival, fieldId)
-                            if (!value) return null
+                            const value = getFieldValue(arrival, fieldId);
+                            if (!value) return null;
 
                             return (
                               <div
                                 key={fieldId}
                                 className={`
                                 flex items-center gap-2 text-gray-600
-                                ${cardStyle === "list" ? "text-xs" : "justify-center text-sm"}
+                                ${
+                                  cardStyle === "list"
+                                    ? "text-xs"
+                                    : "justify-center text-sm"
+                                }
                               `}
                               >
                                 {getFieldIcon(fieldId)}
-                                <span>{value}</span>
+                                <span>{value.toString()}</span>
                               </div>
-                            )
+                            );
                           })}
 
                         {selectedCustomFields.map((fieldId) => {
-                          const value = getCustomFieldValue(arrival, fieldId)
-                          if (!value) return null
+                          const value = getCustomFieldValue(arrival, fieldId);
+                          if (!value) return null;
 
                           return (
                             <div
                               key={fieldId}
                               className={`
                                 flex items-center gap-2 text-gray-600
-                                ${cardStyle === "list" ? "text-xs" : "justify-center text-sm"}
+                                ${
+                                  cardStyle === "list"
+                                    ? "text-xs"
+                                    : "justify-center text-sm"
+                                }
                               `}
                             >
                               <Info size={cardStyle === "list" ? 14 : 16} />
                               <span>{value}</span>
                             </div>
-                          )
+                          );
                         })}
                       </div>
 
@@ -832,10 +1000,18 @@ export default function EventArrivalsPage() {
                         <div
                           className={`
                           flex items-center gap-2 text-gray-500
-                          ${cardStyle === "list" ? "text-xs mt-2" : "justify-center text-sm mt-3"}
+                          ${
+                            cardStyle === "list"
+                              ? "text-xs mt-2"
+                              : "justify-center text-sm mt-3"
+                          }
                         `}
                         >
-                          <Clock className={`${cardStyle === "list" ? "h-3 w-3" : "h-4 w-4"}`} />
+                          <Clock
+                            className={`${
+                              cardStyle === "list" ? "h-3 w-3" : "h-4 w-4"
+                            }`}
+                          />
                           <span>{formatArrivalTime(arrival.arrivalTime)}</span>
                         </div>
                       )}
@@ -848,5 +1024,5 @@ export default function EventArrivalsPage() {
         )}
       </div>
     </div>
-  )
+  );
 }
