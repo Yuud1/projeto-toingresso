@@ -27,8 +27,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useUser } from "@/contexts/useContext";
 import getInitials from "@/utils/getInitials";
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-
 type HeaderProps = {
   isScrolled?: boolean;
 };
@@ -354,15 +352,6 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
         </div>
 
         {/* TOPO DESKTOP */}
-
-        {!user?.cpf ? (
-          <Alert variant={"destructive"} className="bg-zinc-300">
-            <AlertTitle>Cadastre um Cpf</AlertTitle>
-            <AlertDescription>
-              Cadastre um cpf para troca de titularidade de tickets
-            </AlertDescription>
-          </Alert>
-        ) : null}
         {!isScrolled && (
           <div className="hidden sm:flex items-center justify-between gap-4">
             <a href="/">

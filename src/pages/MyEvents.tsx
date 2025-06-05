@@ -1,3 +1,5 @@
+"use client"
+
 import type React from "react"
 import { useEffect, useState, useRef } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardImage } from "@/components/ui/card"
@@ -16,6 +18,7 @@ import {
   Home,
   BarChart3,
   EyeOff,
+  OctagonX,
   Receipt,
   Award,
   Download,
@@ -281,7 +284,9 @@ export default function MyEvents() {
   const [mainTab, setMainTab] = useState<"inicio" | "dashboard" | "certificados" | "scan">("inicio")
   const [subTab, setSubTab] = useState<"active" | "finished">("active")
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isStopModalOpen, setIsStopModalOpen] = useState(false)
   const [eventToDelete, setEventToDelete] = useState<string | null>(null)
+  const [eventToStop, setEventToStop] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -576,7 +581,7 @@ export default function MyEvents() {
 
   const filteredEvents = events.filter((event) => {
     const matchesTab =
-      subTab === "active" ? event.status === "active" || event.status === "editing" : event.status === subTab
+      subTab === "active" ? event.status === "active" || event.status === "editing" : event.status === "finished"
     const matchesSearch =
       searchQuery === "" ||
       event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -839,6 +844,46 @@ export default function MyEvents() {
     }
   }
 
+  const handleStopEvent = (eventId: string) => {
+    setEventToStop(eventId)
+    setIsStopModalOpen(true)
+  }
+
+  const confirmStopEvent = async () => {
+    if (eventToStop) {
+      try {
+        // Aqui você pode fazer a chamada para a API para encerrar o evento
+        // const response = await axios.patch(`${import.meta.env.VITE_API_BASE_URL}/events/${eventToStop}/stop`, {}, {
+        //   headers: { Authorization: `Bearer ${token}` }
+        // })
+
+        // Atualizar o estado local
+        const updatedEvents = events.map((event) =>
+          event._id === eventToStop ? { ...event, status: "finished" as const } : event,
+        )
+
+        setEvents(updatedEvents)
+        setEventToStop(null)
+        setIsStopModalOpen(false)
+
+        // Mudar para a aba de encerrados para mostrar o evento
+        setSubTab("finished")
+
+        toast({
+          title: "Evento encerrado com sucesso!",
+          description: "O evento foi movido para a lista de eventos encerrados.",
+        })
+      } catch (error) {
+        console.error("Erro ao encerrar evento:", error)
+        toast({
+          title: "Erro ao encerrar evento",
+          description: "Tente novamente em alguns instantes.",
+          variant: "destructive",
+        })
+      }
+    }
+  }
+
   const handleSaveEvent = (updatedEvent: EventInterface) => {
     setEvents((prevEvents) => prevEvents.map((event) => (event._id === updatedEvent._id ? updatedEvent : event)))
     setIsEditModalOpen(false)
@@ -1067,6 +1112,15 @@ export default function MyEvents() {
           onConfirm={confirmDelete}
           title="Excluir Evento"
           description="Tem certeza que deseja excluir este evento? Esta ação não pode ser desfeita."
+        />
+
+        {/* Modal de confirmação para encerrar evento */}
+        <DeleteModal
+          isOpen={isStopModalOpen}
+          onClose={() => setIsStopModalOpen(false)}
+          onConfirm={confirmStopEvent}
+          title="Encerrar Evento"
+          description="Tem certeza que deseja encerrar este evento? O evento será movido para a lista de eventos finalizados e não poderá mais receber novos participantes."
         />
 
         <GenericModal
@@ -1539,36 +1593,61 @@ export default function MyEvents() {
                     <Card key={event._id} className="hover:shadow-md transition-shadow">
                       <CardHeader>
                         <CardTitle className="line-clamp-1">{event.title}</CardTitle>
-                        <CardImage className="w-">{event.image}</CardImage>
-                        <CardDescription>{new Date(event.startDate).toLocaleDateString()}</CardDescription>
+                        <CardImage className="w-full h-48 object-cover rounded-md">
+                          <img
+                            src={event.image || "/placeholder.svg"}
+                            alt={event.title}
+                            className="w-full h-full object-cover rounded-md"
+                          />
+                        </CardImage>
                       </CardHeader>
                       <CardContent>
                         <p className="text-sm text-gray-500 mb-4 line-clamp-1">{event.neighborhood}</p>
-                        <div className="flex justify-end space-x-2">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => handleView(event._id)}
-                            className="cursor-pointer"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => handleEdit(event._id)}
-                            className="cursor-pointer"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => handleDelete(event._id)}
-                            className="cursor-pointer"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                        <div className="flex justify-between items-center">
+                          <div className="flex gap-2">
+                            {event.status !== "finished" && (
+                              <Button
+                                variant="outline"
+                                onClick={() => handleStopEvent(event._id)}
+                                className="cursor-pointer flex items-center gap-1"
+                                title="Encerrar evento"
+                              >
+                                <span>Finalizar Evento</span> 
+                              </Button>
+                            )}
+
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => handleView(event._id)}
+                              className="cursor-pointer"
+                              title="Visualizar evento"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            {event.status !== "finished" && (
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => handleEdit(event._id)}
+                                className="cursor-pointer"
+                                title="Editar evento"
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            )}
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => handleDelete(event._id)}
+                              className="cursor-pointer"
+                              title="Excluir evento"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
@@ -1648,7 +1727,7 @@ export default function MyEvents() {
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 <Card
                   className="cursor-pointer hover:shadow-md transition-shadow"
-                  onClick={() => navigate("/event-arrivals")} // Mudança aqui
+                  onClick={() => navigate("/event-arrivals")}
                 >
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Últimos Checkouts</CardTitle>
