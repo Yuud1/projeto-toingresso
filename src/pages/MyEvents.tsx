@@ -1,5 +1,3 @@
-"use client"
-
 import type React from "react"
 import { useEffect, useState, useRef } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardImage } from "@/components/ui/card"
@@ -17,7 +15,7 @@ import {
   ChevronDown,
   Home,
   BarChart3,
-  EyeOff,  
+  EyeOff,
   Receipt,
   Award,
   Download,
@@ -291,6 +289,7 @@ export default function MyEvents() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<EventInterface | null>(null)
   const [ticketToken, setTicketToken] = useState<string | undefined>(undefined)
+  const [copied, setCopied] = useState(false);
   const navigate = useNavigate()
 
   // Estados para o scanner QR
@@ -425,6 +424,11 @@ export default function MyEvents() {
           console.error("Erro ao parar scanner:", err)
         })
     }
+  }
+    const handleCopy = (text: string) => { // ← Aqui está a correção
+    copyToClipboard(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   const resetScanner = () => {
@@ -1160,12 +1164,13 @@ export default function MyEvents() {
                       readOnly
                       className="flex-1"
                     />
-                    <Button
-                      onClick={() => copyToClipboard(selectedEvent.ticketActivationToken || ticketToken || "")}
+                  <Button
+                      onClick={() => handleCopy(selectedEvent.ticketActivationToken || ticketToken || "")}
                       variant="outline"
                       disabled={!selectedEvent.ticketActivationToken && !ticketToken}
+                      className="cursor-pointer"
                     >
-                      <Copy className="h-4 w-4" />
+                      {copied ? "Copiado!" : <Copy className="h-4 w-4" /> }
                     </Button>
                   </div>
                   <Button
@@ -1608,7 +1613,7 @@ export default function MyEvents() {
                               <Button
                                 variant="outline"
                                 onClick={() => handleStopEvent(event._id)}
-                                className="cursor-pointer flex items-center gap-1"
+                                className="cursor-pointer flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white hover:text-white"
                                 title="Encerrar evento"
                               >
                                 <span>Finalizar Evento</span> 
