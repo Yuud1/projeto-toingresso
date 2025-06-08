@@ -855,11 +855,14 @@ export default function MyEvents() {
   const confirmStopEvent = async () => {
     if (eventToStop) {
       try {
-        // Aqui você pode fazer a chamada para a API para encerrar o evento
-        // const response = await axios.patch(`${import.meta.env.VITE_API_BASE_URL}/events/${eventToStop}/stop`, {}, {
-        //   headers: { Authorization: `Bearer ${token}` }
-        // })
+        // Aqui você pode fazer a chamada para a API para encerrar o evento 
+        const response = await axios.patch(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_FINISH_EVENT}`, {
+          eventToStop
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
 
+        if (response.data.stopped) {
         // Atualizar o estado local
         const updatedEvents = events.map((event) =>
           event._id === eventToStop ? { ...event, status: "finished" as const } : event,
@@ -875,7 +878,8 @@ export default function MyEvents() {
         toast({
           title: "Evento encerrado com sucesso!",
           description: "O evento foi movido para a lista de eventos encerrados.",
-        })
+        })  
+        }        
       } catch (error) {
         console.error("Erro ao encerrar evento:", error)
         toast({

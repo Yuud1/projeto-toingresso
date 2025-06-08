@@ -54,7 +54,6 @@ function App() {
           <Route path="/certificados" element={<CertificateGenerator />} />
           <Route path="/checkouts" element={<Checkout />} />
           <Route path="/event-arrivals" element={<EventArrivals />} />
-
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
         </Routes>

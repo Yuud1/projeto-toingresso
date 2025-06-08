@@ -24,8 +24,8 @@ export default function DeleteModal({
   onConfirm,
   onClose,
   isOpen = false,
-  title = "Excluir Item",
-  description = "Tem certeza que deseja excluir este item? Esta ação não pode ser desfeita.",
+  title = "Finalizar Evento",
+  description = "Deseja finalizar o evento? Essa ação não poderá ser desfeita",
 }: DeleteDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -47,7 +47,7 @@ export default function DeleteModal({
             onClick={onConfirm}
             className="bg-red-600 text-white hover:bg-red-700 cursor-pointer"
           >
-            Excluir
+            Finalizar
           </Button>
         </DialogFooter>
       </DialogContent>

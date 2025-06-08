@@ -1,22 +1,29 @@
-import type React from "react"
+import type React from "react";
 
-import { useState, useMemo, useEffect } from "react"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { cn } from "@/lib/utils"
-import { Search, ArrowRightLeft, Eye } from "lucide-react"
-import { useUser } from "@/contexts/useContext"
-import type UserTicketsInterface from "@/interfaces/UserTicketsInterface"
-import Subscribed from "./Subscribed"
+import { useState, useMemo, useEffect } from "react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+import { Search, ArrowRightLeft, Eye } from "lucide-react";
+import { useUser } from "@/contexts/useContext";
+import type UserTicketsInterface from "@/interfaces/UserTicketsInterface";
+import Subscribed from "./Subscribed";
+import TransferTicket from "./TransferTicket";
 
 interface TabProps {
-  isActive: boolean
-  children: React.ReactNode
-  onClick: () => void
-  className?: string
+  isActive: boolean;
+  children: React.ReactNode;
+  onClick: () => void;
+  className?: string;
 }
 
 const Tab = ({ isActive, children, onClick, className }: TabProps) => {
@@ -26,48 +33,58 @@ const Tab = ({ isActive, children, onClick, className }: TabProps) => {
       className={cn(
         "px-4 py-2 text-sm font-medium transition-colors relative cursor-pointer",
         isActive ? "text-[#02488C]" : "text-gray-500 hover:text-gray-700",
-        className,
+        className
       )}
     >
       {children}
-      {isActive && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#02488C]" />}
+      {isActive && (
+        <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#02488C]" />
+      )}
     </button>
-  )
-}
+  );
+};
 
 const statusOptions = [
   { value: "ativo", label: "Ativos" },
   { value: "encerrado", label: "Encerrados" },
-] as const
+] as const;
 
 export default function MyTickets() {
-  const { user } = useUser()
+  const { user } = useUser();
 
   // Todos os hooks devem estar no topo, antes de qualquer early return
-  const [activeTab, setActiveTab] = useState<"ativo" | "encerrado">("ativo")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [tickets, setTickets] = useState<UserTicketsInterface[] | undefined>(user?.tickets)
-  const [openModalTicket, setOpenModalTicket] = useState(false)
-  const [ticketIdClicked, setTicketIdClicked] = useState<string | undefined>(undefined)
+  const [activeTab, setActiveTab] = useState<"ativo" | "encerrado">("ativo");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [tickets, setTickets] = useState<UserTicketsInterface[] | undefined>(
+    user?.tickets
+  );
+  const [openModalTicket, setOpenModalTicket] = useState(false);
+  const [openModalTransfer, setOpenModalTransfer] = useState(false);
+  const [transferTicketId, setTransferTicketId] = useState<string | undefined>(
+    undefined
+  );
+  const [ticketIdClicked, setTicketIdClicked] = useState<string | undefined>(
+    undefined
+  );
 
   useEffect(() => {
-    setTickets(user?.tickets)
-  }, [user])
+    setTickets(user?.tickets);
+  }, [user]);
 
   const filteredTickets = useMemo(() => {
-    if (!tickets) return []
+    if (!tickets) return [];
 
     return tickets.filter((ticket) => {
-      const matchesTab = ticket.status === activeTab
+      const matchesTab = ticket.status === activeTab;
       const matchesSearch =
         searchQuery === "" ||
         ticket.eventTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
         ticket.Owner.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        ticket._id.toLowerCase().includes(searchQuery.toLowerCase())
+        ticket._id.toLowerCase().includes(searchQuery.toLowerCase());
 
-      return matchesTab && matchesSearch
-    })
-  }, [tickets, activeTab, searchQuery])
+      return matchesTab && matchesSearch;
+    });
+  }, [tickets, activeTab, searchQuery]);
 
   // Early return após todos os hooks
   if (!user) {
@@ -76,7 +93,9 @@ export default function MyTickets() {
         <Header isScrolled={true} />
         <main className="flex-1 container mx-auto px-4 py-8 pt-24">
           <div className="max-w-7xl mx-auto text-center py-16">
-            <p className="text-gray-600 mb-4">Você precisa estar logado para ver seus ingressos</p>
+            <p className="text-gray-600 mb-4">
+              Você precisa estar logado para ver seus ingressos
+            </p>
             <Button
               onClick={() => (window.location.href = "/login")}
               className="bg-[#02488C] hover:bg-[#02488C]/90 cursor-pointer"
@@ -87,24 +106,24 @@ export default function MyTickets() {
         </main>
         <Footer />
       </div>
-    )
+    );
   }
 
   const clickedOnTicket = (id: string) => {
-    setOpenModalTicket(true)
-    setTicketIdClicked(id)
-  }
+    setOpenModalTicket(true);
+    setTicketIdClicked(id);
+  };
 
   const handleTransferTicket = (ticketId: string, event: React.MouseEvent) => {
-    event.stopPropagation() // Previne que o click do card seja acionado
-    // Navegar para página de transferência
-    window.location.href = `/transfer-ticket/${ticketId}`
-  }
+    event.stopPropagation();
+    setOpenModalTransfer(true);
+    setTransferTicketId(ticketId);
+  };
 
   const handleViewTicket = (ticketId: string, event: React.MouseEvent) => {
-    event.stopPropagation()
-    clickedOnTicket(ticketId)
-  }
+    event.stopPropagation();
+    clickedOnTicket(ticketId);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -114,15 +133,27 @@ export default function MyTickets() {
           <Subscribed
             onOpenChange={setOpenModalTicket}
             open={openModalTicket}
-            qrCode={tickets.find((loopticket) => loopticket._id === ticketIdClicked)?.qrCode || null}
+            qrCode={
+              tickets.find((loopticket) => loopticket._id === ticketIdClicked)
+                ?.qrCode || null
+            }
           />
         )}
-
+        {openModalTransfer && tickets && (
+          <TransferTicket
+            open={openModalTransfer}
+            onOpenChange={setOpenModalTransfer}
+            ticketId={transferTicketId}
+          ></TransferTicket>
+        )}
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
             <h1 className="text-2xl font-bold mb-4">Meus Ingressos</h1>
             <div className="relative w-full max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <Search
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={20}
+              />
               <Input
                 type="text"
                 placeholder="Buscar por evento, email ou pedido"
@@ -150,7 +181,12 @@ export default function MyTickets() {
 
           {/* Mobile Dropdown */}
           <div className="sm:hidden mb-6">
-            <Select value={activeTab} onValueChange={(value: "ativo" | "encerrado") => setActiveTab(value)}>
+            <Select
+              value={activeTab}
+              onValueChange={(value: "ativo" | "encerrado") =>
+                setActiveTab(value)
+              }
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Selecione o status" />
               </SelectTrigger>
@@ -169,7 +205,9 @@ export default function MyTickets() {
               <p className="text-gray-600 mb-4">
                 {searchQuery
                   ? "Nenhum ingresso encontrado com os critérios de busca"
-                  : `Não há ingressos ${activeTab === "ativo" ? "ativos" : "encerrados"}`}
+                  : `Não há ingressos ${
+                      activeTab === "ativo" ? "ativos" : "encerrados"
+                    }`}
               </p>
               {!searchQuery && (
                 <Button
@@ -199,18 +237,25 @@ export default function MyTickets() {
                       <div className="flex items-center gap-2">
                         <span className="text-gray-600 text-sm">Data:</span>
                         <span className="text-gray-900 text-sm font-medium">
-                          {ticket.Event?.startDate && new Date(ticket.Event.startDate).toLocaleDateString("pt-BR")}
+                          {ticket.Event?.startDate &&
+                            new Date(ticket.Event.startDate).toLocaleDateString(
+                              "pt-BR"
+                            )}
                         </span>
                       </div>
 
                       <div className="flex items-center gap-2">
                         <span className="text-gray-600 text-sm">Local:</span>
-                        <span className="text-gray-900 text-sm font-medium">{ticket.Event?.city}</span>
+                        <span className="text-gray-900 text-sm font-medium">
+                          {ticket.Event?.city}
+                        </span>
                       </div>
 
                       <div className="flex items-center gap-2">
                         <span className="text-gray-600 text-sm">Email:</span>
-                        <span className="text-gray-900 text-sm font-medium truncate">{ticket.Owner.email}</span>
+                        <span className="text-gray-900 text-sm font-medium truncate">
+                          {ticket.Owner.email}
+                        </span>
                       </div>
                     </div>
 
@@ -245,5 +290,5 @@ export default function MyTickets() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }
