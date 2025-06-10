@@ -10,9 +10,7 @@ import {
   Search,
   CalendarPlus,
   Ticket,
-  ClipboardList,
-  Menu,
-  X,
+  ClipboardList,  
   Heart,
   User,
   HelpCircle,
@@ -165,15 +163,15 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
             
             {user?.avatar ? (<Avatar src={user.avatar} className="max-w-10 max-h-10"></Avatar>) :  getInitials(user.name)}
           </div>
-          <div className="p-1">
+          {/* <div className="p-1">
             {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </div>
+          </div> */}
         </div>
 
         {isOpen && (
           <div
             className={cn(
-              "absolute bg-white rounded-lg shadow-lg border border-gray-200 z-50 mt-4",
+              "absolute bg-white rounded-lg shadow-lg border border-gray-200 z-50 mt-4 ",
               isMobile
                 ? "fixed inset-x-0 top-[56px] w-full rounded-none border-t border-gray-200"
                 : "right-0 mt-2 w-56"
