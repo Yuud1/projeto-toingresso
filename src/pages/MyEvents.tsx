@@ -247,6 +247,7 @@ const mockEvents: EventInterface[] = [
     city: "São Paulo",
     state: "SP",
     status: "finished",
+    mapUrl: "",
     tickets: [
       {
         _id: "1",
@@ -271,6 +272,7 @@ const mockEvents: EventInterface[] = [
     ticketActivationToken: "REACT2024",
     formTitle: "Inscrição para Workshop de React Avançado",
   },
+
 ]
 
 export default function MyEvents() {

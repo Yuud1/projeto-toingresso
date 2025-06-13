@@ -194,7 +194,7 @@ const initialCustomFields: CustomFieldInterface[] = [
 ]
 
 export default function EventArrivalsPage() {
-  const [arrivals, setArrivals] = useState<EventArrival[]>(mockArrivals)
+  const [arrivals] = useState<EventArrival[]>(mockArrivals)
   const [currentTime, setCurrentTime] = useState(new Date())
   const [isConfigMode, setIsConfigMode] = useState(true)
   const [selectedFields, setSelectedFields] = useState<string[]>(["name", "instagram"])
