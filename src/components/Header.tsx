@@ -16,6 +16,8 @@ import {
   HelpCircle,
   LogOut,
   LogIn,
+  Menu,
+  X
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -163,9 +165,9 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
             
             {user?.avatar ? (<Avatar src={user.avatar} className="max-w-10 max-h-10"></Avatar>) :  getInitials(user.name)}
           </div>
-          {/* <div className="p-1">
+           <div className="p-1">
             {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </div> */}
+          </div> 
         </div>
 
         {isOpen && (
