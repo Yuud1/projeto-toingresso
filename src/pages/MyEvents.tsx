@@ -20,16 +20,11 @@ import {
   EyeOff,
   Receipt,
   Award,
-  Download,
   Maximize2,
   Minimize2,
   UserCheck,
-  FileImage,
-  Loader2,
-  ScanEye,
-  BookOpen,
-  User,
   Lock,
+  ScanEye,
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
@@ -47,11 +42,12 @@ import { EditEventModal } from "@/components/EditEventModal"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
 import { useToast } from "@/hooks/use-toast"
 import { useNavigate } from "react-router-dom"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode"
+import CertificateTutorial from "./TutorialCertificado"
+import CertificateGenerator from "./GeradorCertificados"
 
 interface TabProps {
   isActive: boolean
@@ -60,7 +56,7 @@ interface TabProps {
   className?: string
 }
 
-interface CheckoutData {
+export interface CheckoutData {
   id: string
   customerName: string
   customerEmail: string
@@ -82,19 +78,7 @@ interface CertificateAssociation {
   template: string
 }
 
-interface CertificateData {
-  studentName: string
-  courseName: string
-  totalHours: number
-  completionDate: string
-  instructorName: string
-  institution: string
-  courseDescription: string
-  certificateId: string
-  template: string
-}
-
-interface EventParticipant {
+export interface EventParticipant {
   id: string
   name: string
   email: string
@@ -118,7 +102,6 @@ const Tab = ({ isActive, children, onClick, className }: TabProps) => {
   )
 }
 
-// Opções para os tabs principais
 const mainTabOptions = [
   { value: "inicio", label: "Início", icon: Home },
   { value: "dashboard", label: "Dashboard", icon: BarChart3 },
@@ -126,16 +109,13 @@ const mainTabOptions = [
   { value: "certificados", label: "Certificados", icon: Award },
 ] as const
 
-// Opções para os subtabs
 const subTabOptions = [
   { value: "active", label: "Ativos" },
   { value: "finished", label: "Encerrados" },
 ] as const
 
-// Gerar dados de receita por mês
 const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
-// Mock data para checkouts
 const mockCheckouts: CheckoutData[] = [
   {
     id: "1",
@@ -194,7 +174,6 @@ const mockCheckouts: CheckoutData[] = [
   },
 ]
 
-// Mock data para participantes
 const mockParticipants: EventParticipant[] = [
   {
     id: "1",
@@ -225,7 +204,6 @@ const mockParticipants: EventParticipant[] = [
   },
 ]
 
-// Corrigir o mockEvents para corresponder à interface EventInterface
 const mockEvents: EventInterface[] = [
   {
     _id: "mock-event-1",
@@ -272,14 +250,12 @@ const mockEvents: EventInterface[] = [
     ticketActivationToken: "REACT2024",
     formTitle: "Inscrição para Workshop de React Avançado",
   },
-
 ]
 
 export default function MyEvents() {
   const token = localStorage.getItem("token")
   const { user } = useUser()
   const { toast } = useToast()
-  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const [events, setEvents] = useState<EventInterface[]>([])
   const [mainTab, setMainTab] = useState<"inicio" | "dashboard" | "certificados" | "scan">("inicio")
@@ -324,31 +300,11 @@ export default function MyEvents() {
   const [checkouts] = useState<CheckoutData[]>(mockCheckouts)
 
   // Estados para aba de certificados
-  const [selectedEventForCertificate, setSelectedEventForCertificate] = useState<string>("")
-  const [certificateData, setCertificateData] = useState<CertificateData>({
-    studentName: "",
-    courseName: "",
-    totalHours: 0,
-    completionDate: new Date().toISOString().split("T")[0],
-    instructorName: "",
-    institution: "",
-    courseDescription: "",
-    certificateId: "",
-    template: "modern",
-  })
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [previewMode, setPreviewMode] = useState(false)
+  const [showCertificateTutorial, setShowCertificateTutorial] = useState(true)
   const [participants] = useState<EventParticipant[]>(mockParticipants)
 
   // Novo estado para seleção de evento no dashboard
   const [selectedDashboardEvent, setSelectedDashboardEvent] = useState<string>("all")
-
-  const templates = [
-    { id: "modern", name: "Moderno", description: "Design limpo e contemporâneo" },
-    { id: "classic", name: "Clássico", description: "Estilo tradicional e elegante" },
-    { id: "minimal", name: "Minimalista", description: "Design simples e focado" },
-    { id: "elegant", name: "Elegante", description: "Sofisticado com detalhes dourados" },
-  ]
 
   // Funções do scanner QR
   const startScanner = () => {
@@ -358,7 +314,6 @@ export default function MyEvents() {
       return
     }
 
-    // Se já existe um scanner, pare e limpe antes de criar um novo
     if (scanner) {
       scanner
         .stop()
@@ -369,7 +324,7 @@ export default function MyEvents() {
         })
         .catch((err) => {
           console.error("Erro ao parar scanner existente:", err)
-          createAndStartScanner() // Tenta criar um novo scanner mesmo se houver erro
+          createAndStartScanner()
         })
     } else {
       createAndStartScanner()
@@ -486,7 +441,6 @@ export default function MyEvents() {
     setScanner(null)
   }
 
-  // Effect para iniciar scanner quando autenticado
   useEffect(() => {
     if (isAuthenticated && scanResult === null && mainTab === "scan") {
       startScanner()
@@ -499,7 +453,6 @@ export default function MyEvents() {
     }
   }, [isAuthenticated, scanResult, mainTab])
 
-  // Effect para processar resultado do scan
   useEffect(() => {
     if (scanned && scanResult) {
       const sendQrResult = async () => {
@@ -524,7 +477,6 @@ export default function MyEvents() {
     }
   }, [scanned, scanResult])
 
-  // Filtrar eventos para dashboard baseado na seleção
   const getFilteredEventsForDashboard = () => {
     if (selectedDashboardEvent === "all") {
       return events
@@ -532,7 +484,6 @@ export default function MyEvents() {
     return events.filter((event) => event._id === selectedDashboardEvent)
   }
 
-  // Calculo do revenue atualizado baseado nos eventos filtrados
   const revenueData = months.map((month, idx) => {
     const filteredEvents = getFilteredEventsForDashboard()
     const monthRevenue = filteredEvents
@@ -548,7 +499,6 @@ export default function MyEvents() {
     return { name: month, revenue: monthRevenue }
   })
 
-  // Get eventos do usuário
   useEffect(() => {
     async function getEvents() {
       try {
@@ -562,15 +512,12 @@ export default function MyEvents() {
         )
 
         if (response.data.events) {
-          // Adicionar eventos mockados aos eventos reais
           setEvents([...response.data.events, ...mockEvents])
         } else {
-          // Se não há eventos da API, usar apenas os mockados
           setEvents(mockEvents)
         }
       } catch (error: any) {
         console.log("Error", error)
-        // Em caso de erro, usar eventos mockados
         setEvents(mockEvents)
 
         if (error.response?.data?.logged === false) {
@@ -581,23 +528,6 @@ export default function MyEvents() {
 
     getEvents()
   }, [user, token])
-
-  // Gerar ID único para o certificado
-  const generateCertificateId = () => {
-    const timestamp = Date.now().toString(36)
-    const random = Math.random().toString(36).substr(2, 5)
-    return `CERT-${timestamp}-${random}`.toUpperCase()
-  }
-
-  // Inicializar certificateId
-  useEffect(() => {
-    if (!certificateData.certificateId) {
-      setCertificateData((prev) => ({
-        ...prev,
-        certificateId: generateCertificateId(),
-      }))
-    }
-  }, [])
 
   const filteredEvents = events.filter((event) => {
     const matchesTab =
@@ -610,7 +540,6 @@ export default function MyEvents() {
     return matchesTab && matchesSearch
   })
 
-  // Métricas do dashboard baseadas nos eventos filtrados
   const dashboardMetrics = (() => {
     const filteredEvents = getFilteredEventsForDashboard()
     return {
@@ -631,235 +560,6 @@ export default function MyEvents() {
     }
   })()
 
-  // Desenhar certificado no canvas
-  const drawCertificate = () => {
-    const canvas = canvasRef.current
-    if (!canvas) {
-      console.log("Canvas não encontrado")
-      return
-    }
-
-    const ctx = canvas.getContext("2d")
-    if (!ctx) {
-      console.log("Contexto 2D não encontrado")
-      return
-    }
-
-    console.log("Desenhando certificado...")
-
-    // Configurar canvas
-    canvas.width = 1200
-    canvas.height = 800
-
-    // Limpar canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-    // Desenhar fundo baseado no template
-    drawBackground(ctx, certificateData.template)
-
-    // Configurar fonte e cores
-    ctx.textAlign = "center"
-    ctx.fillStyle = "#1a1a1a"
-
-    // Título principal
-    ctx.font = "bold 48px Arial, sans-serif"
-    ctx.fillText("CERTIFICADO DE CONCLUSÃO", canvas.width / 2, 120)
-
-    // Linha decorativa
-    ctx.strokeStyle = "#d4af37"
-    ctx.lineWidth = 3
-    ctx.beginPath()
-    ctx.moveTo(200, 150)
-    ctx.lineTo(1000, 150)
-    ctx.stroke()
-
-    // Texto "Certificamos que"
-    ctx.font = "24px Arial, sans-serif"
-    ctx.fillStyle = "#666"
-    ctx.fillText("Certificamos que", canvas.width / 2, 200)
-
-    // Nome do estudante
-    ctx.font = "bold 36px Arial, sans-serif"
-    ctx.fillStyle = "#1a1a1a"
-    ctx.fillText(certificateData.studentName || "[Nome do Estudante]", canvas.width / 2, 260)
-
-    // Linha sob o nome
-    ctx.strokeStyle = "#1a1a1a"
-    ctx.lineWidth = 2
-    ctx.beginPath()
-    ctx.moveTo(300, 280)
-    ctx.lineTo(900, 280)
-    ctx.stroke()
-
-    // Texto "concluiu com êxito o curso"
-    ctx.font = "24px Arial, sans-serif"
-    ctx.fillStyle = "#666"
-    ctx.fillText("concluiu com êxito o curso", canvas.width / 2, 320)
-
-    // Nome do curso
-    ctx.font = "bold 32px Arial, sans-serif"
-    ctx.fillStyle = "#1a1a1a"
-    ctx.fillText(certificateData.courseName || "[Nome do Curso]", canvas.width / 2, 370)
-
-    // Descrição do curso (se houver)
-    if (certificateData.courseDescription) {
-      ctx.font = "18px Arial, sans-serif"
-      ctx.fillStyle = "#666"
-      const maxWidth = 800
-      wrapText(ctx, certificateData.courseDescription, canvas.width / 2, 410, maxWidth, 25)
-    }
-
-    // Informações do curso
-    ctx.font = "20px Arial, sans-serif"
-    ctx.fillStyle = "#1a1a1a"
-    ctx.fillText(`Carga Horária: ${certificateData.totalHours}h`, canvas.width / 2, 480)
-    ctx.fillText(
-      `Data de Conclusão: ${new Date(certificateData.completionDate).toLocaleDateString("pt-BR")}`,
-      canvas.width / 2,
-      510,
-    )
-
-    // Assinatura e instituição
-    ctx.font = "18px Arial, sans-serif"
-    ctx.fillStyle = "#666"
-    ctx.textAlign = "left"
-    ctx.fillText(certificateData.instructorName || "[Instrutor]", 200, 650)
-    ctx.fillText("Instrutor", 200, 670)
-
-    ctx.textAlign = "right"
-    ctx.fillText(certificateData.institution || "[Instituição]", 1000, 650)
-    ctx.fillText("Instituição", 1000, 670)
-
-    // ID do certificado
-    ctx.textAlign = "center"
-    ctx.font = "14px monospace"
-    ctx.fillStyle = "#999"
-    ctx.fillText(`ID: ${certificateData.certificateId}`, canvas.width / 2, 750)
-
-    console.log("Certificado desenhado com sucesso!")
-  }
-
-  // Desenhar fundo baseado no template
-  const drawBackground = (ctx: CanvasRenderingContext2D, template: string) => {
-    const canvas = ctx.canvas
-
-    switch (template) {
-      case "modern": {
-        // Gradiente moderno
-        const modernGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height)
-        modernGradient.addColorStop(0, "#f8fafc")
-        modernGradient.addColorStop(1, "#e2e8f0")
-        ctx.fillStyle = modernGradient
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-        // Bordas modernas
-        ctx.strokeStyle = "#3b82f6"
-        ctx.lineWidth = 8
-        ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40)
-        break
-      }
-
-      case "classic": {
-        // Fundo clássico
-        ctx.fillStyle = "#fefefe"
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-        // Bordas ornamentadas
-        ctx.strokeStyle = "#8b5a2b"
-        ctx.lineWidth = 12
-        ctx.strokeRect(30, 30, canvas.width - 60, canvas.height - 60)
-        ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80)
-        break
-      }
-
-      case "minimal": {
-        // Fundo minimalista
-        ctx.fillStyle = "#ffffff"
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-        // Borda simples
-        ctx.strokeStyle = "#374151"
-        ctx.lineWidth = 2
-        ctx.strokeRect(50, 50, canvas.width - 100, canvas.height - 100)
-        break
-      }
-
-      case "elegant": {
-        const elegantGradient = ctx.createRadialGradient(
-          canvas.width / 2,
-          canvas.height / 2,
-          0,
-          canvas.width / 2,
-          canvas.height / 2,
-          canvas.width / 2,
-        )
-        elegantGradient.addColorStop(0, "#fefefe")
-        elegantGradient.addColorStop(1, "#f3f4f6")
-        ctx.fillStyle = elegantGradient
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-        // Bordas douradas
-        ctx.strokeStyle = "#d4af37"
-        ctx.lineWidth = 6
-        ctx.strokeRect(25, 25, canvas.width - 50, canvas.height - 50)
-        break
-      }
-
-      default: {
-        // Fundo padrão
-        ctx.fillStyle = "#ffffff"
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-        // Borda padrão
-        ctx.strokeStyle = "#cccccc"
-        ctx.lineWidth = 2
-        ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20)
-        break
-      }
-    }
-  }
-
-  // Função para quebrar texto em múltiplas linhas
-  const wrapText = (
-    ctx: CanvasRenderingContext2D,
-    text: string,
-    x: number,
-    y: number,
-    maxWidth: number,
-    lineHeight: number,
-  ) => {
-    const words = text.split(" ")
-    let line = ""
-    let currentY = y
-
-    for (let n = 0; n < words.length; n++) {
-      const testLine = line + words[n] + " "
-      const metrics = ctx.measureText(testLine)
-      const testWidth = metrics.width
-
-      if (testWidth > maxWidth && n > 0) {
-        ctx.fillText(line, x, currentY)
-        line = words[n] + " "
-        currentY += lineHeight
-      } else {
-        line = testLine
-      }
-    }
-    ctx.fillText(line, x, currentY)
-  }
-
-  // Atualizar preview quando dados mudarem
-  useEffect(() => {
-    if (previewMode && canvasRef.current) {
-      console.log("Atualizando preview...")
-      const timer = setTimeout(() => {
-        drawCertificate()
-      }, 100)
-
-      return () => clearTimeout(timer)
-    }
-  }, [certificateData, previewMode])
-
   const handleEdit = (eventId: string) => {
     const event = events.find((e) => e._id === eventId)
     if (event) {
@@ -876,12 +576,6 @@ export default function MyEvents() {
   const confirmStopEvent = async () => {
     if (eventToStop) {
       try {
-        // Aqui você pode fazer a chamada para a API para encerrar o evento
-        // const response = await axios.patch(`${import.meta.env.VITE_API_BASE_URL}/events/${eventToStop}/stop`, {}, {
-        //   headers: { Authorization: `Bearer ${token}` }
-        // })
-
-        // Atualizar o estado local
         const updatedEvents = events.map((event) =>
           event._id === eventToStop ? { ...event, status: "finished" as const } : event,
         )
@@ -889,8 +583,6 @@ export default function MyEvents() {
         setEvents(updatedEvents)
         setEventToStop(null)
         setIsStopModalOpen(false)
-
-        // Mudar para a aba de encerrados para mostrar o evento
         setSubTab("finished")
 
         toast({
@@ -947,17 +639,14 @@ export default function MyEvents() {
     }
   }
 
-  // Função para obter o label do subtab atual
   const getCurrentSubTabLabel = () => {
     return subTabOptions.find((option) => option.value === subTab)?.label || "Ativos"
   }
 
-  // Função para obter o label do tab principal atual
   const getCurrentMainTabLabel = () => {
     return mainTabOptions.find((option) => option.value === mainTab)?.label || "Início"
   }
 
-  // Função para obter o ícone do tab principal atual
   const getCurrentMainTabIcon = () => {
     const TabIcon = mainTabOptions.find((option) => option.value === mainTab)?.icon || Home
     return <TabIcon className="h-4 w-4 mr-2" />
@@ -996,7 +685,6 @@ export default function MyEvents() {
     }
   }
 
-  // Função para formatar valores monetários
   const formatCurrency = (value: number) => {
     if (hideValues) return "R$ ***"
     return `R$ ${value.toLocaleString("pt-BR", {
@@ -1005,16 +693,13 @@ export default function MyEvents() {
     })}`
   }
 
-  // Função para formatar números
   const formatNumber = (value: number) => {
     if (hideValues) return "***"
     return value.toString()
   }
 
-  // Função para salvar associação de certificado
   const handleSaveCertificateAssociation = async () => {
     try {
-      // Aqui você faria a chamada para sua API para salvar a associação
       console.log("Salvando associação:", certificateAssociation)
 
       toast({
@@ -1032,7 +717,6 @@ export default function MyEvents() {
     }
   }
 
-  // Função para obter status badge
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       completed: { label: "Concluído", variant: "default" as const },
@@ -1043,88 +727,6 @@ export default function MyEvents() {
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending
     return <Badge variant={config.variant}>{config.label}</Badge>
   }
-
-  // Funções para aba de certificados
-  const handleInputChange = (field: keyof CertificateData, value: string | number) => {
-    setCertificateData((prev) => ({
-      ...prev,
-      [field]: value,
-    }))
-  }
-
-  const handleEventSelection = (eventId: string) => {
-    const event = events.find((e) => e._id === eventId)
-    if (event) {
-      setSelectedEventForCertificate(eventId)
-      setCertificateData((prev) => ({
-        ...prev,
-        courseName: event.title,
-        certificateId: generateCertificateId(),
-      }))
-    }
-  }
-
-  // Download do certificado
-  const downloadCertificate = () => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const link = document.createElement("a")
-    link.download = `certificado-${certificateData.studentName.replace(/\s+/g, "-").toLowerCase()}-${certificateData.certificateId}.png`
-    link.href = canvas.toDataURL()
-    link.click()
-
-    toast({
-      title: "Download iniciado!",
-      description: "O certificado está sendo baixado.",
-    })
-  }
-
-  // Gerar certificados para todos os participantes autenticados
-  const generateCertificatesForAllParticipants = async () => {
-    const authenticatedParticipants = participants.filter((p) => p.isAuthenticated)
-
-    if (authenticatedParticipants.length === 0) {
-      toast({
-        title: "Nenhum participante autenticado",
-        description: "Não há participantes autenticados para gerar certificados.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    setIsGenerating(true)
-
-    try {
-      // Simular geração de certificados para todos os participantes
-      for (const participant of authenticatedParticipants) {
-        const participantCertificateData = {
-          ...certificateData,
-          studentName: participant.name,
-          certificateId: generateCertificateId(),
-        }
-
-        // Aqui você faria a chamada para sua API para gerar cada certificado
-        console.log("Gerando certificado para:", participantCertificateData)
-        await new Promise((resolve) => setTimeout(resolve, 500)) // Simular delay
-      }
-
-      toast({
-        title: "Certificados gerados com sucesso!",
-        description: `${authenticatedParticipants.length} certificados foram gerados.`,
-      })
-    } catch (error) {
-      toast({
-        title: "Erro ao gerar certificados",
-        description: "Tente novamente em alguns instantes.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsGenerating(false)
-    }
-  }
-
-  const isFormValid = certificateData.courseName && certificateData.totalHours > 0
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -1138,7 +740,6 @@ export default function MyEvents() {
           description="Tem certeza que deseja excluir este evento? Esta ação não pode ser desfeita."
         />
 
-        {/* Modal de confirmação para encerrar evento */}
         <DeleteModal
           isOpen={isStopModalOpen}
           onClose={() => setIsStopModalOpen(false)}
@@ -1224,7 +825,6 @@ export default function MyEvents() {
           )}
         </GenericModal>
 
-        {/* Modal de Checkouts - Modificado */}
         <GenericModal
           isOpen={isCheckoutModalOpen}
           onClose={() => setIsCheckoutModalOpen(false)}
@@ -1242,7 +842,6 @@ export default function MyEvents() {
 
             <div className={cn("space-y-3 overflow-y-auto", isCheckoutMaximized ? "max-h-[70vh]" : "max-h-96")}>
               {!isCheckoutMaximized ? (
-                // Visualização simplificada - apenas nomes
                 <div className="space-y-2">
                   {checkouts.map((checkout) => (
                     <div key={checkout.id} className="p-3 border rounded-lg">
@@ -1252,18 +851,15 @@ export default function MyEvents() {
                   ))}
                 </div>
               ) : (
-                // Visualização completa quando maximizado
                 <div className="space-y-4">
                   {checkouts.map((checkout) => (
                     <Card key={checkout.id} className="p-4">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {/* Informações do Cliente */}
                         <div className="space-y-1">
                           <p className="font-medium text-sm">{checkout.customerName}</p>
                           <p className="text-xs text-gray-500">{checkout.customerEmail}</p>
                         </div>
 
-                        {/* Informações do Evento */}
                         <div className="space-y-1">
                           <p className="text-sm font-medium">{checkout.eventName}</p>
                           <p className="text-xs text-gray-500">{checkout.ticketType}</p>
@@ -1272,7 +868,6 @@ export default function MyEvents() {
                           </p>
                         </div>
 
-                        {/* Preço e Status */}
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                           <div className="text-right md:text-left">
                             <p className="text-sm font-medium">
@@ -1290,7 +885,6 @@ export default function MyEvents() {
           </div>
         </GenericModal>
 
-        {/* Modal de Associação de Certificado */}
         <GenericModal
           isOpen={isCertificateModalOpen}
           onClose={() => setIsCertificateModalOpen(false)}
@@ -1420,13 +1014,16 @@ export default function MyEvents() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
             <h1 className="text-xl sm:text-2xl font-bold">Meus Eventos</h1>
 
-            {/* Desktop Tabs */}
-            <div className="hidden md:flex space-x-4">
+            {/* Desktop Tabs -- MODIFIED BREAKPOINT */}
+            <div className="hidden lg:flex space-x-4">
               {mainTabOptions.map((option) => (
                 <Tab
                   key={option.value}
                   isActive={mainTab === option.value}
-                  onClick={() => setMainTab(option.value as "inicio" | "dashboard" | "certificados" | "scan")}
+                  onClick={() => {
+                    if (option.value === "certificados") setShowCertificateTutorial(true)
+                    setMainTab(option.value as "inicio" | "dashboard" | "certificados" | "scan")
+                  }}
                   className="text-base cursor-pointer"
                 >
                   <div className="flex items-center">
@@ -1437,8 +1034,8 @@ export default function MyEvents() {
               ))}
             </div>
 
-            {/* Mobile Dropdown para tabs principais */}
-            <div className="md:hidden w-full sm:w-auto">
+            {/* Mobile Dropdown para tabs principais -- MODIFIED BREAKPOINT */}
+            <div className="lg:hidden w-full sm:w-auto">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="flex items-center gap-1 w-full sm:w-auto">
@@ -1452,7 +1049,10 @@ export default function MyEvents() {
                     <DropdownMenuItem
                       key={option.value}
                       className={cn("cursor-pointer", mainTab === option.value && "bg-muted")}
-                      onClick={() => setMainTab(option.value as "inicio" | "dashboard" | "certificados" | "scan")}
+                      onClick={() => {
+                        if (option.value === "certificados") setShowCertificateTutorial(true)
+                        setMainTab(option.value as "inicio" | "dashboard" | "certificados" | "scan")
+                      }}
                     >
                       <div className="flex items-center">
                         <option.icon className="h-4 w-4 mr-2" />
@@ -1559,7 +1159,6 @@ export default function MyEvents() {
           {mainTab === "inicio" && (
             <>
               <div className="flex flex-col gap-4 mb-6">
-                {/* Mobile Dropdown para subtabs - Adicionado margin-top */}
                 <div className="md:hidden w-full mt-4">
                   <Select value={subTab} onValueChange={(value) => setSubTab(value as "active" | "finished")}>
                     <SelectTrigger className="w-full">
@@ -1575,7 +1174,6 @@ export default function MyEvents() {
                   </Select>
                 </div>
 
-                {/* Desktop Subtabs */}
                 <div className="hidden md:flex space-x-6">
                   {subTabOptions.map((option) => (
                     <Tab
@@ -1589,7 +1187,6 @@ export default function MyEvents() {
                   ))}
                 </div>
 
-                {/* Barra de pesquisa */}
                 <div className="relative w-full">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                   <Input
@@ -1683,7 +1280,6 @@ export default function MyEvents() {
 
           {mainTab === "dashboard" && (
             <div className="space-y-6">
-              {/* Controles do Dashboard - Adicionado dropdown de seleção de evento */}
               <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                 <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
                   <Button
@@ -1697,7 +1293,6 @@ export default function MyEvents() {
                   </Button>
                 </div>
 
-                {/* Dropdown para seleção de evento */}
                 <div className="w-full lg:w-auto lg:min-w-[250px]">
                   <Select value={selectedDashboardEvent} onValueChange={setSelectedDashboardEvent}>
                     <SelectTrigger className="w-full">
@@ -1715,7 +1310,6 @@ export default function MyEvents() {
                 </div>
               </div>
 
-              {/* Cards de métricas - Grid responsivo melhorado */}
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -1768,7 +1362,6 @@ export default function MyEvents() {
                 </Card>
               </div>
 
-              {/* Cards Adicionais - Grid responsivo melhorado */}
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 <Card
                   className="cursor-pointer hover:shadow-md transition-shadow"
@@ -1807,7 +1400,6 @@ export default function MyEvents() {
                 </Card>
               </div>
 
-              {/* Gráfico */}
               <div className="grid grid-cols-1 gap-4">
                 <Card>
                   <CardHeader>
@@ -1840,300 +1432,14 @@ export default function MyEvents() {
             </div>
           )}
 
-          {/* Aba de Certificados - Layout responsivo melhorado */}
+          {/* Aba de Certificados - COMPLETELY REFACTORED */}
           {mainTab === "certificados" && (
             <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold">Gerador de Certificados</h2>
-              </div>
-
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                {/* Formulário */}
-                <Card className="h-fit w-full">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <FileImage className="h-5 w-5" />
-                      Configuração do Certificado
-                    </CardTitle>
-                    <CardDescription>Configure os dados para gerar certificados para o evento</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {/* Seleção do Evento */}
-                    <div className="space-y-4 w-full">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-blue-600" />
-                        <Label className="text-sm font-semibold">Selecionar Evento</Label>
-                      </div>
-                      <div className="space-y-2 w-full">
-                        <Label htmlFor="eventSelect">Evento *</Label>
-                        <Select value={selectedEventForCertificate} onValueChange={handleEventSelection}>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Selecione um evento" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {events
-                              .filter((event) => event.status === "finished")
-                              .map((event) => (
-                                <SelectItem key={event._id} value={event._id}>
-                                  {event.title} - {new Date(event.startDate).toLocaleDateString("pt-BR")}
-                                </SelectItem>
-                              ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    {/* Informações do Curso */}
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2">
-                        <BookOpen className="h-4 w-4 text-green-600" />
-                        <Label className="text-sm font-semibold">Informações do Curso</Label>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="courseName">Nome do Curso *</Label>
-                          <Input
-                            id="courseName"
-                            placeholder="Ex: Desenvolvimento Web"
-                            value={certificateData.courseName}
-                            onChange={(e) => handleInputChange("courseName", e.target.value)}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="totalHours">Carga Horária *</Label>
-                          <Input
-                            id="totalHours"
-                            type="number"
-                            placeholder="40"
-                            value={certificateData.totalHours || ""}
-                            onChange={(e) => handleInputChange("totalHours", Number.parseInt(e.target.value) || 0)}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="courseDescription">Descrição do Curso</Label>
-                        <Textarea
-                          id="courseDescription"
-                          placeholder="Breve descrição do conteúdo do curso..."
-                          value={certificateData.courseDescription}
-                          onChange={(e) => handleInputChange("courseDescription", e.target.value)}
-                          rows={3}
-                        />
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    {/* Informações Adicionais */}
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-purple-600" />
-                        <Label className="text-sm font-semibold">Informações Adicionais</Label>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="template">Template</Label>
-                          <Select
-                            value={certificateData.template}
-                            onValueChange={(value) => handleInputChange("template", value)}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue>
-                                {templates.find((t) => t.id === certificateData.template)?.name ||
-                                  "Selecione um template"}
-                              </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                              {templates.map((template) => (
-                                <SelectItem key={template.id} value={template.id}>
-                                  <div>
-                                    <div className="font-medium">{template.name}</div>
-                                    <div className="text-sm text-gray-500">{template.description}</div>
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="completionDate">Data de Conclusão</Label>
-                          <Input
-                            id="completionDate"
-                            type="date"
-                            value={certificateData.completionDate}
-                            onChange={(e) => handleInputChange("completionDate", e.target.value)}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="instructorName">Nome do Instrutor</Label>
-                          <Input
-                            id="instructorName"
-                            placeholder="Nome do instrutor"
-                            value={certificateData.instructorName}
-                            onChange={(e) => handleInputChange("instructorName", e.target.value)}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="institution">Instituição</Label>
-                          <Input
-                            id="institution"
-                            placeholder="Nome da instituição"
-                            value={certificateData.institution}
-                            onChange={(e) => handleInputChange("institution", e.target.value)}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    {/* Participantes Autenticados */}
-                    {selectedEventForCertificate && (
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-2">
-                          <UserCheck className="h-4 w-4 text-orange-600" />
-                          <Label className="text-sm font-semibold">Participantes Autenticados</Label>
-                        </div>
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                          <p className="text-sm text-gray-600 mb-2">
-                            {participants.filter((p) => p.isAuthenticated).length} participantes autenticados
-                          </p>
-                          <div className="space-y-1 max-h-32 overflow-y-auto">
-                            {participants
-                              .filter((p) => p.isAuthenticated)
-                              .map((participant) => (
-                                <div key={participant.id} className="text-sm">
-                                  <span className="font-medium">{participant.name}</span>
-                                  <span className="text-gray-500 ml-2">({participant.email})</span>
-                                </div>
-                              ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Botões de Ação */}
-                    <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                      <Button
-                        onClick={generateCertificatesForAllParticipants}
-                        disabled={!isFormValid || isGenerating || !selectedEventForCertificate}
-                        className="flex-1"
-                      >
-                        {isGenerating ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Gerando...
-                          </>
-                        ) : (
-                          <>
-                            <Award className="mr-2 h-4 w-4" />
-                            <span className="hidden sm:inline">Gerar Certificados para Todos</span>
-                            <span className="sm:hidden">Gerar Todos</span>
-                          </>
-                        )}
-                      </Button>
-
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          console.log("Botão Preview clicado")
-                          if (!previewMode) {
-                            console.log("Ativando preview mode")
-                            setCertificateData((prev) => ({
-                              ...prev,
-                              studentName: "João Silva (Preview)",
-                            }))
-                            setPreviewMode(true)
-                          } else {
-                            console.log("Desativando preview mode")
-                            setPreviewMode(false)
-                          }
-                        }}
-                        disabled={!isFormValid}
-                        className="sm:flex-none"
-                      >
-                        <Eye className="mr-2 h-4 w-4" />
-                        {previewMode ? "Ocultar" : "Preview"}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Preview do Certificado */}
-                {previewMode && (
-                  <Card className="w-full">
-                    <CardHeader>
-                      <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                        <span>Preview do Certificado</span>
-                        <Button onClick={downloadCertificate} size="sm" className="w-full sm:w-auto">
-                          <Download className="mr-2 h-4 w-4" />
-                          Download Preview
-                        </Button>
-                      </CardTitle>
-                      <CardDescription>Visualização do certificado que será gerado</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="border rounded-lg overflow-hidden bg-white">
-                        <canvas
-                          ref={canvasRef}
-                          width={1200}
-                          height={800}
-                          className="w-full h-auto border"
-                          style={{ maxWidth: "100%", height: "auto" }}
-                        />
-                      </div>
-
-                      <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                        <h4 className="font-semibold mb-2">Informações do Certificado:</h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                          <div>
-                            <strong>Evento:</strong>{" "}
-                            {events.find((e) => e._id === selectedEventForCertificate)?.title || "Não selecionado"}
-                          </div>
-                          <div>
-                            <strong>Curso:</strong> {certificateData.courseName || "Não informado"}
-                          </div>
-                          <div>
-                            <strong>Carga Horária:</strong> {certificateData.totalHours}h
-                          </div>
-                          <div>
-                            <strong>Template:</strong> {templates.find((t) => t.id === certificateData.template)?.name}
-                          </div>
-                          <div>
-                            <strong>Participantes:</strong> {participants.filter((p) => p.isAuthenticated).length}{" "}
-                            autenticados
-                          </div>
-                          <div>
-                            <strong>Instrutor:</strong> {certificateData.instructorName || "Não informado"}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Botão para forçar redesenho - para debug */}
-                      <div className="mt-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            console.log("Forçando redesenho do canvas")
-                            drawCertificate()
-                          }}
-                        >
-                          Redesenhar Canvas
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
+              {showCertificateTutorial ? (
+                <CertificateTutorial onProceed={() => setShowCertificateTutorial(false)} />
+              ) : (
+                <CertificateGenerator events={events} participants={participants} />
+              )}
             </div>
           )}
         </div>
