@@ -284,7 +284,7 @@ export default function CertificateTutorial({ onProceed }: CertificateTutorialPr
         <p className="text-gray-600 mb-4">
           Seguindo estes passos, seu certificado estará pronto para ser usado no sistema de geração automática.
         </p>
-        <Button onClick={onProceed} size="lg">
+        <Button onClick={onProceed} size="lg" className="cursor-pointer">
           Entendi, Ir para o Gerador
         </Button>
       </div>
