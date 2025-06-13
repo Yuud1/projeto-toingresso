@@ -200,10 +200,7 @@ const EventDetail = () => {
               <h2 className="text-xl font-bold mb-4 text-[#414141]">
                 Ingressos
               </h2>
-              <TicketSelector
-                event={event}
-                tickets={event?.tickets ?? []}
-              />
+              <TicketSelector event={event} tickets={event?.tickets ?? []} />
 
               {/* Política */}
               <div className="mt-8 p-4 border border-gray-300 rounded-lg bg-gray-50">
@@ -217,22 +214,22 @@ const EventDetail = () => {
         </div>
 
         {/* Mapa */}
-        {/* <div className="mt-16">
+        <div className="mt-16">
           <h2 className="text-2xl font-bold mb-4 text-[#414141]">
             Localização
           </h2>
           <div className="w-full h-[400px]">
             <iframe
-              src={event.mapUrl}
+              src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1963.4955007216295!2d-48.337388507953854!3d-10.181385600694082!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9324cb6b090918a5%3A0xec2ad53ac4f6cb12!2sBrasif%20M%C3%A1quinas!5e0!3m2!1spt-BR!2sbr!4v1749832543882!5m2!1spt-BR!2sbr" 
               width="100%"
               height="100%"
               className="rounded-lg border"
               allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-            ></iframe>
+            />
           </div>
-        </div> */}
+        </div>
       </main>
       <Footer />
     </>

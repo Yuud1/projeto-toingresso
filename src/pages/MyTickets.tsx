@@ -264,7 +264,7 @@ export default function MyTickets() {
                       <Button
                         onClick={(e) => handleViewTicket(ticket._id, e)}
                         variant="outline"
-                        className="flex-1 text-[#02488C] border-[#02488C] cursor-pointer hover:bg-[#02488C] hover:text-white transition-colors"
+                        className="flex-1 text-[#ffffff] border-[#02488C] cursor-pointer bg-[#02488C] transition-colors"
                       >
                         <Eye size={16} className="mr-2" />
                         Visualizar
@@ -274,7 +274,7 @@ export default function MyTickets() {
                         <Button
                           onClick={(e) => handleTransferTicket(ticket._id, e)}
                           variant="outline"
-                          className="flex-1 text-[#FEC800] border-[#FEC800] cursor-pointer hover:bg-[#FEC800] hover:text-gray-900 transition-colors"
+                          className="flex-1 text-[#ffffff] border-[#FEC800] cursor-pointer bg-[#FEC800] transition-colors"
                         >
                           <ArrowRightLeft size={16} className="mr-2" />
                           Transferir

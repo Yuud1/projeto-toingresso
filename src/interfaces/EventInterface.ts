@@ -30,4 +30,5 @@ export default interface EventInterface {
   isFree: boolean;
   customFields: CustomFieldInterface[];
   ticketActivationToken: string
+  mapUrl: string
 }
