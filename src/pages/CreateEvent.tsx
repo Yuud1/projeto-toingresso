@@ -66,7 +66,7 @@ export default function CreateEvent() {
     customFields:[],
     acceptedTerms: false,
     token: localStorage.getItem("token"),
-    status: "editing"
+    status: "active"
   });
   
   // Função para validar os campos da etapa atual

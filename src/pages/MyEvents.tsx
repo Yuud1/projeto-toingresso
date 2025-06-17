@@ -157,53 +157,7 @@ const mockParticipants: EventParticipant[] = [
   },
 ]
 
-const mockEvents: EventInterface[] = [
-  {
-    _id: "mock-event-1",
-    title: "Workshop de React Avançado",
-    image: "/placeholder.svg?height=300&width=400",
-    imageId: "mock-image-id-1",
-    category: "Tecnologia",
-    startDate: "2024-01-15T09:00:00Z",
-    startTime: "09:00",
-    endDate: "2024-01-15T18:00:00Z",
-    endTime: "18:00",
-    description: "Curso completo de React com hooks, context e performance",
-    venueName: "Centro de Convenções",
-    zipCode: "01234-567",
-    street: "Rua da Tecnologia",
-    number: "123",
-    complement: "Sala 45",
-    neighborhood: "Centro - São Paulo",
-    city: "São Paulo",
-    state: "SP",
-    status: "finished",
-    mapUrl: "",
-    tickets: [
-      {
-        _id: "1",
-        description: "Ingresso com acesso a todas as palestras",
-        name: "Ingresso Regular",
-        type: "regular",
-        price: 150,
-        quantity: 50,
-        soldQuantity: 45,
-      },
-    ],
-    organizer: {
-      id: "org-1",
-      name: "Tech Events Brasil",
-      avatar: "/placeholder.svg?height=100&width=100",
-      avatarId: "s",
-    },
-    acceptedTerms: true,
-    policy: "Política de cancelamento: reembolso até 7 dias antes do evento",
-    isFree: false,
-    customFields: [],
-    ticketActivationToken: "REACT2024",
-    formTitle: "Inscrição para Workshop de React Avançado",
-  },
-]
+
 
 export default function MyEvents() {
   const token = localStorage.getItem("token")
@@ -223,8 +177,8 @@ export default function MyEvents() {
   const [selectedEvent, setSelectedEvent] = useState<EventInterface | null>(null)
   const [ticketToken, setTicketToken] = useState<string | undefined>(undefined)
   const [copied, setCopied] = useState(false)
-  const navigate = useNavigate()
-
+  const navigate = useNavigate()  
+  
   // Estados para funcionalidades do dashboard
   const [hideValues, setHideValues] = useState(false)
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false)
@@ -289,15 +243,14 @@ export default function MyEvents() {
             },
           },
         )
-
+        console.log("Response", response);
+        
         if (response.data.events) {
-          setEvents([...response.data.events, ...mockEvents])
+          setEvents([...response.data.events])
         } else {
-          setEvents(mockEvents)
+          
         }
-      } catch (error: any) {
-        console.log("Error", error)
-        setEvents(mockEvents)
+      } catch (error: any) {                
 
         if (error.response?.data?.logged === false) {
           window.location.href = "/login"

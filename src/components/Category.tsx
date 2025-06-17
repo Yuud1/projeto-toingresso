@@ -15,58 +15,23 @@ import { Navigation } from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/navigation";
+import EventInterface from "@/interfaces/EventInterface";
+import axios from "axios";
 
+// Esse categories tem que ser igual ao que é no formulário de  cadastro de evento.
 const categories = [
-  { icon: <Music2 className="w-6 h-6" />, label: "Festas e Shows" },
-  { icon: <Drama className="w-6 h-6" />, label: "Teatros e Espetáculos" },
-  { icon: <Mic2 className="w-6 h-6" />, label: "Stand Up Comedy" },
-  { icon: <Presentation className="w-6 h-6" />, label: "Congressos e Palestras" },
+  { icon: <Music2 className="w-6 h-6" />, label: "Shows" },
+  { icon: <Drama className="w-6 h-6" />, label: "Teatro" },
+  { icon: <Mic2 className="w-6 h-6" />, label: "Comédia" },
+  { icon: <Presentation className="w-6 h-6" />, label: "Cursos" },
   { icon: <Church className="w-6 h-6" />, label: "Gospel" },
   { icon: <Trophy className="w-6 h-6" />, label: "Esportes" },
-];
-
-const mockEvents = [
-  {
-    id: 3,
-    title: "Stand Up com Afonso Padilha",
-    image: "https://source.unsplash.com/random/400x300?comedy",
-    city: "Curitiba",
-  },
-  {
-    id: 5,
-    title: "Campeonato de Futebol",
-    image: "https://source.unsplash.com/random/400x300?soccer",
-    city: "Porto Alegre",
-  },
-  {
-    id: 6,
-    title: "Festival Gospel",
-    image: "https://source.unsplash.com/random/400x300?church",
-    city: "Salvador",
-  },
-  {
-    id: 6,
-    title: "Festival Gospel",
-    image: "https://source.unsplash.com/random/400x300?church",
-    city: "Salvador",
-  },
-  {
-    id: 6,
-    title: "Festival Gospel",
-    image: "https://source.unsplash.com/random/400x300?church",
-    city: "Salvador",
-  },
-  {
-    id: 6,
-    title: "Festival Gospel",
-    image: "https://source.unsplash.com/random/400x300?church",
-    city: "Salvador",
-  },
 ];
 
 const Category: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [eventsCategory, setEventsCategory] = useState<EventInterface[]>([]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -77,9 +42,24 @@ const Category: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+
+    async function getEventsCategory(){
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_GET_ALL_EVENTS_WITH_CATEGORY}${activeCategory}`);
+
+      if (response.data.events) {
+        setEventsCategory(response.data.events)
+      }
+    }
+
+    if (activeCategory !== null) {      
+      getEventsCategory();
+    }
+  },[activeCategory])
+
   const showCarousel = isMobile
-    ? mockEvents.length > 3
-    : mockEvents.length > 5;
+    ? eventsCategory.length > 3
+    : eventsCategory.length > 5;
 
   return (
     <div>
@@ -126,8 +106,8 @@ const Category: React.FC = () => {
                 1024: { slidesPerView: 3.5 },
               }}
             >
-              {mockEvents.map((event) => (
-                <SwiperSlide key={event.id}>
+              {eventsCategory.map((event) => (
+                <SwiperSlide key={event._id}>
                   <div className="bg-white rounded-lg overflow-hidden shadow hover:shadow-md transition-shadow">
                     <img
                       src={event.image}
@@ -153,8 +133,8 @@ const Category: React.FC = () => {
           </>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {mockEvents.map((event) => (
-              <div key={event.id} className="bg-white rounded-lg overflow-hidden shadow hover:shadow-md transition-shadow">
+            {eventsCategory.map((event) => (
+              <div key={event._id} className="bg-white rounded-lg overflow-hidden shadow hover:shadow-md transition-shadow">
                 <img
                   src={event.image}
                   alt={event.title}
