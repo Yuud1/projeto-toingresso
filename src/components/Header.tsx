@@ -454,6 +454,8 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
               />
               <Input
                 type="text"
+                name="filter"
+                id="filter"
                 placeholder="Pesquisar eventos, shows, teatros, cursos"
                 className={cn(
                   "pl-12 pr-6 text-base shadow-lg rounded-xl transition-all duration-300",

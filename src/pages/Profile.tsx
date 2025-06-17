@@ -64,7 +64,6 @@ export default function Profile() {
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
   const [showAddCard, setShowAddCard] = useState(false);
-  console.log(formData);
 
   const token = localStorage.getItem("token");
 
@@ -655,6 +654,7 @@ export default function Profile() {
             )}
 
             {activeTab === "avancada" && (
+              <form onSubmit={handleSubmit}>
               <div className="space-y-6">
                 <div className="bg-white p-6 rounded-lg border">
                   <h3 className="text-lg font-semibold mb-4">
@@ -666,12 +666,14 @@ export default function Profile() {
                       <div className="space-y-4">
                         <Input
                           type="password"
+                          id="newPassword"
                           placeholder="Nova senha"
                           name="newPassword"
                           onChange={handleChange}
                         />
                         <Input
                           type="password"
+                          id="confirmNewPassword"
                           placeholder="Confirmar nova senha"
                           name="confirmNewPassword"
                           onChange={handleChange}
@@ -683,8 +685,7 @@ export default function Profile() {
                         </div>
                         <Button
                           className="bg-[#02488C] text-white hover:bg-[#023a6f] cursor-pointer"
-                          disabled={loading}
-                          onClick={handleSubmit}
+                          disabled={loading}                          
                         >
                           {loading ? "Atualizando..." : "Atualizar senha"}
                         </Button>
@@ -718,6 +719,7 @@ export default function Profile() {
                   </div>
                 </div>
               </div>
+              </form>
             )}
           </div>
         </div>
