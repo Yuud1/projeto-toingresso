@@ -1,7 +1,14 @@
-import type React from "react"
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardImage } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import type React from "react";
+import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardImage,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   Pencil,
   Trash2,
@@ -22,64 +29,75 @@ import {
   Minimize2,
   UserCheck,
   ScanEye,
-} from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts"
-import axios from "axios"
-import type EventInterface from "@/interfaces/EventInterface"
-import { useUser } from "@/contexts/useContext"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import DeleteModal from "@/components/DeleteModal"
-import GenericModal from "@/components/GenericModal"
-import { EditEventModal } from "@/components/EditEventModal"
-import { Badge } from "@/components/ui/badge"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { useToast } from "@/hooks/use-toast"
-import { useNavigate } from "react-router-dom"
-import CertificateTutorial from "./CertificateTutorial"
-import CertificateGenerator from "./CertificateGenerator"
-import EventScanner from "./EventScanner"
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import axios from "axios";
+import type EventInterface from "@/interfaces/EventInterface";
+import { useUser } from "@/contexts/useContext";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import DeleteModal from "@/components/DeleteModal";
+import GenericModal from "@/components/GenericModal";
+import { EditEventModal } from "@/components/EditEventModal";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
+import CertificateTutorial from "./CertificateTutorial";
+import CertificateGenerator from "./CertificateGenerator";
+import EventScanner from "./EventScanner";
 
 interface TabProps {
-  isActive: boolean
-  children: React.ReactNode
-  onClick: () => void
-  className?: string
+  isActive: boolean;
+  children: React.ReactNode;
+  onClick: () => void;
+  className?: string;
 }
 
 export interface CheckoutData {
-  id: string
-  customerName: string
-  customerEmail: string
-  eventName: string
-  ticketType: string
-  quantity: number
-  totalAmount: number
-  purchaseDate: string
-  status: "completed" | "pending" | "failed"
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  eventName: string;
+  ticketType: string;
+  quantity: number;
+  totalAmount: number;
+  purchaseDate: string;
+  status: "completed" | "pending" | "failed";
 }
 
 interface CertificateAssociation {
-  eventId: string
-  courseName: string
-  totalHours: number
-  instructorName: string
-  institution: string
-  courseDescription: string
-  template: string
+  eventId: string;
+  courseName: string;
+  totalHours: number;
+  instructorName: string;
+  institution: string;
+  courseDescription: string;
+  template: string;
 }
 
 export interface EventParticipant {
-  id: string
-  name: string
-  email: string
-  isAuthenticated: boolean
-  checkInDate?: string
+  id: string;
+  name: string;
+  email: string;
+  isAuthenticated: boolean;
+  checkInDate?: string;
 }
 
 const Tab = ({ isActive, children, onClick, className }: TabProps) => {
@@ -89,28 +107,43 @@ const Tab = ({ isActive, children, onClick, className }: TabProps) => {
       className={cn(
         "px-4 py-2 text-sm font-medium transition-colors relative",
         isActive ? "text-[#02488C]" : "text-gray-500 hover:text-gray-700",
-        className,
+        className
       )}
     >
       {children}
-      {isActive && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#02488C]" />}
+      {isActive && (
+        <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#02488C]" />
+      )}
     </button>
-  )
-}
+  );
+};
 
 const mainTabOptions = [
   { value: "inicio", label: "Início", icon: Home },
   { value: "dashboard", label: "Dashboard", icon: BarChart3 },
   { value: "scan", label: "Scan", icon: ScanEye },
   { value: "certificados", label: "Certificados", icon: Award },
-] as const
+] as const;
 
 const subTabOptions = [
   { value: "active", label: "Ativos" },
   { value: "finished", label: "Encerrados" },
-] as const
+] as const;
 
-const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+const months = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
 const mockCheckouts: CheckoutData[] = [
   {
@@ -125,340 +158,353 @@ const mockCheckouts: CheckoutData[] = [
     status: "completed",
   },
   // ... (outros mockCheckouts)
-]
-
-const mockParticipants: EventParticipant[] = [
-  {
-    id: "1",
-    name: "João Silva",
-    email: "joao@email.com",
-    isAuthenticated: true,
-    checkInDate: "2024-01-15T10:30:00Z",
-  },
-  {
-    id: "2",
-    name: "Maria Santos",
-    email: "maria@email.com",
-    isAuthenticated: true,
-    checkInDate: "2024-01-15T10:45:00Z",
-  },
-  {
-    id: "3",
-    name: "Pedro Costa",
-    email: "pedro@email.com",
-    isAuthenticated: false,
-  },
-  {
-    id: "4",
-    name: "Ana Oliveira",
-    email: "ana@email.com",
-    isAuthenticated: true,
-    checkInDate: "2024-01-15T11:00:00Z",
-  },
-]
-
-
+];
 
 export default function MyEvents() {
-  const token = localStorage.getItem("token")
-  const { user } = useUser()
-  const { toast } = useToast()
+  const token = localStorage.getItem("token");
+  const { user } = useUser();
+  const { toast } = useToast();
 
-  const [events, setEvents] = useState<EventInterface[]>([])
-  const [mainTab, setMainTab] = useState<"inicio" | "dashboard" | "certificados" | "scan">("inicio")
-  const [subTab, setSubTab] = useState<"active" | "finished">("active")
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [isStopModalOpen, setIsStopModalOpen] = useState(false)
-  const [eventToDelete, setEventToDelete] = useState<string | null>(null)
-  const [eventToStop, setEventToStop] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [selectedEvent, setSelectedEvent] = useState<EventInterface | null>(null)
-  const [ticketToken, setTicketToken] = useState<string | undefined>(undefined)
-  const [copied, setCopied] = useState(false)
-  const navigate = useNavigate()  
-  
+  const [events, setEvents] = useState<EventInterface[]>([]);
+  const [mainTab, setMainTab] = useState<
+    "inicio" | "dashboard" | "certificados" | "scan"
+  >("inicio");
+  const [subTab, setSubTab] = useState<"active" | "finished">("active");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isStopModalOpen, setIsStopModalOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState<string | null>(null);
+  const [eventToStop, setEventToStop] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<EventInterface | null>(
+    null
+  );
+  const [ticketToken, setTicketToken] = useState<string | undefined>(undefined);
+  const [copied, setCopied] = useState(false);
+  const navigate = useNavigate();
+
   // Estados para funcionalidades do dashboard
-  const [hideValues, setHideValues] = useState(false)
-  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false)
-  const [isCheckoutMaximized, setIsCheckoutMaximized] = useState(false)
-  const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false)
-  const [certificateAssociation, setCertificateAssociation] = useState<CertificateAssociation>({
-    eventId: "",
-    courseName: "",
-    totalHours: 0,
-    instructorName: "",
-    institution: "",
-    courseDescription: "",
-    template: "modern",
-  })
-  const [checkouts] = useState<CheckoutData[]>(mockCheckouts)
+  const [hideValues, setHideValues] = useState(false);
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+  const [isCheckoutMaximized, setIsCheckoutMaximized] = useState(false);
+  const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
+  const [certificateAssociation, setCertificateAssociation] =
+    useState<CertificateAssociation>({
+      eventId: "",
+      courseName: "",
+      totalHours: 0,
+      instructorName: "",
+      institution: "",
+      courseDescription: "",
+      template: "modern",
+    });
+  const [checkouts] = useState<CheckoutData[]>(mockCheckouts);
 
   // Estados para aba de certificados
-  const [showCertificateTutorial, setShowCertificateTutorial] = useState(true)
-  const [participants] = useState<EventParticipant[]>(mockParticipants)
+  const [showCertificateTutorial, setShowCertificateTutorial] = useState(true);
 
   // Novo estado para seleção de evento no dashboard
-  const [selectedDashboardEvent, setSelectedDashboardEvent] = useState<string>("all")
+  const [selectedDashboardEvent, setSelectedDashboardEvent] =
+    useState<string>("all");
 
   // TODA A LÓGICA DO SCANNER FOI MOVIDA PARA O COMPONENTE EventScanner.tsx
 
   const handleCopy = (text: string) => {
-    copyToClipboard(text)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
+    copyToClipboard(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const getFilteredEventsForDashboard = () => {
     if (selectedDashboardEvent === "all") {
-      return events
+      return events;
     }
-    return events.filter((event) => event._id === selectedDashboardEvent)
-  }
+    return events.filter((event) => event._id === selectedDashboardEvent);
+  };
 
   const revenueData = months.map((month, idx) => {
-    const filteredEvents = getFilteredEventsForDashboard()
+    const filteredEvents = getFilteredEventsForDashboard();
     const monthRevenue = filteredEvents
       .filter((e) => new Date(e.startDate).getMonth() === idx)
       .reduce((acc, event) => {
         const eventRevenue = event.tickets.reduce(
           (ticketAcc, ticket) => ticketAcc + ticket.price * ticket.soldQuantity,
-          0,
-        )
-        return acc + eventRevenue
-      }, 0)
+          0
+        );
+        return acc + eventRevenue;
+      }, 0);
 
-    return { name: month, revenue: monthRevenue }
-  })
+    return { name: month, revenue: monthRevenue };
+  });
 
   useEffect(() => {
     async function getEvents() {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_GET_USER_EVENTS}`,
+          `${import.meta.env.VITE_API_BASE_URL}${
+            import.meta.env.VITE_GET_USER_EVENTS
+          }`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          },
-        )
+          }
+        );
         console.log("Response", response);
-        
-        if (response.data.events) {
-          setEvents([...response.data.events])
-        } else {
-          
-        }
-      } catch (error: any) {                
 
+        if (response.data.events) {
+          setEvents([...response.data.events]);
+        } else {
+        }
+      } catch (error: any) {
         if (error.response?.data?.logged === false) {
-          window.location.href = "/login"
+          window.location.href = "/login";
         }
       }
     }
 
-    getEvents()
-  }, [user, token])
+    getEvents();
+  }, [user, token]);
 
   const filteredEvents = events.filter((event) => {
     const matchesTab =
-      subTab === "active" ? event.status === "active" || event.status === "editing" : event.status === "finished"
+      subTab === "active"
+        ? event.status === "active" || event.status === "editing"
+        : event.status === "finished";
     const matchesSearch =
       searchQuery === "" ||
       event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.neighborhood.toLowerCase().includes(searchQuery.toLowerCase())
+      event.neighborhood.toLowerCase().includes(searchQuery.toLowerCase());
 
-    return matchesTab && matchesSearch
-  })
+    return matchesTab && matchesSearch;
+  });
 
   const dashboardMetrics = (() => {
-    const filteredEvents = getFilteredEventsForDashboard()
+    const filteredEvents = getFilteredEventsForDashboard();
     return {
       totalEvents: filteredEvents.length,
       activeEvents: filteredEvents.filter((e) => e.status === "active").length,
       totalRevenue: filteredEvents.reduce((acc, event) => {
         const eventRevenue = event.tickets.reduce(
           (ticketAcc, ticket) => ticketAcc + ticket.price * ticket.soldQuantity,
-          0,
-        )
-        return acc + eventRevenue
+          0
+        );
+        return acc + eventRevenue;
       }, 0),
       totalTicketsSold: filteredEvents.reduce((acc, event) => {
-        const eventTicketsSold = event.tickets.reduce((ticketAcc, ticket) => ticketAcc + ticket.soldQuantity, 0)
-        return acc + eventTicketsSold
+        const eventTicketsSold = event.tickets.reduce(
+          (ticketAcc, ticket) => ticketAcc + ticket.soldQuantity,
+          0
+        );
+        return acc + eventTicketsSold;
       }, 0),
-      upcomingEvents: filteredEvents.filter((e) => new Date(e.startDate) > new Date() && e.status === "active").length,
-    }
-  })()
+      upcomingEvents: filteredEvents.filter(
+        (e) => new Date(e.startDate) > new Date() && e.status === "active"
+      ).length,
+    };
+  })();
 
   const handleEdit = (eventId: string) => {
-    const event = events.find((e) => e._id === eventId)
+    const event = events.find((e) => e._id === eventId);
     if (event) {
-      setSelectedEvent(event)
-      setIsEditModalOpen(true)
+      setSelectedEvent(event);
+      setIsEditModalOpen(true);
     }
-  }
+  };
 
-  const handleStopEvent = (eventId: string) => {
-    setEventToStop(eventId)
-    setIsStopModalOpen(true)
-  }
+  const handleStopEvent = async (eventId: string) => {
+    setEventToStop(eventId);
+    setIsStopModalOpen(true);
+  };
 
   const confirmStopEvent = async () => {
     if (eventToStop) {
       try {
-        const updatedEvents = events.map((event) =>
-          event._id === eventToStop ? { ...event, status: "finished" as const } : event,
-        )
+        const response = await axios.patch(
+          `${import.meta.env.VITE_API_BASE_URL}${
+            import.meta.env.VITE_FINISH_EVENT
+          }`,
+          { eventToStop },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
 
-        setEvents(updatedEvents)
-        setEventToStop(null)
-        setIsStopModalOpen(false)
-        setSubTab("finished")
+        if (response.data.stopped) {
+          const updatedEvents = events.map((event) =>
+            event._id === eventToStop
+              ? { ...event, status: "finished" as const }
+              : event
+          );
 
-        toast({
-          title: "Evento encerrado com sucesso!",
-          description: "O evento foi movido para a lista de eventos encerrados.",
-        })
+          setEvents(updatedEvents);
+          setEventToStop(null);
+          setIsStopModalOpen(false);
+          setSubTab("finished");
+
+          toast({
+            title: "Evento encerrado com sucesso!",
+            description:
+              "O evento foi movido para a lista de eventos encerrados.",
+          });
+        }
       } catch (error) {
-        console.error("Erro ao encerrar evento:", error)
+        console.error("Erro ao encerrar evento:", error);
         toast({
           title: "Erro ao encerrar evento",
           description: "Tente novamente em alguns instantes.",
           variant: "destructive",
-        })
+        });
       }
     }
-  }
+  };
 
   const handleSaveEvent = (updatedEvent: EventInterface) => {
-    setEvents((prevEvents) => prevEvents.map((event) => (event._id === updatedEvent._id ? updatedEvent : event)))
-    setIsEditModalOpen(false)
-  }
+    setEvents((prevEvents) =>
+      prevEvents.map((event) =>
+        event._id === updatedEvent._id ? updatedEvent : event
+      )
+    );
+    setIsEditModalOpen(false);
+  };
 
   const handleDelete = async (eventId: string) => {
     try {
-      setEventToDelete(eventId)
-      setIsDeleteModalOpen(true)
+      setEventToDelete(eventId);
+      setIsDeleteModalOpen(true);
     } catch (error) {
-      console.log("Erro", error)
+      console.log("Erro", error);
     }
-  }
+  };
 
   const confirmDelete = async () => {
     if (eventToDelete) {
-      const response = await axios.delete(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_EVENT_DELETE}`, {
-        data: { id: eventToDelete },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      const response = await axios.delete(
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_EVENT_DELETE
+        }`,
+        {
+          data: { id: eventToDelete },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.data.deleted) {
-        setEvents((prevEvents) => prevEvents.filter((event) => event._id !== eventToDelete))
-        setEventToDelete(null)
-        setIsDeleteModalOpen(false)
+        setEvents((prevEvents) =>
+          prevEvents.filter((event) => event._id !== eventToDelete)
+        );
+        setEventToDelete(null);
+        setIsDeleteModalOpen(false);
       }
     }
-  }
+  };
 
   const handleView = (eventId: string) => {
-    const event = events.find((e) => e._id === eventId)
+    const event = events.find((e) => e._id === eventId);
     if (event) {
-      setSelectedEvent(event)
-      setIsViewModalOpen(true)
+      setSelectedEvent(event);
+      setIsViewModalOpen(true);
     }
-  }
+  };
 
   const getCurrentSubTabLabel = () => {
-    return subTabOptions.find((option) => option.value === subTab)?.label || "Ativos"
-  }
+    return (
+      subTabOptions.find((option) => option.value === subTab)?.label || "Ativos"
+    );
+  };
 
   const getCurrentMainTabLabel = () => {
-    return mainTabOptions.find((option) => option.value === mainTab)?.label || "Início"
-  }
+    return (
+      mainTabOptions.find((option) => option.value === mainTab)?.label ||
+      "Início"
+    );
+  };
 
   const getCurrentMainTabIcon = () => {
-    const TabIcon = mainTabOptions.find((option) => option.value === mainTab)?.icon || Home
-    return <TabIcon className="h-4 w-4 mr-2" />
-  }
+    const TabIcon =
+      mainTabOptions.find((option) => option.value === mainTab)?.icon || Home;
+    return <TabIcon className="h-4 w-4 mr-2" />;
+  };
 
   const handleGenerateActivationTicketsToken = async (eventId: string) => {
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_GENERATE_TICKET_TOKEN}`,
-        { eventId },
-      )
-      console.log(response)
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_GENERATE_TICKET_TOKEN
+        }`,
+        { eventId }
+      );
+      console.log(response);
 
       if (response.data.generated) {
-        setTicketToken(response.data.token)
+        setTicketToken(response.data.token);
       }
     } catch (error) {
-      console.log("Erro ao gerar token", error)
+      console.log("Erro ao gerar token", error);
     }
-  }
+  };
 
   const copyToClipboard = async (text: string) => {
     try {
-      await navigator.clipboard.writeText(text)
+      await navigator.clipboard.writeText(text);
       toast({
         title: "Copiado!",
         description: "O token foi copiado para a área de transferência.",
-      })
+      });
     } catch (err) {
       toast({
         title: "Erro ao copiar",
         description: "Não foi possível copiar o token.",
         variant: "destructive",
-      })
-      console.error("Falha ao copiar texto: ", err)
+      });
+      console.error("Falha ao copiar texto: ", err);
     }
-  }
+  };
 
   const formatCurrency = (value: number) => {
-    if (hideValues) return "R$ ***"
+    if (hideValues) return "R$ ***";
     return `R$ ${value.toLocaleString("pt-BR", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    })}`
-  }
+    })}`;
+  };
 
   const formatNumber = (value: number) => {
-    if (hideValues) return "***"
-    return value.toString()
-  }
+    if (hideValues) return "***";
+    return value.toString();
+  };
 
   const handleSaveCertificateAssociation = async () => {
     try {
-      console.log("Salvando associação:", certificateAssociation)
+      console.log("Salvando associação:", certificateAssociation);
 
       toast({
         title: "Associação salva com sucesso!",
         description: "O evento foi associado ao certificado.",
-      })
+      });
 
-      setIsCertificateModalOpen(false)
+      setIsCertificateModalOpen(false);
     } catch (error) {
       toast({
         title: "Erro ao salvar associação",
         description: "Tente novamente em alguns instantes.",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       completed: { label: "Concluído", variant: "default" as const },
       pending: { label: "Pendente", variant: "secondary" as const },
       failed: { label: "Falhou", variant: "destructive" as const },
-    }
+    };
 
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending
-    return <Badge variant={config.variant}>{config.label}</Badge>
-  }
+    const config =
+      statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
+    return <Badge variant={config.variant}>{config.label}</Badge>;
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -491,44 +537,65 @@ export default function MyEvents() {
               <div>
                 <h4 className="text-sm font-medium">Data</h4>
                 <p className="text-sm text-gray-600">
-                  {new Date(selectedEvent.startDate).toLocaleDateString("pt-BR", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                  })}
+                  {new Date(selectedEvent.startDate).toLocaleDateString(
+                    "pt-BR",
+                    {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    }
+                  )}
                 </p>
               </div>
               <div>
                 <h4 className="text-sm font-medium">Local</h4>
-                <p className="text-sm text-gray-600">{selectedEvent.neighborhood}</p>
+                <p className="text-sm text-gray-600">
+                  {selectedEvent.neighborhood}
+                </p>
               </div>
               <div>
                 <h4 className="text-sm font-medium">Descrição</h4>
-                <p className="text-sm text-gray-600">{selectedEvent.description}</p>
+                <p className="text-sm text-gray-600">
+                  {selectedEvent.description}
+                </p>
               </div>
 
               <div className="flex flex-col gap-1">
-                <h4 className="text-sm font-medium">Gerar token de ativação de tickets</h4>
+                <h4 className="text-sm font-medium">
+                  Gerar token de ativação de tickets
+                </h4>
                 <div className="flex flex-col gap-4">
                   <div className="flex gap-2">
                     <Input
                       type="text"
                       placeholder="token"
-                      defaultValue={selectedEvent.ticketActivationToken || ticketToken}
+                      defaultValue={
+                        selectedEvent.ticketActivationToken || ticketToken
+                      }
                       readOnly
                       className="flex-1"
                     />
                     <Button
-                      onClick={() => handleCopy(selectedEvent.ticketActivationToken || ticketToken || "")}
+                      onClick={() =>
+                        handleCopy(
+                          selectedEvent.ticketActivationToken ||
+                            ticketToken ||
+                            ""
+                        )
+                      }
                       variant="outline"
-                      disabled={!selectedEvent.ticketActivationToken && !ticketToken}
+                      disabled={
+                        !selectedEvent.ticketActivationToken && !ticketToken
+                      }
                       className="cursor-pointer"
                     >
                       {copied ? "Copiado!" : <Copy className="h-4 w-4" />}
                     </Button>
                   </div>
                   <Button
-                    onClick={() => handleGenerateActivationTicketsToken(selectedEvent._id)}
+                    onClick={() =>
+                      handleGenerateActivationTicketsToken(selectedEvent._id)
+                    }
                     className="w-full sm:w-1/2 md:w-1/4 cursor-pointer"
                   >
                     Gerar Token
@@ -541,17 +608,21 @@ export default function MyEvents() {
                   return (
                     <div key={index} className="grid grid-cols-2 gap-4">
                       <div>
-                        <h4 className="text-sm font-medium">Ingressos Vendidos</h4>
+                        <h4 className="text-sm font-medium">
+                          Ingressos Vendidos
+                        </h4>
                         <p className="text-sm text-gray-600">
                           {ticket.soldQuantity} / {ticket.quantity}
                         </p>
                       </div>
                       <div>
                         <h4 className="text-sm font-medium">Receita</h4>
-                        <p className="text-sm text-gray-600">{formatCurrency(ticket.soldQuantity * ticket.price)}</p>
+                        <p className="text-sm text-gray-600">
+                          {formatCurrency(ticket.soldQuantity * ticket.price)}
+                        </p>
                       </div>
                     </div>
-                  )
+                  );
                 })}
             </div>
           )}
@@ -562,23 +633,42 @@ export default function MyEvents() {
           onClose={() => setIsCheckoutModalOpen(false)}
           title="Últimos Checkouts"
           showFooter={false}
-          className={isCheckoutMaximized ? "max-w-[90vw] max-h-[90vh]" : "max-w-2xl"}
+          className={
+            isCheckoutMaximized ? "max-w-[90vw] max-h-[90vh]" : "max-w-2xl"
+          }
         >
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <p className="text-sm text-gray-600">{checkouts.length} checkouts encontrados</p>
-              <Button variant="outline" size="sm" onClick={() => setIsCheckoutMaximized(!isCheckoutMaximized)}>
-                {isCheckoutMaximized ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              <p className="text-sm text-gray-600">
+                {checkouts.length} checkouts encontrados
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsCheckoutMaximized(!isCheckoutMaximized)}
+              >
+                {isCheckoutMaximized ? (
+                  <Minimize2 className="h-4 w-4" />
+                ) : (
+                  <Maximize2 className="h-4 w-4" />
+                )}
               </Button>
             </div>
 
-            <div className={cn("space-y-3 overflow-y-auto", isCheckoutMaximized ? "max-h-[70vh]" : "max-h-96")}>
+            <div
+              className={cn(
+                "space-y-3 overflow-y-auto",
+                isCheckoutMaximized ? "max-h-[70vh]" : "max-h-96"
+              )}
+            >
               {!isCheckoutMaximized ? (
                 <div className="space-y-2">
                   {checkouts.map((checkout) => (
                     <div key={checkout.id} className="p-3 border rounded-lg">
                       <p className="font-medium">{checkout.customerName}</p>
-                      <p className="text-sm text-gray-500">{checkout.eventName}</p>
+                      <p className="text-sm text-gray-500">
+                        {checkout.eventName}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -588,25 +678,38 @@ export default function MyEvents() {
                     <Card key={checkout.id} className="p-4">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="space-y-1">
-                          <p className="font-medium text-sm">{checkout.customerName}</p>
-                          <p className="text-xs text-gray-500">{checkout.customerEmail}</p>
+                          <p className="font-medium text-sm">
+                            {checkout.customerName}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {checkout.customerEmail}
+                          </p>
                         </div>
 
                         <div className="space-y-1">
-                          <p className="text-sm font-medium">{checkout.eventName}</p>
-                          <p className="text-xs text-gray-500">{checkout.ticketType}</p>
+                          <p className="text-sm font-medium">
+                            {checkout.eventName}
+                          </p>
                           <p className="text-xs text-gray-500">
-                            {new Date(checkout.purchaseDate).toLocaleDateString("pt-BR")}
+                            {checkout.ticketType}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {new Date(checkout.purchaseDate).toLocaleDateString(
+                              "pt-BR"
+                            )}
                           </p>
                         </div>
 
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                           <div className="text-right md:text-left">
                             <p className="text-sm font-medium">
-                              {checkout.quantity}x - {formatCurrency(checkout.totalAmount)}
+                              {checkout.quantity}x -{" "}
+                              {formatCurrency(checkout.totalAmount)}
                             </p>
                           </div>
-                          <div className="flex justify-end md:justify-start">{getStatusBadge(checkout.status)}</div>
+                          <div className="flex justify-end md:justify-start">
+                            {getStatusBadge(checkout.status)}
+                          </div>
                         </div>
                       </div>
                     </Card>
@@ -727,10 +830,15 @@ export default function MyEvents() {
             </div>
 
             <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setIsCertificateModalOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setIsCertificateModalOpen(false)}
+              >
                 Cancelar
               </Button>
-              <Button onClick={handleSaveCertificateAssociation}>Salvar Associação</Button>
+              <Button onClick={handleSaveCertificateAssociation}>
+                Salvar Associação
+              </Button>
             </div>
           </div>
         </GenericModal>
@@ -752,8 +860,15 @@ export default function MyEvents() {
                   key={option.value}
                   isActive={mainTab === option.value}
                   onClick={() => {
-                    if (option.value === "certificados") setShowCertificateTutorial(true)
-                    setMainTab(option.value as "inicio" | "dashboard" | "certificados" | "scan")
+                    if (option.value === "certificados")
+                      setShowCertificateTutorial(true);
+                    setMainTab(
+                      option.value as
+                        | "inicio"
+                        | "dashboard"
+                        | "certificados"
+                        | "scan"
+                    );
                   }}
                   className="text-base cursor-pointer"
                 >
@@ -768,7 +883,10 @@ export default function MyEvents() {
             <div className="lg:hidden w-full sm:w-auto">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="flex items-center gap-1 w-full sm:w-auto">
+                  <Button
+                    variant="outline"
+                    className="flex items-center gap-1 w-full sm:w-auto"
+                  >
                     {getCurrentMainTabIcon()}
                     {getCurrentMainTabLabel()}
                     <ChevronDown className="h-4 w-4 ml-1" />
@@ -778,10 +896,20 @@ export default function MyEvents() {
                   {mainTabOptions.map((option) => (
                     <DropdownMenuItem
                       key={option.value}
-                      className={cn("cursor-pointer", mainTab === option.value && "bg-muted")}
+                      className={cn(
+                        "cursor-pointer",
+                        mainTab === option.value && "bg-muted"
+                      )}
                       onClick={() => {
-                        if (option.value === "certificados") setShowCertificateTutorial(true)
-                        setMainTab(option.value as "inicio" | "dashboard" | "certificados" | "scan")
+                        if (option.value === "certificados")
+                          setShowCertificateTutorial(true);
+                        setMainTab(
+                          option.value as
+                            | "inicio"
+                            | "dashboard"
+                            | "certificados"
+                            | "scan"
+                        );
                       }}
                     >
                       <div className="flex items-center">
@@ -801,7 +929,12 @@ export default function MyEvents() {
             <>
               <div className="flex flex-col gap-4 mb-6">
                 <div className="md:hidden w-full mt-4">
-                  <Select value={subTab} onValueChange={(value) => setSubTab(value as "active" | "finished")}>
+                  <Select
+                    value={subTab}
+                    onValueChange={(value) =>
+                      setSubTab(value as "active" | "finished")
+                    }
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder={getCurrentSubTabLabel()} />
                     </SelectTrigger>
@@ -820,7 +953,9 @@ export default function MyEvents() {
                     <Tab
                       key={option.value}
                       isActive={subTab === option.value}
-                      onClick={() => setSubTab(option.value as "active" | "finished")}
+                      onClick={() =>
+                        setSubTab(option.value as "active" | "finished")
+                      }
                       className="cursor-pointer"
                     >
                       {option.label}
@@ -829,7 +964,10 @@ export default function MyEvents() {
                 </div>
 
                 <div className="relative w-full">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <Search
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    size={20}
+                  />
                   <Input
                     type="text"
                     placeholder="Buscar eventos..."
@@ -842,7 +980,9 @@ export default function MyEvents() {
 
               {filteredEvents.length === 0 ? (
                 <div className="text-center py-16">
-                  <p className="text-gray-600 mb-4">Não há eventos {getCurrentSubTabLabel().toLowerCase()}</p>
+                  <p className="text-gray-600 mb-4">
+                    Não há eventos {getCurrentSubTabLabel().toLowerCase()}
+                  </p>
                   <Button
                     onClick={() => (window.location.href = "/criar-evento")}
                     className="bg-[#02488C] hover:bg-[#02488C]/90 cursor-pointer"
@@ -853,9 +993,14 @@ export default function MyEvents() {
               ) : (
                 <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {filteredEvents.map((event) => (
-                    <Card key={event._id} className="hover:shadow-md transition-shadow">
+                    <Card
+                      key={event._id}
+                      className="hover:shadow-md transition-shadow"
+                    >
                       <CardHeader>
-                        <CardTitle className="line-clamp-1 text-sm sm:text-base">{event.title}</CardTitle>
+                        <CardTitle className="line-clamp-1 text-sm sm:text-base">
+                          {event.title}
+                        </CardTitle>
                         <CardImage className="w-full h-32 sm:h-48 object-cover rounded-md">
                           <img
                             src={event.image || "/placeholder.svg"}
@@ -865,7 +1010,9 @@ export default function MyEvents() {
                         </CardImage>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-sm text-gray-500 mb-4 line-clamp-1">{event.neighborhood}</p>
+                        <p className="text-sm text-gray-500 mb-4 line-clamp-1">
+                          {event.neighborhood}
+                        </p>
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                           <div className="flex gap-2">
                             {event.status !== "finished" && (
@@ -930,12 +1077,17 @@ export default function MyEvents() {
                     className="flex-1 sm:flex-none"
                   >
                     <EyeOff className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">{hideValues ? "Mostrar" : "Ocultar"} Valores</span>
+                    <span className="hidden sm:inline">
+                      {hideValues ? "Mostrar" : "Ocultar"} Valores
+                    </span>
                   </Button>
                 </div>
 
                 <div className="w-full lg:w-auto lg:min-w-[250px]">
-                  <Select value={selectedDashboardEvent} onValueChange={setSelectedDashboardEvent}>
+                  <Select
+                    value={selectedDashboardEvent}
+                    onValueChange={setSelectedDashboardEvent}
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecionar evento" />
                     </SelectTrigger>
@@ -954,51 +1106,74 @@ export default function MyEvents() {
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total de Eventos</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Total de Eventos
+                    </CardTitle>
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{formatNumber(dashboardMetrics.totalEvents)}</div>
+                    <div className="text-2xl font-bold">
+                      {formatNumber(dashboardMetrics.totalEvents)}
+                    </div>
                     <p className="text-xs text-muted-foreground">
-                      {formatNumber(dashboardMetrics.activeEvents)} eventos ativos
+                      {formatNumber(dashboardMetrics.activeEvents)} eventos
+                      ativos
                     </p>
                   </CardContent>
                 </Card>
 
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Ingressos Vendidos</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Ingressos Vendidos
+                    </CardTitle>
                     <Ticket className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{formatNumber(dashboardMetrics.totalTicketsSold)}</div>
+                    <div className="text-2xl font-bold">
+                      {formatNumber(dashboardMetrics.totalTicketsSold)}
+                    </div>
                     <p className="text-xs text-muted-foreground">
-                      {selectedDashboardEvent === "all" ? "Em todos os eventos" : "Neste evento"}
+                      {selectedDashboardEvent === "all"
+                        ? "Em todos os eventos"
+                        : "Neste evento"}
                     </p>
                   </CardContent>
                 </Card>
 
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Receita Total</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Receita Total
+                    </CardTitle>
                     <TrendingUp className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{formatCurrency(dashboardMetrics.totalRevenue)}</div>
+                    <div className="text-2xl font-bold">
+                      {formatCurrency(dashboardMetrics.totalRevenue)}
+                    </div>
                     <p className="text-xs text-muted-foreground">
-                      {selectedDashboardEvent === "all" ? "Em todos os eventos" : "Neste evento"}
+                      {selectedDashboardEvent === "all"
+                        ? "Em todos os eventos"
+                        : "Neste evento"}
                     </p>
                   </CardContent>
                 </Card>
 
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Próximos Eventos</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Próximos Eventos
+                    </CardTitle>
                     <Users className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{formatNumber(dashboardMetrics.upcomingEvents)}</div>
-                    <p className="text-xs text-muted-foreground">Eventos futuros</p>
+                    <div className="text-2xl font-bold">
+                      {formatNumber(dashboardMetrics.upcomingEvents)}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Eventos futuros
+                    </p>
                   </CardContent>
                 </Card>
               </div>
@@ -1009,34 +1184,50 @@ export default function MyEvents() {
                   onClick={() => navigate("/event-arrivals")}
                 >
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Últimos Checkouts</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Últimos Checkouts
+                    </CardTitle>
                     <Receipt className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{formatNumber(checkouts.length)}</div>
-                    <p className="text-xs text-muted-foreground">Clique para ver chegadas em tempo real</p>
+                    <div className="text-2xl font-bold">
+                      {formatNumber(checkouts.length)}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Clique para ver chegadas em tempo real
+                    </p>
                   </CardContent>
                 </Card>
 
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Certificados Gerados</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Certificados Gerados
+                    </CardTitle>
                     <Award className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{formatNumber(42)}</div>
-                    <p className="text-xs text-muted-foreground">Total de certificados</p>
+                    <p className="text-xs text-muted-foreground">
+                      Total de certificados
+                    </p>
                   </CardContent>
                 </Card>
 
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Participantes Únicos</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Participantes Únicos
+                    </CardTitle>
                     <UserCheck className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{formatNumber(156)}</div>
-                    <p className="text-xs text-muted-foreground">Pessoas diferentes</p>
+                    <div className="text-2xl font-bold">
+                      {formatNumber(156)}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Pessoas diferentes
+                    </p>
                   </CardContent>
                 </Card>
               </div>
@@ -1048,22 +1239,37 @@ export default function MyEvents() {
                     <CardDescription>
                       Receita por mês{" "}
                       {selectedDashboardEvent !== "all" &&
-                        `- ${events.find((e) => e._id === selectedDashboardEvent)?.title}`}
+                        `- ${
+                          events.find((e) => e._id === selectedDashboardEvent)
+                            ?.title
+                        }`}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="h-[240px] sm:h-[300px] lg:h-[400px] w-full">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={revenueData} style={{ fontSize: 12 }}>
-                          <XAxis dataKey="name" axisLine={false} tickLine={false} dy={8} fontSize={10} />
+                          <XAxis
+                            dataKey="name"
+                            axisLine={false}
+                            tickLine={false}
+                            dy={8}
+                            fontSize={10}
+                          />
                           <YAxis
                             axisLine={false}
                             tickLine={false}
                             width={60}
                             fontSize={10}
-                            tickFormatter={(v) => (hideValues ? "***" : `R$${v}`)}
+                            tickFormatter={(v) =>
+                              hideValues ? "***" : `R$${v}`
+                            }
                           />
-                          <Bar dataKey="revenue" fill="#222" radius={[4, 4, 0, 0]} />
+                          <Bar
+                            dataKey="revenue"
+                            fill="#222"
+                            radius={[4, 4, 0, 0]}
+                          />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
@@ -1076,9 +1282,11 @@ export default function MyEvents() {
           {mainTab === "certificados" && (
             <div className="space-y-6">
               {showCertificateTutorial ? (
-                <CertificateTutorial onProceed={() => setShowCertificateTutorial(false)} />
+                <CertificateTutorial
+                  onProceed={() => setShowCertificateTutorial(false)}
+                />
               ) : (
-                <CertificateGenerator events={events} participants={participants} />
+                <CertificateGenerator events={events} />
               )}
             </div>
           )}
@@ -1086,5 +1294,5 @@ export default function MyEvents() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }

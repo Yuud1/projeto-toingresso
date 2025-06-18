@@ -258,6 +258,11 @@ export default function MyTickets() {
                         </span>
                       </div>
                     </div>
+                    {ticket.used && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-600 text-sm">Ticket já utilizado</span>
+                      </div>
+                    )}
 
                     {/* Botões de Ação */}
                     <div className="flex gap-2 mt-auto pt-4 border-t border-gray-100">
