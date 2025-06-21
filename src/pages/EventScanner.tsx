@@ -54,7 +54,7 @@ export default function EventScanner() {
 
     const config = {
       fps: 10,
-      qrbox: { width: 250, height: 250 },
+      qrbox: { width: 600, height: 600 },
       formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
     }
 
@@ -162,7 +162,7 @@ export default function EventScanner() {
   }, [isAuthenticated, scanResult])
 
   useEffect(() => {
-    if (scanned && scanResult) {
+    if (scanned) {
       const sendQrResult = async () => {
         try {
           const response = await axios.post(
@@ -180,12 +180,13 @@ export default function EventScanner() {
             setScanResult("Ocorreu um erro ao validar o ticket.")
           }
           console.log("Erro ao enviar requisição qr", error)
+        } finally{
+          setScanned(false);
         }
       }
-
       sendQrResult()
     }
-  }, [scanned, scanResult])
+  }, [scanned])
 
   return (
     <div className="space-y-6">

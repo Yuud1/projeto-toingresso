@@ -67,19 +67,16 @@ export default function QRScanner() {
 
       const config = {
         fps: 10,
-        qrbox: { width: 250, height: 250 },
+        qrbox: { width: 600, height: 600  },
         formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
       };
 
       await html5QrCode.start(
         { facingMode: "environment" },
         config,
-        (decodedText) => {
+        () => {
           if (!isScanning.current) {
-            isScanning.current = true;
-
-            console.log(`QR Code detectado: ${decodedText}`);
-            setResult(decodedText);
+            isScanning.current = true;            
             setScanned(true);
 
             html5QrCode
@@ -94,7 +91,6 @@ export default function QRScanner() {
           }
         },
         (errorMessage) => {
-          // ❗ Pode ignorar pequenos erros de decodificação
           console.warn(`Erro de decodificação: ${errorMessage}`);
         }
       );
@@ -204,6 +200,8 @@ export default function QRScanner() {
             setResult(error.response.data.message);
           }
           console.log("Erro ao enviar requisição qr", error);
+        } finally {
+          setScanned(false);          
         }
       };
 
@@ -265,7 +263,7 @@ export default function QRScanner() {
                 <div
                   id={qrCodeRegionId}
                   className={result ? "hidden" : "w-full"}
-                  style={{ minHeight: "250px" }}
+                  style={{ minHeight: "400px", minWidth: "400px"}}
                 />
                 <p className="text-muted-foreground text-sm">
                   Aponte sua câmera para um QR Code

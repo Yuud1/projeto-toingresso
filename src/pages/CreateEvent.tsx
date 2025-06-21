@@ -5,27 +5,50 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar, Clock, ImageIcon, Tag, Ticket } from 'lucide-react';
+import { Calendar, Clock, ImageIcon, Tag, Ticket } from "lucide-react";
 import { NumericFormat } from "react-number-format";
 import axios from "axios";
 import { toast } from "sonner";
 import FormBuilder from "@/components/FormBuilder";
 import FormDataInterface from "@/interfaces/FormDataInterface";
 import TicketType from "@/interfaces/TicketTypeInterface";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-const CITIES = [
-  { nome: "Palmas", sigla: "PAL" },
-  { nome: "Gurupi", sigla: "GUR" },
-  { nome: "Araguaína", sigla: "ARA" },
-  { nome: "Porto Nacional", sigla: "POR" },
-  { nome: "Paraíso do Tocantins", sigla: "PAR" },
-  { nome: "Guaraí", sigla: "GUA" },
-  { nome: "Dianópolis", sigla: "DIA" },
-  { nome: "Miracema do Tocantins", sigla: "MIR" },
-  { nome: "Formoso do Araguaia", sigla: "FOR" },
-  { nome: "Pedro Afonso", sigla: "PED" },
-  { nome: "Tocantinópolis", sigla: "TOC" },
-];
+const estadosMunicipios = {
+  AC: { nome: "Acre" },
+  AL: { nome: "Alagoas" },
+  AP: { nome: "Amapá" },
+  AM: { nome: "Amazonas" },
+  BA: { nome: "Bahia" },
+  CE: { nome: "Ceará" },
+  DF: { nome: "Distrito Federal" },
+  ES: { nome: "Espírito Santo" },
+  GO: { nome: "Goiás" },
+  MA: { nome: "Maranhão" },
+  MT: { nome: "Mato Grosso" },
+  MS: { nome: "Mato Grosso do Sul" },
+  MG: { nome: "Minas Gerais" },
+  PA: { nome: "Pará" },
+  PB: { nome: "Paraíba" },
+  PR: { nome: "Paraná" },
+  PE: { nome: "Pernambuco" },
+  PI: { nome: "Piauí" },
+  RJ: { nome: "Rio de Janeiro" },
+  RN: { nome: "Rio Grande do Norte" },
+  RS: { nome: "Rio Grande do Sul" },
+  RO: { nome: "Rondônia" },
+  RR: { nome: "Roraima" },
+  SC: { nome: "Santa Catarina" },
+  SP: { nome: "São Paulo" },
+  SE: { nome: "Sergipe" },
+  TO: { nome: "Tocantins" },
+};
 
 const CATEGORIES = [
   { value: "shows", label: "Shows" },
@@ -40,15 +63,17 @@ export default function CreateEvent() {
   const [loading, setLoading] = useState(false);
   const [created, setCreated] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [clickedGratuito, setClickedGratuito] = useState(false);  
-  
+  const [clickedGratuito, setClickedGratuito] = useState(false);
+  const [municipiosPorUF, setMunicipiosPorUF] = useState<
+    Record<string, string[]>
+  >({});
   const [formData, setFormData] = useState<FormDataInterface>({
     title: "",
     image: null,
     category: "",
     startDate: "",
     startTime: "",
-    formTitle: "",    
+    formTitle: "",
     endDate: "",
     endTime: "",
     description: "",
@@ -63,12 +88,31 @@ export default function CreateEvent() {
     state: "",
     tickets: [],
     isFree: false,
-    customFields:[],
+    customFields: [],
     acceptedTerms: false,
     token: localStorage.getItem("token"),
-    status: "active"
+    status: "active",
   });
+  console.log(formData);
+  console.log(municipiosPorUF);
   
+  // Função de busca de estado
+
+  const buscarMunicipios = async (sigla: string) => {
+    if (municipiosPorUF[sigla]) return;
+
+    try {
+      const res = await fetch(
+        `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${sigla}/municipios`
+      );
+      const data = await res.json();
+      const nomes = data.map((m: any) => m.nome);
+      setMunicipiosPorUF((prev) => ({ ...prev, [sigla]: nomes }));
+    } catch (err) {
+      console.error("Erro ao buscar municípios:", err);
+    }
+  };
+
   // Função para validar os campos da etapa atual
   const validateCurrentStep = useCallback(() => {
     const newErrors: Record<string, string> = {};
@@ -240,157 +284,168 @@ export default function CreateEvent() {
   // Efeito para redirecionar após criação
   useEffect(() => {
     if (created) {
-      const timer = setTimeout(() => {
-        window.location.href = "/";
-      }, 2000);
-      return () => clearTimeout(timer);
+      window.location.href = "/";
     }
   }, [created]);
 
   // Componente para renderizar o progresso
   const renderProgressSteps = () => {
-  const totalSteps = 6;
-  const steps = [1, 2, 3, 4, 5, 6];
-  const stepLabels = ["Informações", "Data/Hora", "Descrição", "Local", "Ingressos", "Termos"];
+    const totalSteps = 6;
+    const steps = [1, 2, 3, 4, 5, 6];
+    const stepLabels = [
+      "Informações",
+      "Data/Hora",
+      "Descrição",
+      "Local",
+      "Ingressos",
+      "Termos",
+    ];
 
-  return (
-    <>
-      {/* Desktop version - mostra todos os steps */}
-      <div className="hidden md:flex items-center justify-between mb-8 relative">
-        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-gray-200">
-          <div
-            className="h-full bg-[#02488C] transition-all duration-300"
-            style={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
-          />
+    return (
+      <>
+        {/* Desktop version - mostra todos os steps */}
+        <div className="hidden md:flex items-center justify-between mb-8 relative">
+          <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-gray-200">
+            <div
+              className="h-full bg-[#02488C] transition-all duration-300"
+              style={{
+                width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%`,
+              }}
+            />
+          </div>
+
+          {steps.map((step) => (
+            <div
+              key={step}
+              className="relative z-10 flex flex-col items-center"
+            >
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+                  step === currentStep
+                    ? "bg-[#02488C] text-white border-4 border-[#e2f0ff] ring-4 ring-[#02488C]/20"
+                    : step < currentStep
+                    ? "bg-[#02488C] text-white"
+                    : "bg-white border-2 border-gray-300 text-gray-500"
+                }`}
+              >
+                {step < currentStep ? (
+                  <svg
+                    className="w-6 h-6 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                ) : (
+                  <span className="text-sm font-medium">{step}</span>
+                )}
+              </div>
+              <span
+                className={`absolute -bottom-6 text-xs font-medium whitespace-nowrap ${
+                  step === currentStep
+                    ? "text-[#02488C]"
+                    : step < currentStep
+                    ? "text-[#02488C]"
+                    : "text-gray-500"
+                }`}
+              >
+                {stepLabels[step - 1]}
+              </span>
+            </div>
+          ))}
         </div>
 
-        {steps.map((step) => (
-          <div key={step} className="relative z-10 flex flex-col items-center">
+        {/* Mobile version - mostra apenas anterior, atual e próximo */}
+        <div className="md:hidden mb-8">
+          {/* Progress bar */}
+          <div className="w-full h-1 bg-gray-200 mb-6">
             <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
-                step === currentStep
-                  ? "bg-[#02488C] text-white border-4 border-[#e2f0ff] ring-4 ring-[#02488C]/20"
-                  : step < currentStep
-                  ? "bg-[#02488C] text-white"
-                  : "bg-white border-2 border-gray-300 text-gray-500"
-              }`}
-            >
-              {step < currentStep ? (
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              ) : (
-                <span className="text-sm font-medium">{step}</span>
-              )}
-            </div>
-            <span
-              className={`absolute -bottom-6 text-xs font-medium whitespace-nowrap ${
-                step === currentStep
-                  ? "text-[#02488C]"
-                  : step < currentStep
-                  ? "text-[#02488C]"
-                  : "text-gray-500"
-              }`}
-            >
-              {stepLabels[step - 1]}
+              className="h-full bg-[#02488C] transition-all duration-300"
+              style={{
+                width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%`,
+              }}
+            />
+          </div>
+
+          {/* Steps container */}
+          <div className="flex items-center justify-center space-x-4">
+            {/* Lógica simplificada para mostrar apenas os steps relevantes */}
+            {(() => {
+              // Determina quais steps mostrar
+              let stepsToShow = [];
+
+              if (currentStep === 1) {
+                // No primeiro step, mostrar apenas atual e próximo
+                stepsToShow = [1, 2];
+              } else if (currentStep === 6) {
+                // No último step, mostrar apenas anterior e atual
+                stepsToShow = [5, 6];
+              } else {
+                // Nos steps intermediários, mostrar anterior, atual e próximo
+                stepsToShow = [currentStep - 1, currentStep, currentStep + 1];
+              }
+
+              return stepsToShow.map((step) => (
+                <div key={step} className="flex flex-col items-center">
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      step === currentStep
+                        ? "bg-[#02488C] text-white border-2 border-[#e2f0ff] ring-2 ring-[#02488C]/20"
+                        : step < currentStep
+                        ? "bg-[#02488C] text-white"
+                        : "bg-white border-2 border-gray-300 text-gray-500"
+                    }`}
+                  >
+                    {step < currentStep ? (
+                      <svg
+                        className="w-4 h-4 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    ) : (
+                      <span className="text-sm font-medium">{step}</span>
+                    )}
+                  </div>
+                  <span
+                    className={`mt-2 text-xs font-medium text-center whitespace-nowrap ${
+                      step === currentStep
+                        ? "text-[#02488C]"
+                        : step < currentStep
+                        ? "text-[#02488C]"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    {stepLabels[step - 1]}
+                  </span>
+                </div>
+              ));
+            })()}
+          </div>
+
+          {/* Current step indicator */}
+          <div className="text-center mt-4">
+            <span className="text-sm text-gray-600">
+              Etapa {currentStep} de {totalSteps}
             </span>
           </div>
-        ))}
-      </div>
-
-      {/* Mobile version - mostra apenas anterior, atual e próximo */}
-      <div className="md:hidden mb-8">
-        {/* Progress bar */}
-        <div className="w-full h-1 bg-gray-200 mb-6">
-          <div
-            className="h-full bg-[#02488C] transition-all duration-300"
-            style={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
-          />
         </div>
-
-        {/* Steps container */}
-        <div className="flex items-center justify-center space-x-4">
-          {/* Lógica simplificada para mostrar apenas os steps relevantes */}
-          {(() => {
-  // Determina quais steps mostrar
-  let stepsToShow = [];
-  
-  if (currentStep === 1) {
-    // No primeiro step, mostrar apenas atual e próximo
-    stepsToShow = [1, 2];
-  } else if (currentStep === 6) {
-    // No último step, mostrar apenas anterior e atual
-    stepsToShow = [5, 6];
-  } else {
-    // Nos steps intermediários, mostrar anterior, atual e próximo
-    stepsToShow = [currentStep - 1, currentStep, currentStep + 1];
-  }
-  
-  return stepsToShow.map(step => (
-    <div key={step} className="flex flex-col items-center">
-      <div
-        className={`w-8 h-8 rounded-full flex items-center justify-center ${
-          step === currentStep
-            ? "bg-[#02488C] text-white border-2 border-[#e2f0ff] ring-2 ring-[#02488C]/20"
-            : step < currentStep
-            ? "bg-[#02488C] text-white"
-            : "bg-white border-2 border-gray-300 text-gray-500"
-        }`}
-      >
-        {step < currentStep ? (
-          <svg
-            className="w-4 h-4 text-white"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
-        ) : (
-          <span className="text-sm font-medium">{step}</span>
-        )}
-      </div>
-      <span
-        className={`mt-2 text-xs font-medium text-center whitespace-nowrap ${
-          step === currentStep
-            ? "text-[#02488C]"
-            : step < currentStep
-            ? "text-[#02488C]"
-            : "text-gray-500"
-        }`}
-      >
-        {stepLabels[step - 1]}
-      </span>
-    </div>
-  ));
-})()}
-        </div>
-
-        {/* Current step indicator */}
-        <div className="text-center mt-4">
-          <span className="text-sm text-gray-600">
-            Etapa {currentStep} de {totalSteps}
-          </span>
-        </div>
-      </div>
-    </>
-  );
-};
+      </>
+    );
+  };
 
   // Componente para renderizar a navegação
   const renderNavigation = () => (
@@ -581,7 +636,11 @@ export default function CreateEvent() {
                     )}
                     <Input
                       type={item.label.includes("Hora") ? "time" : "date"}
-                      value={formData[item.field as keyof FormDataInterface] as string}
+                      value={
+                        formData[
+                          item.field as keyof FormDataInterface
+                        ] as string
+                      }
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
@@ -773,39 +832,68 @@ export default function CreateEvent() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Cidade *
+                  Selecione o Estado *
                 </label>
-                <Input
-                  type="text"
-                  value={formData.city}
-                  onChange={(e) => {
-                    const filteredValue = e.target.value.replace(/[0-9]/g, "");
-                    setFormData((prev) => ({ ...prev, city: filteredValue }));
+                <Select
+                  onValueChange={async (sigla) => {
+                    console.log("Sigla",sigla);
+                    
+                    setFormData((prev) => ({
+                      ...prev,
+                      state: sigla,
+                      city: "",
+                    }))
+                    await buscarMunicipios(sigla);
                   }}
-                  className="w-full"
-                  required
-                />
+                  value={formData.state}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione o estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(estadosMunicipios).map(
+                      ([sigla, { nome }]) => (
+                        <SelectItem key={sigla} value={sigla}>
+                          {nome}
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectContent>
+                </Select>
                 {renderError("city")}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Estado *
+                  Selecione a Cidade
                 </label>
-                <select
-                  value={formData.state}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, state: e.target.value }))
-                  }
-                  className="w-full p-2 border rounded-md bg-white"
-                  required
+                <Select
+                  onValueChange={(municipio) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      city: municipio                      
+                    }))
+                  }            
+                  value={formData.city}      
                 >
-                  <option value="">Selecione o estado</option>
-                  {CITIES.map((city) => (
-                    <option key={city.sigla} value={city.sigla}>
-                      {city.nome}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-full">
+                    <SelectValue
+                      placeholder={
+                        formData.city
+                          ? "Selecione um estado primeiro"
+                          : "Selecione o município"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(
+                      municipiosPorUF[formData.state] || []
+                    ).map((municipio) => (
+                      <SelectItem key={municipio} value={municipio}>
+                        {municipio}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {renderError("state")}
               </div>
             </div>
@@ -1067,7 +1155,9 @@ export default function CreateEvent() {
                 </div>
               )}
             </div>
-            {clickedGratuito ? <FormBuilder form={formData} setForm={setFormData} ></FormBuilder> : null}
+            {clickedGratuito ? (
+              <FormBuilder form={formData} setForm={setFormData}></FormBuilder>
+            ) : null}
           </div>
         );
 

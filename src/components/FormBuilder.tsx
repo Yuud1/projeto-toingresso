@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, type JSX } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +26,42 @@ import FormDataInterface from "@/interfaces/FormDataInterface";
 import EventInterface from "@/interfaces/EventInterface";
 import { applyMask } from "@/utils/formatUtils";
 
+// Dados dos estados e municípios do Brasil
+const estadosMunicipios = {
+  AC: { nome: "Acre" },
+  AL: { nome: "Alagoas" },
+  AP: { nome: "Amapá" },
+  AM: { nome: "Amazonas" },
+  BA: { nome: "Bahia" },
+  CE: { nome: "Ceará" },
+  DF: { nome: "Distrito Federal" },
+  ES: { nome: "Espírito Santo" },
+  GO: { nome: "Goiás" },
+  MA: { nome: "Maranhão" },
+  MT: { nome: "Mato Grosso" },
+  MS: { nome: "Mato Grosso do Sul" },
+  MG: { nome: "Minas Gerais" },
+  PA: { nome: "Pará" },
+  PB: { nome: "Paraíba" },
+  PR: { nome: "Paraná" },
+  PE: { nome: "Pernambuco" },
+  PI: { nome: "Piauí" },
+  RJ: { nome: "Rio de Janeiro" },
+  RN: { nome: "Rio Grande do Norte" },
+  RS: { nome: "Rio Grande do Sul" },
+  RO: { nome: "Rondônia" },
+  RR: { nome: "Roraima" },
+  SC: { nome: "Santa Catarina" },
+  SP: { nome: "São Paulo" },
+  SE: { nome: "Sergipe" },
+  TO: { nome: "Tocantins" },
+};
+
+interface MaskOption {
+  value: MaskType;
+  label: string;
+}
+
 type FieldType =
   | "text"
   | "email"
@@ -32,7 +70,9 @@ type FieldType =
   | "select"
   | "checkbox"
   | "date"
-  | "radio";
+  | "radio"
+  | "estado-municipio"; // Novo tipo
+
 type MaskType =
   | "none"
   | "cpf"
@@ -54,33 +94,31 @@ interface FormField {
   maskType?: MaskType;
 }
 
-interface MaskOption {
-  value: MaskType;
-  label: string;
-}
+type FormValues = Record<string, string | boolean | string[]>;
 
 interface InterfaceFormBuilder {
   form: FormDataInterface | EventInterface;
   setForm: any;
 }
 
-type FormValues = Record<string, string | boolean | string[]>;
-
-export default function FormBuilder({
-  form,
-  setForm,
-}: InterfaceFormBuilder): JSX.Element {
+export default function FormBuilder({ form, setForm }: InterfaceFormBuilder) {
   const [fields, setFields] = useState<FormField[]>(form.customFields ?? []);
+  console.log(fields);
+
   const [newFieldType, setNewFieldType] = useState<FieldType>("text");
   const [formTitle, setFormTitle] = useState<string>("Meu Formulário");
   const [formValues, setFormValues] = useState<FormValues>({});
-  console.log(form.customFields);
-  
+
   // Resetar valores do formulário quando os campos mudam
   useEffect(() => {
     const initialValues: FormValues = {};
     fields.forEach((field: FormField) => {
-      initialValues[field._id] = "";
+      if (field.type === "estado-municipio") {
+        initialValues[`${field._id}_estado`] = "";
+        initialValues[`${field._id}_municipio`] = "";
+      } else {
+        initialValues[field._id] = "";
+      }
     });
     setFormValues(initialValues);
   }, [fields.length]);
@@ -109,6 +147,7 @@ export default function FormBuilder({
       maskType: "none",
     };
     setFields([...fields, newField]);
+
     setForm((prev: any) => ({
       ...prev,
       customFields: [...prev.customFields, newField],
@@ -124,8 +163,6 @@ export default function FormBuilder({
   };
 
   const updateField = (id: string, updates: Partial<FormField>): void => {
-    console.log(updates);
-    
     setFields(
       fields.map((field: FormField) =>
         field._id === id ? { ...field, ...updates } : field
@@ -174,7 +211,6 @@ export default function FormBuilder({
 
     if (field && field.options) {
       const newOptions: string[] = [...field.options];
-      // Permitir valores vazios durante a edição
       newOptions[optionIndex] = value;
       updateField(fieldId, { options: newOptions });
     }
@@ -219,15 +255,48 @@ export default function FormBuilder({
     }
   };
 
-  // Função para obter o valor seguro para exibição (com fallback apenas para renderização)
-  const getSafeOptionValue = (option: string, index: number): string => {
-    return option.trim() || `Opção ${index + 1}`;
+  // Função específica para lidar com mudança de estado
+  const handleEstadoChange = (fieldId: string, estadoCode: string): void => {
+    setFormValues({
+      ...formValues,
+      [`${fieldId}_estado`]: estadoCode,
+      [`${fieldId}_municipio`]: "", // Limpar município quando estado muda
+    });
   };
 
-  // Função para obter o valor seguro para o SelectItem (nunca vazio)
-  const getSafeSelectValue = (option: string, index: number): string => {
-    const safeOption = getSafeOptionValue(option, index);
-    return safeOption.toLowerCase().replace(/\s+/g, "-");
+  const [municipiosPorUF, setMunicipiosPorUF] = useState<
+    Record<string, string[]>
+  >({});
+
+  // Função para obter municípios do estado selecionado
+  const getMunicipiosDoEstado = (fieldId: string): string[] => {
+    const estadoSelecionado = formValues[`${fieldId}_estado`] as string;
+    console.log("Estado selecionado:", estadoSelecionado);
+
+    if (!estadoSelecionado) return [];
+
+    // Se já temos os municípios em cache, retorna direto
+    if (municipiosPorUF[estadoSelecionado]) {
+      return municipiosPorUF[estadoSelecionado];
+    }
+
+    // Busca na API do IBGE
+    fetch(
+      `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoSelecionado}/municipios`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        const nomes = data.map((m: any) => m.nome);
+        setMunicipiosPorUF((prev) => ({
+          ...prev,
+          [estadoSelecionado]: nomes,
+        }));
+      })
+      .catch((err) => {
+        console.error("Erro ao buscar municípios:", err);
+      });
+
+    return [];
   };
 
   const renderField = (field: FormField): JSX.Element | null => {
@@ -237,11 +306,7 @@ export default function FormBuilder({
       case "number":
         return (
           <Input
-            type={
-              field.type === "number" && field.maskType !== "none"
-                ? "text"
-                : field.type
-            }
+            type={field.type}
             placeholder={
               field.placeholder || `Digite ${field.label.toLowerCase()}`
             }
@@ -272,17 +337,70 @@ export default function FormBuilder({
             </SelectTrigger>
             <SelectContent>
               {field.options
-                ?.filter((option: string) => option.trim() !== "") // Filtrar opções vazias
+                ?.filter((option: string) => option.trim() !== "")
                 .map((option: string, index: number) => (
-                  <SelectItem
-                    key={index}
-                    value={getSafeSelectValue(option, index)}
-                  >
-                    {getSafeOptionValue(option, index)}
+                  <SelectItem key={index} value={option}>
+                    {option}
                   </SelectItem>
                 ))}
             </SelectContent>
           </Select>
+        );
+      case "estado-municipio":
+        const municipiosDisponiveis = getMunicipiosDoEstado(field._id);
+        return (
+          <div className="space-y-3">
+            {/* Select de Estado */}
+            <div>
+              <Label className="text-sm font-medium">Estado</Label>
+              <Select
+                value={(formValues[`${field._id}_estado`] as string) || ""}
+                onValueChange={(value: string) =>
+                  handleEstadoChange(field._id, value)
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecione o estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(estadosMunicipios).map(([codigo, estado]) => (
+                    <SelectItem key={codigo} value={codigo}>
+                      {estado.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Select de Município */}
+            <div>
+              <Label className="text-sm font-medium">Município</Label>
+              <Select
+                value={(formValues[`${field._id}_municipio`] as string) || ""}
+                onValueChange={(value: string) =>
+                  handleInputChange(`${field._id}_municipio`, value)
+                }
+                disabled={municipiosDisponiveis.length === 0}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue
+                    placeholder={
+                      municipiosDisponiveis.length === 0
+                        ? "Primeiro selecione um estado"
+                        : "Selecione o município"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {municipiosDisponiveis.map((municipio, index) => (
+                    <SelectItem key={index} value={municipio}>
+                      {municipio}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         );
       case "checkbox":
         return (
@@ -293,28 +411,25 @@ export default function FormBuilder({
                 ? (formValues[field._id] as string[])
                 : [];
 
-              const optionValue =
-                option.trim() !== "" ? option : `Opção ${index + 1}`;
-
               return (
                 <div key={index} className="flex items-center space-x-2">
                   <Checkbox
-                    checked={currentValues.includes(optionValue)}
+                    checked={currentValues.includes(option)}
                     onCheckedChange={(checked: boolean) => {
                       if (checked) {
                         handleInputChange(field._id, [
                           ...currentValues,
-                          optionValue,
+                          option,
                         ]);
                       } else {
                         handleInputChange(
                           field._id,
-                          currentValues.filter((item) => item !== optionValue)
+                          currentValues.filter((item) => item !== option)
                         );
                       }
                     }}
                   />
-                  <span className="text-sm">{optionValue}</span>
+                  <span className="text-sm">{option}</span>
                 </div>
               );
             })}
@@ -324,24 +439,19 @@ export default function FormBuilder({
         return (
           <div className="space-y-2">
             {field.options
-              ?.filter((option: string) => option.trim() !== "") // Filtrar opções vazias
+              ?.filter((option: string) => option.trim() !== "")
               .map((option: string, index: number) => (
                 <div key={index} className="flex items-center space-x-2">
                   <input
                     type="radio"
                     name={field._id}
-                    value={getSafeSelectValue(option, index)}
-                    checked={
-                      (formValues[field._id] as string) ===
-                      getSafeSelectValue(option, index)
-                    }
+                    value={option}
+                    checked={(formValues[field._id] as string) === option}
                     onChange={(e) =>
                       handleInputChange(field._id, e.target.value)
                     }
                   />
-                  <span className="text-sm">
-                    {getSafeOptionValue(option, index)}
-                  </span>
+                  <span className="text-sm">{option}</span>
                 </div>
               ))}
           </div>
@@ -363,7 +473,6 @@ export default function FormBuilder({
       { value: "custom", label: "Personalizada" },
     ];
   };
-
   return (
     <div className="container mx-auto p-2 sm:p-4 space-y-6">
       <div className="flex items-center justify-between">
@@ -372,7 +481,7 @@ export default function FormBuilder({
         </h1>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-1 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Editor */}
         <div className="space-y-4">
           <Card>
@@ -385,13 +494,7 @@ export default function FormBuilder({
                 <Input
                   id="form-title"
                   value={formTitle}
-                  onChange={(e) => {
-                    setForm((prev: any) => ({
-                      ...prev,
-                      formTitle: e.target.value,
-                    }));
-                    setFormTitle(e.target.value);
-                  }}
+                  onChange={(e) => setFormTitle(e.target.value)}
                   placeholder="Digite o título do formulário"
                 />
               </div>
@@ -422,6 +525,9 @@ export default function FormBuilder({
                     <SelectItem value="select">Lista Suspensa</SelectItem>
                     <SelectItem value="checkbox">Checkbox</SelectItem>
                     <SelectItem value="radio">Botões de Opção</SelectItem>
+                    <SelectItem value="estado-municipio">
+                      Estado/Município
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 <Button onClick={addField} className="w-full sm:w-auto">
@@ -449,7 +555,9 @@ export default function FormBuilder({
                     <div className="space-y-3">
                       <div className="flex items-center justify-between flex-wrap gap-2">
                         <span className="font-medium capitalize">
-                          {field.type}
+                          {field.type === "estado-municipio"
+                            ? "Estado/Município"
+                            : field.type}
                         </span>
                         <div className="flex items-center gap-1">
                           <Button
@@ -591,6 +699,7 @@ export default function FormBuilder({
                           <Label>Campo obrigatório</Label>
                         </div>
 
+                        {/* Opções para campos select, radio e checkbox */}
                         {(field.type === "select" ||
                           field.type === "radio" ||
                           field.type === "checkbox") && (
@@ -635,6 +744,19 @@ export default function FormBuilder({
                             </Button>
                           </div>
                         )}
+
+                        {/* Informação especial para campo Estado/Município */}
+                        {field.type === "estado-municipio" && (
+                          <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <p className="text-sm text-blue-800">
+                              <strong>Campo Estado/Município:</strong> Este
+                              campo criará automaticamente dois selects em
+                              cascata. Quando o usuário selecionar um estado, os
+                              municípios correspondentes aparecerão no segundo
+                              select.
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </Card>
@@ -659,7 +781,16 @@ export default function FormBuilder({
                 <CardContent className="space-y-4 p-4">
                   {fields.map((field: FormField) => (
                     <div key={field._id} className="space-y-2">
-                      {field.type !== "checkbox" && (
+                      {field.type !== "checkbox" &&
+                        field.type !== "estado-municipio" && (
+                          <Label>
+                            {field.label}
+                            {field.required && (
+                              <span className="text-red-500 ml-1">*</span>
+                            )}
+                          </Label>
+                        )}
+                      {field.type === "estado-municipio" && (
                         <Label>
                           {field.label}
                           {field.required && (

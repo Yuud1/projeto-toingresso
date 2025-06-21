@@ -6,6 +6,7 @@ export type FieldType =
   | "checkbox"
   | "radio"
   | "date"
+  | "estado-municipio"
   | "textarea";
 
 export type MaskType =

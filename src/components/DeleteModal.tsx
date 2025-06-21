@@ -17,6 +17,7 @@ interface DeleteDialogProps {
   isOpen?: boolean;
   title?: string;
   description?: string;
+  errorMessage?: string | null
 }
 
 export default function DeleteModal({
@@ -26,6 +27,7 @@ export default function DeleteModal({
   isOpen = false,
   title = "Finalizar Evento",
   description = "Deseja finalizar o evento? Essa ação não poderá ser desfeita",
+  errorMessage
 }: DeleteDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -34,7 +36,7 @@ export default function DeleteModal({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          <DialogDescription>{errorMessage ? errorMessage : description}</DialogDescription>
         </DialogHeader>
 
         <DialogFooter className="mt-6 flex justify-end gap-2">
@@ -47,7 +49,7 @@ export default function DeleteModal({
             onClick={onConfirm}
             className="bg-red-600 text-white hover:bg-red-700 cursor-pointer"
           >
-            Finalizar
+            {title}
           </Button>
         </DialogFooter>
       </DialogContent>

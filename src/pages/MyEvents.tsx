@@ -170,6 +170,7 @@ export default function MyEvents() {
     "inicio" | "dashboard" | "certificados" | "scan"
   >("inicio");
   const [subTab, setSubTab] = useState<"active" | "finished">("active");
+  const [errorMessage, setErrorMessage] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isStopModalOpen, setIsStopModalOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<string | null>(null);
@@ -377,26 +378,31 @@ export default function MyEvents() {
   };
 
   const confirmDelete = async () => {
-    if (eventToDelete) {
-      const response = await axios.delete(
-        `${import.meta.env.VITE_API_BASE_URL}${
-          import.meta.env.VITE_EVENT_DELETE
-        }`,
-        {
-          data: { id: eventToDelete },
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.data.deleted) {
-        setEvents((prevEvents) =>
-          prevEvents.filter((event) => event._id !== eventToDelete)
+    try {
+      if (eventToDelete) {
+        const response = await axios.delete(
+          `${import.meta.env.VITE_API_BASE_URL}${
+            import.meta.env.VITE_EVENT_DELETE
+          }`,
+          {
+            data: { id: eventToDelete },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
-        setEventToDelete(null);
-        setIsDeleteModalOpen(false);
+
+        if (response.data.deleted) {
+          setEvents((prevEvents) =>
+            prevEvents.filter((event) => event._id !== eventToDelete)
+          );
+          setEventToDelete(null);
+          setIsDeleteModalOpen(false);
+        }
       }
+    } catch (error: any) {
+      console.log("Erorr", error);
+      setErrorMessage(error.response.data.message);
     }
   };
 
@@ -509,13 +515,14 @@ export default function MyEvents() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header isScrolled={true} />
-      <main className="flex-1 container mx-auto px-4 py-8 pt-24 max-w-full overflow-x-hidden">
+      <main className="flex-1 container mx-auto px-4 py-8 pt-24 max-w-full overflow-x-hidden">        
         <DeleteModal
           isOpen={isDeleteModalOpen}
           onClose={() => setIsDeleteModalOpen(false)}
           onConfirm={confirmDelete}
           title="Excluir Evento"
           description="Tem certeza que deseja excluir este evento? Esta ação não pode ser desfeita."
+          errorMessage={errorMessage}
         />
 
         <DeleteModal
