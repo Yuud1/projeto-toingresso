@@ -1,16 +1,22 @@
-"use client"
+"use client";
 
-import React from "react"
+import React from "react";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import {
   Type,
   ImageIcon,
@@ -27,113 +33,120 @@ import {
   Bold,
   Italic,
   Underline,
-} from "lucide-react"
-import { useState, useRef, useCallback } from "react"
-import { cn } from "@/lib/utils"
+} from "lucide-react";
+import { useState, useRef, useCallback } from "react";
+import { cn } from "@/lib/utils";
 
 interface CertificateElement {
-  id: string
-  type: "text" | "image" | "shape"
-  x: number
-  y: number
-  width: number
-  height: number
-  rotation: number
-  zIndex: number
-  content?: string
-  fontSize?: number
-  fontFamily?: string
-  fontWeight?: string
-  fontStyle?: string
-  textAlign?: "left" | "center" | "right"
-  color?: string
-  backgroundColor?: string
-  borderColor?: string
-  borderWidth?: number
-  borderRadius?: number
-  opacity?: number
-  src?: string
-  shapeType?: "rectangle" | "circle" | "line"
-  textDecoration?: string
+  id: string;
+  type: "text" | "image" | "shape";
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation: number;
+  zIndex: number;
+  content?: string;
+  fontSize?: number;
+  fontFamily?: string;
+  fontWeight?: string;
+  fontStyle?: string;
+  textAlign?: "left" | "center" | "right";
+  color?: string;
+  backgroundColor?: string;
+  borderColor?: string;
+  borderWidth?: number;
+  borderRadius?: number;
+  opacity?: number;
+  src?: string;
+  shapeType?: "rectangle" | "circle" | "line";
+  textDecoration?: string;
 }
 
 interface CertificateBackground {
-  type: "color" | "gradient" | "image"
-  color?: string
-  gradientStart?: string
-  gradientEnd?: string
-  gradientDirection?: string
-  imageUrl?: string
-  imagePosition?: string
-  imageSize?: string
-  opacity?: number
+  type: "color" | "gradient" | "image";
+  color?: string;
+  gradientStart?: string;
+  gradientEnd?: string;
+  gradientDirection?: string;
+  imageUrl?: string;
+  imagePosition?: string;
+  imageSize?: string;
+  opacity?: number;
 }
 
 interface CertificateVisualEditorProps {
-  isOpen: boolean
-  onClose: () => void
-  onSave: (htmlContent: string) => void
-  initialData?: any
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (htmlContent: string) => void;
+  initialData?: any;
 }
 
-export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }: CertificateVisualEditorProps) {
-  const [elements, setElements] = useState<CertificateElement[]>([])
-  const [selectedElement, setSelectedElement] = useState<string | null>(null)
+export function CertificateVisualEditor({
+  isOpen,
+  onClose,
+  onSave,  
+}: CertificateVisualEditorProps) {
+  const [elements, setElements] = useState<CertificateElement[]>([]);
+  const [selectedElement, setSelectedElement] = useState<string | null>(null);
   const [background, setBackground] = useState<CertificateBackground>({
     type: "color",
     color: "#ffffff",
     opacity: 1,
-  })
-  const [canvasSize, setCanvasSize] = useState({ width: 1200, height: 800 })
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
-  const [zoom, setZoom] = useState(0.5)
-  const canvasRef = useRef<HTMLDivElement>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const backgroundFileInputRef = useRef<HTMLInputElement>(null)
+  });
+  const [canvasSize, setCanvasSize] = useState({ width: 1200, height: 800 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(0.5);
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const backgroundFileInputRef = useRef<HTMLInputElement>(null);
 
   const handleMouseDown = (e: React.MouseEvent, elementId: string) => {
-    e.preventDefault()
-    setSelectedElement(elementId)
-    setIsDragging(true)
+    e.preventDefault();
+    setSelectedElement(elementId);
+    setIsDragging(true);
 
-    const element = elements.find((el) => el.id === elementId)
+    const element = elements.find((el) => el.id === elementId);
     if (element && canvasRef.current) {
-      const rect = canvasRef.current.getBoundingClientRect()
-      const offsetX = e.clientX - rect.left - element.x * zoom
-      const offsetY = e.clientY - rect.top - element.y * zoom
-      setDragOffset({ x: offsetX, y: offsetY })
+      const rect = canvasRef.current.getBoundingClientRect();
+      const offsetX = e.clientX - rect.left - element.x * zoom;
+      const offsetY = e.clientY - rect.top - element.y * zoom;
+      setDragOffset({ x: offsetX, y: offsetY });
     }
-  }
+  };
 
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
       if (isDragging && selectedElement && canvasRef.current) {
-        const rect = canvasRef.current.getBoundingClientRect()
-        const x = (e.clientX - rect.left - dragOffset.x) / zoom
-        const y = (e.clientY - rect.top - dragOffset.y) / zoom
+        const rect = canvasRef.current.getBoundingClientRect();
+        const x = (e.clientX - rect.left - dragOffset.x) / zoom;
+        const y = (e.clientY - rect.top - dragOffset.y) / zoom;
 
         // Atualizar a posição do elemento
-        updateElement(selectedElement, { x: Math.max(0, x), y: Math.max(0, y) })
+        updateElement(selectedElement, {
+          x: Math.max(0, x),
+          y: Math.max(0, y),
+        });
       }
     },
-    [isDragging, selectedElement, dragOffset, zoom],
-  )
+    [isDragging, selectedElement, dragOffset, zoom]
+  );
 
   const handleMouseUp = useCallback(() => {
-    setIsDragging(false)
-  }, [])
+    setIsDragging(false);
+  }, []);
 
   React.useEffect(() => {
     if (isDragging) {
-      document.addEventListener("mousemove", handleMouseMove)
-      document.addEventListener("mouseup", handleMouseUp)
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
       return () => {
-        document.removeEventListener("mousemove", handleMouseMove)
-        document.removeEventListener("mouseup", handleMouseUp)
-      }
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("mouseup", handleMouseUp);
+      };
     }
-  }, [isDragging, handleMouseMove, handleMouseUp])
+  }, [isDragging, handleMouseMove, handleMouseUp]);
 
   const addElement = (type: CertificateElement["type"]) => {
     const newElement: CertificateElement = {
@@ -165,25 +178,27 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
         borderWidth: 2,
         borderRadius: 8,
       }),
-    }
+    };
 
-    setElements([...elements, newElement])
-    setSelectedElement(newElement.id)
-  }
+    setElements([...elements, newElement]);
+    setSelectedElement(newElement.id);
+  };
 
   const updateElement = (id: string, updates: Partial<CertificateElement>) => {
-    setElements(elements.map((el) => (el.id === id ? { ...el, ...updates } : el)))
-  }
+    setElements(
+      elements.map((el) => (el.id === id ? { ...el, ...updates } : el))
+    );
+  };
 
   const deleteElement = (id: string) => {
-    setElements(elements.filter((el) => el.id !== id))
+    setElements(elements.filter((el) => el.id !== id));
     if (selectedElement === id) {
-      setSelectedElement(null)
+      setSelectedElement(null);
     }
-  }
+  };
 
   const duplicateElement = (id: string) => {
-    const element = elements.find((el) => el.id === id)
+    const element = elements.find((el) => el.id === id);
     if (element) {
       const newElement = {
         ...element,
@@ -191,20 +206,20 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
         x: element.x + 20,
         y: element.y + 20,
         zIndex: elements.length + 1,
-      }
-      setElements([...elements, newElement])
-      setSelectedElement(newElement.id)
+      };
+      setElements([...elements, newElement]);
+      setSelectedElement(newElement.id);
     }
-  }
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onload = (event) => {
-        const imageUrl = event.target?.result as string
+        const imageUrl = event.target?.result as string;
         if (selectedElement) {
-          updateElement(selectedElement, { src: imageUrl })
+          updateElement(selectedElement, { src: imageUrl });
         } else {
           const newElement: CertificateElement = {
             id: `element-${Date.now()}`,
@@ -217,44 +232,48 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
             zIndex: elements.length + 1,
             opacity: 1,
             src: imageUrl,
-          }
-          setElements([...elements, newElement])
-          setSelectedElement(newElement.id)
+          };
+          setElements([...elements, newElement]);
+          setSelectedElement(newElement.id);
         }
-      }
-      reader.readAsDataURL(file)
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
-  const handleBackgroundImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+  const handleBackgroundImageUpload = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onload = (event) => {
-        const imageUrl = event.target?.result as string
-        setBackground({ ...background, type: "image", imageUrl })
-      }
-      reader.readAsDataURL(file)
+        const imageUrl = event.target?.result as string;
+        setBackground({ ...background, type: "image", imageUrl });
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   const generateHTML = () => {
     const backgroundStyle = (() => {
       switch (background.type) {
         case "color":
-          return `background-color: ${background.color}`
+          return `background-color: ${background.color}`;
         case "gradient":
-          return `background: linear-gradient(${background.gradientDirection || "to right"}, ${
-            background.gradientStart
-          }, ${background.gradientEnd})`
+          return `background: linear-gradient(${
+            background.gradientDirection || "to right"
+          }, ${background.gradientStart}, ${background.gradientEnd})`;
         case "image":
-          return `background-image: url(${background.imageUrl}); background-size: ${
+          return `background-image: url(${
+            background.imageUrl
+          }); background-size: ${
             background.imageSize || "cover"
-          }; background-position: ${background.imagePosition || "center"}`
+          }; background-position: ${background.imagePosition || "center"}`;
         default:
-          return "background-color: #ffffff"
+          return "background-color: #ffffff";
       }
-    })()
+    })();
 
     const elementsHTML = elements
       .sort((a, b) => a.zIndex - b.zIndex)
@@ -268,7 +287,7 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
           transform: rotate(${element.rotation}deg);
           opacity: ${element.opacity};
           z-index: ${element.zIndex};
-        `
+        `;
 
         switch (element.type) {
           case "text":
@@ -283,30 +302,40 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                 text-decoration: ${element.textDecoration || "none"};
                 display: flex;
                 align-items: center;
-                justify-content: ${element.textAlign === "left" ? "flex-start" : element.textAlign === "right" ? "flex-end" : "center"};
+                justify-content: ${
+                  element.textAlign === "left"
+                    ? "flex-start"
+                    : element.textAlign === "right"
+                    ? "flex-end"
+                    : "center"
+                };
               ">
                 ${element.content}
               </div>
-            `
+            `;
           case "image":
             return `
               <img src="${element.src}" style="${commonStyles}
                 object-fit: contain;
               " alt="Certificate Image" />
-            `
+            `;
           case "shape":
             return `
               <div style="${commonStyles}
                 background-color: ${element.backgroundColor};
                 border: ${element.borderWidth}px solid ${element.borderColor};
-                border-radius: ${element.shapeType === "circle" ? "50%" : `${element.borderRadius}px`};
+                border-radius: ${
+                  element.shapeType === "circle"
+                    ? "50%"
+                    : `${element.borderRadius}px`
+                };
               "></div>
-            `
+            `;
           default:
-            return ""
+            return "";
         }
       })
-      .join("")
+      .join("");
 
     return `
 <!DOCTYPE html>
@@ -366,12 +395,12 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
         ${elementsHTML}
     </div>
 </body>
-</html>`
-  }
+</html>`;
+  };
 
-  const selectedEl = elements.find((el) => el.id === selectedElement)
+  const selectedEl = elements.find((el) => el.id === selectedElement);
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[9999] bg-black bg-opacity-90 flex">
@@ -396,7 +425,9 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
 
             <TabsContent value="elements" className="p-4 space-y-4">
               <div>
-                <Label className="text-sm font-medium">Adicionar Elementos</Label>
+                <Label className="text-sm font-medium">
+                  Adicionar Elementos
+                </Label>
                 <div className="grid grid-cols-3 gap-2 mt-2">
                   <Button
                     variant="outline"
@@ -438,7 +469,9 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
               <Separator />
 
               <div>
-                <Label className="text-sm font-medium">Camadas ({elements.length})</Label>
+                <Label className="text-sm font-medium">
+                  Camadas ({elements.length})
+                </Label>
                 <div className="space-y-2 mt-2 max-h-60 overflow-y-auto">
                   {elements
                     .sort((a, b) => b.zIndex - a.zIndex)
@@ -447,23 +480,41 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                         key={element.id}
                         className={cn(
                           "flex items-center justify-between p-2 border rounded cursor-pointer",
-                          selectedElement === element.id ? "border-blue-500 bg-blue-50" : "border-gray-200",
+                          selectedElement === element.id
+                            ? "border-blue-500 bg-blue-50"
+                            : "border-gray-200"
                         )}
                         onClick={() => setSelectedElement(element.id)}
                       >
                         <div className="flex items-center gap-2">
-                          {element.type === "text" && <Type className="h-4 w-4" />}
-                          {element.type === "image" && <ImageIcon className="h-4 w-4" />}
-                          {element.type === "shape" && <Square className="h-4 w-4" />}
+                          {element.type === "text" && (
+                            <Type className="h-4 w-4" />
+                          )}
+                          {element.type === "image" && (
+                            <ImageIcon className="h-4 w-4" />
+                          )}
+                          {element.type === "shape" && (
+                            <Square className="h-4 w-4" />
+                          )}
                           <span className="text-sm">
-                            {element.type === "text" ? element.content?.slice(0, 15) + "..." : element.type}
+                            {element.type === "text"
+                              ? element.content?.slice(0, 15) + "..."
+                              : element.type}
                           </span>
                         </div>
                         <div className="flex gap-1">
-                          <Button variant="ghost" size="sm" onClick={() => duplicateElement(element.id)}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => duplicateElement(element.id)}
+                          >
                             <Copy className="h-3 w-3" />
                           </Button>
-                          <Button variant="ghost" size="sm" onClick={() => deleteElement(element.id)}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteElement(element.id)}
+                          >
                             <Trash2 className="h-3 w-3" />
                           </Button>
                         </div>
@@ -499,7 +550,9 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                   <Input
                     type="color"
                     value={background.color}
-                    onChange={(e) => setBackground({ ...background, color: e.target.value })}
+                    onChange={(e) =>
+                      setBackground({ ...background, color: e.target.value })
+                    }
                     className="mt-2"
                   />
                 </div>
@@ -512,7 +565,12 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                     <Input
                       type="color"
                       value={background.gradientStart}
-                      onChange={(e) => setBackground({ ...background, gradientStart: e.target.value })}
+                      onChange={(e) =>
+                        setBackground({
+                          ...background,
+                          gradientStart: e.target.value,
+                        })
+                      }
                       className="mt-2"
                     />
                   </div>
@@ -521,7 +579,12 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                     <Input
                       type="color"
                       value={background.gradientEnd}
-                      onChange={(e) => setBackground({ ...background, gradientEnd: e.target.value })}
+                      onChange={(e) =>
+                        setBackground({
+                          ...background,
+                          gradientEnd: e.target.value,
+                        })
+                      }
                       className="mt-2"
                     />
                   </div>
@@ -529,7 +592,12 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                     <Label className="text-sm font-medium">Direção</Label>
                     <Select
                       value={background.gradientDirection}
-                      onValueChange={(value) => setBackground({ ...background, gradientDirection: value })}
+                      onValueChange={(value) =>
+                        setBackground({
+                          ...background,
+                          gradientDirection: value,
+                        })
+                      }
                     >
                       <SelectTrigger className="mt-2">
                         <SelectValue placeholder="Selecione a direção" />
@@ -537,7 +605,9 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                       <SelectContent>
                         <SelectItem value="to right">Horizontal →</SelectItem>
                         <SelectItem value="to bottom">Vertical ↓</SelectItem>
-                        <SelectItem value="to bottom right">Diagonal ↘</SelectItem>
+                        <SelectItem value="to bottom right">
+                          Diagonal ↘
+                        </SelectItem>
                         <SelectItem value="45deg">45 graus</SelectItem>
                       </SelectContent>
                     </Select>
@@ -548,7 +618,9 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
               {background.type === "image" && (
                 <>
                   <div>
-                    <Label className="text-sm font-medium">Upload de Imagem</Label>
+                    <Label className="text-sm font-medium">
+                      Upload de Imagem
+                    </Label>
                     <Button
                       variant="outline"
                       onClick={() => backgroundFileInputRef.current?.click()}
@@ -569,7 +641,12 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                     <Label className="text-sm font-medium">URL da Imagem</Label>
                     <Input
                       value={background.imageUrl || ""}
-                      onChange={(e) => setBackground({ ...background, imageUrl: e.target.value })}
+                      onChange={(e) =>
+                        setBackground({
+                          ...background,
+                          imageUrl: e.target.value,
+                        })
+                      }
                       placeholder="https://exemplo.com/imagem.jpg"
                       className="mt-2"
                     />
@@ -578,7 +655,9 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                     <Label className="text-sm font-medium">Tamanho</Label>
                     <Select
                       value={background.imageSize}
-                      onValueChange={(value) => setBackground({ ...background, imageSize: value })}
+                      onValueChange={(value) =>
+                        setBackground({ ...background, imageSize: value })
+                      }
                     >
                       <SelectTrigger className="mt-2">
                         <SelectValue placeholder="Selecione o tamanho" />
@@ -595,7 +674,9 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                     <Label className="text-sm font-medium">Posição</Label>
                     <Select
                       value={background.imagePosition}
-                      onValueChange={(value) => setBackground({ ...background, imagePosition: value })}
+                      onValueChange={(value) =>
+                        setBackground({ ...background, imagePosition: value })
+                      }
                     >
                       <SelectTrigger className="mt-2">
                         <SelectValue placeholder="Selecione a posição" />
@@ -613,10 +694,14 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
               )}
 
               <div>
-                <Label className="text-sm font-medium">Opacidade: {Math.round((background.opacity || 1) * 100)}%</Label>
+                <Label className="text-sm font-medium">
+                  Opacidade: {Math.round((background.opacity || 1) * 100)}%
+                </Label>
                 <Slider
                   value={[(background.opacity || 1) * 100]}
-                  onValueChange={([value]) => setBackground({ ...background, opacity: value / 100 })}
+                  onValueChange={([value]: any) =>
+                    setBackground({ ...background, opacity: value / 100 })
+                  }
                   max={100}
                   step={1}
                   className="mt-2"
@@ -628,11 +713,19 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
               {selectedEl ? (
                 <>
                   <div>
-                    <Label className="text-sm font-medium">Elemento Selecionado</Label>
+                    <Label className="text-sm font-medium">
+                      Elemento Selecionado
+                    </Label>
                     <Badge variant="outline" className="mt-2">
-                      {selectedEl.type === "text" && <Type className="h-3 w-3 mr-1" />}
-                      {selectedEl.type === "image" && <ImageIcon className="h-3 w-3 mr-1" />}
-                      {selectedEl.type === "shape" && <Square className="h-3 w-3 mr-1" />}
+                      {selectedEl.type === "text" && (
+                        <Type className="h-3 w-3 mr-1" />
+                      )}
+                      {selectedEl.type === "image" && (
+                        <ImageIcon className="h-3 w-3 mr-1" />
+                      )}
+                      {selectedEl.type === "shape" && (
+                        <Square className="h-3 w-3 mr-1" />
+                      )}
                       {selectedEl.type}
                     </Badge>
                   </div>
@@ -646,7 +739,11 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                       <Input
                         type="number"
                         value={selectedEl.x}
-                        onChange={(e) => updateElement(selectedEl.id, { x: Number(e.target.value) })}
+                        onChange={(e) =>
+                          updateElement(selectedEl.id, {
+                            x: Number(e.target.value),
+                          })
+                        }
                         className="mt-1"
                       />
                     </div>
@@ -655,7 +752,11 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                       <Input
                         type="number"
                         value={selectedEl.y}
-                        onChange={(e) => updateElement(selectedEl.id, { y: Number(e.target.value) })}
+                        onChange={(e) =>
+                          updateElement(selectedEl.id, {
+                            y: Number(e.target.value),
+                          })
+                        }
                         className="mt-1"
                       />
                     </div>
@@ -664,7 +765,11 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                       <Input
                         type="number"
                         value={selectedEl.width}
-                        onChange={(e) => updateElement(selectedEl.id, { width: Number(e.target.value) })}
+                        onChange={(e) =>
+                          updateElement(selectedEl.id, {
+                            width: Number(e.target.value),
+                          })
+                        }
                         className="mt-1"
                       />
                     </div>
@@ -673,7 +778,11 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                       <Input
                         type="number"
                         value={selectedEl.height}
-                        onChange={(e) => updateElement(selectedEl.id, { height: Number(e.target.value) })}
+                        onChange={(e) =>
+                          updateElement(selectedEl.id, {
+                            height: Number(e.target.value),
+                          })
+                        }
                         className="mt-1"
                       />
                     </div>
@@ -686,7 +795,11 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                         <Label className="text-sm font-medium">Conteúdo</Label>
                         <Textarea
                           value={selectedEl.content}
-                          onChange={(e) => updateElement(selectedEl.id, { content: e.target.value })}
+                          onChange={(e) =>
+                            updateElement(selectedEl.id, {
+                              content: e.target.value,
+                            })
+                          }
                           className="mt-2"
                           rows={3}
                         />
@@ -698,7 +811,11 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                           <Input
                             type="number"
                             value={selectedEl.fontSize}
-                            onChange={(e) => updateElement(selectedEl.id, { fontSize: Number(e.target.value) })}
+                            onChange={(e) =>
+                              updateElement(selectedEl.id, {
+                                fontSize: Number(e.target.value),
+                              })
+                            }
                             className="mt-1"
                           />
                         </div>
@@ -707,7 +824,11 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                           <Input
                             type="color"
                             value={selectedEl.color}
-                            onChange={(e) => updateElement(selectedEl.id, { color: e.target.value })}
+                            onChange={(e) =>
+                              updateElement(selectedEl.id, {
+                                color: e.target.value,
+                              })
+                            }
                             className="mt-1"
                           />
                         </div>
@@ -717,16 +838,24 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                         <Label className="text-sm font-medium">Fonte</Label>
                         <Select
                           value={selectedEl.fontFamily}
-                          onValueChange={(value) => updateElement(selectedEl.id, { fontFamily: value })}
+                          onValueChange={(value) =>
+                            updateElement(selectedEl.id, { fontFamily: value })
+                          }
                         >
                           <SelectTrigger className="mt-2">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="Inter">Inter</SelectItem>
-                            <SelectItem value="Playfair Display">Playfair Display</SelectItem>
-                            <SelectItem value="Montserrat">Montserrat</SelectItem>
-                            <SelectItem value="Libre Baskerville">Libre Baskerville</SelectItem>
+                            <SelectItem value="Playfair Display">
+                              Playfair Display
+                            </SelectItem>
+                            <SelectItem value="Montserrat">
+                              Montserrat
+                            </SelectItem>
+                            <SelectItem value="Libre Baskerville">
+                              Libre Baskerville
+                            </SelectItem>
                             <SelectItem value="Poppins">Poppins</SelectItem>
                           </SelectContent>
                         </Select>
@@ -734,33 +863,54 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
 
                       <div className="flex gap-2">
                         <Button
-                          variant={selectedEl.fontWeight === "bold" ? "default" : "outline"}
+                          variant={
+                            selectedEl.fontWeight === "bold"
+                              ? "default"
+                              : "outline"
+                          }
                           size="sm"
                           onClick={() =>
                             updateElement(selectedEl.id, {
-                              fontWeight: selectedEl.fontWeight === "bold" ? "normal" : "bold",
+                              fontWeight:
+                                selectedEl.fontWeight === "bold"
+                                  ? "normal"
+                                  : "bold",
                             })
                           }
                         >
                           <Bold className="h-4 w-4" />
                         </Button>
                         <Button
-                          variant={selectedEl.fontStyle === "italic" ? "default" : "outline"}
+                          variant={
+                            selectedEl.fontStyle === "italic"
+                              ? "default"
+                              : "outline"
+                          }
                           size="sm"
                           onClick={() =>
                             updateElement(selectedEl.id, {
-                              fontStyle: selectedEl.fontStyle === "italic" ? "normal" : "italic",
+                              fontStyle:
+                                selectedEl.fontStyle === "italic"
+                                  ? "normal"
+                                  : "italic",
                             })
                           }
                         >
                           <Italic className="h-4 w-4" />
                         </Button>
                         <Button
-                          variant={selectedEl.textDecoration === "underline" ? "default" : "outline"}
+                          variant={
+                            selectedEl.textDecoration === "underline"
+                              ? "default"
+                              : "outline"
+                          }
                           size="sm"
                           onClick={() =>
                             updateElement(selectedEl.id, {
-                              textDecoration: selectedEl.textDecoration === "underline" ? "none" : "underline",
+                              textDecoration:
+                                selectedEl.textDecoration === "underline"
+                                  ? "none"
+                                  : "underline",
                             })
                           }
                         >
@@ -770,23 +920,43 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
 
                       <div className="flex gap-2">
                         <Button
-                          variant={selectedEl.textAlign === "left" ? "default" : "outline"}
+                          variant={
+                            selectedEl.textAlign === "left"
+                              ? "default"
+                              : "outline"
+                          }
                           size="sm"
-                          onClick={() => updateElement(selectedEl.id, { textAlign: "left" })}
+                          onClick={() =>
+                            updateElement(selectedEl.id, { textAlign: "left" })
+                          }
                         >
                           <AlignLeft className="h-4 w-4" />
                         </Button>
                         <Button
-                          variant={selectedEl.textAlign === "center" ? "default" : "outline"}
+                          variant={
+                            selectedEl.textAlign === "center"
+                              ? "default"
+                              : "outline"
+                          }
                           size="sm"
-                          onClick={() => updateElement(selectedEl.id, { textAlign: "center" })}
+                          onClick={() =>
+                            updateElement(selectedEl.id, {
+                              textAlign: "center",
+                            })
+                          }
                         >
                           <AlignCenter className="h-4 w-4" />
                         </Button>
                         <Button
-                          variant={selectedEl.textAlign === "right" ? "default" : "outline"}
+                          variant={
+                            selectedEl.textAlign === "right"
+                              ? "default"
+                              : "outline"
+                          }
                           size="sm"
-                          onClick={() => updateElement(selectedEl.id, { textAlign: "right" })}
+                          onClick={() =>
+                            updateElement(selectedEl.id, { textAlign: "right" })
+                          }
                         >
                           <AlignRight className="h-4 w-4" />
                         </Button>
@@ -797,10 +967,14 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                   {/* Propriedades de Imagem */}
                   {selectedEl.type === "image" && (
                     <div>
-                      <Label className="text-sm font-medium">URL da Imagem</Label>
+                      <Label className="text-sm font-medium">
+                        URL da Imagem
+                      </Label>
                       <Input
                         value={selectedEl.src}
-                        onChange={(e) => updateElement(selectedEl.id, { src: e.target.value })}
+                        onChange={(e) =>
+                          updateElement(selectedEl.id, { src: e.target.value })
+                        }
                         className="mt-2"
                       />
                       <Button
@@ -819,7 +993,9 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                   {selectedEl.type === "shape" && (
                     <>
                       <div>
-                        <Label className="text-sm font-medium">Tipo de Forma</Label>
+                        <Label className="text-sm font-medium">
+                          Tipo de Forma
+                        </Label>
                         <Select
                           value={selectedEl.shapeType}
                           onValueChange={(value: "rectangle" | "circle") =>
@@ -842,7 +1018,11 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                           <Input
                             type="color"
                             value={selectedEl.backgroundColor}
-                            onChange={(e) => updateElement(selectedEl.id, { backgroundColor: e.target.value })}
+                            onChange={(e) =>
+                              updateElement(selectedEl.id, {
+                                backgroundColor: e.target.value,
+                              })
+                            }
                             className="mt-1"
                           />
                         </div>
@@ -851,7 +1031,11 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                           <Input
                             type="color"
                             value={selectedEl.borderColor}
-                            onChange={(e) => updateElement(selectedEl.id, { borderColor: e.target.value })}
+                            onChange={(e) =>
+                              updateElement(selectedEl.id, {
+                                borderColor: e.target.value,
+                              })
+                            }
                             className="mt-1"
                           />
                         </div>
@@ -863,7 +1047,11 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                           <Input
                             type="number"
                             value={selectedEl.borderWidth}
-                            onChange={(e) => updateElement(selectedEl.id, { borderWidth: Number(e.target.value) })}
+                            onChange={(e) =>
+                              updateElement(selectedEl.id, {
+                                borderWidth: Number(e.target.value),
+                              })
+                            }
                             className="mt-1"
                           />
                         </div>
@@ -873,7 +1061,11 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                             <Input
                               type="number"
                               value={selectedEl.borderRadius}
-                              onChange={(e) => updateElement(selectedEl.id, { borderRadius: Number(e.target.value) })}
+                              onChange={(e) =>
+                                updateElement(selectedEl.id, {
+                                  borderRadius: Number(e.target.value),
+                                })
+                              }
                               className="mt-1"
                             />
                           </div>
@@ -886,10 +1078,14 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
 
                   {/* Propriedades Gerais */}
                   <div>
-                    <Label className="text-sm font-medium">Rotação: {selectedEl.rotation}°</Label>
+                    <Label className="text-sm font-medium">
+                      Rotação: {selectedEl.rotation}°
+                    </Label>
                     <Slider
                       value={[selectedEl.rotation]}
-                      onValueChange={([value]) => updateElement(selectedEl.id, { rotation: value })}
+                      onValueChange={([value]: any) =>
+                        updateElement(selectedEl.id, { rotation: value })
+                      }
                       min={-180}
                       max={180}
                       step={1}
@@ -898,10 +1094,14 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                   </div>
 
                   <div>
-                    <Label className="text-sm font-medium">Opacidade: {Math.round(selectedEl.opacity! * 100)}%</Label>
+                    <Label className="text-sm font-medium">
+                      Opacidade: {Math.round(selectedEl.opacity! * 100)}%
+                    </Label>
                     <Slider
                       value={[selectedEl.opacity! * 100]}
-                      onValueChange={([value]) => updateElement(selectedEl.id, { opacity: value / 100 })}
+                      onValueChange={([value]: any) =>
+                        updateElement(selectedEl.id, { opacity: value / 100 })
+                      }
                       max={100}
                       step={1}
                       className="mt-2"
@@ -909,11 +1109,17 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                   </div>
 
                   <div>
-                    <Label className="text-sm font-medium">Camada (Z-Index)</Label>
+                    <Label className="text-sm font-medium">
+                      Camada (Z-Index)
+                    </Label>
                     <Input
                       type="number"
                       value={selectedEl.zIndex}
-                      onChange={(e) => updateElement(selectedEl.id, { zIndex: Number(e.target.value) })}
+                      onChange={(e) =>
+                        updateElement(selectedEl.id, {
+                          zIndex: Number(e.target.value),
+                        })
+                      }
                       className="mt-2"
                     />
                   </div>
@@ -935,7 +1141,11 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
             Salvar Certificado
           </Button>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => console.log(generateHTML())} className="flex-1">
+            <Button
+              variant="outline"
+              onClick={() => console.log(generateHTML())}
+              className="flex-1"
+            >
               <Eye className="h-4 w-4 mr-2" />
               Preview
             </Button>
@@ -955,13 +1165,15 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
               <Label className="text-sm">Zoom:</Label>
               <Slider
                 value={[zoom * 100]}
-                onValueChange={([value]) => setZoom(value / 100)}
+                onValueChange={([value]: any) => setZoom(value / 100)}
                 min={10}
                 max={100}
                 step={5}
                 className="w-32"
               />
-              <span className="text-sm font-mono">{Math.round(zoom * 100)}%</span>
+              <span className="text-sm font-mono">
+                {Math.round(zoom * 100)}%
+              </span>
             </div>
             <Separator orientation="vertical" className="h-6" />
             <div className="flex items-center gap-2">
@@ -969,19 +1181,31 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
               <Input
                 type="number"
                 value={canvasSize.width}
-                onChange={(e) => setCanvasSize({ ...canvasSize, width: Number(e.target.value) })}
+                onChange={(e) =>
+                  setCanvasSize({
+                    ...canvasSize,
+                    width: Number(e.target.value),
+                  })
+                }
                 className="w-20"
               />
               <span className="text-sm">×</span>
               <Input
                 type="number"
                 value={canvasSize.height}
-                onChange={(e) => setCanvasSize({ ...canvasSize, height: Number(e.target.value) })}
+                onChange={(e) =>
+                  setCanvasSize({
+                    ...canvasSize,
+                    height: Number(e.target.value),
+                  })
+                }
                 className="w-20"
               />
             </div>
           </div>
-          <div className="text-sm text-gray-500">Arraste elementos para posicionar • Clique para selecionar</div>
+          <div className="text-sm text-gray-500">
+            Arraste elementos para posicionar • Clique para selecionar
+          </div>
         </div>
 
         {/* Canvas */}
@@ -992,16 +1216,21 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
             style={{
               width: canvasSize.width * zoom,
               height: canvasSize.height * zoom,
-              ...(background.type === "color" && { backgroundColor: background.color }),
+              ...(background.type === "color" && {
+                backgroundColor: background.color,
+              }),
               ...(background.type === "gradient" && {
-                background: `linear-gradient(${background.gradientDirection || "to right"}, ${background.gradientStart}, ${background.gradientEnd})`,
+                background: `linear-gradient(${
+                  background.gradientDirection || "to right"
+                }, ${background.gradientStart}, ${background.gradientEnd})`,
               }),
               ...(background.type === "image" &&
                 background.imageUrl && {
                   backgroundImage: `url(${background.imageUrl})`,
                   backgroundSize: background.imageSize || "cover",
                   backgroundPosition: background.imagePosition || "center",
-                  backgroundRepeat: background.imageSize === "repeat" ? "repeat" : "no-repeat",
+                  backgroundRepeat:
+                    background.imageSize === "repeat" ? "repeat" : "no-repeat",
                 }),
               opacity: background.opacity,
             }}
@@ -1013,7 +1242,8 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                   key={element.id}
                   className={cn(
                     "absolute cursor-move border-2 border-transparent hover:border-blue-300",
-                    selectedElement === element.id && "border-blue-500 border-dashed",
+                    selectedElement === element.id &&
+                      "border-blue-500 border-dashed"
                   )}
                   style={{
                     left: element.x,
@@ -1025,9 +1255,9 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                     zIndex: element.zIndex,
                   }}
                   onMouseDown={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    handleMouseDown(e, element.id)
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleMouseDown(e, element.id);
                   }}
                 >
                   {element.type === "text" && (
@@ -1045,8 +1275,8 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                           element.textAlign === "left"
                             ? "flex-start"
                             : element.textAlign === "right"
-                              ? "flex-end"
-                              : "center",
+                            ? "flex-end"
+                            : "center",
                       }}
                     >
                       {element.content}
@@ -1068,7 +1298,10 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
                       style={{
                         backgroundColor: element.backgroundColor,
                         border: `${element.borderWidth}px solid ${element.borderColor}`,
-                        borderRadius: element.shapeType === "circle" ? "50%" : `${element.borderRadius}px`,
+                        borderRadius:
+                          element.shapeType === "circle"
+                            ? "50%"
+                            : `${element.borderRadius}px`,
                       }}
                     />
                   )}
@@ -1088,5 +1321,5 @@ export function CertificateVisualEditor({ isOpen, onClose, onSave, initialData }
         </div>
       </div>
     </div>
-  )
+  );
 }
