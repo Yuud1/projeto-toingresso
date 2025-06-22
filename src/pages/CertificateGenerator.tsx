@@ -97,7 +97,7 @@ export default function CertificateGenerator({
         // Se quiser exibir alguma coisa quando for enviado ou algum modal o estado tu coloca aqui
       }
     } catch (error) {
-
+      console.log(error)
     } finally {
       setIsGenerating(false);
     }
@@ -145,7 +145,7 @@ export default function CertificateGenerator({
         // Se quiser exibir alguma coisa quando for enviado ou algum modal o estado tu coloca aqui
       }
     } catch (error) {
-
+    console.log(error)
     } finally {
       setIsGenerating(false);
     }

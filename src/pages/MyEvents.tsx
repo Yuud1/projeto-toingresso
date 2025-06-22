@@ -492,6 +492,7 @@ export default function MyEvents() {
 
       setIsCertificateModalOpen(false);
     } catch (error) {
+      console.log(error)
       toast({
         title: "Erro ao salvar associação",
         description: "Tente novamente em alguns instantes.",

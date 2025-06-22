@@ -398,7 +398,7 @@ export default function Profile() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Cpf
+                      CPF
                     </label>
                     <div className="relative">
                       <Input

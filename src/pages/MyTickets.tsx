@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -204,7 +205,7 @@ export default function MyTickets() {
             <div className="text-center py-16">
               <p className="text-gray-600 mb-4">
                 {searchQuery
-                  ? "Nenhum ingresso encontrado com os critérios de busca"
+                  ? "Nenhum ingresso encontrado com os critéfrios de busca"
                   : `Não há ingressos ${
                       activeTab === "ativo" ? "ativos" : "encerrados"
                     }`}
@@ -258,11 +259,15 @@ export default function MyTickets() {
                         </span>
                       </div>
                     </div>
-                    {ticket.used && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-600 text-sm">Ticket já utilizado</span>
-                      </div>
-                    )}
+                    <div className="flex items-center gap-2 min-h-[20px] mb-3">
+                      {ticket.used ? (
+                        <Badge variant="outline">Ticket já utilizado</Badge>
+
+                      ) : (
+                        <span className="text-sm text-transparent select-none">placeholder</span>
+                      )}
+                    </div>
+
 
                     {/* Botões de Ação */}
                     <div className="flex gap-2 mt-auto pt-4 border-t border-gray-100">
@@ -275,11 +280,17 @@ export default function MyTickets() {
                         Visualizar
                       </Button>
 
-                      {ticket.status === "ativo" && (
+                     {ticket.status === "ativo" && (
                         <Button
                           onClick={(e) => handleTransferTicket(ticket._id, e)}
                           variant="outline"
-                          className="flex-1 text-[#ffffff] border-[#FEC800] cursor-pointer bg-[#FEC800] transition-colors"
+                          disabled={ticket.used}
+                          className={cn(
+                            "flex-1 text-white border-[#FEC800] bg-[#FEC800] transition-colors",
+                            ticket.used
+                              ? "opacity-50 cursor-not-allowed"
+                              : "hover:bg-[#e0b400] cursor-pointer"
+                          )}
                         >
                           <ArrowRightLeft size={16} className="mr-2" />
                           Transferir
