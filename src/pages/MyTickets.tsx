@@ -75,16 +75,11 @@ export default function MyTickets() {
   const filteredTickets = useMemo(() => {
     if (!tickets) return [];
 
-    return tickets.filter((ticket) => {
-      const matchesTab = ticket.status === activeTab;
-      const matchesSearch =
-        searchQuery === "" ||
-        ticket.eventTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        ticket.Owner.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        ticket._id.toLowerCase().includes(searchQuery.toLowerCase());
-
-      return matchesTab && matchesSearch;
-    });
+    if (activeTab === "ativo") {
+      return tickets.filter((ticket) => ticket.used === false);
+    } else {
+      return tickets.filter((ticket) => ticket.used === true);
+    }
   }, [tickets, activeTab, searchQuery]);
 
   // Early return após todos os hooks
@@ -262,12 +257,12 @@ export default function MyTickets() {
                     <div className="flex items-center gap-2 min-h-[20px] mb-3">
                       {ticket.used ? (
                         <Badge variant="outline">Ticket já utilizado</Badge>
-
                       ) : (
-                        <span className="text-sm text-transparent select-none">placeholder</span>
+                        <span className="text-sm text-transparent select-none">
+                          placeholder
+                        </span>
                       )}
                     </div>
-
 
                     {/* Botões de Ação */}
                     <div className="flex gap-2 mt-auto pt-4 border-t border-gray-100">
@@ -280,7 +275,7 @@ export default function MyTickets() {
                         Visualizar
                       </Button>
 
-                     {ticket.status === "ativo" && (
+                      {ticket.status === "ativo" && (
                         <Button
                           onClick={(e) => handleTransferTicket(ticket._id, e)}
                           variant="outline"

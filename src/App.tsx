@@ -49,7 +49,7 @@ function App() {
           <Route path="/obrigatoriedades-legais" element={<LegalObligations />} />
           <Route path="/regra-da-meia-entrada" element={<HalfPriceRules />} />                  
           <Route path="/checkouts" element={<Checkout />} />
-          <Route path="/event-arrivals" element={<EventArrivals />} />
+          <Route path="/event-arrivals/:id" element={<EventArrivals />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
         </Routes>

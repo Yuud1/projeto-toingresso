@@ -206,8 +206,9 @@ export default function MyEvents() {
   const [showCertificateTutorial, setShowCertificateTutorial] = useState(true);
 
   // Novo estado para seleção de evento no dashboard
-  const [selectedDashboardEvent, setSelectedDashboardEvent] =
-    useState<string>("all");
+  const [selectedDashboardEvent, setSelectedDashboardEvent] = useState<
+    string | undefined
+  >(undefined);
 
   // TODA A LÓGICA DO SCANNER FOI MOVIDA PARA O COMPONENTE EventScanner.tsx
 
@@ -218,7 +219,7 @@ export default function MyEvents() {
   };
 
   const getFilteredEventsForDashboard = () => {
-    if (selectedDashboardEvent === "all") {
+    if (selectedDashboardEvent) {
       return events;
     }
     return events.filter((event) => event._id === selectedDashboardEvent);
@@ -256,7 +257,6 @@ export default function MyEvents() {
 
         if (response.data.events) {
           setEvents([...response.data.events]);
-        } else {
         }
       } catch (error: any) {
         if (error.response?.data?.logged === false) {
@@ -492,7 +492,7 @@ export default function MyEvents() {
 
       setIsCertificateModalOpen(false);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       toast({
         title: "Erro ao salvar associação",
         description: "Tente novamente em alguns instantes.",
@@ -516,7 +516,7 @@ export default function MyEvents() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header isScrolled={true} />
-      <main className="flex-1 container mx-auto px-4 py-8 pt-24 max-w-full overflow-x-hidden">        
+      <main className="flex-1 container mx-auto px-4 py-8 pt-24 max-w-full overflow-x-hidden">
         <DeleteModal
           isOpen={isDeleteModalOpen}
           onClose={() => setIsDeleteModalOpen(false)}
@@ -1141,7 +1141,7 @@ export default function MyEvents() {
                       {formatNumber(dashboardMetrics.totalTicketsSold)}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {selectedDashboardEvent === "all"
+                      {selectedDashboardEvent
                         ? "Em todos os eventos"
                         : "Neste evento"}
                     </p>
@@ -1160,7 +1160,7 @@ export default function MyEvents() {
                       {formatCurrency(dashboardMetrics.totalRevenue)}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {selectedDashboardEvent === "all"
+                      {selectedDashboardEvent 
                         ? "Em todos os eventos"
                         : "Neste evento"}
                     </p>
@@ -1186,25 +1186,29 @@ export default function MyEvents() {
               </div>
 
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                <Card
-                  className="cursor-pointer hover:shadow-md transition-shadow"
-                  onClick={() => navigate("/event-arrivals")}
-                >
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Últimos Checkouts
-                    </CardTitle>
-                    <Receipt className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {formatNumber(checkouts.length)}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Clique para ver chegadas em tempo real
-                    </p>
-                  </CardContent>
-                </Card>
+                {selectedDashboardEvent ? (
+                  <Card
+                    className="cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() =>
+                      navigate(`/event-arrivals/${selectedDashboardEvent}`)
+                    }
+                  >
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        Últimos Checkouts
+                      </CardTitle>
+                      <Receipt className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">
+                        {formatNumber(checkouts.length)}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Clique para ver chegadas em tempo real
+                      </p>
+                    </CardContent>
+                  </Card>
+                ) : null}
 
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -1245,7 +1249,7 @@ export default function MyEvents() {
                     <CardTitle>Overview</CardTitle>
                     <CardDescription>
                       Receita por mês{" "}
-                      {selectedDashboardEvent !== "all" &&
+                      {selectedDashboardEvent &&
                         `- ${
                           events.find((e) => e._id === selectedDashboardEvent)
                             ?.title

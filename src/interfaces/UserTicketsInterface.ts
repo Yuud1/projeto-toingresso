@@ -9,5 +9,5 @@ export default interface UserTicketsInterface {
   Owner: UserInterface;
   qrCode: string;
   used: boolean;
-  status: "ativo" | "pendente" | "cancelado" | "encerrado";
+  status: "ativo" | "encerrado";
 }

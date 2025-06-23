@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { log } from "console";
 
 const estadosMunicipios = {
   AC: { nome: "Acre" },
@@ -67,6 +68,8 @@ export default function CreateEvent() {
   const [municipiosPorUF, setMunicipiosPorUF] = useState<
     Record<string, string[]>
   >({});
+  console.log(errors);
+
   const [formData, setFormData] = useState<FormDataInterface>({
     title: "",
     image: null,
@@ -93,9 +96,7 @@ export default function CreateEvent() {
     token: localStorage.getItem("token"),
     status: "active",
   });
-  console.log(formData);
-  console.log(municipiosPorUF);
-  
+
   // Função de busca de estado
 
   const buscarMunicipios = async (sigla: string) => {
@@ -218,6 +219,25 @@ export default function CreateEvent() {
   );
 
   const nextStep = useCallback(() => {
+    if (
+      formData.isFree &&
+      formData.customFields.length == 0 &&
+      currentStep == 5
+    ) {
+      setErrors((prev) => ({
+        ...prev,
+        customFields:
+          "Você deve adicionar pelo menos um campo de formulário para eventos gratuitos.",
+      }));
+      toast.error(
+        "Você deve adicionar pelo menos um campo de formulário para eventos gratuitos."
+      );
+      console.log("naoo cadastrei o evento");
+      throw new Error(
+        "Nenhum campo de formulário adicionado para eventos gratuitos."
+      );
+    }
+
     if (validateCurrentStep()) {
       setCurrentStep((prev) => Math.min(prev + 1, 6));
     } else {
@@ -227,6 +247,7 @@ export default function CreateEvent() {
 
   const prevStep = useCallback(() => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
+    setFormData((prev) => ({ ...prev, acceptedTerms: false }));
   }, []);
 
   const handleSubmit = useCallback(
@@ -254,6 +275,18 @@ export default function CreateEvent() {
         const { image, ...rest } = formData;
         data.append("formData", JSON.stringify(rest));
 
+        console.log(formData);
+        if (formData.isFree && formData.customFields.length == 0) {
+          toast.error(
+            "Você deve adicionar pelo menos um campo de formulário para eventos gratuitos."
+          );
+          console.log("naoo cadastrei o evento");
+          throw new Error(
+            "Nenhum campo de formulário adicionado para eventos gratuitos."
+          );
+        }
+
+        console.log("cadastrei o evento");
         const response = await axios.post(
           `${import.meta.env.VITE_API_BASE_URL}${
             import.meta.env.VITE_CREATE_EVENT
@@ -836,13 +869,13 @@ export default function CreateEvent() {
                 </label>
                 <Select
                   onValueChange={async (sigla) => {
-                    console.log("Sigla",sigla);
-                    
+                    console.log("Sigla", sigla);
+
                     setFormData((prev) => ({
                       ...prev,
                       state: sigla,
                       city: "",
-                    }))
+                    }));
                     await buscarMunicipios(sigla);
                   }}
                   value={formData.state}
@@ -870,10 +903,10 @@ export default function CreateEvent() {
                   onValueChange={(municipio) =>
                     setFormData((prev) => ({
                       ...prev,
-                      city: municipio                      
+                      city: municipio,
                     }))
-                  }            
-                  value={formData.city}      
+                  }
+                  value={formData.city}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue
@@ -885,13 +918,13 @@ export default function CreateEvent() {
                     />
                   </SelectTrigger>
                   <SelectContent>
-                    {(
-                      municipiosPorUF[formData.state] || []
-                    ).map((municipio) => (
-                      <SelectItem key={municipio} value={municipio}>
-                        {municipio}
-                      </SelectItem>
-                    ))}
+                    {(municipiosPorUF[formData.state] || []).map(
+                      (municipio) => (
+                        <SelectItem key={municipio} value={municipio}>
+                          {municipio}
+                        </SelectItem>
+                      )
+                    )}
                   </SelectContent>
                 </Select>
                 {renderError("state")}
@@ -1158,6 +1191,9 @@ export default function CreateEvent() {
             {clickedGratuito ? (
               <FormBuilder form={formData} setForm={setFormData}></FormBuilder>
             ) : null}
+            <div className="ml-5">
+              <p className="mt-1 text-sm text-red-600">{errors.customFields}</p>
+            </div>
           </div>
         );
 
