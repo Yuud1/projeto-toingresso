@@ -5,7 +5,6 @@ import {
   Settings,
   Eye,
   Plus,
-  Save,
   Check,
   X,
   LogOut,
@@ -154,7 +153,7 @@ export default function EventArrivalsPage() {
   const [currentTime, setCurrentTime] = useState(new Date())
   const [isConfigMode, setIsConfigMode] = useState(true)
   const [selectedFields, setSelectedFields] = useState<string[]>(["name", "instagram"])
-  const [selectedCustomFields, setSelectedCustomFields] = useState<string[]>(["cargo", "empresa"])
+  const [selectedCustomFields, ] = useState<string[]>(["cargo", "empresa"])
   const [showArrivalTime, setShowArrivalTime] = useState(true)
   const [cardStyle, setCardStyle] = useState<"grid" | "list">("grid")
   const [previewMode, setPreviewMode] = useState(false)
@@ -203,11 +202,6 @@ export default function EventArrivalsPage() {
     } else {
       setSelectedFields([...selectedFields, fieldId])
     }
-  }
-
-  const saveConfiguration = () => {
-    setIsConfigMode(false)
-    // Aqui você poderia salvar a configuração no backend
   }
 
   const exitCheckout = () => {
@@ -338,19 +332,12 @@ export default function EventArrivalsPage() {
                     <Eye size={16} />
                     <span className="whitespace-nowrap">{previewMode ? "Ocultar Preview" : "Mostrar Preview"}</span>
                   </button>
-                  <button
-                    onClick={saveConfiguration}
-                    className="px-4 sm:px-6 py-2 rounded-lg bg-gradient-to-r from-[#02488C] to-[#0369a1] text-white hover:from-[#023e7a] hover:to-[#0284c7] transition-all duration-200 flex items-center justify-center gap-2 font-medium shadow-md text-sm"
-                  >
-                    <Save size={16} />
-                    <span className="whitespace-nowrap">Salvar Configuração</span>
-                  </button>
                 </div>
               </div>
             </div>
 
             <div className="p-8">
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
                 {/* Coluna de Configuração */}
                 <div className="space-y-8">
                   {/* Estilo de Exibição */}
@@ -447,9 +434,9 @@ export default function EventArrivalsPage() {
                       ))}
                     </div>
                   </div>
-
-                  {/* Parâmetro Comum */}
-                  <div className="bg-gradient-to-br from-yellow-50 to-orange-50/30 p-6 rounded-xl border border-yellow-200">
+                </div>
+                <div>
+                                    <div className="bg-gradient-to-br from-yellow-50 to-orange-50/30 p-6 rounded-xl border border-yellow-200">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                       <Sparkles className="h-5 w-5 text-[#FEC800]" />
                       Parâmetro Comum
@@ -496,8 +483,8 @@ export default function EventArrivalsPage() {
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* Preview */}
                   {previewMode && (
                     <div className="bg-gradient-to-br from-blue-50 to-indigo-50/30 p-6 rounded-xl border border-blue-200">
                       <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
@@ -565,7 +552,6 @@ export default function EventArrivalsPage() {
                       </div>
                     </div>
                   )}
-                </div>
               </div>
             </div>
           </div>

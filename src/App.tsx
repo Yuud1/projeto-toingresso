@@ -19,7 +19,6 @@ const CommunityGuidelines = lazy(() => import("@/pages/CommunityGuidelines"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const LegalObligations = lazy(() => import("@/pages/LegalObligations"));
 const HalfPriceRules = lazy(() => import("@/pages/HalfPriceRules"));
-const ScannerPage = lazy(() => import("@/pages/ScannerPage"));
 const Checkout = lazy(() => import("@/pages/Checkout"));
 const EventArrivals = lazy(() => import("@/pages/EventArrivals"));
 
@@ -48,8 +47,7 @@ function App() {
           <Route path="/diretrizes-da-comunidade" element={<CommunityGuidelines />} />
           <Route path="/politica-de-privacidade" element={<PrivacyPolicy />} />
           <Route path="/obrigatoriedades-legais" element={<LegalObligations />} />
-          <Route path="/regra-da-meia-entrada" element={<HalfPriceRules />} />          
-          <Route path="/scan" element={<ScannerPage />} />          
+          <Route path="/regra-da-meia-entrada" element={<HalfPriceRules />} />                  
           <Route path="/checkouts" element={<Checkout />} />
           <Route path="/event-arrivals" element={<EventArrivals />} />
           <Route path="/admin/login" element={<AdminLogin />} />

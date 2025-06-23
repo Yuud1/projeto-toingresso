@@ -53,8 +53,8 @@ export default function EventScanner() {
     setScanner(html5QrCode)
 
     const config = {
-      fps: 10,
-      qrbox: { width: 600, height: 600 },
+      fps: 30,
+
       formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
     }
 
@@ -191,7 +191,6 @@ export default function EventScanner() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold">Scanner de Ingressos</h2>
       </div>
 
       <Card>
@@ -203,7 +202,7 @@ export default function EventScanner() {
           <CardDescription>Escaneie os QR Codes dos ingressos para validar a entrada.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="min-h-[60vh] flex items-center justify-center p-4">
+          <div className="min-h-[60vh] flex items-center justify-center">
             {!isAuthenticated ? (
               <Card className="w-full max-w-md">
                 <CardHeader className="text-center">
@@ -238,14 +237,18 @@ export default function EventScanner() {
                 </CardContent>
               </Card>
             ) : (
-              <Card className="w-full">
-                <CardHeader>
-                  <CardTitle className="text-center text-xl">Leitor de QR Code</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col items-center gap-4">
+              <div className="w-full">
+                <div className="flex flex-col items-center gap-4 rounded-lg">
                   {!scanResult ? (
                     <>
-                      <div id={qrCodeRegionId} className="w-full" style={{ minHeight: "250px" }} />
+                      <div
+                        id={qrCodeRegionId}
+                        className="rounded-lg"
+                        style={{
+                          width: "100%",
+                          overflow: "hidden",
+                        }}
+                      />
                       <p className="text-muted-foreground text-sm">Aponte sua câmera para um QR Code</p>
                       {scannerError && (
                         <Alert variant="destructive">
@@ -255,7 +258,7 @@ export default function EventScanner() {
                       <Button variant="outline" onClick={stopScanner} className="w-full">
                         Parar Scanner
                       </Button>
-                      <Button variant="destructive" onClick={logout} className="w-full">
+                      <Button variant="destructive" onClick={logout} className="w-full text-white bo">
                         Sair
                       </Button>
                     </>
@@ -266,13 +269,13 @@ export default function EventScanner() {
                       <Button variant="outline" onClick={resetScanner} className="w-full">
                         Ler Novamente
                       </Button>
-                      <Button variant="destructive" onClick={logout} className="w-full">
+                      <Button variant="destructive" onClick={logout} className="w-full text-white border">
                         Sair
                       </Button>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             )}
           </div>
         </CardContent>

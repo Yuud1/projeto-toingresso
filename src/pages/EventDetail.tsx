@@ -85,13 +85,13 @@ const EventDetail = () => {
                   ${
                     isFavorited
                       ? "bg-red-100 border-red-300"
-                      : "bg-transparent border-gray-300 hover:bg-gray-100"
+                      : "bg-transparent border-gray-100 hover:bg-gray-500"
                   }`}
                 title="Favoritar evento"
               >
                 <Heart
                   className={`h-5 w-5 transition-colors ${
-                    isFavorited ? "text-red-500" : "text-gray-400"
+                    isFavorited ? "text-red-500" : "text-gray-100"
                   }`}
                 />
               </button>

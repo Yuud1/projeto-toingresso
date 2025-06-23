@@ -587,7 +587,7 @@ export default function FormBuilder({ form, setForm }: InterfaceFormBuilder) {
                       </div>
 
                       <div className="grid grid-cols-1 gap-3">
-                        <div>
+                        <div className="space-y-2">
                           <Label htmlFor={`label-${field._id}`}>Rótulo</Label>
                           <Input
                             id={`label-${field._id}`}
