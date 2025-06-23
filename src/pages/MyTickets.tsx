@@ -147,7 +147,7 @@ export default function MyTickets() {
             ticketId={transferTicketId}
           ></TransferTicket>
         )}
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto mt-12">
           <div className="mb-8">
             <h1 className="text-2xl font-bold mb-4">Meus Ingressos</h1>
             <div className="relative w-full max-w-md">
@@ -215,7 +215,7 @@ export default function MyTickets() {
                   onClick={() => (window.location.href = "/")}
                   className="bg-[#02488C] hover:bg-[#02488C]/90 cursor-pointer"
                 >
-                  ENCONTRAR EVENTOS
+                  Encontrar Eventos
                 </Button>
               )}
             </div>
