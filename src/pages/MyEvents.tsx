@@ -858,8 +858,8 @@ export default function MyEvents() {
           onSave={handleSaveEvent}
         />
 
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div className="max-w-7xl mx-auto mt-12">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
             <h1 className="text-xl sm:text-2xl font-bold">Meus Eventos</h1>
 
             <div className="hidden lg:flex space-x-4">
@@ -995,7 +995,7 @@ export default function MyEvents() {
                     onClick={() => (window.location.href = "/criar-evento")}
                     className="bg-[#02488C] hover:bg-[#02488C]/90 cursor-pointer"
                   >
-                    CRIAR EVENTO
+                    Criar Evento
                   </Button>
                 </div>
               ) : (

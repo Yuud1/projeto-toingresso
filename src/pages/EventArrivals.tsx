@@ -1,19 +1,10 @@
 import { useState, useEffect } from "react"
-import {
-  DragDropContext,
-  Droppable,
-  Draggable,
-  type DropResult,
-  type DroppableProvided,
-  type DraggableProvided,
-} from "react-beautiful-dnd"
+
 import {
   User,
   Settings,
   Eye,
-  Trash2,
   Plus,
-  GripVertical,
   Save,
   Check,
   X,
@@ -27,14 +18,12 @@ import {
   Clock,
   MapPin,
   Info,
-  AlertCircle,
   List,
   Grid,
   Users,
   Sparkles,
 } from "lucide-react"
-import type CustomFieldInterface from "../interfaces/CustomFieldInterface"
-import type { FieldType } from "../interfaces/CustomFieldInterface"
+
 
 interface UserTicketsInterface {
   _id: string
@@ -160,43 +149,11 @@ const defaultFields = [
   },
 ]
 
-// Campos personalizados de exemplo
-const initialCustomFields: CustomFieldInterface[] = [
-  {
-    _id: "1",
-    label: "Cargo",
-    type: "text",
-    placeholder: "Seu cargo atual",
-    required: true,
-    maskType: "none",
-    mask: "",
-  },
-  {
-    _id: "2",
-    label: "Empresa",
-    type: "text",
-    placeholder: "Nome da empresa",
-    required: true,
-    maskType: "none",
-    mask: "",
-  },
-  {
-    _id: "3",
-    label: "Interesse",
-    type: "text",
-    placeholder: "Seus interesses",
-    required: false,
-    maskType: "none",
-    mask: "",
-  },
-]
-
 export default function EventArrivalsPage() {
   const [arrivals] = useState<EventArrival[]>(mockArrivals)
   const [currentTime, setCurrentTime] = useState(new Date())
   const [isConfigMode, setIsConfigMode] = useState(true)
   const [selectedFields, setSelectedFields] = useState<string[]>(["name", "instagram"])
-  const [customFields, setCustomFields] = useState<CustomFieldInterface[]>(initialCustomFields)
   const [selectedCustomFields, setSelectedCustomFields] = useState<string[]>(["cargo", "empresa"])
   const [showArrivalTime, setShowArrivalTime] = useState(true)
   const [cardStyle, setCardStyle] = useState<"grid" | "list">("grid")
@@ -240,67 +197,12 @@ export default function EventArrivalsPage() {
     return new Date(dateString).toLocaleDateString("pt-BR")
   }
 
-  const handleDragEnd = (result: DropResult) => {
-    if (!result.destination) return
-
-    if (result.type === "defaultFields") {
-      const items = Array.from(selectedFields)
-      const [reorderedItem] = items.splice(result.source.index, 1)
-      items.splice(result.destination.index, 0, reorderedItem)
-      setSelectedFields(items)
-    } else if (result.type === "customFields") {
-      const items = Array.from(selectedCustomFields)
-      const [reorderedItem] = items.splice(result.source.index, 1)
-      items.splice(result.destination.index, 0, reorderedItem)
-      setSelectedCustomFields(items)
-    }
-  }
-
   const toggleField = (fieldId: string) => {
     if (selectedFields.includes(fieldId)) {
       setSelectedFields(selectedFields.filter((id) => id !== fieldId))
     } else {
       setSelectedFields([...selectedFields, fieldId])
     }
-  }
-
-  const toggleCustomField = (fieldId: string) => {
-    if (selectedCustomFields.includes(fieldId)) {
-      setSelectedCustomFields(selectedCustomFields.filter((id) => id !== fieldId))
-    } else {
-      setSelectedCustomFields([...selectedCustomFields, fieldId])
-    }
-  }
-
-  const addNewCustomField = () => {
-    const newField: CustomFieldInterface = {
-      _id: `custom-${Date.now()}`,
-      label: "Novo Campo",
-      type: "text",
-      placeholder: "",
-      required: false,
-      maskType: "none",
-      mask: "",
-    }
-    setCustomFields([...customFields, newField])
-    setSelectedCustomFields([...selectedCustomFields, newField.label.toLowerCase()])
-  }
-
-  const updateCustomField = (id: string, updates: Partial<CustomFieldInterface>) => {
-    setCustomFields(customFields.map((field) => (field._id === id ? { ...field, ...updates } : field)))
-  }
-
-  const removeCustomField = (id: string) => {
-    setCustomFields(customFields.filter((field) => field._id !== id))
-    setSelectedCustomFields(
-      selectedCustomFields.filter(
-        (fieldId) =>
-          !customFields
-            .find((f) => f._id === id)
-            ?.label.toLowerCase()
-            .includes(fieldId),
-      ),
-    )
   }
 
   const saveConfiguration = () => {
@@ -336,20 +238,50 @@ export default function EventArrivalsPage() {
         <div className="container mx-auto px-6 py-6">
           <div className="flex flex-col lg:flex-row justify-between items-start gap-6">
             <div className="flex-1">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-[#02488C] to-[#0369a1] rounded-xl flex items-center justify-center shadow-lg">
+              <div className="flex justify-between items-center gap-4 mb-4">
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#02488C] to-[#0369a1] rounded-xl flex items-center justify-center shadow-lg">
                   <Users className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">{eventData.title}</h1>
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                        Ativo
+                      </span>
+                      <span>•</span>
+                      <span>
+                        {eventData.checkedIn} de {eventData.totalParticipants} participantes
+                      </span>
+                    </div>
+                  </div>
                 </div>
+                
                 <div>
-                  <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">{eventData.title}</h1>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-                      Ativo
-                    </span>
-                    <span>•</span>
-                    <span>
-                      {eventData.checkedIn} de {eventData.totalParticipants} participantes
-                    </span>
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+                      {!isConfigMode && (
+                        <button
+                          onClick={exitCheckout}
+                          className="px-4 py-2.5 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200 flex items-center justify-center gap-2 font-medium text-sm sm:text-base"
+                        >
+                          <LogOut size={18} />
+                          <span>Sair</span>
+                        </button>
+                      )}
+
+                    <button
+                      onClick={() => setIsConfigMode(!isConfigMode)}
+                      className={`px-4 sm:px-6 py-2.5 rounded-lg flex items-center justify-center gap-2 font-medium transition-all duration-200 shadow-sm text-sm sm:text-base ${
+                        isConfigMode
+                          ? "bg-gradient-to-r from-[#FEC800] to-[#f59e0b] text-gray-900 hover:from-[#e0b000] hover:to-[#d97706] shadow-md"
+                          : "bg-gradient-to-r from-[#02488C] to-[#0369a1] text-white hover:from-[#023e7a] hover:to-[#0284c7] shadow-md"
+                      }`}
+                    >
+                      <Settings size={18} />
+                      <span className="whitespace-nowrap">
+                        {isConfigMode ? "Finalizar Configuração" : "Configurar Exibição"}
+                      </span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -377,32 +309,6 @@ export default function EventArrivalsPage() {
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
-              {!isConfigMode && (
-                <button
-                  onClick={exitCheckout}
-                  className="px-4 py-2.5 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200 flex items-center justify-center gap-2 font-medium text-sm sm:text-base"
-                >
-                  <LogOut size={18} />
-                  <span>Sair</span>
-                </button>
-              )}
-
-              <button
-                onClick={() => setIsConfigMode(!isConfigMode)}
-                className={`px-4 sm:px-6 py-2.5 rounded-lg flex items-center justify-center gap-2 font-medium transition-all duration-200 shadow-sm text-sm sm:text-base ${
-                  isConfigMode
-                    ? "bg-gradient-to-r from-[#FEC800] to-[#f59e0b] text-gray-900 hover:from-[#e0b000] hover:to-[#d97706] shadow-md"
-                    : "bg-gradient-to-r from-[#02488C] to-[#0369a1] text-white hover:from-[#023e7a] hover:to-[#0284c7] shadow-md"
-                }`}
-              >
-                <Settings size={18} />
-                <span className="whitespace-nowrap">
-                  {isConfigMode ? "Finalizar Configuração" : "Configurar Exibição"}
-                </span>
-              </button>
             </div>
           </div>
         </div>
@@ -590,152 +496,6 @@ export default function EventArrivalsPage() {
                       </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Coluna de Campos Personalizados */}
-                <div className="space-y-8">
-                  <div className="bg-gradient-to-br from-gray-50 to-blue-50/30 p-6 rounded-xl border border-gray-100">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                        <Info className="h-5 w-5 text-[#02488C]" />
-                        Campos Personalizados
-                      </h3>
-                      <button
-                        onClick={addNewCustomField}
-                        className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#FEC800] to-[#f59e0b] text-gray-900 hover:from-[#e0b000] hover:to-[#d97706] transition-all duration-200 flex items-center gap-2 font-medium shadow-md"
-                      >
-                        <Plus size={16} />
-                        <span>Adicionar Campo</span>
-                      </button>
-                    </div>
-
-                    <DragDropContext onDragEnd={handleDragEnd}>
-                      <Droppable droppableId="customFieldsList" type="customFields">
-                        {(provided: DroppableProvided) => (
-                          <div className="space-y-4" ref={provided.innerRef} {...provided.droppableProps}>
-                            {customFields.map((field, index) => (
-                              <Draggable key={field._id} draggableId={field._id} index={index}>
-                                {(provided: DraggableProvided) => (
-                                  <div
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    className={`p-4 rounded-lg border-2 transition-all duration-200 bg-white ${
-                                      selectedCustomFields.includes(field.label.toLowerCase())
-                                        ? "border-[#02488C] shadow-sm"
-                                        : "border-gray-200"
-                                    }`}
-                                  >
-                                    <div className="flex items-center justify-between mb-3">
-                                      <div className="flex items-center gap-3">
-                                        <div
-                                          {...provided.dragHandleProps}
-                                          className="cursor-grab hover:cursor-grabbing"
-                                        >
-                                          <GripVertical size={18} className="text-gray-400" />
-                                        </div>
-                                        <input
-                                          type="text"
-                                          value={field.label}
-                                          onChange={(e) =>
-                                            updateCustomField(field._id, {
-                                              label: e.target.value,
-                                            })
-                                          }
-                                          className="font-medium bg-transparent border-b-2 border-dashed border-gray-300 focus:border-[#02488C] focus:outline-none px-2 py-1 text-gray-900"
-                                        />
-                                      </div>
-                                      <div className="flex items-center gap-2">
-                                        <button
-                                          onClick={() => toggleCustomField(field.label.toLowerCase())}
-                                          className={`p-2 rounded-lg transition-all duration-200 ${
-                                            selectedCustomFields.includes(field.label.toLowerCase())
-                                              ? "bg-[#02488C] text-white shadow-md"
-                                              : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-                                          }`}
-                                        >
-                                          {selectedCustomFields.includes(field.label.toLowerCase()) ? (
-                                            <Check size={16} />
-                                          ) : (
-                                            <Plus size={16} />
-                                          )}
-                                        </button>
-                                        <button
-                                          onClick={() => removeCustomField(field._id)}
-                                          className="p-2 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-all duration-200"
-                                        >
-                                          <Trash2 size={16} />
-                                        </button>
-                                      </div>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-3">
-                                      <select
-                                        value={field.type}
-                                        onChange={(e) =>
-                                          updateCustomField(field._id, {
-                                            type: e.target.value as FieldType,
-                                          })
-                                        }
-                                        className="text-sm p-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-[#02488C] focus:border-[#02488C]"
-                                      >
-                                        <option value="text">Texto</option>
-                                        <option value="email">Email</option>
-                                        <option value="number">Número</option>
-                                        <option value="select">Seleção</option>
-                                      </select>
-                                      <input
-                                        type="text"
-                                        value={field.placeholder || ""}
-                                        onChange={(e) =>
-                                          updateCustomField(field._id, {
-                                            placeholder: e.target.value,
-                                          })
-                                        }
-                                        placeholder="Placeholder"
-                                        className="text-sm p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#02488C] focus:border-[#02488C]"
-                                      />
-                                    </div>
-                                    <div className="flex items-center mt-3">
-                                      <input
-                                        type="checkbox"
-                                        id={`required-${field._id}`}
-                                        checked={field.required}
-                                        onChange={(e) =>
-                                          updateCustomField(field._id, {
-                                            required: e.target.checked,
-                                          })
-                                        }
-                                        className="mr-2 w-4 h-4 text-[#02488C] bg-gray-100 border-gray-300 rounded focus:ring-[#02488C] focus:ring-2"
-                                      />
-                                      <label htmlFor={`required-${field._id}`} className="text-sm text-gray-700">
-                                        Campo obrigatório
-                                      </label>
-                                    </div>
-                                  </div>
-                                )}
-                              </Draggable>
-                            ))}
-                            {provided.placeholder}
-                          </div>
-                        )}
-                      </Droppable>
-                    </DragDropContext>
-
-                    {customFields.length === 0 && (
-                      <div className="text-center py-12 bg-white rounded-lg border-2 border-dashed border-gray-200">
-                        <AlertCircle className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                        <h4 className="text-lg font-medium text-gray-900 mb-2">Nenhum campo personalizado</h4>
-                        <p className="text-gray-600 mb-4">
-                          Adicione campos personalizados para coletar informações específicas
-                        </p>
-                        <button
-                          onClick={addNewCustomField}
-                          className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#FEC800] to-[#f59e0b] text-gray-900 hover:from-[#e0b000] hover:to-[#d97706] transition-all duration-200 font-medium shadow-md"
-                        >
-                          Adicionar Campo
-                        </button>
-                      </div>
-                    )}
-                  </div>
 
                   {/* Preview */}
                   {previewMode && (
@@ -786,29 +546,6 @@ export default function EventArrivalsPage() {
                                   </div>
                                 )
                               })}
-
-                            {selectedCustomFields.map((fieldId) => {
-                              const field = customFields.find((f) => f.label.toLowerCase() === fieldId)
-                              if (!field) return null
-
-                              return (
-                                <div
-                                  key={fieldId}
-                                  className="flex items-center justify-center gap-2 text-gray-600 bg-gray-50 rounded-lg p-2"
-                                >
-                                  <Info size={16} />
-                                  <span className="text-sm">
-                                    {fieldId === "cargo"
-                                      ? "Desenvolvedora Frontend"
-                                      : fieldId === "empresa"
-                                        ? "TechCorp"
-                                        : fieldId === "interesse"
-                                          ? "React, TypeScript"
-                                          : field.label}
-                                  </span>
-                                </div>
-                              )
-                            })}
 
                             {commonParameter && (
                               <div className="flex items-center justify-center gap-2 text-[#FEC800] bg-yellow-50 rounded-lg p-2 border border-yellow-200">
