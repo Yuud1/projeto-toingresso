@@ -145,21 +145,6 @@ const months = [
   "Dec",
 ];
 
-const mockCheckouts: CheckoutData[] = [
-  {
-    id: "1",
-    customerName: "João Silva",
-    customerEmail: "joao@email.com",
-    eventName: "Workshop React",
-    ticketType: "VIP",
-    quantity: 2,
-    totalAmount: 150.0,
-    purchaseDate: "2024-01-15T10:30:00Z",
-    status: "completed",
-  },
-  // ... (outros mockCheckouts)
-];
-
 export default function MyEvents() {
   const token = localStorage.getItem("token");
   const { user } = useUser();
@@ -200,7 +185,7 @@ export default function MyEvents() {
       courseDescription: "",
       template: "modern",
     });
-  const [checkouts] = useState<CheckoutData[]>(mockCheckouts);
+  const [checkouts] = useState<CheckoutData[]>([]);
 
   // Estados para aba de certificados
   const [showCertificateTutorial, setShowCertificateTutorial] = useState(true);
@@ -1114,24 +1099,6 @@ export default function MyEvents() {
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Total de Eventos
-                    </CardTitle>
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {formatNumber(dashboardMetrics.totalEvents)}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {formatNumber(dashboardMetrics.activeEvents)} eventos
-                      ativos
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
                       Ingressos Vendidos
                     </CardTitle>
                     <Ticket className="h-4 w-4 text-muted-foreground" />
@@ -1140,11 +1107,39 @@ export default function MyEvents() {
                     <div className="text-2xl font-bold">
                       {formatNumber(dashboardMetrics.totalTicketsSold)}
                     </div>
+                    <p className="text-xs text-muted-foreground">Vendas no total</p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Ingressos Restantes
+                    </CardTitle>
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {formatNumber(dashboardMetrics.upcomingEvents)}
+                    </div>
                     <p className="text-xs text-muted-foreground">
-                      {selectedDashboardEvent
-                        ? "Em todos os eventos"
-                        : "Neste evento"}
+                      Ingressos disponíveis
                     </p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Ingressos Cancelados
+                    </CardTitle>
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {formatNumber(dashboardMetrics.totalEvents)}
+                    </div>
+                    <p className="text-xs text-muted-foreground">Cancelados no total</p>
                   </CardContent>
                 </Card>
 
@@ -1159,28 +1154,7 @@ export default function MyEvents() {
                     <div className="text-2xl font-bold">
                       {formatCurrency(dashboardMetrics.totalRevenue)}
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      {selectedDashboardEvent 
-                        ? "Em todos os eventos"
-                        : "Neste evento"}
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Próximos Eventos
-                    </CardTitle>
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {formatNumber(dashboardMetrics.upcomingEvents)}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Eventos futuros
-                    </p>
+                    <p className="text-xs text-muted-foreground">Neste evento</p>
                   </CardContent>
                 </Card>
               </div>

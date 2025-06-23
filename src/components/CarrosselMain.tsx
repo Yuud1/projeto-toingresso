@@ -30,14 +30,12 @@ export default function CarrosselMain() {
   const swiperRef = useRef<SwiperCore>();
 
   useEffect(() => {
-    // Aguarda o carregamento completo para iniciar o autoplay
     const timer = setTimeout(() => {
       setSwiperReady(true);
       if (swiperRef.current?.autoplay) {
         swiperRef.current.autoplay.start();
       }
-    }, 100); // pode aumentar se necessário
-
+    }, 100);
     return () => clearTimeout(timer);
   }, []);
 
@@ -73,59 +71,59 @@ export default function CarrosselMain() {
                 <img
                   src={image.src}
                   alt={`slide-${idx}`}
-                  className="w-full h-full object-cover rounded-2xl shadow-lg"
+                  className="carousel-img w-full h-full object-cover rounded-2xl shadow-lg"
                 />
               </Link>
             </SwiperSlide>
           ))}
         </Swiper>
       )}
-      <style>
-        {`
-    .swiper-button-next,
-    .swiper-button-prev {
-      color: #facc15;
-      transition: color 0.3s ease;
-    }
+      <style>{`
+        /* Navegação */
+        .swiper-button-next,
+        .swiper-button-prev {
+          color: #facc15;
+          transition: color 0.3s ease;
+        }
 
-    .swiper-button-next:hover,
-    .swiper-button-prev:hover {
-      color: #fbbf24;
-    }
+        .swiper-button-next:hover,
+        .swiper-button-prev:hover {
+          color: #fbbf24;
+        }
 
-    @media (max-width: 640px) {
-      .swiper-button-next,
-      .swiper-button-prev {
-        display: none;
-      }
-    }
+        @media (max-width: 640px) {
+          .swiper-button-next,
+          .swiper-button-prev {
+            display: none;
+          }
+        }
 
-    .swiper-slide {
-      filter: blur(4px) brightness(0.8);
-      transition: filter 0.4s ease;
-    }
+        /* Imagem com filtro suave e transição */
+        .carousel-img {
+          filter: blur(4px) brightness(0.6);
+          transition: filter 0.6s ease-in-out;
+        }
 
-    .swiper-slide-active {
-      filter: none !important;
-    }
+        .swiper-slide-prev .carousel-img,
+        .swiper-slide-next .carousel-img {
+          filter: blur(2px) brightness(0.85);
+        }
 
-    .swiper-slide-prev,
-    .swiper-slide-next {
-      filter: blur(2px) brightness(0.95);
-    }
+        .swiper-slide-active .carousel-img {
+          filter: blur(0px) brightness(1);
+        }
 
-    /* Largura dos slides: desktop e mobile */
-    .swiper-slide-custom {
-      width: 500px;
-    }
+        /* Tamanho dos slides */
+        .swiper-slide-custom {
+          width: 500px;
+        }
 
-    @media (max-width: 640px) {
-      .swiper-slide-custom {
-        width: 90vw;
-      }
-    }
-  `}
-      </style>
+        @media (max-width: 640px) {
+          .swiper-slide-custom {
+            width: 90vw;
+          }
+        }
+      `}</style>
     </div>
   );
 }

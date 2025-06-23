@@ -1,6 +1,6 @@
 import type React from "react";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,8 @@ import { User, Camera, Facebook, Instagram, Globe } from "lucide-react";
 import { useUser } from "@/contexts/useContext";
 import AddCardForm from "../components/AddCardForm";
 import axios from "axios";
+import { formatCPF } from "@/utils/formatUtils";
+import UserInterface from "@/interfaces/UserInterface";
 
 interface TabProps {
   isActive: boolean;
@@ -59,13 +61,33 @@ export default function Profile() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState<UserInterface>({
+    name: "",
+    email: "",
+    phoneNumber: "",
+    birthdaydata: "",
+    facebook: "",
+    instagram: "",
+    mysite: "",
+    cpf: "",
+    avatar: "",
+    _id: "",
+    emailVerified: "false",
+    tickets: [],
+    type: "user",
+  });
   const [statusSaving, setStatusSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
   const [showAddCard, setShowAddCard] = useState(false);
 
   const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    if (user) {
+      setFormData(user);
+    }
+  }, [user]);
 
   const [cards, setCards] = useState([
     {
@@ -103,9 +125,12 @@ export default function Profile() {
     const value = e.target.value;
     const name = e.target.name;
 
+    const onlyNumbers = value.replace(/\D/g, ""); // remove tudo que não é número
+
+    const maskedValue = name === "cpf" ? formatCPF(onlyNumbers) : value;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: maskedValue,
     }));
   };
 
@@ -404,10 +429,13 @@ export default function Profile() {
                       <Input
                         type="text"
                         placeholder="000.000.000-00"
-                        className="pl-10"
+                        className=""
                         name="cpf"
                         defaultValue={user?.cpf}
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         onChange={handleChange}
+                        value={formData.cpf}
                       />
                     </div>
                   </div>
@@ -655,70 +683,70 @@ export default function Profile() {
 
             {activeTab === "avancada" && (
               <form onSubmit={handleSubmit}>
-              <div className="space-y-6">
-                <div className="bg-white p-6 rounded-lg border">
-                  <h3 className="text-lg font-semibold mb-4">
-                    Configurações avançadas
-                  </h3>
-                  <div className="space-y-6">
-                    <div>
-                      <h4 className="font-medium mb-2">Alterar senha</h4>
-                      <div className="space-y-4">
-                        <Input
-                          type="password"
-                          id="newPassword"
-                          placeholder="Nova senha"
-                          name="newPassword"
-                          onChange={handleChange}
-                        />
-                        <Input
-                          type="password"
-                          id="confirmNewPassword"
-                          placeholder="Confirmar nova senha"
-                          name="confirmNewPassword"
-                          onChange={handleChange}
-                        />
-                        <div className="w-full h-full">
-                          <p className="text-sm text-destructive">
-                            {errorMessage}
+                <div className="space-y-6">
+                  <div className="bg-white p-6 rounded-lg border">
+                    <h3 className="text-lg font-semibold mb-4">
+                      Configurações avançadas
+                    </h3>
+                    <div className="space-y-6">
+                      <div>
+                        <h4 className="font-medium mb-2">Alterar senha</h4>
+                        <div className="space-y-4">
+                          <Input
+                            type="password"
+                            id="newPassword"
+                            placeholder="Nova senha"
+                            name="newPassword"
+                            onChange={handleChange}
+                          />
+                          <Input
+                            type="password"
+                            id="confirmNewPassword"
+                            placeholder="Confirmar nova senha"
+                            name="confirmNewPassword"
+                            onChange={handleChange}
+                          />
+                          <div className="w-full h-full">
+                            <p className="text-sm text-destructive">
+                              {errorMessage}
+                            </p>
+                          </div>
+                          <Button
+                            className="bg-[#02488C] text-white hover:bg-[#023a6f] cursor-pointer"
+                            disabled={loading}
+                          >
+                            {loading ? "Atualizando..." : "Atualizar senha"}
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="border-t pt-6">
+                        <h4 className="font-medium mb-2 text-red-600">
+                          Zona de perigo
+                        </h4>
+                        <p className="text-sm text-gray-500 mb-4">
+                          Ações irreversíveis que afetarão permanentemente sua
+                          conta
+                        </p>
+                        <div className="space-y-4">
+                          <Button
+                            variant="outline"
+                            className="border-red-500 text-destructive hover:bg-red-500 hover:text-white cursor-pointer"
+                            disabled={loading}
+                            onClick={handleDelete}
+                          >
+                            Excluir minha conta
+                          </Button>
+                          <p className="text-xs text-gray-500">
+                            Ao excluir sua conta, todos os seus dados serão
+                            permanentemente removidos e não poderão ser
+                            recuperados.
                           </p>
                         </div>
-                        <Button
-                          className="bg-[#02488C] text-white hover:bg-[#023a6f] cursor-pointer"
-                          disabled={loading}                          
-                        >
-                          {loading ? "Atualizando..." : "Atualizar senha"}
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="border-t pt-6">
-                      <h4 className="font-medium mb-2 text-red-600">
-                        Zona de perigo
-                      </h4>
-                      <p className="text-sm text-gray-500 mb-4">
-                        Ações irreversíveis que afetarão permanentemente sua
-                        conta
-                      </p>
-                      <div className="space-y-4">
-                        <Button
-                          variant="outline"
-                          className="border-red-500 text-destructive hover:bg-red-500 hover:text-white cursor-pointer"
-                          disabled={loading}
-                          onClick={handleDelete}
-                        >
-                          Excluir minha conta
-                        </Button>
-                        <p className="text-xs text-gray-500">
-                          Ao excluir sua conta, todos os seus dados serão
-                          permanentemente removidos e não poderão ser
-                          recuperados.
-                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
               </form>
             )}
           </div>
