@@ -10,14 +10,14 @@ import {
   Search,
   CalendarPlus,
   Ticket,
-  ClipboardList,  
+  ClipboardList,
   Heart,
   User,
   HelpCircle,
   LogOut,
   LogIn,
   Menu,
-  X
+  X,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -28,6 +28,8 @@ import {
 import { useUser } from "@/contexts/useContext";
 import getInitials from "@/utils/getInitials";
 import { Avatar } from "./ui/avatar";
+import axios from "axios";
+import EventInterface from "@/interfaces/EventInterface";
 type HeaderProps = {
   isScrolled?: boolean;
 };
@@ -92,6 +94,51 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
 
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [filteredEvents, setFilteredEvents] = useState<EventInterface[] | null>(
+    null
+  );
+  console.log(filteredEvents);
+
+  const [querySearch, setQuerySearch] = useState<string | null>(null);
+
+  async function getActiveFilterEvents() {
+    try {
+      console.log(
+        "Chamando rota:",
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_GET_FILTERED_EVENTS
+        }`
+      );
+      console.log("Com params:", { querySearch, activeFilter });
+
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_GET_FILTERED_EVENTS
+        }`,
+        {
+          params: { querySearch, activeFilter },
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      console.log(response);
+
+      if (response.data.eventos) {
+        setFilteredEvents(response.data.eventos);
+      }
+    } catch (error: any) {
+      console.log("Fudeu manooo: ", error);
+    }
+  }
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (querySearch || activeFilter) {
+        getActiveFilterEvents();
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounce);
+  }, [querySearch, activeFilter]);
 
   useEffect(() => {
     if (isScrolledProp === undefined) {
@@ -162,12 +209,15 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
           }}
         >
           <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium">
-            
-            {user?.avatar ? (<Avatar src={user.avatar} className="max-w-10 max-h-10"></Avatar>) :  getInitials(user.name)}
+            {user?.avatar ? (
+              <Avatar src={user.avatar} className="max-w-10 max-h-10"></Avatar>
+            ) : (
+              getInitials(user.name)
+            )}
           </div>
-           <div className="p-1">
+          <div className="p-1">
             {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </div> 
+          </div>
         </div>
 
         {isOpen && (
@@ -326,7 +376,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 w-full z-50 bg-white transition-all duration-300 p-5",
+        "fixed top-0 left-0 w-full z-50 bg-white/80 transition-all duration-300 p-5",
         isScrolled ? "shadow-md py-2" : "py-4"
       )}
     >
@@ -457,6 +507,9 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                 name="filter"
                 id="filter"
                 placeholder="Pesquisar eventos, shows, teatros, cursos"
+                onChange={(e) => {
+                  setQuerySearch(e.target.value);
+                }}
                 className={cn(
                   "pl-12 pr-6 text-base shadow-lg rounded-xl transition-all duration-300",
                   isScrolled ? "py-5" : "py-7"
