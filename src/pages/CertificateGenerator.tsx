@@ -213,25 +213,8 @@ export default function CertificateGenerator({
           )}
         </div>
 
-        <Button
-          onClick={handleGenerate}
-          disabled={isGenerating || !selectedEvent || !pdfTemplate}
-          className="w-full cursor-pointer"
-          size="lg"
-        >
-          {isGenerating ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Gerando
-              Certificados...
-            </>
-          ) : (
-            <>
-              <Award className="mr-2 h-4 w-4" /> Gerar Certificados
-            </>
-          )}
-        </Button>
-
-        <Button
+       <div className="flex flex-col gap-5">
+         <Button
           onClick={handleGenerateTeste}
           disabled={isGenerating || !selectedEvent || !pdfTemplate}
           className="w-full cursor-pointer"
@@ -248,6 +231,25 @@ export default function CertificateGenerator({
             </>
           )}
         </Button>
+
+        <Button
+          onClick={handleGenerate}
+          disabled={isGenerating || !selectedEvent || !pdfTemplate}
+          className="w-full cursor-pointer"
+          size="lg"
+        >
+          {isGenerating ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Gerando
+              Certificados...
+            </>
+          ) : (
+            <>
+              <Award className="mr-2 h-4 w-4" /> Gerar Todos os Certificados
+            </>
+          )}
+        </Button>
+       </div>
       </CardContent>
     </Card>
   );

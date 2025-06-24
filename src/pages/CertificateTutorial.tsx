@@ -149,9 +149,6 @@ export default function CertificateTutorial({ onProceed }: CertificateTutorialPr
                     <li>
                       <code className="bg-yellow-100 px-1 rounded">#nome_do_participante</code>
                     </li>
-                    <li>
-                      <code className="bg-yellow-100 px-1 rounded">#nome_do_evento</code>
-                    </li>
                   </ul>
                 </li>
                 <li>Formate o texto (tamanho, fonte, espaçamento) conforme desejado</li>
@@ -168,7 +165,6 @@ export default function CertificateTutorial({ onProceed }: CertificateTutorialPr
                 <p className="mb-4">Certificamos que</p>
                 <p className="text-lg font-bold text-blue-600 mb-4">#nome_do_participante</p>
                 <p className="mb-4">participou com êxito do evento</p>
-                <p className="text-lg font-bold text-blue-600 mb-4">#nome_do_evento</p>
                 <p>realizado nos dias 10 e 11 de junho de 2023, com carga horária total de 16 horas.</p>
               </div>
               <p className="text-sm text-center mt-2 text-gray-600">Exemplo: Texto com campos substituíveis</p>
@@ -219,8 +215,7 @@ export default function CertificateTutorial({ onProceed }: CertificateTutorialPr
               <ol className="list-decimal pl-5 space-y-2">
                 <li>Abra o PDF que você acabou de criar</li>
                 <li>
-                  Verifique se os campos <code className="bg-yellow-100 px-1 rounded">#nome_do_participante</code> e{" "}
-                  <code className="bg-yellow-100 px-1 rounded">#nome_do_evento</code> estão visíveis e escritos
+                  Verifique se o campo <code className="bg-yellow-100 px-1 rounded">#nome_do_participante</code> está visível e escrito
                   corretamente
                 </li>
                 <li>
@@ -250,9 +245,8 @@ export default function CertificateTutorial({ onProceed }: CertificateTutorialPr
                   </div>
                 </div>
                 <div className="border border-dashed border-gray-400 p-3 text-center">
-                  <p className="text-sm">Visualização do PDF final com os campos:</p>
+                  <p className="text-sm">Visualização do PDF final com o campo:</p>
                   <p className="text-xs text-blue-600 mt-2">#nome_do_participante</p>
-                  <p className="text-xs text-blue-600 mt-1">#nome_do_evento</p>
                   <p className="text-xs text-red-600 mt-2">✓ Assinatura verificada</p>
                 </div>
               </div>
@@ -267,8 +261,7 @@ export default function CertificateTutorial({ onProceed }: CertificateTutorialPr
         <ul className="list-disc pl-5 space-y-3">
           <li>
             Use <strong>exatamente</strong> os campos{" "}
-            <code className="bg-green-100 px-1 rounded">#nome_do_participante</code> e{" "}
-            <code className="bg-green-100 px-1 rounded">#nome_do_evento</code>
+            <code className="bg-green-100 px-1 rounded">#nome_do_participante</code>
           </li>
           <li>Não altere a grafia dos campos (mantenha o # e as letras minúsculas)</li>
           <li className="font-bold text-red-700">

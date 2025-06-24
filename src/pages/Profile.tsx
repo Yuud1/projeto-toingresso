@@ -695,6 +695,13 @@ export default function Profile() {
                           <Input
                             type="password"
                             id="newPassword"
+                            placeholder="Senha atual"
+                            name="newPassword"
+                            onChange={handleChange}
+                          />
+                          <Input
+                            type="password"
+                            id="newPassword"
                             placeholder="Nova senha"
                             name="newPassword"
                             onChange={handleChange}
@@ -722,7 +729,7 @@ export default function Profile() {
 
                       <div className="border-t pt-6">
                         <h4 className="font-medium mb-2 text-red-600">
-                          Zona de perigo
+                          Ação irreversível
                         </h4>
                         <p className="text-sm text-gray-500 mb-4">
                           Ações irreversíveis que afetarão permanentemente sua

@@ -435,8 +435,8 @@ export default function EventArrivalsPage() {
                     </div>
                   </div>
                 </div>
-                <div>
-                                    <div className="bg-gradient-to-br from-yellow-50 to-orange-50/30 p-6 rounded-xl border border-yellow-200">
+                <div className="flex flex-col gap-8">
+                  <div className="bg-gradient-to-br from-yellow-50 to-orange-50/30 p-6 rounded-xl border border-yellow-200">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                       <Sparkles className="h-5 w-5 text-[#FEC800]" />
                       Parâmetro Comum
