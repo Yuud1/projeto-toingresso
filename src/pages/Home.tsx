@@ -17,9 +17,9 @@ export default function Home() {
         <div className="max-w-full">
           <section className="h-full bg-[#FEC800]">
             <div className="max-w-7xl mx-auto px-8">
-              <Category />
-              <AdBanner />
               <EventGrid />
+              <AdBanner />
+              <Category />
             </div>
           </section>
         </div>

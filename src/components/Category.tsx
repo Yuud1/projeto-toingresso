@@ -8,6 +8,9 @@ import {
   Trophy,
   ChevronLeft,
   ChevronRight,
+  MapPin,
+  Clock,
+  Calendar,
 } from "lucide-react";
 
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -17,6 +20,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import EventInterface from "@/interfaces/EventInterface";
 import axios from "axios";
+import { Avatar } from "./ui/avatar";
 
 // Esse categories tem que ser igual ao que é no formulário de  cadastro de evento.
 const categories = [
@@ -43,19 +47,22 @@ const Category: React.FC = () => {
   }, []);
 
   useEffect(() => {
-
-    async function getEventsCategory(){
-      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_GET_ALL_EVENTS_WITH_CATEGORY}${activeCategory}`);
+    async function getEventsCategory() {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_GET_ALL_EVENTS_WITH_CATEGORY
+        }${activeCategory}`
+      );
 
       if (response.data.events) {
-        setEventsCategory(response.data.events)
+        setEventsCategory(response.data.events);
       }
     }
 
-    if (activeCategory !== null) {      
+    if (activeCategory !== null) {
       getEventsCategory();
     }
-  },[activeCategory])
+  }, [activeCategory]);
 
   const showCarousel = isMobile
     ? eventsCategory.length > 3
@@ -63,9 +70,14 @@ const Category: React.FC = () => {
 
   return (
     <div>
-      <h2 className="text-[#414141] text-2xl font-bold mb-8 pt-8">Explore Momentos</h2>
+      <h2 className="text-[#414141] text-2xl font-bold mb-8 pt-8">
+        Explore Momentos
+      </h2>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 place-items-center mb-10" id="filter-grid">
+      <div
+        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 place-items-center mb-10"
+        id="filter-grid"
+      >
         {categories.map((cat, index) => {
           const isActive = activeCategory === cat.label;
 
@@ -73,11 +85,19 @@ const Category: React.FC = () => {
             <div
               key={index}
               onClick={() => setActiveCategory(cat.label)}
-              className={`flex flex-col items-center justify-center w-full aspect-square max-w-[130px] rounded-md shadow-sm cursor-pointer transition-all
-                ${isActive ? 'bg-[#02488C] text-white shadow-md' : 'bg-white text-gray-700 hover:shadow-md'}
-              `}
+              className={`flex flex-col items-center justify-center w-full aspect-square max-w-[130px] rounded-md shadow-sm cursor-pointer transition-all duration-150 ease-in-out
+          ${
+            isActive
+              ? "bg-[#02488C] text-white shadow-md scale-105"
+              : "bg-white text-gray-700 hover:shadow-md hover:scale-105 active:scale-95"
+          }
+        `}
             >
-              <div className={`transition-colors ${isActive ? 'text-white' : 'text-[#02488C]'}`}>
+              <div
+                className={`transition-transform duration-150 ${
+                  isActive ? "scale-110 text-white" : "text-[#02488C]"
+                }`}
+              >
                 {cat.icon}
               </div>
               <span className="mt-2 text-center text-sm">{cat.label}</span>
@@ -108,7 +128,7 @@ const Category: React.FC = () => {
             >
               {eventsCategory.map((event) => (
                 <SwiperSlide key={event._id}>
-                  <div className="bg-white rounded-lg overflow-hidden shadow hover:shadow-md transition-shadow">
+                  <div className="bg-white rounded-lg overflow-hidden shadow hover:shadow-md transition-shadow ">
                     <img
                       src={event.image}
                       alt={event.title}
@@ -133,21 +153,93 @@ const Category: React.FC = () => {
           </>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {eventsCategory.map((event) => (
-              <div key={event._id} className="bg-white rounded-lg overflow-hidden shadow hover:shadow-md transition-shadow">
-                <img
-                  src={event.image}
-                  alt={event.title}
-                  className="w-full h-40 object-cover"
-                />
-                <div className="p-3">
-                  <h3 className="text-sm font-semibold text-gray-800 truncate">
-                    {event.title}
-                  </h3>
-                  <p className="text-xs text-gray-500">{event.city}</p>
-                </div>
-              </div>
-            ))}
+            {eventsCategory.map((event) => {                            
+              const isFree = event.isFree;
+              const startDate = new Date(event.startDate).toLocaleDateString(
+                "pt-BR",
+                {
+                  day: "2-digit",
+                  month: "short",
+                }
+              );
+              const startTime = event.startTime.slice(0, 5);
+
+              return (
+                <a href={`/evento/${event._id}`}>
+                  <div
+                    key={event._id}
+                    className="w-full h-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer mb-10"
+                  >
+                    {/* Imagem */}
+                    <div className="relative">
+                      <img
+                        src={event.image || "/placeholder.svg"}
+                        alt={event.title}
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="absolute top-3 right-3">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            isFree
+                              ? "bg-green-100 text-green-700"
+                              : "bg-blue-100 text-blue-700"
+                          }`}
+                        >
+                          {isFree ? "Gratuito" : "Pago"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Conteúdo */}
+                    <div className="p-5">
+                      <h3 className="font-bold text-lg text-gray-900 line-clamp-2">
+                        {event.title}
+                      </h3>
+
+                      {/* Localização */}
+                      <div className="flex items-start gap-2 mb-3">
+                        <div className="text-sm text-gray-600">
+                          <p className="font-medium">
+                            {event.venueName} | {event.state}
+                          </p>{" "}
+                        </div>
+                      </div>
+
+                      {/* Data e Hora */}
+                      <div className="flex items-center mb-3 justify-between ">
+                        <div className="flex items-center gap-1 text-gray-600">
+                          <Calendar className="w-4 h-4" />
+                          <span className="text-sm">{startDate}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-gray-600">
+                          <Clock className="w-4 h-4" />
+                          <span className="text-sm">{startTime}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-gray-600">
+                          <MapPin className="w-4 h-4" />
+                          <p>
+                            {event.neighborhood}, {event.city}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Organizador */}
+                      <div className="pt-3 border-t border-gray-100 flex">
+                        <p className="text-xs text-gray-500 flex items-center justify-center">
+                          <span className="font-medium text-gray-700 flex justify-center items-center gap-3">
+                            <Avatar
+                              src={event.organizer.avatar}
+                              className="max-w-10 max-h-10 border"
+                            />
+                            {event.organizer?.name}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              );
+            })}
           </div>
         )}
       </div>
