@@ -19,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { log } from "console";
 
 const estadosMunicipios = {
   AC: { nome: "Acre" },
