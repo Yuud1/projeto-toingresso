@@ -27,7 +27,7 @@ const images = [
 
 export default function CarrosselMain() {
   const [swiperReady, setSwiperReady] = useState(false);
-  const swiperRef = useRef<SwiperCore>();
+  const swiperRef = useRef<SwiperCore | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
