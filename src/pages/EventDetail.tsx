@@ -6,6 +6,7 @@ import { User, Heart } from "lucide-react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import EventInterface from "@/interfaces/EventInterface";
+import OrganizerInterface from "@/interfaces/OrganizerInterface";
 import FreeEventForm from "@/components/FreeEventForm";
 import Subscribed from "@/pages/Subscribed";
 
@@ -14,6 +15,7 @@ const EventDetail = () => {
 
   const [isFavorited, setIsFavorited] = useState(false);
   const [event, setEvents] = useState<EventInterface | undefined>(undefined);
+  const [organizer, setOrganizer] = useState<OrganizerInterface | null>(null);
   const [subscribed, setSubscribed] = useState(false);
   const [qrCode, setQrCode] = useState(null);
 
@@ -127,16 +129,17 @@ const EventDetail = () => {
             <p className="text-[#414141] leading-relaxed whitespace-pre-line">
               {event?.description}
             </p>
+
             {/* Seção do Anunciante */}
             <div className="mt-8 pt-8 border-t border-gray-200">
               <h3 className="text-lg font-semibold mb-4 text-[#414141]">
                 Organizador do evento
               </h3>
               <a
-                href={event?.organizer.avatar}
-                className="flex items-center gap-3 hover:bg-gray-50 p-3 rounded-lg transition-colors cursor-pointer"
+                href={`/organizer/${organizer?.id}`}
+                className="flex items-center gap-4 hover:bg-gray-50 p-4 rounded-lg transition-colors cursor-pointer border"
               >
-                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden ">
+                <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
                   {event?.organizer.avatar ? (
                     <img
                       src={event.organizer.avatar}
@@ -220,7 +223,7 @@ const EventDetail = () => {
           </h2>
           <div className="w-full h-[400px]">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1963.4955007216295!2d-48.337388507953854!3d-10.181385600694082!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9324cb6b090918a5%3A0xec2ad53ac4f6cb12!2sBrasif%20M%C3%A1quinas!5e0!3m2!1spt-BR!2sbr!4v1749832543882!5m2!1spt-BR!2sbr" 
+              src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1963.4955007216295!2d-48.337388507953854!3d-10.181385600694082!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9324cb6b090918a5%3A0xec2ad53ac4f6cb12!2sBrasif%20M%C3%A1quinas!5e0!3m2!1spt-BR!2sbr!4v1749832543882!5m2!1spt-BR!2sbr"
               width="100%"
               height="100%"
               className="rounded-lg border"

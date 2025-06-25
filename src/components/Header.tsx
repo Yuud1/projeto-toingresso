@@ -208,9 +208,9 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
             }
           }}
         >
-          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium">
+          <div className="w-6 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium">
             {user?.avatar ? (
-              <Avatar src={user.avatar} className="max-w-10 max-h-10"></Avatar>
+              <Avatar src={user.avatar} className="w-9 h-9"></Avatar>
             ) : (
               getInitials(user.name)
             )}

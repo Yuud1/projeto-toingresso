@@ -18,11 +18,11 @@ import { Navigation } from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/navigation";
+
 import EventInterface from "@/interfaces/EventInterface";
 import axios from "axios";
 import { Avatar } from "./ui/avatar";
 
-// Esse categories tem que ser igual ao que é no formulário de  cadastro de evento.
 const categories = [
   { icon: <Music2 className="w-6 h-6" />, label: "Shows" },
   { icon: <Drama className="w-6 h-6" />, label: "Teatro" },
@@ -75,23 +75,29 @@ const Category: React.FC = () => {
       </h2>
 
       <div
-        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 place-items-center mb-10"
+        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 place-items-center mb-10"
         id="filter-grid"
       >
-        {categories.map((cat, index) => {
+        {categories.map((cat) => {
           const isActive = activeCategory === cat.label;
 
           return (
             <div
-              key={index}
-              onClick={() => setActiveCategory(cat.label)}
-              className={`flex flex-col items-center justify-center w-full aspect-square max-w-[130px] rounded-md shadow-sm cursor-pointer transition-all duration-150 ease-in-out
-          ${
-            isActive
-              ? "bg-[#02488C] text-white shadow-md scale-105"
-              : "bg-white text-gray-700 hover:shadow-md hover:scale-105 active:scale-95"
-          }
-        `}
+              key={cat.label}
+              onClick={() => {
+                if (activeCategory === cat.label) {
+                  setActiveCategory(null);
+                } else {
+                  setActiveCategory(cat.label);
+                }
+              }}
+              className={`flex flex-col items-center justify-center w-full aspect-square max-w-[150px] rounded-md shadow-sm cursor-pointer transition-all duration-150 ease-in-out
+                ${
+                  isActive
+                    ? "bg-[#02488C] text-white shadow-md scale-105"
+                    : "bg-white text-gray-700 hover:shadow-md hover:scale-105 active:scale-95"
+                }
+              `}
             >
               <div
                 className={`transition-transform duration-150 ${
@@ -128,7 +134,7 @@ const Category: React.FC = () => {
             >
               {eventsCategory.map((event) => (
                 <SwiperSlide key={event._id}>
-                  <div className="bg-white rounded-lg overflow-hidden shadow hover:shadow-md transition-shadow ">
+                  <div className="bg-white rounded-lg overflow-hidden shadow hover:shadow-md transition-shadow">
                     <img
                       src={event.image}
                       alt={event.title}
@@ -153,23 +159,17 @@ const Category: React.FC = () => {
           </>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {eventsCategory.map((event) => {                            
+            {eventsCategory.map((event) => {
               const isFree = event.isFree;
               const startDate = new Date(event.startDate).toLocaleDateString(
                 "pt-BR",
-                {
-                  day: "2-digit",
-                  month: "short",
-                }
+                { day: "2-digit", month: "short" }
               );
               const startTime = event.startTime.slice(0, 5);
 
               return (
-                <a href={`/evento/${event._id}`}>
-                  <div
-                    key={event._id}
-                    className="w-full h-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer mb-10"
-                  >
+                <a href={`/evento/${event._id}`} key={event._id}>
+                  <div className="w-full h-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer mb-10">
                     {/* Imagem */}
                     <div className="relative">
                       <img
@@ -201,12 +201,12 @@ const Category: React.FC = () => {
                         <div className="text-sm text-gray-600">
                           <p className="font-medium">
                             {event.venueName} | {event.state}
-                          </p>{" "}
+                          </p>
                         </div>
                       </div>
 
                       {/* Data e Hora */}
-                      <div className="flex items-center mb-3 justify-between ">
+                      <div className="flex items-center mb-3 justify-between">
                         <div className="flex items-center gap-1 text-gray-600">
                           <Calendar className="w-4 h-4" />
                           <span className="text-sm">{startDate}</span>
@@ -217,7 +217,7 @@ const Category: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-1 text-gray-600">
                           <MapPin className="w-4 h-4" />
-                          <p>
+                          <p className="text-sm">
                             {event.neighborhood}, {event.city}
                           </p>
                         </div>
@@ -225,15 +225,21 @@ const Category: React.FC = () => {
 
                       {/* Organizador */}
                       <div className="pt-3 border-t border-gray-100 flex">
-                        <p className="text-xs text-gray-500 flex items-center justify-center">
-                          <span className="font-medium text-gray-700 flex justify-center items-center gap-3">
-                            <Avatar
-                              src={event.organizer.avatar}
-                              className="max-w-10 max-h-10 border"
-                            />
-                            {event.organizer?.name}
-                          </span>
-                        </p>
+                        <div className="text-xs text-gray-500 flex items-center justify-center">
+                          {event.organizer ? (
+                            <span className="font-medium text-gray-700 flex justify-center items-center gap-3">
+                              <Avatar
+                                src={event.organizer.avatar}
+                                className="max-w-10 max-h-10 border"
+                              />
+                              {event.organizer.name}
+                            </span>
+                          ) : (
+                            <span className="italic text-gray-400">
+                              Organizador não informado
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>

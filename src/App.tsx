@@ -21,6 +21,7 @@ const LegalObligations = lazy(() => import("@/pages/LegalObligations"));
 const HalfPriceRules = lazy(() => import("@/pages/HalfPriceRules"));
 const Checkout = lazy(() => import("@/pages/Checkout"));
 const EventArrivals = lazy(() => import("@/pages/EventArrivals"));
+const Organizer = lazy(() => import("@/pages/Organizer"));
 
 // Páginas Admin
 const AdminDashboard = lazy(() => import("@/pages/admin/Dashboard"));
@@ -37,21 +38,29 @@ function App() {
           <Route path="/email-confirmed" element={<EmailConfirmed />} />
           <Route path="/evento/:id" element={<EventDetail />} />
           <Route path="/question-help" element={<QuestionHelp />} />
+
           <Route path="/" element={<Home />} />
           <Route path="/perfil" element={<Profile />} />
+          <Route path="/organizer/:id" element={<Organizer />} />
           <Route path="/criar-evento" element={<CreateEvent />} />
           <Route path="/meus-ingressos" element={<MyTickets />} />
-          <Route path="/meus-eventos" element={<MyEvents />} />
           <Route path="/favoritos" element={<Favorites />} />
+          <Route path="/meus-eventos" element={<MyEvents />} />
+          <Route path="/event-arrivals/:id" element={<EventArrivals />} />
+
+
+
+          <Route path="/checkouts" element={<Checkout />} />
+
+
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+
           <Route path="/termos-de-uso" element={<TermsOfUse />} />
           <Route path="/diretrizes-da-comunidade" element={<CommunityGuidelines />} />
           <Route path="/politica-de-privacidade" element={<PrivacyPolicy />} />
           <Route path="/obrigatoriedades-legais" element={<LegalObligations />} />
-          <Route path="/regra-da-meia-entrada" element={<HalfPriceRules />} />                  
-          <Route path="/checkouts" element={<Checkout />} />
-          <Route path="/event-arrivals/:id" element={<EventArrivals />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/regra-da-meia-entrada" element={<HalfPriceRules />} />
         </Routes>
     </Router>
   );

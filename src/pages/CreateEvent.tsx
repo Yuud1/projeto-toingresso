@@ -55,7 +55,8 @@ const CATEGORIES = [
   { value: "teatro", label: "Teatro" },
   { value: "esportes", label: "Esportes" },
   { value: "festas", label: "Festas" },
-  { value: "cursos", label: "Cursos" },
+  { value: "comedia", label: "Comédia" },
+  { value: "gospel", label: "Gospel" },
 ];
 
 export default function CreateEvent() {
