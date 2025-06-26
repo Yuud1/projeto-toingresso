@@ -1,6 +1,15 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Calendar, MapPin, Mail, Phone, Globe, Facebook, Instagram, User } from "lucide-react";
+import {
+  Calendar,
+  MapPin,
+  Mail,
+  Phone,
+  Globe,
+  Facebook,
+  Instagram,
+  User,
+} from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -19,7 +28,13 @@ interface OrganizerData extends OrganizerInterface {
   events?: EventInterface[];
 }
 
-const EventList = ({ events, isFinished = false }: { events: EventInterface[], isFinished?: boolean }) => {
+const EventList = ({
+  events,
+  isFinished = false,
+}: {
+  events: EventInterface[];
+  isFinished?: boolean;
+}) => {
   return (
     <div className="grid sm:grid-cols-2 gap-4">
       {events.map((event) => (
@@ -27,7 +42,7 @@ const EventList = ({ events, isFinished = false }: { events: EventInterface[], i
           key={event._id}
           href={`/evento/${event._id}`}
           className={`group block rounded-lg overflow-hidden border border-gray-200 hover:shadow-md transition-shadow ${
-            isFinished ? 'bg-gray-50' : ''
+            isFinished ? "bg-gray-50" : ""
           }`}
         >
           <div className="relative h-48">
@@ -35,7 +50,7 @@ const EventList = ({ events, isFinished = false }: { events: EventInterface[], i
               src={event.image}
               alt={event.title}
               className={`w-full h-full object-cover group-hover:scale-105 transition-transform ${
-                isFinished ? 'grayscale' : ''
+                isFinished ? "grayscale" : ""
               }`}
             />
             {isFinished && (
@@ -52,7 +67,9 @@ const EventList = ({ events, isFinished = false }: { events: EventInterface[], i
             </div>
             <div className="flex items-center gap-2 text-gray-600 text-sm mt-1">
               <MapPin size={14} />
-              <span>{event.neighborhood}, {event.city}</span>
+              <span>
+                {event.neighborhood}, {event.city}
+              </span>
             </div>
           </div>
         </a>
@@ -65,7 +82,9 @@ const Organizer = () => {
   const { id } = useParams();
   const [organizer, setOrganizer] = useState<OrganizerData | null>(null);
   const [events, setEvents] = useState<EventInterface[]>([]);
-  const [activeTab, setActiveTab] = useState<'upcoming' | 'finished'>('upcoming');
+  const [activeTab, setActiveTab] = useState<"upcoming" | "finished">(
+    "upcoming"
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -78,7 +97,9 @@ const Organizer = () => {
   const fetchOrganizerData = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_GET_USER_DATA}/${id}`,
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_GET_USER_DATA
+        }/${id}`,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
@@ -98,7 +119,7 @@ const Organizer = () => {
           website: userData.website,
           facebook: userData.facebook,
           instagram: userData.instagram,
-          cover: userData.cover || "/background-login.png"
+          cover: userData.cover || "/background-login.png",
         });
       }
     } catch (error) {
@@ -108,14 +129,15 @@ const Organizer = () => {
         name: "Organizador Exemplo",
         avatar: "/logo.png",
         avatarId: "",
-        description: "Somos uma organização dedicada a criar eventos incríveis e memoráveis para nossa comunidade.",
+        description:
+          "Somos uma organização dedicada a criar eventos incríveis e memoráveis para nossa comunidade.",
         location: "Brasília, DF",
         email: "contato@organizador.com",
         phone: "(61) 3333-4444",
         website: "www.organizador.com",
         facebook: "facebook.com/organizador",
         instagram: "@organizador",
-        cover: "/background-login.png"
+        cover: "/background-login.png",
       });
     }
   };
@@ -123,7 +145,9 @@ const Organizer = () => {
   const fetchOrganizerEvents = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_GET_USER_EVENTS}/${id}`,
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_GET_USER_EVENTS
+        }/${id}`,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
@@ -159,7 +183,7 @@ const Organizer = () => {
             id: id!,
             name: "Organizador Exemplo",
             avatar: "/logo.png",
-            avatarId: ""
+            avatarId: "",
           },
           acceptedTerms: true,
           policy: "Política do evento",
@@ -167,8 +191,19 @@ const Organizer = () => {
           isFree: false,
           customFields: [],
           ticketActivationToken: "",
-          mapUrl: ""
-        }
+          mapUrl: "",
+          subscribers: [
+            {
+              userId: "abc123",
+              fields: {
+                nome: "Lucas Yudi",
+                email: "lucas@example.com",
+              },
+              subscribedAt: new Date(),
+            },
+          ],
+          formTitle: "Formulário de Inscrição",
+        },
       ]);
     } finally {
       setLoading(false);
@@ -195,7 +230,9 @@ const Organizer = () => {
         <Header isScrolled={true} />
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-700">Organizador não encontrado</h1>
+            <h1 className="text-2xl font-bold text-gray-700">
+              Organizador não encontrado
+            </h1>
           </div>
         </div>
         <Footer />
@@ -203,8 +240,10 @@ const Organizer = () => {
     );
   }
 
-  const upcomingEvents = events.filter(event => event.status === 'active') || [];
-  const finishedEvents = events.filter(event => event.status === 'finished') || [];
+  const upcomingEvents =
+    events.filter((event) => event.status === "active") || [];
+  const finishedEvents =
+    events.filter((event) => event.status === "finished") || [];
 
   return (
     <>
@@ -214,7 +253,11 @@ const Organizer = () => {
       <div className="relative w-full h-[300px]">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${organizer.cover || '/background-login.png'})` }}
+          style={{
+            backgroundImage: `url(${
+              organizer.cover || "/background-login.png"
+            })`,
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
       </div>
@@ -236,7 +279,9 @@ const Organizer = () => {
               </div>
             )}
           </div>
-          <h1 className="mt-4 text-3xl font-bold text-center">{organizer.name}</h1>
+          <h1 className="mt-4 text-3xl font-bold text-center">
+            {organizer.name}
+          </h1>
           {organizer.location && (
             <div className="flex items-center gap-2 mt-2 text-gray-600">
               <MapPin size={16} />
@@ -253,7 +298,9 @@ const Organizer = () => {
             {organizer.description && (
               <section>
                 <h2 className="text-2xl font-bold mb-4">Sobre</h2>
-                <p className="text-gray-600 leading-relaxed">{organizer.description}</p>
+                <p className="text-gray-600 leading-relaxed">
+                  {organizer.description}
+                </p>
               </section>
             )}
 
@@ -263,28 +310,28 @@ const Organizer = () => {
               <div className="w-full">
                 <div className="flex border-b border-gray-200 mb-8">
                   <button
-                    onClick={() => setActiveTab('upcoming')}
+                    onClick={() => setActiveTab("upcoming")}
                     className={`px-4 py-2 text-base font-medium ${
-                      activeTab === 'upcoming'
-                        ? 'border-b-2 border-blue-600 text-blue-600'
-                        : 'text-gray-500 hover:text-gray-700'
+                      activeTab === "upcoming"
+                        ? "border-b-2 border-blue-600 text-blue-600"
+                        : "text-gray-500 hover:text-gray-700"
                     }`}
                   >
                     Próximos Eventos
                   </button>
                   <button
-                    onClick={() => setActiveTab('finished')}
+                    onClick={() => setActiveTab("finished")}
                     className={`px-4 py-2 text-base font-medium ${
-                      activeTab === 'finished'
-                        ? 'border-b-2 border-blue-600 text-blue-600'
-                        : 'text-gray-500 hover:text-gray-700'
+                      activeTab === "finished"
+                        ? "border-b-2 border-blue-600 text-blue-600"
+                        : "text-gray-500 hover:text-gray-700"
                     }`}
                   >
                     Eventos Encerrados
                   </button>
                 </div>
 
-                {activeTab === 'upcoming' ? (
+                {activeTab === "upcoming" ? (
                   upcomingEvents.length > 0 ? (
                     <EventList events={upcomingEvents} />
                   ) : (
@@ -308,30 +355,43 @@ const Organizer = () => {
             {/* Card de contato */}
             {(organizer.email || organizer.phone || organizer.website) && (
               <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
-                <h3 className="font-semibold text-lg mb-4">Informações de Contato</h3>
-                
+                <h3 className="font-semibold text-lg mb-4">
+                  Informações de Contato
+                </h3>
+
                 {organizer.email && (
                   <div className="flex items-center gap-3 text-gray-600">
                     <Mail size={18} />
-                    <a href={`mailto:${organizer.email}`} className="hover:text-blue-600">
+                    <a
+                      href={`mailto:${organizer.email}`}
+                      className="hover:text-blue-600"
+                    >
                       {organizer.email}
                     </a>
                   </div>
                 )}
-                
+
                 {organizer.phone && (
                   <div className="flex items-center gap-3 text-gray-600">
                     <Phone size={18} />
-                    <a href={`tel:${organizer.phone}`} className="hover:text-blue-600">
+                    <a
+                      href={`tel:${organizer.phone}`}
+                      className="hover:text-blue-600"
+                    >
                       {organizer.phone}
                     </a>
                   </div>
                 )}
-                
+
                 {organizer.website && (
                   <div className="flex items-center gap-3 text-gray-600">
                     <Globe size={18} />
-                    <a href={`https://${organizer.website}`} target="_blank" rel="noopener noreferrer" className="hover:text-blue-600">
+                    <a
+                      href={`https://${organizer.website}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-blue-600"
+                    >
                       {organizer.website}
                     </a>
                   </div>
@@ -355,10 +415,13 @@ const Organizer = () => {
                       <span>Facebook</span>
                     </a>
                   )}
-                  
+
                   {organizer.instagram && (
                     <a
-                      href={`https://instagram.com/${organizer.instagram.replace('@', '')}`}
+                      href={`https://instagram.com/${organizer.instagram.replace(
+                        "@",
+                        ""
+                      )}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 text-gray-600 hover:text-blue-600"
@@ -379,4 +442,4 @@ const Organizer = () => {
   );
 };
 
-export default Organizer; 
+export default Organizer;

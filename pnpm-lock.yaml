@@ -8235,6 +8235,7 @@ snapshots:
       react-number-format: 5.4.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react-router-dom: 7.6.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       recharts: 2.15.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      socket.io-client: 4.8.1
       sonner: 2.0.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       swiper: 11.2.7
       tailwind-merge: 3.3.0
@@ -8244,9 +8245,11 @@ snapshots:
       - '@react-native-async-storage/async-storage'
       - '@types/react'
       - '@types/react-dom'
+      - bufferutil
       - debug
       - react-native
       - supports-color
+      - utf-8-validate
       - vite
 
   tr46@1.0.1:

@@ -59,6 +59,8 @@ export default function MyTickets() {
   const [tickets, setTickets] = useState<UserTicketsInterface[] | undefined>(
     user?.tickets
   );
+  console.log(tickets);
+  
   const [openModalTicket, setOpenModalTicket] = useState(false);
   const [openModalTransfer, setOpenModalTransfer] = useState(false);
   const [transferTicketId, setTransferTicketId] = useState<string | undefined>(

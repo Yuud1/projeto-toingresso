@@ -25,6 +25,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((res) => {
+          console.log(res);
+          
           setUser(res.data.userFound);
         })
         .catch((err) => {

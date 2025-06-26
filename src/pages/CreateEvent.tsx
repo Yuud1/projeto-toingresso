@@ -65,6 +65,8 @@ export default function CreateEvent() {
   const [created, setCreated] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [clickedGratuito, setClickedGratuito] = useState(false);
+  const [buscandoCoordenadas, setBuscandoCoordenadas] = useState(false);
+  const [coordenadasEncontradas, setCoordenadasEncontradas] = useState(false);
   const [municipiosPorUF, setMunicipiosPorUF] = useState<
     Record<string, string[]>
   >({});
@@ -89,6 +91,8 @@ export default function CreateEvent() {
     neighborhood: "",
     city: "",
     state: "",
+    latitude: "",
+    longitude: "",
     tickets: [],
     isFree: false,
     customFields: [],
@@ -112,6 +116,55 @@ export default function CreateEvent() {
     } catch (err) {
       console.error("Erro ao buscar municípios:", err);
     }
+  };
+
+  // Função para buscar coordenadas pelo CEP
+  const buscarCoordenadasPorCEP = async (cep: string) => {
+    if (!cep || cep.length < 8) return;
+
+    setBuscandoCoordenadas(true);
+    try {
+      // Primeiro tenta buscar pelo CEP
+      const cepResponse = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const cepData = await cepResponse.json();
+
+      if (!cepData.erro) {
+        // Monta o endereço completo
+        const endereco = `${cepData.logradouro}, ${formData.number}, ${cepData.bairro}, ${cepData.localidade}, ${cepData.uf}, ${cep}`;
+        
+        // Usa o Google Geocoding para obter coordenadas
+        const geocodingResponse = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(endereco)}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`
+        );
+        const geocodingData = await geocodingResponse.json();
+
+        if (geocodingData.results && geocodingData.results.length > 0) {
+          const location = geocodingData.results[0].geometry.location;
+          setFormData(prev => ({
+            ...prev,
+            latitude: location.lat.toString(),
+            longitude: location.lng.toString(),
+            street: cepData.logradouro || prev.street,
+            neighborhood: cepData.bairro || prev.neighborhood,
+            city: cepData.localidade || prev.city,
+            state: cepData.uf || prev.state
+          }));
+          setCoordenadasEncontradas(true);
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao buscar coordenadas:', error);
+    } finally {
+      setBuscandoCoordenadas(false);
+    }
+  };
+
+  // Função para gerar URL do mapa com coordenadas
+  const getMapUrl = () => {
+    if (formData.latitude && formData.longitude) {
+      return `https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&q=${formData.latitude},${formData.longitude}&zoom=15`;
+    }
+    return "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1963.4955007216295!2d-48.337388507953854!3d-10.181385600694082!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9324cb6b090918a5%3A0xec2ad53ac4f6cb12!2sBrasif%20M%C3%A1quinas!5e0!3m2!1spt-BR!2sbr!4v1749832543882!5m2!1spt-BR!2sbr";
   };
 
   // Função para validar os campos da etapa atual
@@ -773,19 +826,38 @@ export default function CreateEvent() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   CEP *
                 </label>
-                <Input
-                  type="text"
-                  value={formatCEP(formData.zipCode)}
-                  onChange={(e) => {
-                    const rawValue = e.target.value.replace(/\D/g, "");
-                    setFormData((prev) => ({ ...prev, zipCode: rawValue }));
-                  }}
-                  placeholder="00000-000"
-                  className="w-full"
-                  maxLength={9}
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    type="text"
+                    value={formatCEP(formData.zipCode)}
+                    onChange={(e) => {
+                      const rawValue = e.target.value.replace(/\D/g, "");
+                      setFormData((prev) => ({ ...prev, zipCode: rawValue }));
+                      setCoordenadasEncontradas(false);
+                      
+                      // Busca coordenadas quando o CEP estiver completo
+                      if (rawValue.length === 8) {
+                        buscarCoordenadasPorCEP(rawValue);
+                      }
+                    }}
+                    placeholder="00000-000"
+                    className="w-full"
+                    maxLength={9}
+                    required
+                  />
+                  {buscandoCoordenadas && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                    </div>
+                  )}
+                </div>
                 {renderError("zipCode")}
+                {buscandoCoordenadas && (
+                  <p className="mt-1 text-sm text-blue-600">Buscando localização...</p>
+                )}
+                {coordenadasEncontradas && !buscandoCoordenadas && (
+                  <p className="mt-1 text-sm text-green-600">✓ Localização encontrada!</p>
+                )}
               </div>
             </div>
 
@@ -929,6 +1001,27 @@ export default function CreateEvent() {
                 </Select>
                 {renderError("state")}
               </div>
+            </div>
+
+            {/* Mapa */}
+            <div className="mt-8">
+              <h3 className="text-lg font-medium text-gray-800 mb-4">
+                Localização no Mapa
+              </h3>
+              <div className="w-full h-[400px] rounded-lg overflow-hidden shadow-lg border">
+                <iframe
+                  src={getMapUrl()}
+                  width="100%"
+                  height="100%"
+                  className="border-0"
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+              <p className="text-sm text-gray-600 mt-2">
+                O mapa será atualizado automaticamente com as coordenadas do endereço informado.
+              </p>
             </div>
           </div>
         );

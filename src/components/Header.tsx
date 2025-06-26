@@ -1,13 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useNavigate, useLocation } from "react-router-dom";
+import SearchDropdown from "./SearchDropdown";
 
 import {
   ChevronDown,
   MapPin,
-  Search,
   CalendarPlus,
   Ticket,
   ClipboardList,
@@ -28,8 +27,7 @@ import {
 import { useUser } from "@/contexts/useContext";
 import getInitials from "@/utils/getInitials";
 import { Avatar } from "./ui/avatar";
-import axios from "axios";
-import EventInterface from "@/interfaces/EventInterface";
+
 type HeaderProps = {
   isScrolled?: boolean;
 };
@@ -94,41 +92,6 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
 
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
-  const [filteredEvents, setFilteredEvents] = useState<EventInterface[] | null>(
-    null
-  );  
-
-  const [querySearch, setQuerySearch] = useState<string | null>(null);
-
-  async function getActiveFilterEvents() {
-    try {      
-
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}${
-          import.meta.env.VITE_GET_FILTERED_EVENTS
-        }`,
-        {
-          params: { querySearch, activeFilter },
-        }
-      );
-
-      if (response.data.eventos) {
-        setFilteredEvents(response.data.eventos);
-      }
-    } catch (error: any) {
-      console.log("Fudeu manooo: ", error);
-    }
-  }
-
-  useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      if (querySearch || activeFilter) {
-        getActiveFilterEvents();
-      }
-    }, 500);
-
-    return () => clearTimeout(delayDebounce);
-  }, [querySearch, activeFilter]);
 
   useEffect(() => {
     if (isScrolledProp === undefined) {
@@ -223,11 +186,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
             {isMobile && (
               <>
                 <div className="p-2">
-                  <Input
-                    type="text"
-                    placeholder="Pesquisar eventos..."
-                    className="px-4 py-2 text-base rounded-md"
-                  />
+                  <SearchDropdown isScrolled={false} />
                 </div>
 
                 <div
@@ -366,7 +325,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 w-full z-50 bg-white/80 transition-all duration-300 p-5",
+        "fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-sm transition-all duration-300 p-5",
         isScrolled ? "shadow-md py-2" : "py-4"
       )}
     >
@@ -488,23 +447,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                 isScrolled ? "w-full max-w-md" : "w-full max-w-xl mx-auto"
               )}
             >
-              <Search
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground"
-                size={20}
-              />
-              <Input
-                type="text"
-                name="filter"
-                id="filter"
-                placeholder="Pesquisar eventos, shows, teatros, cursos"
-                onChange={(e) => {
-                  setQuerySearch(e.target.value);
-                }}
-                className={cn(
-                  "pl-12 pr-6 text-base shadow-lg rounded-xl transition-all duration-300",
-                  isScrolled ? "py-5" : "py-7"
-                )}
-              />
+              <SearchDropdown isScrolled={isScrolled} />
             </div>
           </div>
 

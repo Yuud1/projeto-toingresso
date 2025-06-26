@@ -6,7 +6,6 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CardImage,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,7 +22,6 @@ import {
   Home,
   BarChart3,
   EyeOff,
-  Receipt,
   Award,
   Maximize2,
   Minimize2,
@@ -60,11 +58,9 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
 import CertificateTutorial from "./CertificateTutorial";
 import CertificateGenerator from "./CertificateGenerator";
 import EventScanner from "./EventScanner";
-import { Avatar } from "@/components/ui/avatar";
 
 interface TabProps {
   isActive: boolean;
@@ -171,7 +167,6 @@ export default function MyEvents() {
   );
   const [ticketToken, setTicketToken] = useState<string | undefined>(undefined);
   const [copied, setCopied] = useState(false);
-  const navigate = useNavigate();
 
   // Estados para funcionalidades do dashboard
   const [hideValues, setHideValues] = useState(false);

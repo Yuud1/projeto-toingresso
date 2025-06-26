@@ -19,6 +19,8 @@ export default interface FormDataInterface {
   neighborhood: string;
   city: string;
   state: string;
+  latitude: string;
+  longitude: string;
   tickets: TicketType[];
   status: "active" | "finished" | "editing";
   isFree: boolean;
