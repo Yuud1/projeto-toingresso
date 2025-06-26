@@ -204,32 +204,34 @@ export default function EventScanner() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center"></div>
+      {/* Header com gradiente */}
+      <div className="bg-gradient-to-r from-[#014A8E] via-[#014A8E] to-[#014A8E] rounded-2xl p-4 sm:p-6 text-white shadow-xl">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+            <ScanEye className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+          </div>
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold">Scanner de QR Code</h2>
+            <p className="text-blue-100 mt-1 text-sm sm:text-base">Escaneie os QR Codes dos ingressos para validar a entrada dos participantes</p>
+          </div>
+        </div>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ScanEye className="h-5 w-5" />
-            Leitor QR Code
-          </CardTitle>
-          <CardDescription>
-            Escaneie os QR Codes dos ingressos para validar a entrada.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="min-h-[60vh] flex items-center justify-center">
+      <Card className="border-0 shadow-xl rounded-2xl overflow-hidden py-0">
+        <CardContent className="p-0">
+          <div className="min-h-[70vh] flex items-center p-4 sm:p-8 md:p-20 justify-center bg-gradient-to-br from-gray-50 to-blue-50">
             {!isAuthenticated ? (
-              <Card className="w-full max-w-md">
-                <CardHeader className="text-center">
-                  <div className="mx-auto mb-4 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <Lock className="w-6 h-6 text-blue-600" />
+              <Card className="w-full max-w-md border-0 shadow-2xl rounded-2xl overflow-hidden py-0">
+                <div className="bg-gradient-to-r from-[#014A8E] to-[#014A8E] p-4 sm:p-6 text-white text-center">
+                  <div className="mx-auto mb-4 w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                    <Lock className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                   </div>
-                  <CardTitle className="text-2xl">Acesso ao Scanner</CardTitle>
-                  <CardDescription>
-                    Insira seu token para acessar o scanner de QR code.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+                  <h3 className="text-xl sm:text-2xl font-bold mb-2">Acesso ao Scanner</h3>
+                  <p className="text-blue-100 text-sm sm:text-base">
+                    Insira seu token para acessar o scanner de QR code
+                  </p>
+                </div>
+                <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();
@@ -238,27 +240,29 @@ export default function EventScanner() {
                     className="space-y-4"
                   >
                     <div className="space-y-2">
-                      <Label htmlFor="token">Token de Acesso</Label>
+                      <Label htmlFor="token" className="text-sm font-semibold text-gray-700">
+                        Token de Acesso
+                      </Label>
                       <Input
                         id="token"
                         type="password"
-                        placeholder="Digite seu token"
+                        placeholder="Digite seu token de acesso"
                         value={scannerToken}
                         onChange={(e) => setScannerToken(e.target.value)}
-                        // Remova o onKeyPress, pois o form já captura o Enter
+                        className="h-10 sm:h-12 text-base sm:text-lg border-2 focus-visible:ring-[#014A8E] focus-visible:border-[#014A8E]"
                       />
                     </div>
 
                     {scannerError && (
-                      <Alert variant="destructive">
-                        <AlertDescription>{scannerError}</AlertDescription>
+                      <Alert variant="destructive" className="border-red-200 bg-red-50">
+                        <AlertDescription className="text-red-700 text-sm">{scannerError}</AlertDescription>
                       </Alert>
                     )}
 
                     <Button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full"
+                      className="w-full h-10 sm:h-12 bg-gradient-to-r from-[#014A8E] to-[#014A8E] hover:from-[#013d75] hover:to-[#013d75] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 text-sm sm:text-base"
                     >
                       {isLoading ? "Validando..." : "Acessar Scanner"}
                     </Button>
@@ -266,61 +270,91 @@ export default function EventScanner() {
                 </CardContent>
               </Card>
             ) : (
-              <div className="w-full">
-                <div className="flex flex-col items-center gap-4 rounded-lg">
+              <div className="w-full max-w-2xl">
+                <div className="flex flex-col items-center gap-4 sm:gap-6">
                   {!scanResult ? (
                     <>
-                      <div
-                        id={qrCodeRegionId}
-                        className="rounded-lg"
-                        style={{
-                          width: "100%",
-                          overflow: "hidden",
-                        }}
-                      />
-                      <p className="text-muted-foreground text-sm">
-                        Aponte sua câmera para um QR Code
-                      </p>
-                      {scannerError && (
-                        <Alert variant="destructive">
-                          <AlertDescription>{scannerError}</AlertDescription>
-                        </Alert>
-                      )}
-                      <Button
-                        variant="outline"
-                        onClick={stopScanner}
-                        className="w-full"
-                      >
-                        Parar Scanner
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        onClick={logout}
-                        className="w-full text-white bo"
-                      >
-                        Sair
-                      </Button>
+                      {/* Scanner Container */}
+                      <div className="w-full bg-white rounded-2xl shadow-2xl overflow-hidden border-4 border-[#014A8E]">
+                        <div className="bg-gradient-to-r from-[#014A8E] to-[#014A8E] p-3 sm:p-4 text-white text-center">
+                          <ScanEye className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-1 sm:mb-2" />
+                          <p className="font-semibold text-sm sm:text-base">Scanner Ativo</p>
+                        </div>
+                        <div
+                          id={qrCodeRegionId}
+                          className="w-full h-64 sm:h-80 bg-gray-900"
+                          style={{
+                            overflow: "hidden",
+                          }}
+                        />
+                      </div>
+                      
+                      <div className="text-center space-y-3 sm:space-y-4">
+                        <p className="text-gray-600 text-base sm:text-lg font-medium">
+                          Aponte sua câmera para um QR Code
+                        </p>
+                        
+                        {scannerError && (
+                          <Alert variant="destructive" className="border-red-200 bg-red-50">
+                            <AlertDescription className="text-red-700 text-sm">{scannerError}</AlertDescription>
+                          </Alert>
+                        )}
+                        
+                        <div className="flex flex-col sm:flex-row gap-3">
+                          <Button
+                            variant="outline"
+                            onClick={stopScanner}
+                            className="flex-1 h-10 sm:h-12 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 text-sm sm:text-base"
+                          >
+                            Parar Scanner
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            onClick={logout}
+                            className="flex-1 h-10 sm:h-12 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 text-sm sm:text-base"
+                          >
+                            Sair
+                          </Button>
+                        </div>
+                      </div>
                     </>
                   ) : (
-                    <div className="flex flex-col items-center gap-4 text-center">
-                      <Badge variant="secondary">Resultado do Scan</Badge>
-                      <p className="break-words text-lg font-medium p-4">
-                        {scanResult}
-                      </p>
-                      <Button
-                        variant="outline"
-                        onClick={resetScanner}
-                        className="w-full"
-                      >
-                        Ler Novamente
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        onClick={logout}
-                        className="w-full text-white border"
-                      >
-                        Sair
-                      </Button>
+                    <div className="w-full max-w-md">
+                      <Card className="border-0 shadow-2xl rounded-2xl overflow-hidden">
+                        <div className="bg-gradient-to-r from-green-500 to-green-600 p-4 sm:p-6 text-white text-center">
+                          <div className="mx-auto mb-4 w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                            <ScanEye className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                          </div>
+                          <h3 className="text-xl sm:text-2xl font-bold mb-2">Scan Concluído</h3>
+                          <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-xs sm:text-sm">
+                            Resultado do Scan
+                          </Badge>
+                        </div>
+                        <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+                          <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+                            <p className="break-words text-base sm:text-lg font-medium text-gray-800 text-center">
+                              {scanResult}
+                            </p>
+                          </div>
+                          
+                          <div className="flex flex-col sm:flex-row gap-3">
+                            <Button
+                              variant="outline"
+                              onClick={resetScanner}
+                              className="flex-1 h-10 sm:h-12 border-2 border-[#014A8E] text-[#014A8E] hover:bg-blue-50 text-sm sm:text-base"
+                            >
+                              Ler Novamente
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              onClick={logout}
+                              className="flex-1 h-10 sm:h-12 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 text-sm sm:text-base"
+                            >
+                              Sair
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
                     </div>
                   )}
                 </div>

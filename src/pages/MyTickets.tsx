@@ -5,7 +5,6 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -14,11 +13,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { Search, ArrowRightLeft, Eye } from "lucide-react";
+import { Search, ArrowRightLeft, Eye, Calendar, Clock, MapPin } from "lucide-react";
 import { useUser } from "@/contexts/useContext";
 import type UserTicketsInterface from "@/interfaces/UserTicketsInterface";
 import Subscribed from "./Subscribed";
 import TransferTicket from "./TransferTicket";
+import axios from "axios";
 
 interface TabProps {
   isActive: boolean;
@@ -69,7 +69,30 @@ export default function MyTickets() {
   );
 
   useEffect(() => {
-    setTickets(user?.tickets);
+    async function fetchUserTickets() {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        // Buscar dados do usuário com tickets populados
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_GET_USER_DATA}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (response.data.userFound && response.data.userFound.tickets) {
+          setTickets(response.data.userFound.tickets);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar tickets:", error);
+        // Fallback para dados do contexto
+        setTickets(user?.tickets);
+      }
+    }
+
+    fetchUserTickets();
   }, [user]);
 
   const filteredTickets = useMemo(() => {
@@ -215,86 +238,114 @@ export default function MyTickets() {
               )}
             </div>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filteredTickets.map((ticket) => (
-                <div
-                  key={ticket._id}
-                  className="border rounded-lg hover:shadow-lg transition-all duration-200 bg-white cursor-pointer group"
-                  onClick={() => clickedOnTicket(ticket._id)}
-                >
-                  <div className="flex flex-col p-6">
-                    <div className="flex flex-col justify-between items-start mb-4">
-                      <h3 className="font-semibold text-lg text-gray-900 group-hover:text-[#02488C] transition-colors">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {filteredTickets.map((ticket) => {
+                const event = ticket.Event;
+                
+                const startDate = event?.startDate ? new Date(event.startDate).toLocaleDateString("pt-BR", {
+                  day: "2-digit",
+                  month: "short",
+                }) : "Data não informada";
+                const startTime = event?.startTime ? event.startTime.slice(0, 5) : "Hora não informada";
+
+                return (
+                  <div
+                    key={ticket._id}
+                    className="w-full h-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer group mb-10"
+                    onClick={() => clickedOnTicket(ticket._id)}
+                  >
+                    {/* Imagem */}
+                    <div className="relative">
+                      <img
+                        src={event?.image || "/placeholder.svg"}
+                        alt={ticket.eventTitle}
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="absolute top-3 right-3">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            ticket.used ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
+                          }`}
+                        >
+                          {ticket.used ? "Utilizado" : "Ativo"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Conteúdo */}
+                    <div className="p-5">
+                      <h3 className="font-bold text-lg text-gray-900 line-clamp-2 group-hover:text-[#02488C] transition-colors">
                         {ticket.eventTitle}
                       </h3>
-                    </div>
 
-                    <div className="space-y-2 mb-4">
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-600 text-sm">Data:</span>
-                        <span className="text-gray-900 text-sm font-medium">
-                          {ticket.Event?.startDate &&
-                            new Date(ticket.Event.startDate).toLocaleDateString(
-                              "pt-BR"
-                            )}
-                        </span>
+                      {/* Localização */}
+                      <div className="flex items-start gap-2 mb-3">
+                        <div className="text-sm text-gray-600">
+                          <p className="font-medium">
+                            {event?.venueName || "Local não informado"} | {event?.state || ""}
+                          </p>
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-600 text-sm">Local:</span>
-                        <span className="text-gray-900 text-sm font-medium">
-                          {ticket.Event?.city}
-                        </span>
+                      {/* Data e Hora */}
+                      <div className="flex items-center mb-3 justify-between">
+                        <div className="flex items-center gap-1 text-gray-600">
+                          <Calendar className="w-4 h-4" />
+                          <span className="text-sm">{startDate}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-gray-600">
+                          <Clock className="w-4 h-4" />
+                          <span className="text-sm">{startTime}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-gray-600">
+                          <MapPin className="w-4 h-4" />
+                          <p className="text-sm">
+                            {event?.neighborhood || ""}, {event?.city || ""}
+                          </p>
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-600 text-sm">Email:</span>
-                        <span className="text-gray-900 text-sm font-medium truncate">
-                          {ticket.Owner.email}
-                        </span>
+                      {/* Email do proprietário */}
+                      <div className="pt-3 border-t border-gray-100 flex mb-4">
+                        <div className="text-xs text-gray-500 flex items-center justify-center">
+                          <span className="font-medium text-gray-700">
+                            {ticket.Owner.email}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2 min-h-[20px] mb-3">
-                      {ticket.used ? (
-                        <Badge variant="outline">Ticket já utilizado</Badge>
-                      ) : (
-                        <span className="text-sm text-transparent select-none">
-                          placeholder
-                        </span>
-                      )}
-                    </div>
 
-                    {/* Botões de Ação */}
-                    <div className="flex gap-2 mt-auto pt-4 border-t border-gray-100">
-                      <Button
-                        onClick={(e) => handleViewTicket(ticket._id, e)}
-                        variant="outline"
-                        className="flex-1 text-[#ffffff] border-[#02488C] cursor-pointer bg-[#02488C] transition-colors"
-                      >
-                        <Eye size={16} className="mr-2" />
-                        Visualizar
-                      </Button>
-
-                      {ticket.status === "ativo" && (
+                      {/* Botões de Ação */}
+                      <div className="flex gap-2 mt-auto pt-4 border-t border-gray-100">
                         <Button
-                          onClick={(e) => handleTransferTicket(ticket._id, e)}
+                          onClick={(e) => handleViewTicket(ticket._id, e)}
                           variant="outline"
-                          disabled={ticket.used}
-                          className={cn(
-                            "flex-1 text-white border-[#FEC800] bg-[#FEC800] transition-colors",
-                            ticket.used
-                              ? "opacity-50 cursor-not-allowed"
-                              : "hover:bg-[#e0b400] cursor-pointer"
-                          )}
+                          className="flex-1 text-white border-[#02488C] bg-[#02488C] hover:bg-[#02488C]/90 hover:border-[#02488C]/90 hover:text-white transition-colors cursor-pointer"
                         >
-                          <ArrowRightLeft size={16} className="mr-2" />
-                          Transferir
+                          <Eye size={16} className="mr-2" />
+                          Visualizar
                         </Button>
-                      )}
+
+                        {ticket.status === "ativo" && (
+                          <Button
+                            onClick={(e) => handleTransferTicket(ticket._id, e)}
+                            variant="outline"
+                            disabled={ticket.used}
+                            className={cn(
+                              "flex-1 text-white border-[#FEC800] bg-[#FEC800] transition-colors",
+                              ticket.used
+                                ? "opacity-50 cursor-not-allowed"
+                                : "hover:bg-[#e0b400] hover:border-[#e0b400] hover:text-white cursor-pointer"
+                            )}
+                          >
+                            <ArrowRightLeft size={16} className="mr-2" />
+                            Transferir
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

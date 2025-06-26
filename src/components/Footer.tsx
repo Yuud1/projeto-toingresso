@@ -31,7 +31,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-[#414141] text-white pt-10 pb-6">
+    <footer className="bg-[#363636] text-white pt-10 pb-6">
       <div className="max-w-7xl mx-auto px-6">
         {/* Mobile: Logo acima dos dropdowns */}
         <div className="sm:hidden text-center mb-8">
