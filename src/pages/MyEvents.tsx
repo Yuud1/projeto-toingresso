@@ -29,6 +29,8 @@ import {
   Minimize2,
   UserCheck,
   ScanEye,
+  Clock,
+  MapPin,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -62,6 +64,7 @@ import { useNavigate } from "react-router-dom";
 import CertificateTutorial from "./CertificateTutorial";
 import CertificateGenerator from "./CertificateGenerator";
 import EventScanner from "./EventScanner";
+import { Avatar } from "@/components/ui/avatar";
 
 interface TabProps {
   isActive: boolean;
@@ -983,76 +986,118 @@ export default function MyEvents() {
                   </Button>
                 </div>
               ) : (
-                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {filteredEvents.map((event) => (
-                    <Card
-                      key={event._id}
-                      className="hover:shadow-md transition-shadow"
-                    >
-                      <CardHeader>
-                        <CardTitle className="line-clamp-1 text-sm sm:text-base">
-                          {event.title}
-                        </CardTitle>
-                        <CardImage className="w-full h-32 sm:h-48 object-cover rounded-md">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                  {filteredEvents.map((event) => {
+                    const isFree = event.isFree;
+                    const startDate = new Date(event.startDate).toLocaleDateString("pt-BR", {
+                      day: "2-digit",
+                      month: "short",
+                    });
+                    const startTime = event.startTime.slice(0, 5);
+
+                    return (
+                      <div key={event._id} className="w-full h-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 mb-10">
+                        {/* Imagem */}
+                        <div className="relative">
                           <img
                             src={event.image || "/placeholder.svg"}
                             alt={event.title}
-                            className="w-full h-full object-cover rounded-md"
+                            className="w-full h-48 object-cover"
                           />
-                        </CardImage>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-gray-500 mb-4 line-clamp-1">
-                          {event.neighborhood}
-                        </p>
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                          <div className="flex gap-2">
-                            {event.status !== "finished" && (
-                              <Button
-                                variant="outline"
-                                onClick={() => handleStopEvent(event._id)}
-                                className="cursor-pointer flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white hover:text-white text-xs sm:text-sm px-2 py-1"
-                                title="Encerrar evento"
-                              >
-                                <span>Finalizar</span>
-                              </Button>
-                            )}
-                          </div>
-                          <div className="flex gap-1 sm:gap-2">
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() => handleView(event._id)}
-                              className="cursor-pointer h-8 w-8 sm:h-10 sm:w-10"
-                              title="Visualizar evento"
+                          <div className="absolute top-3 right-3">
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                isFree ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
+                              }`}
                             >
-                              <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
-                            </Button>
-                            {event.status !== "finished" && (
+                              {isFree ? "Gratuito" : "Pago"}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Conteúdo */}
+                        <div className="p-5">
+                          <h3 className="font-bold text-lg text-gray-900 line-clamp-2">
+                            {event.title}
+                          </h3>
+
+                          {/* Localização */}
+                          <div className="flex items-start gap-2 mb-3">
+                            <div className="text-sm text-gray-600">
+                              <p className="font-medium">
+                                {event.venueName} | {event.state}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Data e Hora */}
+                          <div className="flex items-center mb-3 justify-between">
+                            <div className="flex items-center gap-1 text-gray-600">
+                              <Calendar className="w-4 h-4" />
+                              <span className="text-sm">{startDate}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-gray-600">
+                              <Clock className="w-4 h-4" />
+                              <span className="text-sm">{startTime}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-gray-600">
+                              <MapPin className="w-4 h-4" />
+                              <p className="text-sm">
+                                {event.neighborhood}, {event.city}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Botões de Ação */}
+                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mt-10">
+                            <div className="flex gap-2">
+                              {event.status !== "finished" && (
+                                <Button
+                                  variant="outline"
+                                  onClick={() => handleStopEvent(event._id)}
+                                  className="cursor-pointer flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white hover:text-white text-xs sm:text-sm px-2 py-1"
+                                  title="Encerrar evento"
+                                >
+                                  <span>Finalizar</span>
+                                </Button>
+                              )}
+                            </div>
+                            <div className="flex gap-1 sm:gap-2">
                               <Button
                                 variant="outline"
                                 size="icon"
-                                onClick={() => handleEdit(event._id)}
+                                onClick={() => handleView(event._id)}
                                 className="cursor-pointer h-8 w-8 sm:h-10 sm:w-10"
-                                title="Editar evento"
+                                title="Visualizar evento"
                               >
-                                <Pencil className="h-3 w-3 sm:h-4 sm:w-4" />
+                                <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
                               </Button>
-                            )}
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() => handleDelete(event._id)}
-                              className="cursor-pointer h-8 w-8 sm:h-10 sm:w-10"
-                              title="Excluir evento"
-                            >
-                              <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                            </Button>
+                              {event.status !== "finished" && (
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => handleEdit(event._id)}
+                                  className="cursor-pointer h-8 w-8 sm:h-10 sm:w-10"
+                                  title="Editar evento"
+                                >
+                                  <Pencil className="h-3 w-3 sm:h-4 sm:w-4" />
+                                </Button>
+                              )}
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => handleDelete(event._id)}
+                                className="cursor-pointer h-8 w-8 sm:h-10 sm:w-10"
+                                title="Excluir evento"
+                              >
+                                <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </>
@@ -1160,30 +1205,6 @@ export default function MyEvents() {
               </div>
 
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                {selectedDashboardEvent ? (
-                  <Card
-                    className="cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() =>
-                      navigate(`/event-arrivals/${selectedDashboardEvent}`)
-                    }
-                  >
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">
-                        Últimos Checkouts
-                      </CardTitle>
-                      <Receipt className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">
-                        {formatNumber(checkouts.length)}
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Clique para ver chegadas em tempo real
-                      </p>
-                    </CardContent>
-                  </Card>
-                ) : null}
-
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">

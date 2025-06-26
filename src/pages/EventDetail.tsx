@@ -6,7 +6,6 @@ import { User, Heart } from "lucide-react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import EventInterface from "@/interfaces/EventInterface";
-import OrganizerInterface from "@/interfaces/OrganizerInterface";
 import FreeEventForm from "@/components/FreeEventForm";
 import Subscribed from "@/pages/Subscribed";
 
@@ -15,7 +14,6 @@ const EventDetail = () => {
 
   const [isFavorited, setIsFavorited] = useState(false);
   const [event, setEvents] = useState<EventInterface | undefined>(undefined);
-  const [organizer, setOrganizer] = useState<OrganizerInterface | null>(null);
   const [subscribed, setSubscribed] = useState(false);
   const [qrCode, setQrCode] = useState(null);
 
@@ -136,7 +134,7 @@ const EventDetail = () => {
                 Organizador do evento
               </h3>
               <a
-                href={`/organizer/${organizer?.id}`}
+                href={`/organizer/${event?.organizer.id}`}
                 className="flex items-center gap-4 hover:bg-gray-50 p-4 rounded-lg transition-colors cursor-pointer border"
               >
                 <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">

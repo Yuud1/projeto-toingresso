@@ -269,10 +269,10 @@ export default function Favorites() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header isScrolled={true} />
-      <main className="flex-1 container mx-auto px-4 py-6 sm:py-8 pt-24 sm:pt-24">
-        <div className="max-w-7xl mx-auto">
+      <main className="flex-1 container mx-auto px-4 py-8 pt-24 max-w-full overflow-x-hidden">
+        <div className="max-w-7xl mx-auto mt-12">
           <div className="mb-6 sm:mb-8">
-            <h1 className="text-2xl font-bold mb-4">Favoritos</h1>
+            <h1 className="text-2xl font-bold mb-4">Meus Favoritos</h1>
           </div>
 
           <div className="hidden sm:block border-b border-gray-200 mb-6">
