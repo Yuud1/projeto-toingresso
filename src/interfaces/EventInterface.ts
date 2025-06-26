@@ -29,6 +29,13 @@ export default interface EventInterface {
   formTitle?: string;
   isFree: boolean;
   customFields: CustomFieldInterface[];
-  ticketActivationToken: string
-  mapUrl: string
+  ticketActivationToken: string;
+  mapUrl: string;
+  subscribers: [
+    {
+      userId: string;
+      fields: Record<string, string>,
+      subscribedAt: Date
+    }
+  ];
 }

@@ -169,8 +169,7 @@ const Category: React.FC = () => {
 
               return (
                 <a href={`/evento/${event._id}`} key={event._id}>
-                  <div className="w-full h-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer mb-10">
-                    {/* Imagem */}
+                  <div className="w-full h-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer mb-10">                    
                     <div className="relative">
                       <img
                         src={event.image || "/placeholder.svg"}
@@ -206,7 +205,7 @@ const Category: React.FC = () => {
                       </div>
 
                       {/* Data e Hora */}
-                      <div className="flex items-center mb-3 justify-between">
+                      <div className="flex items-center mb-3 justify-between flex-1/2">
                         <div className="flex items-center gap-1 text-gray-600">
                           <Calendar className="w-4 h-4" />
                           <span className="text-sm">{startDate}</span>

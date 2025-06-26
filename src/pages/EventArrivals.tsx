@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect } from "react";
+import { io } from "socket.io-client";
 
 import {
   User,
@@ -9,221 +10,144 @@ import {
   X,
   LogOut,
   UserCheck,
-  Instagram,
-  Globe,
-  Phone,
-  Mail,
   Calendar,
   Clock,
-  MapPin,
-  Info,
+  MapPin,  
   List,
   Grid,
   Users,
   Sparkles,
-} from "lucide-react"
+} from "lucide-react";
+import { useParams } from "react-router-dom";
+import EventInterface from "@/interfaces/EventInterface";
+import axios from "axios";
+import ArrivalInterface from "@/interfaces/ArrivalsInterface";
 
-
-interface UserTicketsInterface {
-  _id: string
-  eventId: string
-  ticketType: string
-  purchaseDate: string
-  isUsed: boolean
-}
-
-interface UserInterface {
-  _id: string
-  name: string
-  cpf: string
-  email: string
-  emailVerified: string
-  birthdaydata: string
-  type: "user" | "superUser" | "admin"
-  mysite: string
-  instagram: string
-  facebook: string
-  phoneNumber: string
-  avatar: string
-  tickets: UserTicketsInterface[]
-  customFields?: Record<string, string>
-}
-
-interface EventArrival extends UserInterface {
-  arrivalTime: string
-  isNew: boolean
-}
-
-// Mock data para o evento
-const eventData = {
-  title: "Workshop de React Avançado 2024",
-  date: "15 de Janeiro, 2024",
-  time: "09:00 - 18:00",
-  location: "Centro de Convenções - São Paulo",
-  totalParticipants: 156,
-  checkedIn: 3,
-}
-
-// Mock data para chegadas
-const mockArrivals: EventArrival[] = [
-  {
-    _id: "1",
-    name: "Ana Silva",
-    cpf: "123.456.789-00",
-    email: "ana@email.com",
-    emailVerified: "true",
-    birthdaydata: "1990-05-15",
-    type: "user",
-    mysite: "anasilva.dev",
-    instagram: "@ana_silva_dev",
-    facebook: "",
-    phoneNumber: "(11) 98765-4321",
-    avatar: "/placeholder.svg?height=100&width=100",
-    tickets: [],
-    arrivalTime: new Date().toISOString(),
-    isNew: false,
-    customFields: {
-      cargo: "Desenvolvedora Frontend",
-      empresa: "TechCorp",
-      interesse: "React, TypeScript",
-    },
-  },
-  {
-    _id: "2",
-    name: "Carlos Mendes",
-    cpf: "987.654.321-00",
-    email: "carlos@email.com",
-    emailVerified: "true",
-    birthdaydata: "1985-08-22",
-    type: "user",
-    mysite: "carlosmendes.com.br",
-    instagram: "@carlos_tech",
-    facebook: "",
-    phoneNumber: "(11) 91234-5678",
-    avatar: "/placeholder.svg?height=100&width=100",
-    tickets: [],
-    arrivalTime: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
-    isNew: false,
-    customFields: {
-      cargo: "Tech Lead",
-      empresa: "StartupXYZ",
-      interesse: "Node.js, AWS",
-    },
-  },
-  {
-    _id: "3",
-    name: "Maria Santos",
-    cpf: "456.789.123-00",
-    email: "maria@email.com",
-    emailVerified: "true",
-    birthdaydata: "1992-12-03",
-    type: "user",
-    mysite: "",
-    instagram: "@maria_designer",
-    facebook: "",
-    phoneNumber: "(21) 99876-5432",
-    avatar: "/placeholder.svg?height=100&width=100",
-    tickets: [],
-    arrivalTime: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
-    isNew: false,
-    customFields: {
-      cargo: "UX Designer",
-      empresa: "DesignStudio",
-      interesse: "UI/UX, Figma",
-    },
-  },
-]
-
-// Campos padrão disponíveis
-const defaultFields = [
-  { id: "name", label: "Nome", icon: <User size={16} /> },
-  { id: "instagram", label: "Instagram", icon: <Instagram size={16} /> },
-  { id: "email", label: "Email", icon: <Mail size={16} /> },
-  { id: "phoneNumber", label: "Telefone", icon: <Phone size={16} /> },
-  { id: "mysite", label: "Website", icon: <Globe size={16} /> },
-  {
-    id: "birthdaydata",
-    label: "Data de Nascimento",
-    icon: <Calendar size={16} />,
-  },
-]
+const socket = io(`${import.meta.env.VITE_API_BASE_URL}`);
 
 export default function EventArrivalsPage() {
-  const [arrivals] = useState<EventArrival[]>(mockArrivals)
-  const [currentTime, setCurrentTime] = useState(new Date())
-  const [isConfigMode, setIsConfigMode] = useState(true)
-  const [selectedFields, setSelectedFields] = useState<string[]>(["name", "instagram"])
-  const [selectedCustomFields, ] = useState<string[]>(["cargo", "empresa"])
-  const [showArrivalTime, setShowArrivalTime] = useState(true)
-  const [cardStyle, setCardStyle] = useState<"grid" | "list">("grid")
-  const [previewMode, setPreviewMode] = useState(false)
-  const [commonParameter, setCommonParameter] = useState<string>("")
+  const { id } = useParams();
+
+  const [arrivals, setArrivals] = useState<ArrivalInterface[]>([]);
+  const [isConfigMode, setIsConfigMode] = useState(true);
+  const [selectedFields, setSelectedFields] = useState<string[]>([]);
+
+  // const [selectedCustomFields] = useState<string[]>(["cargo", "empresa"]);
+  const [showArrivalTime, setShowArrivalTime] = useState(true);
+  const [cardStyle, setCardStyle] = useState<"grid" | "list">("grid");
+  const [previewMode, setPreviewMode] = useState(false);
+  const [commonParameter, setCommonParameter] = useState<string>("");
+  const [eventData, setEventData] = useState<EventInterface>();
+
+  useEffect(() => {
+    try {
+      async function getEventById() {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}${
+            import.meta.env.VITE_EVENT_GETID
+          }${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        console.log(response);
+
+        if (response.data.event) {
+          setEventData(response.data.event);
+        }
+      }
+
+      if (id) {
+        getEventById();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (!isConfigMode) {
+      socket.emit("registerChekcout", id); // entra na sala do evento
+
+      socket.on("new_user_checked_in", (userData: ArrivalInterface) => {
+        setArrivals((prev) => [...prev, userData]);
+      });
+    }
+
+    return () => {
+      socket.off("new_user_checked_in");
+    };
+  }, [isConfigMode, socket]);
 
   // Atualiza o relógio a cada segundo
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date())
-    }, 1000)
+  // Esse negócio causa re renderização
+  // A não ser que use useMemo não vai poder usar aqui. pq vai bater toda hora na api
+  // Melhor tirar mesmo é mais fácil
+  // useEffect(() => {
+  //   const timer = setInterval(() => {
+  //     setCurrentTime(new Date());
+  //   }, 1000);
 
-    return () => clearInterval(timer)
-  }, [])
+  //   return () => clearInterval(timer);
+  // }, []);
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    })
-  }
+  // const formatTime = (date: Date) => {
+  //   return date.toLocaleTimeString("pt-BR", {
+  //     hour: "2-digit",
+  //     minute: "2-digit",
+  //     second: "2-digit",
+  //   });
+  // };
 
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-  }
+  // const getInitials = (name: string) => {
+  //   return name
+  //     .split(" ")
+  //     .map((n) => n[0])
+  //     .join("")
+  //     .toUpperCase();
+  // };
 
-  const formatArrivalTime = (arrivalTime: string) => {
-    return new Date(arrivalTime).toLocaleTimeString("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  }
+  // const formatArrivalTime = (arrivalTime: string) => {
+  //   return new Date(arrivalTime).toLocaleTimeString("pt-BR", {
+  //     hour: "2-digit",
+  //     minute: "2-digit",
+  //   });
+  // };
 
-  const formatDate = (dateString: string) => {
-    if (!dateString) return ""
-    return new Date(dateString).toLocaleDateString("pt-BR")
-  }
+  // const formatDate = (dateString: string) => {
+  //   if (!dateString) return "";
+  //   return new Date(dateString).toLocaleDateString("pt-BR");
+  // };
 
-  const toggleField = (fieldId: string) => {
-    if (selectedFields.includes(fieldId)) {
-      setSelectedFields(selectedFields.filter((id) => id !== fieldId))
+  const toggleField = (fieldName: string) => {
+    if (selectedFields.includes(fieldName)) {
+      setSelectedFields(
+        selectedFields.filter((fieldName) => fieldName !== fieldName)
+      );
     } else {
-      setSelectedFields([...selectedFields, fieldId])
+      setSelectedFields([...selectedFields, fieldName]);
     }
-  }
+  };
 
   const exitCheckout = () => {
     // Função para sair da visualização de checkout
-    window.history.back()
-  }
+    window.history.back();
+  };
 
-  const getFieldValue = (arrival: EventArrival, fieldId: string) => {
-    if (fieldId === "birthdaydata") {
-      return formatDate(arrival[fieldId])
-    }
-    return arrival[fieldId as keyof EventArrival] || ""
-  }
+  // const getFieldValue = (arrival: ArrivalInterface, fieldId: string) => {
+  //   return arrival[fieldId as keyof ArrivalInterface] || "";
+  // };
 
-  const getCustomFieldValue = (arrival: EventArrival, fieldLabel: string) => {
-    return arrival.customFields?.[fieldLabel.toLowerCase()] || ""
-  }
+  // const getCustomFieldValue = (arrival: EventArrival, fieldLabel: string) => {
+  //   return arrival.customFields?.[fieldLabel.toLowerCase()] || "";
+  // };
 
-  const getFieldIcon = (fieldId: string) => {
-    const field = defaultFields.find((f) => f.id === fieldId)
-    return field?.icon || <Info size={16} />
-  }
+  // const getFieldIcon = (fieldId: string) => {
+  //   const field = defaultFields.find((f) => f.id === fieldId);
+  //   return field?.icon || <Info size={16} />;
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30">
@@ -235,33 +159,37 @@ export default function EventArrivalsPage() {
               <div className="flex justify-between items-center gap-4 mb-4">
                 <div className="flex gap-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-[#02488C] to-[#0369a1] rounded-xl flex items-center justify-center shadow-lg">
-                  <Users className="h-6 w-6 text-white" />
+                    <Users className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">{eventData.title}</h1>
+                    <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">
+                      {eventData?.title}
+                    </h1>
                     <div className="flex items-center gap-2 text-sm text-gray-500">
                       <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
                         Ativo
                       </span>
                       <span>•</span>
-                      <span>
-                        {eventData.checkedIn} de {eventData.totalParticipants} participantes
-                      </span>
+                      {/* isso aqui não existe */}
+                      {/* <span>
+                        {eventData?.checkedIn} de {eventData?.totalParticipants}{" "}
+                        participantes
+                      </span> */}
                     </div>
                   </div>
                 </div>
-                
+
                 <div>
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
-                      {!isConfigMode && (
-                        <button
-                          onClick={exitCheckout}
-                          className="px-4 py-2.5 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200 flex items-center justify-center gap-2 font-medium text-sm sm:text-base"
-                        >
-                          <LogOut size={18} />
-                          <span>Sair</span>
-                        </button>
-                      )}
+                    {!isConfigMode && (
+                      <button
+                        onClick={exitCheckout}
+                        className="px-4 py-2.5 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200 flex items-center justify-center gap-2 font-medium text-sm sm:text-base"
+                      >
+                        <LogOut size={18} />
+                        <span>Sair</span>
+                      </button>
+                    )}
 
                     <button
                       onClick={() => setIsConfigMode(!isConfigMode)}
@@ -273,7 +201,9 @@ export default function EventArrivalsPage() {
                     >
                       <Settings size={18} />
                       <span className="whitespace-nowrap">
-                        {isConfigMode ? "Finalizar Configuração" : "Configurar Exibição"}
+                        {isConfigMode
+                          ? "Finalizar Configuração"
+                          : "Configurar Exibição"}
                       </span>
                     </button>
                   </div>
@@ -284,24 +214,32 @@ export default function EventArrivalsPage() {
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                   <Calendar className="h-5 w-5 text-[#02488C]" />
                   <div>
-                    <div className="font-medium text-gray-900">{eventData.date}</div>
-                    <div className="text-gray-500">{eventData.time}</div>
+                    <div className="font-medium text-gray-900">
+                      {eventData?.startDate}
+                    </div>
+                    <div className="text-gray-500">{eventData?.startTime}</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                   <MapPin className="h-5 w-5 text-[#02488C]" />
                   <div>
                     <div className="font-medium text-gray-900">Local</div>
-                    <div className="text-gray-500">{eventData.location}</div>
+                    <div className="text-gray-500">
+                      {eventData?.neighborhood}
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                {/* <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                   <Clock className="h-5 w-5 text-[#02488C]" />
                   <div>
-                    <div className="font-medium text-gray-900">Horário Atual</div>
-                    <div className="text-gray-500 font-mono">{formatTime(currentTime)}</div>
+                    <div className="font-medium text-gray-900">
+                      Horário Atual
+                    </div>
+                    <div className="text-gray-500 font-mono">
+                      {formatTime(currentTime)}
+                    </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -318,9 +256,12 @@ export default function EventArrivalsPage() {
                     <Sparkles className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Configuração de Exibição</h2>
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      Configuração de Exibição
+                    </h2>
                     <p className="text-gray-600 mt-1">
-                      Personalize como os participantes serão exibidos durante o evento
+                      Personalize como os participantes serão exibidos durante o
+                      evento
                     </p>
                   </div>
                 </div>
@@ -330,7 +271,9 @@ export default function EventArrivalsPage() {
                     className="px-3 sm:px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 transition-all duration-200 flex items-center justify-center gap-2 font-medium shadow-sm text-sm"
                   >
                     <Eye size={16} />
-                    <span className="whitespace-nowrap">{previewMode ? "Ocultar Preview" : "Mostrar Preview"}</span>
+                    <span className="whitespace-nowrap">
+                      {previewMode ? "Ocultar Preview" : "Mostrar Preview"}
+                    </span>
                   </button>
                 </div>
               </div>
@@ -360,7 +303,9 @@ export default function EventArrivalsPage() {
                             <div
                               key={i}
                               className={`w-full h-6 rounded ${
-                                cardStyle === "grid" ? "bg-[#FEC800]/30" : "bg-gray-300"
+                                cardStyle === "grid"
+                                  ? "bg-[#FEC800]/30"
+                                  : "bg-gray-300"
                               }`}
                             ></div>
                           ))}
@@ -380,7 +325,9 @@ export default function EventArrivalsPage() {
                             <div
                               key={i}
                               className={`w-full h-4 rounded ${
-                                cardStyle === "list" ? "bg-[#FEC800]/30" : "bg-gray-300"
+                                cardStyle === "list"
+                                  ? "bg-[#FEC800]/30"
+                                  : "bg-gray-300"
                               }`}
                             ></div>
                           ))}
@@ -397,11 +344,11 @@ export default function EventArrivalsPage() {
                       Campos Padrão
                     </h3>
                     <div className="space-y-3">
-                      {defaultFields.map((field) => (
+                      {eventData?.customFields.map((field) => (
                         <div
-                          key={field.id}
+                          key={field._id}
                           className={`p-4 rounded-lg border-2 transition-all duration-200 ${
-                            selectedFields.includes(field.id)
+                            selectedFields.includes(field._id)
                               ? "border-[#02488C] bg-[#02488C]/5 shadow-sm"
                               : "border-gray-200 hover:border-gray-300"
                           }`}
@@ -410,24 +357,28 @@ export default function EventArrivalsPage() {
                             <div className="flex items-center gap-3">
                               <div
                                 className={`p-2 rounded-lg ${
-                                  selectedFields.includes(field.id)
+                                  selectedFields.includes(field._id)
                                     ? "bg-[#02488C] text-white"
                                     : "bg-gray-100 text-gray-500"
                                 }`}
-                              >
-                                {field.icon}
-                              </div>
-                              <span className="font-medium text-gray-900">{field.label}</span>
+                              ></div>
+                              <span className="font-medium text-gray-900">
+                                {field.label}
+                              </span>
                             </div>
                             <button
-                              onClick={() => toggleField(field.id)}
+                              onClick={() => toggleField(field.label)}
                               className={`p-2 rounded-lg transition-all duration-200 ${
-                                selectedFields.includes(field.id)
+                                selectedFields.includes(field.label)
                                   ? "bg-[#02488C] text-white shadow-md"
                                   : "bg-gray-100 text-gray-500 hover:bg-gray-200"
                               }`}
                             >
-                              {selectedFields.includes(field.id) ? <Check size={16} /> : <Plus size={16} />}
+                              {selectedFields.includes(field._id) ? (
+                                <Check size={16} />
+                              ) : (
+                                <Plus size={16} />
+                              )}
                             </button>
                           </div>
                         </div>
@@ -442,7 +393,8 @@ export default function EventArrivalsPage() {
                       Parâmetro Comum
                     </h3>
                     <p className="text-sm text-gray-600 mb-4">
-                      Adicione um parâmetro que será exibido para todos os participantes
+                      Adicione um parâmetro que será exibido para todos os
+                      participantes
                     </p>
                     <input
                       type="text"
@@ -466,8 +418,12 @@ export default function EventArrivalsPage() {
                             <Clock size={18} className="text-gray-600" />
                           </div>
                           <div>
-                            <span className="font-medium text-gray-900">Horário de chegada</span>
-                            <p className="text-sm text-gray-500">Mostrar quando cada participante chegou</p>
+                            <span className="font-medium text-gray-900">
+                              Horário de chegada
+                            </span>
+                            <p className="text-sm text-gray-500">
+                              Mostrar quando cada participante chegou
+                            </p>
                           </div>
                         </div>
                         <button
@@ -478,80 +434,89 @@ export default function EventArrivalsPage() {
                               : "bg-gray-100 text-gray-500 hover:bg-gray-200"
                           }`}
                         >
-                          {showArrivalTime ? <Check size={16} /> : <X size={16} />}
+                          {showArrivalTime ? (
+                            <Check size={16} />
+                          ) : (
+                            <X size={16} />
+                          )}
                         </button>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                  {previewMode && (
-                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50/30 p-6 rounded-xl border border-blue-200">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-                        <Eye className="h-5 w-5 text-[#02488C]" />
-                        Preview
-                      </h3>
-                      <div className="bg-white border border-gray-200 rounded-xl p-6 max-w-sm mx-auto shadow-lg">
-                        <div className="flex flex-col items-center">
-                          <div className="relative mb-4">
-                            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#02488C] to-[#0369a1] flex items-center justify-center text-white text-xl font-bold shadow-lg">
-                              AS
-                            </div>
-                            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full"></div>
+                {previewMode && (
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50/30 p-6 rounded-xl border border-blue-200">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                      <Eye className="h-5 w-5 text-[#02488C]" />
+                      Preview
+                    </h3>
+                    <div className="bg-white border border-gray-200 rounded-xl p-6 max-w-sm mx-auto shadow-lg">
+                      <div className="flex flex-col items-center">
+                        <div className="relative mb-4">
+                          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#02488C] to-[#0369a1] flex items-center justify-center text-white text-xl font-bold shadow-lg">
+                            AS
                           </div>
+                          <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full"></div>
+                        </div>
 
-                          {selectedFields.includes("name") && (
-                            <h3 className="font-bold text-lg text-gray-900 mb-3">Ana Silva</h3>
-                          )}
+                        {selectedFields.includes("name") && (
+                          <h3 className="font-bold text-lg text-gray-900 mb-3">
+                            Ana Silva
+                          </h3>
+                        )}
 
-                          <div className="space-y-2 w-full">
-                            {selectedFields
-                              .filter((f) => f !== "name")
-                              .map((fieldId) => {
-                                const field = defaultFields.find((f) => f.id === fieldId)
-                                if (!field) return null
+                        <div className="space-y-2 w-full">
+                          {selectedFields
+                            .filter((f) => f !== "name")
+                            .map((fieldId) => {
+                              const field = eventData?.customFields.find(
+                                (f) => f._id === fieldId
+                              );
+                              if (!field) return null;
 
-                                return (
-                                  <div
-                                    key={fieldId}
-                                    className="flex items-center justify-center gap-2 text-gray-600 bg-gray-50 rounded-lg p-2"
-                                  >
-                                    {field.icon}
-                                    <span className="text-sm">
-                                      {fieldId === "instagram"
-                                        ? "@ana_silva_dev"
-                                        : fieldId === "email"
-                                          ? "ana@email.com"
-                                          : fieldId === "phoneNumber"
-                                            ? "(11) 98765-4321"
-                                            : fieldId === "mysite"
-                                              ? "anasilva.dev"
-                                              : fieldId === "birthdaydata"
-                                                ? "15/05/1990"
-                                                : ""}
-                                    </span>
-                                  </div>
-                                )
-                              })}
+                              return (
+                                <div
+                                  key={fieldId}
+                                  className="flex items-center justify-center gap-2 text-gray-600 bg-gray-50 rounded-lg p-2"
+                                >
+                                  <span className="text-sm">
+                                    {fieldId === "instagram"
+                                      ? "@ana_silva_dev"
+                                      : fieldId === "email"
+                                      ? "ana@email.com"
+                                      : fieldId === "phoneNumber"
+                                      ? "(11) 98765-4321"
+                                      : fieldId === "mysite"
+                                      ? "anasilva.dev"
+                                      : fieldId === "birthdaydata"
+                                      ? "15/05/1990"
+                                      : ""}
+                                  </span>
+                                </div>
+                              );
+                            })}
 
-                            {commonParameter && (
-                              <div className="flex items-center justify-center gap-2 text-[#FEC800] bg-yellow-50 rounded-lg p-2 border border-yellow-200">
-                                <Sparkles size={16} />
-                                <span className="text-sm font-medium">{commonParameter}</span>
-                              </div>
-                            )}
-                          </div>
-
-                          {showArrivalTime && (
-                            <div className="flex items-center justify-center gap-2 text-gray-500 mt-4 bg-gray-50 rounded-lg p-2">
-                              <Clock className="h-4 w-4" />
-                              <span className="text-sm">10:15</span>
+                          {commonParameter && (
+                            <div className="flex items-center justify-center gap-2 text-[#FEC800] bg-yellow-50 rounded-lg p-2 border border-yellow-200">
+                              <Sparkles size={16} />
+                              <span className="text-sm font-medium">
+                                {commonParameter}
+                              </span>
                             </div>
                           )}
                         </div>
+
+                        {showArrivalTime && (
+                          <div className="flex items-center justify-center gap-2 text-gray-500 mt-4 bg-gray-50 rounded-lg p-2">
+                            <Clock className="h-4 w-4" />
+                            <span className="text-sm">10:15</span>
+                          </div>
+                        )}
                       </div>
                     </div>
-                  )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -563,20 +528,32 @@ export default function EventArrivalsPage() {
                   <UserCheck className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Participantes Presentes</h2>
-                  <p className="text-gray-600">Acompanhe em tempo real as chegadas do evento</p>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Participantes Presentes
+                  </h2>
+                  <p className="text-gray-600">
+                    Acompanhe em tempo real as chegadas do evento
+                  </p>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg border border-gray-200 shadow-sm">
                   <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm font-medium text-gray-700">{arrivals.length} presentes</span>
+                  <span className="text-sm font-medium text-gray-700">
+                    {arrivals.length} presentes
+                  </span>
                 </div>
                 <button
-                  onClick={() => setCardStyle(cardStyle === "grid" ? "list" : "grid")}
+                  onClick={() =>
+                    setCardStyle(cardStyle === "grid" ? "list" : "grid")
+                  }
                   className="p-3 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 transition-all duration-200 shadow-sm flex items-center justify-center"
                 >
-                  {cardStyle === "grid" ? <List size={18} /> : <Grid size={18} />}
+                  {cardStyle === "grid" ? (
+                    <List size={18} />
+                  ) : (
+                    <Grid size={18} />
+                  )}
                 </button>
               </div>
             </div>
@@ -586,9 +563,12 @@ export default function EventArrivalsPage() {
                 <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full mb-6">
                   <UserCheck className="h-12 w-12 text-[#02488C]" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Aguardando Chegadas</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  Aguardando Chegadas
+                </h2>
                 <p className="text-gray-600 text-lg max-w-md mx-auto">
-                  As chegadas dos participantes aparecerão aqui em tempo real conforme eles fizerem check-in
+                  As chegadas dos participantes aparecerão aqui em tempo real
+                  conforme eles fizerem check-in
                 </p>
               </div>
             ) : (
@@ -599,130 +579,49 @@ export default function EventArrivalsPage() {
                     : "space-y-4"
                 }
               >
-                {arrivals.map((arrival) => (
-                  <div
-                    key={arrival._id}
-                    className={`
-                      bg-white border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-gray-300
-                      ${cardStyle === "list" ? "flex items-center p-6 gap-6" : "shadow-sm"}
-                      ${arrival.isNew ? "animate-pulse border-green-400 shadow-md bg-green-50/30" : ""}
-                    `}
-                  >
+                {arrivals.map((arrival) => {
+                  return (
                     <div
-                      className={`
-                      ${cardStyle === "list" ? "flex-shrink-0" : "p-6 text-center"}
-                    `}
+                      className={`space-y-2${
+                        cardStyle === "list"
+                          ? "grid grid-cols-2 gap-x-6 gap-y-2"
+                          : ""
+                      }`}
                     >
-                      <div
-                        className={`
-                        relative 
-                        ${cardStyle === "list" ? "" : "mx-auto mb-4"}
-                      `}
-                      >
+                      {Object.entries(arrival.fields).map(([label, value]) => (
                         <div
-                          className={`
-                          rounded-full bg-gradient-to-br from-[#02488C] to-[#0369a1] flex items-center justify-center text-white font-bold shadow-lg
-                          ${cardStyle === "list" ? "w-14 h-14 text-sm" : "w-16 h-16 text-xl"}
-                        `}
+                          key={label}
+                          className={`flex items-center gap-2 text-gray-600 bg-gray-50 rounded-lg p-2${
+                            cardStyle === "list"
+                              ? "text-sm"
+                              : "justify-center text-sm"
+                          }`}
                         >
-                          {getInitials(arrival.name)}
+                          <span className="font-semibold truncate">
+                            {label}:
+                          </span>
+                          <span className="truncate">{value}</span>
                         </div>
-                        <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full shadow-sm"></div>
-                      </div>
-                    </div>
-
-                    <div
-                      className={`
-                      ${cardStyle === "list" ? "flex-1" : "text-center px-6 pb-6"}
-                    `}
-                    >
-                      {selectedFields.includes("name") && (
-                        <h3
-                          className={`
-                          font-bold text-gray-900 
-                          ${cardStyle === "list" ? "text-lg mb-2" : "text-lg mb-3"}
-                        `}
-                        >
-                          {arrival.name}
-                        </h3>
-                      )}
-
-                      <div
-                        className={`
-                        space-y-2
-                        ${cardStyle === "list" ? "grid grid-cols-2 gap-x-6 gap-y-2" : ""}
-                      `}
-                      >
-                        {selectedFields
-                          .filter((f) => f !== "name")
-                          .map((fieldId) => {
-                            const value = getFieldValue(arrival, fieldId)
-                            if (!value) return null
-
-                            return (
-                              <div
-                                key={fieldId}
-                                className={`
-                                flex items-center gap-2 text-gray-600 bg-gray-50 rounded-lg p-2
-                                ${cardStyle === "list" ? "text-sm" : "justify-center text-sm"}
-                              `}
-                              >
-                                {getFieldIcon(fieldId)}
-                                <span className="truncate">{value.toString()}</span>
-                              </div>
-                            )
-                          })}
-
-                        {selectedCustomFields.map((fieldId) => {
-                          const value = getCustomFieldValue(arrival, fieldId)
-                          if (!value) return null
-
-                          return (
-                            <div
-                              key={fieldId}
-                              className={`
-                                flex items-center gap-2 text-gray-600 bg-gray-50 rounded-lg p-2
-                                ${cardStyle === "list" ? "text-sm" : "justify-center text-sm"}
-                              `}
-                            >
-                              <Info size={cardStyle === "list" ? 14 : 16} />
-                              <span className="truncate">{value}</span>
-                            </div>
-                          )
-                        })}
-
-                        {commonParameter && (
-                          <div
-                            className={`
-                              flex items-center gap-2 text-[#FEC800] bg-yellow-50 rounded-lg p-2 border border-yellow-200
-                              ${cardStyle === "list" ? "text-sm" : "justify-center text-sm"}
-                            `}
-                          >
-                            <Sparkles size={cardStyle === "list" ? 14 : 16} />
-                            <span className="font-medium">{commonParameter}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {showArrivalTime && (
+                      ))}
+                      {commonParameter && (
                         <div
                           className={`
-                          flex items-center gap-2 text-gray-500 bg-gray-50 rounded-lg p-2 mt-3
-                          ${cardStyle === "list" ? "text-sm" : "justify-center text-sm"}
+                         flex items-center gap-2 text-[#FEC800] bg-yellow-50 rounded-lg p-2 border border-yellow-200
+                        ${cardStyle === "list" ? "text-sm" : "justify-center text-sm"}
                         `}
                         >
-                          <Clock className={`${cardStyle === "list" ? "h-3 w-3" : "h-4 w-4"}`} />
-                          <span className="font-mono">{formatArrivalTime(arrival.arrivalTime)}</span>
+                          <Sparkles size={cardStyle === "list" ? 14 : 16} />
+                          <span className="font-medium">{commonParameter}</span>
                         </div>
                       )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </>
         )}
       </div>
     </div>
-  )
+  );
 }

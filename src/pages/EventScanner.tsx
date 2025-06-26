@@ -1,4 +1,6 @@
 import { useEffect, useState, useRef } from "react";
+import { io } from "socket.io-client";
+
 import {
   Card,
   CardContent,
@@ -14,6 +16,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
 import axios from "axios";
 import { Badge } from "@/components/ui/badge";
+
+const socket = io(`${import.meta.env.VITE_API_BASE_URL}`);
 
 export default function EventScanner() {
   // Estados para o scanner QR
@@ -185,7 +189,13 @@ export default function EventScanner() {
             { headers: { Authorization: `Bearer ${scanResult}` } }
           );
           if (response.data.message) {
+            console.log(response.data);
+
             setScanResult(response.data.message);
+            socket.emit("sendCheckout", {
+              userId: response.data.user._id,
+              eventId: response.data.ticket.eventId,
+            });
           }
         } catch (error: any) {
           if (error.response?.data?.message) {
