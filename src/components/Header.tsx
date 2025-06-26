@@ -96,20 +96,12 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [filteredEvents, setFilteredEvents] = useState<EventInterface[] | null>(
     null
-  );
-  console.log(filteredEvents);
+  );  
 
   const [querySearch, setQuerySearch] = useState<string | null>(null);
 
   async function getActiveFilterEvents() {
-    try {
-      console.log(
-        "Chamando rota:",
-        `${import.meta.env.VITE_API_BASE_URL}${
-          import.meta.env.VITE_GET_FILTERED_EVENTS
-        }`
-      );
-      console.log("Com params:", { querySearch, activeFilter });
+    try {      
 
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}${
@@ -117,10 +109,8 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
         }`,
         {
           params: { querySearch, activeFilter },
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
-      console.log(response);
 
       if (response.data.eventos) {
         setFilteredEvents(response.data.eventos);

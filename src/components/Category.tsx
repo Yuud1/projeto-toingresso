@@ -50,8 +50,11 @@ const Category: React.FC = () => {
     async function getEventsCategory() {
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}${
-          import.meta.env.VITE_GET_ALL_EVENTS_WITH_CATEGORY
-        }${activeCategory}`
+          import.meta.env.VITE_GET_FILTERED_EVENTS
+        }`,
+        {
+          params: { querySearch: activeCategory },
+        }
       );
 
       if (response.data.events) {
@@ -59,9 +62,7 @@ const Category: React.FC = () => {
       }
     }
 
-    if (activeCategory !== null) {
-      getEventsCategory();
-    }
+    getEventsCategory();
   }, [activeCategory]);
 
   const showCarousel = isMobile
@@ -169,7 +170,7 @@ const Category: React.FC = () => {
 
               return (
                 <a href={`/evento/${event._id}`} key={event._id}>
-                  <div className="w-full h-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer mb-10">                    
+                  <div className="w-full h-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer mb-10">
                     <div className="relative">
                       <img
                         src={event.image || "/placeholder.svg"}
