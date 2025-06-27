@@ -89,23 +89,24 @@ const Dashboard: React.FC<DashboardProps> = ({
             <EyeOff className="h-4 w-4" />
           </Button>
           
-          <Select
-            value={selectedDashboardEvent}
-            onValueChange={setSelectedDashboardEvent}
-            className="flex-1"
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Selecionar evento" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os eventos</SelectItem>
-              {events.map((event) => (
-                <SelectItem key={event._id} value={event._id}>
-                  {event.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex-1">
+            <Select
+              value={selectedDashboardEvent}
+              onValueChange={setSelectedDashboardEvent}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Selecionar evento" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os eventos</SelectItem>
+                {events.map((event) => (
+                  <SelectItem key={event._id} value={event._id}>
+                    {event.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Desktop: Layout original */}
@@ -124,22 +125,24 @@ const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         <div className="hidden lg:block w-full lg:w-auto lg:min-w-[250px]">
-          <Select
-            value={selectedDashboardEvent}
-            onValueChange={setSelectedDashboardEvent}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Selecionar evento" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os eventos</SelectItem>
-              {events.map((event) => (
-                <SelectItem key={event._id} value={event._id}>
-                  {event.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex-1">
+            <Select
+              value={selectedDashboardEvent}
+              onValueChange={setSelectedDashboardEvent}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Selecionar evento" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os eventos</SelectItem>
+                {events.map((event) => (
+                  <SelectItem key={event._id} value={event._id}>
+                    {event.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
