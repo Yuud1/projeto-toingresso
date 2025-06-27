@@ -172,11 +172,11 @@ export const truncateTextResponsive = (text: string): string => {
   
   const screenWidth = window.innerWidth;
   
-  // Limites mais conservadores para evitar quebra
+  // Limites aumentados para mobile
   if (screenWidth < 480) { // mobile pequeno
-    return text.length > 25 ? text.slice(0, 25) + '...' : text;
+    return text.length > 40 ? text.slice(0, 40) + '...' : text;
   } else if (screenWidth < 640) { // mobile
-    return text.length > 35 ? text.slice(0, 35) + '...' : text;
+    return text.length > 50 ? text.slice(0, 50) + '...' : text;
   } else if (screenWidth < 768) { // tablet
     return text.length > 45 ? text.slice(0, 45) + '...' : text;
   } else { // desktop

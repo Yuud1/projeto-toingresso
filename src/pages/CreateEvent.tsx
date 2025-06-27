@@ -1236,27 +1236,6 @@ export default function CreateEvent() {
                             />
                             {renderError(`ticket-${index}-quantity`)}
                           </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Descrição
-                            </label>
-                            <Input
-                              type="text"
-                              value={ticket.description}
-                              onChange={(e) => {
-                                const updatedTickets = [...formData.tickets];
-                                updatedTickets[index].description =
-                                  e.target.value;
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  tickets: updatedTickets,
-                                }));
-                              }}
-                              placeholder="Descrição do ingresso (opcional)"
-                              className="w-full"
-                            />
-                          </div>
                         </div>
 
                         <Button

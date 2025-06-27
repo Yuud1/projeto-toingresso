@@ -55,7 +55,7 @@ const EventDetail = () => {
     <>
       <Header isScrolled={true} />
       {/* Banner superior da imagem */}
-      <div className="relative w-full h-[400px] sm:h-[350px] md:h-[450px]">
+      <div className="relative w-full h-80 sm:h-96 md:h-[500px] mt-28 sm:mt-16 md:mt-4">
         <div
           className="absolute mb-10 inset-0 bg-cover bg-center blur-sm"
           style={{ backgroundImage: `url("${event?.image}")` }}
@@ -131,7 +131,7 @@ const EventDetail = () => {
             </div>
 
             {/* Título apenas mobile */}
-            <div className="md:hidden space-y-3 text-[#414141] p-4">
+            <div className="md:hidden space-y-3 text-[#414141] bg-white/80 rounded-lg p-4">
               <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold text-[#414141] flex-1 mr-3 ">
                   {event?.title}
@@ -157,7 +157,7 @@ const EventDetail = () => {
             </div>
 
             {/* Imagem lateral no desktop com hover */}
-            <div className="h-48 sm:h-64 md:h-full relative group">
+            <div className="h-56 sm:h-72 md:h-80 relative group">
               <img
                 src={event?.image}
                 alt={event?.title}
@@ -168,7 +168,7 @@ const EventDetail = () => {
               <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 bg-black/60 backdrop-blur-sm rounded-lg p-2 sm:p-3 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
                   <Users className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span>Evento incrível</span>
+                  <span>Evento imperdível</span>
                   <Clock className="w-3 h-3 sm:w-4 sm:h-4 ml-auto" />
                   <span>Em breve</span>
                 </div>

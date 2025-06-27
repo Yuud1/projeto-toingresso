@@ -152,7 +152,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
       <div className="relative" ref={dropdownRef}>
         <div
           onClick={() => setIsOpen(!isOpen)}
-          className="outline-none flex items-center gap-2 border rounded-full px-2 py-1 cursor-pointer hover:bg-gray-50"
+          className="outline-none flex items-center gap-2 border-2 border-gray-300 rounded-full px-2 py-1 cursor-pointer hover:bg-white/30"
           role="button"
           tabIndex={0}
           onKeyDown={(e) => {
@@ -325,7 +325,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-sm transition-all duration-300 p-5",
+        "fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-sm p-5",
         isScrolled ? "shadow-md py-2" : "py-4"
       )}
     >
@@ -437,13 +437,13 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
             )}
           >
             {isScrolled && (
-              <a href="/">
-                <img className="w-11" src="/icon.png" alt="Logo" />
+              <a href="/" className="transition-all duration-300 ease-out transform hover:scale-105">
+                <img className="w-11 animate-in fade-in slide-in-from-left-2 duration-300" src="/icon.png" alt="Logo" />
               </a>
             )}
             <div
               className={cn(
-                "relative transition-all duration-300",
+                "relative animate-in fade-in duration-300 ease-out",
                 isScrolled ? "w-full max-w-md" : "w-full max-w-xl mx-auto"
               )}
             >

@@ -6,4 +6,6 @@ export default interface TicketInterface  {
   quantity: number,
   soldQuantity: number,
   type: "regular" | "student" | "senior" | "free";
+  maxInstallments?: number;
+  fee?: number;
 };

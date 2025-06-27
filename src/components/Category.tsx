@@ -160,7 +160,7 @@ const Category: React.FC = () => {
             </button>
           </>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {eventsCategory.map((event) => {
               const isFree = event.isFree;
               const startDate = new Date(event.startDate).toLocaleDateString(
@@ -193,7 +193,7 @@ const Category: React.FC = () => {
 
                     {/* Conteúdo */}
                     <div className="p-4 sm:p-5">
-                      <h3 className="font-bold text-lg text-gray-900 line-clamp-2">
+                      <h3 className="font-bold text-lg text-gray-900 truncate">
                         {truncateTextResponsive(event.title)}
                       </h3>
 

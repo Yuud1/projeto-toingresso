@@ -4,8 +4,10 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
-import { Eye, Clock, Star } from "lucide-react"
+import { Eye, Clock, Star, MapPin, Calendar } from "lucide-react"
 import { Link } from "react-router-dom"
+import { Avatar } from "@/components/ui/avatar"
+import { truncateTextResponsive } from "@/utils/formatUtils"
 
 interface TabProps {
   isActive: boolean
@@ -132,35 +134,91 @@ const mockProducers = [
   },
 ]
 
-const EventCard = ({ event }: { event: any }) => (
-  <Link to={`/evento/${event.id}`} className="block group">
-    <div className="border rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 bg-white h-full">
-      <div className="relative h-40 sm:h-48 overflow-hidden">
-        <img
-          src={event.image || "/placeholder.svg"}
-          alt={event.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
-        <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs flex items-center gap-1">
-          <Eye size={12} />
-          <span>{event.views}</span>
-        </div>
-      </div>
-      <div className="p-3 sm:p-4">
-        <h3 className="font-semibold text-base sm:text-lg mb-2 line-clamp-2 group-hover:text-[#02488C] transition-colors">
-          {event.title}
-        </h3>
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-gray-600 text-xs sm:text-sm">
-            <Clock size={12} className="flex-shrink-0" />
-            <span>{new Date(event.date).toLocaleDateString("pt-BR")}</span>
+const EventCard = ({ event }: { event: any }) => {
+  const isFree = event.isFree || false;
+  const startDate = new Date(event.date).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+  });
+  const startTime = event.startTime ? event.startTime.slice(0, 5) : "00:00";
+
+  return (
+    <Link to={`/evento/${event.id}`} key={event.id}>
+      <div className="w-full h-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer mb-10">
+        {/* Imagem */}
+        <div className="relative">
+          <img
+            src={event.image || "/placeholder.svg"}
+            alt={event.title}
+            className="w-full h-48 object-cover"
+          />
+          <div className="absolute top-3 right-3">
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                isFree ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
+              }`}
+            >
+              {isFree ? "Gratuito" : "Pago"}
+            </span>
           </div>
-          <p className="text-gray-500 text-xs sm:text-sm truncate">{event.location}</p>
+        </div>
+
+        {/* Conteúdo */}
+        <div className="p-4 sm:p-5">
+          <h3 className="font-bold text-lg text-gray-900 truncate">
+            {truncateTextResponsive(event.title)}
+          </h3>
+
+          {/* Localização */}
+          <div className="flex items-start gap-2 mb-3">
+            <div className="text-sm text-gray-600">
+              <p className="font-medium">
+                {truncateTextResponsive(`${event.venueName || event.location} | ${event.state || ""}`)}
+              </p>
+            </div>
+          </div>
+
+          {/* Data e Hora */}
+          <div className="flex items-center mb-3 justify-between gap-2">
+            <div className="flex items-center gap-1 text-gray-600">
+              <Calendar className="w-4 h-4" />
+              <span className="text-sm">{startDate}</span>
+            </div>
+            <div className="flex items-center gap-1 text-gray-600">
+              <Clock className="w-4 h-4" />
+              <span className="text-sm">{startTime}</span>
+            </div>
+            <div className="flex items-center gap-1 text-gray-600 min-w-0 flex-1">
+              <MapPin className="w-4 h-4 flex-shrink-0" />
+              <p className="text-sm truncate">
+                {truncateTextResponsive(`${event.neighborhood || ""}, ${event.city || ""}`)}
+              </p>
+            </div>
+          </div>
+
+          {/* Organizador */}
+          <div className="pt-3 border-t border-gray-100 flex">
+            <div className="text-xs text-gray-500 flex items-center justify-center">
+              {event.organizer ? (
+                <span className="font-medium text-gray-700 flex justify-center items-center gap-3">
+                  <Avatar
+                    src={event.organizer.avatar}
+                    className="max-w-10 max-h-10 border"
+                  />
+                  {truncateTextResponsive(event.organizer.name)}
+                </span>
+              ) : (
+                <span className="italic text-gray-400">
+                  Organizador não informado
+                </span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </Link>
-)
+    </Link>
+  )
+}
 
 const ProducerCard = ({ producer }: { producer: any }) => (
   <Link to={`/organizador/${producer.id}`} className="block group">
@@ -240,7 +298,7 @@ const Carousel = ({ items, renderItem, title, icon }: CarouselProps) => {
         ))}
       </div>
 
-      <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+      <div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {items.map((item) => (
           <div key={item.id}>{renderItem(item)}</div>
         ))}
@@ -327,7 +385,7 @@ export default function Favorites() {
                     <Star className="text-[#02488C] flex-shrink-0" size={18} />
                     <h2 className="text-lg sm:text-xl font-semibold">Eventos que você também pode gostar</h2>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {mockEvents.recommended.map((event) => (
                       <EventCard key={event.id} event={event} />
                     ))}
@@ -335,7 +393,7 @@ export default function Favorites() {
                 </section>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {mockProducers.map((producer) => (
                   <ProducerCard key={producer.id} producer={producer} />
                 ))}

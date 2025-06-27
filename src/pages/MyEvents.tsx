@@ -132,10 +132,7 @@ export default function MyEvents() {
     "inicio" | "dashboard" | "certificados" | "scan"
   >("inicio");
   const [subTab, setSubTab] = useState<"active" | "finished">("active");
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isStopModalOpen, setIsStopModalOpen] = useState(false);
-  const [eventToDelete, setEventToDelete] = useState<string | null>(null);
   const [eventToStop, setEventToStop] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -314,7 +311,7 @@ export default function MyEvents() {
           toast({
             title: "Evento encerrado com sucesso!",
             description:
-              "O evento foi movido para a lista de eventos encerrados.",
+              "O evento foi movido para a lista de eventos finalizados e não poderá mais receber novos participantes.",
           });
         }
       } catch (error) {
@@ -335,44 +332,6 @@ export default function MyEvents() {
       )
     );
     setIsEditModalOpen(false);
-  };
-
-  const handleDelete = async (eventId: string) => {
-    try {
-      setEventToDelete(eventId);
-      setIsDeleteModalOpen(true);
-    } catch (error) {
-      console.log("Erro", error);
-    }
-  };
-
-  const confirmDelete = async () => {
-    try {
-      if (eventToDelete) {
-        const response = await axios.delete(
-          `${import.meta.env.VITE_API_BASE_URL}${
-            import.meta.env.VITE_EVENT_DELETE
-          }`,
-          {
-            data: { id: eventToDelete },
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (response.data.deleted) {
-          setEvents((prevEvents) =>
-            prevEvents.filter((event) => event._id !== eventToDelete)
-          );
-          setEventToDelete(null);
-          setIsDeleteModalOpen(false);
-        }
-      }
-    } catch (error: any) {
-      console.log("Erorr", error);
-      setErrorMessage(error.response.data.message);
-    }
   };
 
   const handleView = (eventId: string) => {
@@ -457,15 +416,6 @@ export default function MyEvents() {
     <div className="min-h-screen flex flex-col">
       <Header isScrolled={true} />
       <main className="flex-1 container mx-auto px-4 py-8 pt-24 max-w-full overflow-x-hidden">
-        <DeleteModal
-          isOpen={isDeleteModalOpen}
-          onClose={() => setIsDeleteModalOpen(false)}
-          onConfirm={confirmDelete}
-          title="Excluir Evento"
-          description="Tem certeza que deseja excluir este evento? Esta ação não pode ser desfeita."
-          errorMessage={errorMessage}
-        />
-
         <DeleteModal
           isOpen={isStopModalOpen}
           onClose={() => setIsStopModalOpen(false)}
@@ -694,7 +644,7 @@ export default function MyEvents() {
                         | "scan"
                     );
                   }}
-                  className="text-base cursor-pointer"
+                  className="cursor-pointer"
                 >
                   <div className="flex items-center">
                     <option.icon className="h-4 w-4 mr-2" />
@@ -878,46 +828,37 @@ export default function MyEvents() {
                           </div>
 
                           {/* Botões de Ação */}
-                          <div className="flex justify-between items-center gap-2 mt-10">
-                            <div className="flex gap-2 sm:gap-3">
+                          <div className="flex justify-between items-center mt-auto pt-4 border-t border-gray-100">
+                            <div className="flex gap-2">
                               <Button
+                                onClick={() => handleView(event._id)}
                                 variant="outline"
                                 size="icon"
-                                onClick={() => handleView(event._id)}
-                                className="cursor-pointer h-10 w-10 sm:h-12 sm:w-12"
+                                className="h-10 w-10 cursor-pointer"
                                 title="Visualizar evento"
                               >
-                                <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                                <Eye className="h-4 w-4" />
                               </Button>
                               {event.status !== "finished" && (
                                 <Button
+                                  onClick={() => handleEdit(event._id)}
                                   variant="outline"
                                   size="icon"
-                                  onClick={() => handleEdit(event._id)}
-                                  className="cursor-pointer h-10 w-10 sm:h-12 sm:w-12"
+                                  className="h-10 w-10 cursor-pointer"
                                   title="Editar evento"
                                 >
-                                  <Pencil className="h-4 w-4 sm:h-5 sm:w-5" />
+                                  <Pencil className="h-4 w-4" />
                                 </Button>
                               )}
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={() => handleDelete(event._id)}
-                                className="cursor-pointer h-10 w-10 sm:h-12 sm:w-12"
-                                title="Excluir evento"
-                              >
-                                <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
-                              </Button>
                             </div>
                             {event.status !== "finished" && (
                               <Button
-                                variant="outline"
                                 onClick={() => handleStopEvent(event._id)}
-                                className="cursor-pointer flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white hover:text-white text-sm sm:text-base px-3 py-2 h-10 sm:h-12"
-                                title="Encerrar evento"
+                                variant="outline"
+                                className="text-white border-red-600 bg-red-600 hover:bg-red-700 hover:border-red-700 hover:text-white transition-colors cursor-pointer"
                               >
-                                <span>Finalizar</span>
+                                <Trash2 size={16} className="mr-2" />
+                                Finalizar
                               </Button>
                             )}
                           </div>

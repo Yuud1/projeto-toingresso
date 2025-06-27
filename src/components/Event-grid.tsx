@@ -1,9 +1,10 @@
 import EventInterface from "@/interfaces/EventInterface";
 import axios from "axios";
 import React from "react";
-import { MapPin, Clock, Calendar } from "lucide-react";
+import { MapPin, Clock, Calendar, ArrowRight } from "lucide-react";
 import { Avatar } from "./ui/avatar";
 import { truncateTextResponsive } from "@/utils/formatUtils";
+import { Button } from "./ui/button";
 
 const EventGrid = () => {
   const [events, setEvents] = React.useState<EventInterface[]>([]);
@@ -32,14 +33,32 @@ const EventGrid = () => {
     getEvents();
   }, []);
 
+  // Limitar a exibição a 8 eventos na home
+  const displayedEvents = events.slice(0, 8);
+  const hasMoreEvents = events.length > 8;
+
   return (
     <section id="event-grid" className="max-w-7xl mx-auto py-10">
-      <h2 className="text-[#414141] text-2xl font-bold mb-8 pt-8">
-        Próximos Eventos
-      </h2>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {events.map((event) => {
+      <div className="flex items-center justify-between">
+        <h2 className="text-[#414141] text-2xl font-bold mb-8 pt-8">
+          Próximos Eventos
+        </h2>
+        
+        {/* Botão "Ver Todos os Eventos" */}
+              {hasMoreEvents && (
+          <div className="flex justify-end">
+            <Button
+              onClick={() => window.location.href = '/todos-eventos'}
+              className="bg-[#02488C] hover:bg-[#023a70] text-white px-5 py-4 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 cursor-pointer"
+            >
+              Todos os Eventos
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {displayedEvents.map((event) => {
           const isFree = event.isFree;
           const startDate = new Date(event.startDate).toLocaleDateString("pt-BR", {
             day: "2-digit",
@@ -70,7 +89,7 @@ const EventGrid = () => {
 
                 {/* Conteúdo */}
                 <div className="p-4 sm:p-5">
-                  <h3 className="font-bold text-lg text-gray-900 line-clamp-2">
+                  <h3 className="font-bold text-lg text-gray-900 truncate">
                     {truncateTextResponsive(event.title)}
                   </h3>
 
@@ -125,6 +144,8 @@ const EventGrid = () => {
           );
         })}
       </div>
+
+
     </section>
   );
 };

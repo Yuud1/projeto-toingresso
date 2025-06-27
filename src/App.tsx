@@ -22,6 +22,7 @@ const HalfPriceRules = lazy(() => import("@/pages/HalfPriceRules"));
 const Checkout = lazy(() => import("@/pages/Checkout"));
 const EventArrivals = lazy(() => import("@/pages/EventArrivals"));
 const Organizer = lazy(() => import("@/pages/Organizer"));
+const TodosEventos = lazy(() => import("@/pages/TodosEventos"));
 
 // Páginas Admin
 const AdminDashboard = lazy(() => import("@/pages/admin/Dashboard"));
@@ -47,11 +48,9 @@ function App() {
           <Route path="/favoritos" element={<Favorites />} />
           <Route path="/meus-eventos" element={<MyEvents />} />
           <Route path="/event-arrivals/:id" element={<EventArrivals />} />
-
-
+          <Route path="/todos-eventos" element={<TodosEventos />} />
 
           <Route path="/checkouts" element={<Checkout />} />
-
 
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
