@@ -19,6 +19,7 @@ import type UserTicketsInterface from "@/interfaces/UserTicketsInterface";
 import Subscribed from "./Subscribed";
 import TransferTicket from "./TransferTicket";
 import axios from "axios";
+import { truncateTextResponsive } from "@/utils/formatUtils";
 
 interface TabProps {
   isActive: boolean;
@@ -167,7 +168,7 @@ export default function MyTickets() {
             ticketId={transferTicketId}
           ></TransferTicket>
         )}
-        <div className="max-w-7xl mx-auto mt-12">
+        <div className="max-w-6xl mx-auto mt-12">
           <div className="mb-8">
             <h1 className="text-2xl font-bold mb-4">Meus Ingressos</h1>
             <div className="relative w-full max-w-md">
@@ -275,22 +276,22 @@ export default function MyTickets() {
                     </div>
 
                     {/* Conteúdo */}
-                    <div className="p-5">
+                    <div className="p-4 sm:p-5">
                       <h3 className="font-bold text-lg text-gray-900 line-clamp-2 group-hover:text-[#02488C] transition-colors">
-                        {ticket.eventTitle}
+                        {truncateTextResponsive(ticket.eventTitle)}
                       </h3>
 
                       {/* Localização */}
                       <div className="flex items-start gap-2 mb-3">
                         <div className="text-sm text-gray-600">
                           <p className="font-medium">
-                            {event?.venueName || "Local não informado"} | {event?.state || ""}
+                            {truncateTextResponsive(`${event?.venueName || "Local não informado"} | ${event?.state || ""}`)}
                           </p>
                         </div>
                       </div>
 
                       {/* Data e Hora */}
-                      <div className="flex items-center mb-3 justify-between">
+                      <div className="flex items-center mb-3 justify-between gap-2">
                         <div className="flex items-center gap-1 text-gray-600">
                           <Calendar className="w-4 h-4" />
                           <span className="text-sm">{startDate}</span>
@@ -299,10 +300,10 @@ export default function MyTickets() {
                           <Clock className="w-4 h-4" />
                           <span className="text-sm">{startTime}</span>
                         </div>
-                        <div className="flex items-center gap-1 text-gray-600">
-                          <MapPin className="w-4 h-4" />
-                          <p className="text-sm">
-                            {event?.neighborhood || ""}, {event?.city || ""}
+                        <div className="flex items-center gap-1 text-gray-600 min-w-0 flex-1">
+                          <MapPin className="w-4 h-4 flex-shrink-0" />
+                          <p className="text-sm truncate">
+                            {truncateTextResponsive(`${event?.neighborhood || ""}, ${event?.city || ""}`)}
                           </p>
                         </div>
                       </div>

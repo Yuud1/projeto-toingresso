@@ -149,3 +149,37 @@ export const applyMask = (
       return value;
   }
 };
+
+export const truncateTextByScreenSize = (text: string, maxLength: number = 50): string => {
+  if (typeof window === 'undefined') return text;
+  
+  const screenWidth = window.innerWidth;
+  
+  // Ajusta o limite baseado no tamanho da tela
+  if (screenWidth < 640) { // mobile
+    return text.length > 30 ? text.slice(0, 30) + '...' : text;
+  } else if (screenWidth < 768) { // tablet
+    return text.length > 40 ? text.slice(0, 40) + '...' : text;
+  } else if (screenWidth < 1024) { // small desktop
+    return text.length > 50 ? text.slice(0, 50) + '...' : text;
+  } else { // large desktop
+    return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
+  }
+};
+
+export const truncateTextResponsive = (text: string): string => {
+  if (typeof window === 'undefined') return text;
+  
+  const screenWidth = window.innerWidth;
+  
+  // Limites mais conservadores para evitar quebra
+  if (screenWidth < 480) { // mobile pequeno
+    return text.length > 25 ? text.slice(0, 25) + '...' : text;
+  } else if (screenWidth < 640) { // mobile
+    return text.length > 35 ? text.slice(0, 35) + '...' : text;
+  } else if (screenWidth < 768) { // tablet
+    return text.length > 45 ? text.slice(0, 45) + '...' : text;
+  } else { // desktop
+    return text.length > 60 ? text.slice(0, 60) + '...' : text;
+  }
+};

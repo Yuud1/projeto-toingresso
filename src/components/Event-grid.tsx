@@ -3,6 +3,7 @@ import axios from "axios";
 import React from "react";
 import { MapPin, Clock, Calendar } from "lucide-react";
 import { Avatar } from "./ui/avatar";
+import { truncateTextResponsive } from "@/utils/formatUtils";
 
 const EventGrid = () => {
   const [events, setEvents] = React.useState<EventInterface[]>([]);
@@ -68,22 +69,22 @@ const EventGrid = () => {
                 </div>
 
                 {/* Conteúdo */}
-                <div className="p-5">
+                <div className="p-4 sm:p-5">
                   <h3 className="font-bold text-lg text-gray-900 line-clamp-2">
-                    {event.title}
+                    {truncateTextResponsive(event.title)}
                   </h3>
 
                   {/* Localização */}
                   <div className="flex items-start gap-2 mb-3">
                     <div className="text-sm text-gray-600">
                       <p className="font-medium">
-                        {event.venueName} | {event.state}
+                        {truncateTextResponsive(`${event.venueName} | ${event.state}`)}
                       </p>
                     </div>
                   </div>
 
                   {/* Data e Hora */}
-                  <div className="flex items-center mb-3 justify-between">
+                  <div className="flex items-center mb-3 justify-between gap-2">
                     <div className="flex items-center gap-1 text-gray-600">
                       <Calendar className="w-4 h-4" />
                       <span className="text-sm">{startDate}</span>
@@ -92,10 +93,10 @@ const EventGrid = () => {
                       <Clock className="w-4 h-4" />
                       <span className="text-sm">{startTime}</span>
                     </div>
-                    <div className="flex items-center gap-1 text-gray-600">
-                      <MapPin className="w-4 h-4" />
-                      <p className="text-sm">
-                        {event.neighborhood}, {event.city}
+                    <div className="flex items-center gap-1 text-gray-600 min-w-0 flex-1">
+                      <MapPin className="w-4 h-4 flex-shrink-0" />
+                      <p className="text-sm truncate">
+                        {truncateTextResponsive(`${event.neighborhood}, ${event.city}`)}
                       </p>
                     </div>
                   </div>
@@ -109,7 +110,7 @@ const EventGrid = () => {
                             src={event.organizer.avatar}
                             className="max-w-10 max-h-10 border"
                           />
-                          {event.organizer.name}
+                          {truncateTextResponsive(event.organizer.name)}
                         </span>
                       ) : (
                         <span className="italic text-gray-400">

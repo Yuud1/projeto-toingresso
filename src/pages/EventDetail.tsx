@@ -131,9 +131,9 @@ const EventDetail = () => {
             </div>
 
             {/* Título apenas mobile */}
-            <div className="md:hidden space-y-3 text-[#414141] bg-white/80 backdrop-blur-sm rounded-lg p-4">
+            <div className="md:hidden space-y-3 text-[#414141] p-4">
               <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-black flex-1 mr-3">
+                <h1 className="text-2xl font-bold text-[#414141] flex-1 mr-3 ">
                   {event?.title}
                 </h1>
                 <button

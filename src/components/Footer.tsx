@@ -96,7 +96,7 @@ const Footer = () => {
             {activeDropdown === 'conta' && (
               <ul className="mt-2 space-y-2 text-sm text-gray-300 pl-4">
                 <li><a href="/meus-ingressos" className="hover:underline block py-1">Meus ingressos</a></li>
-                <li><a href="#" className="hover:underline block py-1">Meus eventos</a></li>
+                <li><a href="meus-eventos" className="hover:underline block py-1">Meus eventos</a></li>
                 <li><a href="/criar-evento" className="hover:underline block py-1">Criar evento</a></li>
               </ul>
             )}
@@ -130,11 +130,11 @@ const Footer = () => {
             </button>
             {termsOpen && (
               <ul className="mt-2 space-y-2 text-sm text-gray-300 pl-4">
-                <li><a href="#" className="hover:underline block py-1">Termos de uso</a></li>
-                <li><a href="#" className="hover:underline block py-1">Diretrizes de Comunidade</a></li>
-                <li><a href="#" className="hover:underline block py-1">Política de Privacidade</a></li>
-                <li><a href="#" className="hover:underline block py-1">Obrigatoriedades Legais</a></li>
-                <li><a href="#" className="hover:underline block py-1">Regras de meia-entrada</a></li>
+                <li><a href="termos-de-uso" className="hover:underline block py-1">Termos de uso</a></li>
+                <li><a href="diretrizes-da-comunidade" className="hover:underline block py-1">Diretrizes de Comunidade</a></li>
+                <li><a href="politica-de-privacidade" className="hover:underline block py-1">Política de Privacidade</a></li>
+                <li><a href="obrigatoriedades-legais" className="hover:underline block py-1">Obrigatoriedades Legais</a></li>
+                <li><a href="regra-da-meia-entrada" className="hover:underline block py-1">Regras de meia-entrada</a></li>
               </ul>
             )}
           </div>
@@ -220,7 +220,7 @@ const Footer = () => {
 
           <div className="flex justify-center md:justify-end gap-4">
             <a
-              href="https://www.instagram.com/seuperfil"
+              href="https://www.instagram.com/toingresso/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-300 hover:text-white transition-colors"

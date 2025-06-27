@@ -1,31 +1,20 @@
 import type React from "react";
 import { useEffect, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Pencil,
   Trash2,
   Eye,
   Search,
-  Users,
   Calendar,
-  Ticket,
-  TrendingUp,
   Copy,
   ChevronDown,
   Home,
   BarChart3,
-  EyeOff,
   Award,
   Maximize2,
   Minimize2,
-  UserCheck,
   ScanEye,
   Clock,
   MapPin,
@@ -34,7 +23,6 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import axios from "axios";
 import type EventInterface from "@/interfaces/EventInterface";
 import { useUser } from "@/contexts/useContext";
@@ -55,12 +43,12 @@ import DeleteModal from "@/components/DeleteModal";
 import GenericModal from "@/components/GenericModal";
 import { EditEventModal } from "@/components/EditEventModal";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import CertificateTutorial from "./CertificateTutorial";
 import CertificateGenerator from "./CertificateGenerator";
 import EventScanner from "./EventScanner";
+import { truncateTextResponsive } from "@/utils/formatUtils";
+import Dashboard from "@/components/Dashboard";
 
 interface TabProps {
   isActive: boolean;
@@ -79,16 +67,6 @@ export interface CheckoutData {
   totalAmount: number;
   purchaseDate: string;
   status: "completed" | "pending" | "failed";
-}
-
-interface CertificateAssociation {
-  eventId: string;
-  courseName: string;
-  totalHours: number;
-  instructorName: string;
-  institution: string;
-  courseDescription: string;
-  template: string;
 }
 
 export interface EventParticipant {
@@ -172,17 +150,6 @@ export default function MyEvents() {
   const [hideValues, setHideValues] = useState(false);
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [isCheckoutMaximized, setIsCheckoutMaximized] = useState(false);
-  const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
-  const [certificateAssociation, setCertificateAssociation] =
-    useState<CertificateAssociation>({
-      eventId: "",
-      courseName: "",
-      totalHours: 0,
-      instructorName: "",
-      institution: "",
-      courseDescription: "",
-      template: "modern",
-    });
   const [checkouts] = useState<CheckoutData[]>([]);
 
   // Estados para aba de certificados
@@ -202,7 +169,7 @@ export default function MyEvents() {
   };
 
   const getFilteredEventsForDashboard = () => {
-    if (selectedDashboardEvent) {
+    if (!selectedDashboardEvent || selectedDashboardEvent === "all") {
       return events;
     }
     return events.filter((event) => event._id === selectedDashboardEvent);
@@ -264,30 +231,49 @@ export default function MyEvents() {
     return matchesTab && matchesSearch;
   });
 
-  const dashboardMetrics = (() => {
-    const filteredEvents = getFilteredEventsForDashboard();
-    return {
-      totalEvents: filteredEvents.length,
-      activeEvents: filteredEvents.filter((e) => e.status === "active").length,
-      totalRevenue: filteredEvents.reduce((acc, event) => {
-        const eventRevenue = event.tickets.reduce(
-          (ticketAcc, ticket) => ticketAcc + ticket.price * ticket.soldQuantity,
+  const dashboardMetrics = {
+    totalTicketsSold: getFilteredEventsForDashboard().reduce(
+      (total, event) =>
+        total +
+        event.tickets.reduce(
+          (ticketTotal, ticket) => ticketTotal + ticket.soldQuantity,
+          0
+        ),
+      0
+    ),
+    upcomingEvents: getFilteredEventsForDashboard().reduce(
+      (total, event) =>
+        total +
+        event.tickets.reduce(
+          (ticketTotal, ticket) => ticketTotal + (ticket.quantity - ticket.soldQuantity),
+          0
+        ),
+      0
+    ),
+    totalEvents: getFilteredEventsForDashboard().length,
+    totalRevenue: getFilteredEventsForDashboard().reduce(
+      (total, event) =>
+        total +
+        event.tickets.reduce(
+          (ticketTotal, ticket) => ticketTotal + (ticket.soldQuantity * ticket.price),
+          0
+        ),
+      0
+    ),
+    checkinsCount: getFilteredEventsForDashboard().reduce(
+      (total, event) => {
+        // Aqui você pode adicionar a lógica para contar check-ins
+        // Por enquanto, vamos usar um valor mockado baseado nos ingressos vendidos
+        const soldTickets = event.tickets.reduce(
+          (ticketTotal, ticket) => ticketTotal + ticket.soldQuantity,
           0
         );
-        return acc + eventRevenue;
-      }, 0),
-      totalTicketsSold: filteredEvents.reduce((acc, event) => {
-        const eventTicketsSold = event.tickets.reduce(
-          (ticketAcc, ticket) => ticketAcc + ticket.soldQuantity,
-          0
-        );
-        return acc + eventTicketsSold;
-      }, 0),
-      upcomingEvents: filteredEvents.filter(
-        (e) => new Date(e.startDate) > new Date() && e.status === "active"
-      ).length,
-    };
-  })();
+        // Simulando que 70% dos ingressos vendidos foram utilizados
+        return total + Math.floor(soldTickets * 0.7);
+      },
+      0
+    ),
+  };
 
   const handleEdit = (eventId: string) => {
     const event = events.find((e) => e._id === eventId);
@@ -452,36 +438,7 @@ export default function MyEvents() {
   };
 
   const formatCurrency = (value: number) => {
-    if (hideValues) return "R$ ***";
-    return `R$ ${value.toLocaleString("pt-BR", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`;
-  };
-
-  const formatNumber = (value: number) => {
-    if (hideValues) return "***";
-    return value.toString();
-  };
-
-  const handleSaveCertificateAssociation = async () => {
-    try {
-      console.log("Salvando associação:", certificateAssociation);
-
-      toast({
-        title: "Associação salva com sucesso!",
-        description: "O evento foi associado ao certificado.",
-      });
-
-      setIsCertificateModalOpen(false);
-    } catch (error) {
-      console.log(error);
-      toast({
-        title: "Erro ao salvar associação",
-        description: "Tente novamente em alguns instantes.",
-        variant: "destructive",
-      });
-    }
+    return hideValues ? "***" : `R$ ${value.toLocaleString("pt-BR")}`;
   };
 
   const getStatusBadge = (status: string) => {
@@ -711,129 +668,6 @@ export default function MyEvents() {
           </div>
         </GenericModal>
 
-        <GenericModal
-          isOpen={isCertificateModalOpen}
-          onClose={() => setIsCertificateModalOpen(false)}
-          title="Associar Certificado ao Evento"
-          showFooter={true}
-        >
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="courseName">Nome do Curso</Label>
-              <Input
-                id="courseName"
-                value={certificateAssociation.courseName}
-                onChange={(e) =>
-                  setCertificateAssociation({
-                    ...certificateAssociation,
-                    courseName: e.target.value,
-                  })
-                }
-                placeholder="Nome do curso para o certificado"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="totalHours">Carga Horária</Label>
-                <Input
-                  id="totalHours"
-                  type="number"
-                  value={certificateAssociation.totalHours}
-                  onChange={(e) =>
-                    setCertificateAssociation({
-                      ...certificateAssociation,
-                      totalHours: Number(e.target.value),
-                    })
-                  }
-                  placeholder="40"
-                />
-              </div>
-              <div>
-                <Label htmlFor="template">Template</Label>
-                <Select
-                  value={certificateAssociation.template}
-                  onValueChange={(value) =>
-                    setCertificateAssociation({
-                      ...certificateAssociation,
-                      template: value,
-                    })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="modern">Moderno</SelectItem>
-                    <SelectItem value="classic">Clássico</SelectItem>
-                    <SelectItem value="minimal">Minimalista</SelectItem>
-                    <SelectItem value="elegant">Elegante</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="instructorName">Instrutor</Label>
-                <Input
-                  id="instructorName"
-                  value={certificateAssociation.instructorName}
-                  onChange={(e) =>
-                    setCertificateAssociation({
-                      ...certificateAssociation,
-                      instructorName: e.target.value,
-                    })
-                  }
-                  placeholder="Nome do instrutor"
-                />
-              </div>
-              <div>
-                <Label htmlFor="institution">Instituição</Label>
-                <Input
-                  id="institution"
-                  value={certificateAssociation.institution}
-                  onChange={(e) =>
-                    setCertificateAssociation({
-                      ...certificateAssociation,
-                      institution: e.target.value,
-                    })
-                  }
-                  placeholder="Nome da instituição"
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="courseDescription">Descrição do Curso</Label>
-              <Textarea
-                id="courseDescription"
-                value={certificateAssociation.courseDescription}
-                onChange={(e) =>
-                  setCertificateAssociation({
-                    ...certificateAssociation,
-                    courseDescription: e.target.value,
-                  })
-                }
-                placeholder="Descrição do conteúdo do curso..."
-                rows={3}
-              />
-            </div>
-
-            <div className="flex justify-end gap-2 pt-4">
-              <Button
-                variant="outline"
-                onClick={() => setIsCertificateModalOpen(false)}
-              >
-                Cancelar
-              </Button>
-              <Button onClick={handleSaveCertificateAssociation}>
-                Salvar Associação
-              </Button>
-            </div>
-          </div>
-        </GenericModal>
-
         <EditEventModal
           event={selectedEvent}
           isOpen={isEditModalOpen}
@@ -841,7 +675,7 @@ export default function MyEvents() {
           onSave={handleSaveEvent}
         />
 
-        <div className="max-w-7xl mx-auto mt-12">
+        <div className="max-w-6xl mx-auto mt-12">
           <div className="flex flex-col sm:flex-row justify-between items-start mb-8 sm:items-center mb-4 gap-4">
             <h1 className="text-xl sm:text-2xl font-bold">Meus Eventos</h1>
             <div className="hidden lg:flex space-x-4">
@@ -1011,22 +845,22 @@ export default function MyEvents() {
                         </div>
 
                         {/* Conteúdo */}
-                        <div className="p-5">
+                        <div className="p-4 sm:p-5">
                           <h3 className="font-bold text-lg text-gray-900 line-clamp-2">
-                            {event.title}
+                            {truncateTextResponsive(event.title)}
                           </h3>
 
                           {/* Localização */}
                           <div className="flex items-start gap-2 mb-3">
                             <div className="text-sm text-gray-600">
                               <p className="font-medium">
-                                {event.venueName} | {event.state}
+                                {truncateTextResponsive(`${event.venueName} | ${event.state}`)}
                               </p>
                             </div>
                           </div>
 
                           {/* Data e Hora */}
-                          <div className="flex items-center mb-3 justify-between">
+                          <div className="flex items-center mb-3 justify-between gap-2">
                             <div className="flex items-center gap-1 text-gray-600">
                               <Calendar className="w-4 h-4" />
                               <span className="text-sm">{startDate}</span>
@@ -1035,59 +869,57 @@ export default function MyEvents() {
                               <Clock className="w-4 h-4" />
                               <span className="text-sm">{startTime}</span>
                             </div>
-                            <div className="flex items-center gap-1 text-gray-600">
-                              <MapPin className="w-4 h-4" />
-                              <p className="text-sm">
-                                {event.neighborhood}, {event.city}
+                            <div className="flex items-center gap-1 text-gray-600 min-w-0 flex-1">
+                              <MapPin className="w-4 h-4 flex-shrink-0" />
+                              <p className="text-sm truncate">
+                                {truncateTextResponsive(`${event.neighborhood}, ${event.city}`)}
                               </p>
                             </div>
                           </div>
 
                           {/* Botões de Ação */}
-                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mt-10">
-                            <div className="flex gap-2">
-                              {event.status !== "finished" && (
-                                <Button
-                                  variant="outline"
-                                  onClick={() => handleStopEvent(event._id)}
-                                  className="cursor-pointer flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white hover:text-white text-xs sm:text-sm px-2 py-1"
-                                  title="Encerrar evento"
-                                >
-                                  <span>Finalizar</span>
-                                </Button>
-                              )}
-                            </div>
-                            <div className="flex gap-1 sm:gap-2">
+                          <div className="flex justify-between items-center gap-2 mt-10">
+                            <div className="flex gap-2 sm:gap-3">
                               <Button
                                 variant="outline"
                                 size="icon"
                                 onClick={() => handleView(event._id)}
-                                className="cursor-pointer h-8 w-8 sm:h-10 sm:w-10"
+                                className="cursor-pointer h-10 w-10 sm:h-12 sm:w-12"
                                 title="Visualizar evento"
                               >
-                                <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                                <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
                               </Button>
                               {event.status !== "finished" && (
                                 <Button
                                   variant="outline"
                                   size="icon"
                                   onClick={() => handleEdit(event._id)}
-                                  className="cursor-pointer h-8 w-8 sm:h-10 sm:w-10"
+                                  className="cursor-pointer h-10 w-10 sm:h-12 sm:w-12"
                                   title="Editar evento"
                                 >
-                                  <Pencil className="h-3 w-3 sm:h-4 sm:w-4" />
+                                  <Pencil className="h-4 w-4 sm:h-5 sm:w-5" />
                                 </Button>
                               )}
                               <Button
                                 variant="outline"
                                 size="icon"
                                 onClick={() => handleDelete(event._id)}
-                                className="cursor-pointer h-8 w-8 sm:h-10 sm:w-10"
+                                className="cursor-pointer h-10 w-10 sm:h-12 sm:w-12"
                                 title="Excluir evento"
                               >
-                                <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                                <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
                               </Button>
                             </div>
+                            {event.status !== "finished" && (
+                              <Button
+                                variant="outline"
+                                onClick={() => handleStopEvent(event._id)}
+                                className="cursor-pointer flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white hover:text-white text-sm sm:text-base px-3 py-2 h-10 sm:h-12"
+                                title="Encerrar evento"
+                              >
+                                <span>Finalizar</span>
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -1099,185 +931,15 @@ export default function MyEvents() {
           )}
 
           {mainTab === "dashboard" && (
-            <div className="space-y-6">
-              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setHideValues(!hideValues)}
-                    className="flex-1 sm:flex-none"
-                  >
-                    <EyeOff className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">
-                      {hideValues ? "Mostrar" : "Ocultar"} Valores
-                    </span>
-                  </Button>
-                </div>
-
-                <div className="w-full lg:w-auto lg:min-w-[250px]">
-                  <Select
-                    value={selectedDashboardEvent}
-                    onValueChange={setSelectedDashboardEvent}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecionar evento" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todos os eventos</SelectItem>
-                      {events.map((event) => (
-                        <SelectItem key={event._id} value={event._id}>
-                          {event.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Ingressos Vendidos
-                    </CardTitle>
-                    <Ticket className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {formatNumber(dashboardMetrics.totalTicketsSold)}
-                    </div>
-                    <p className="text-xs text-muted-foreground">Vendas no total</p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Ingressos Restantes
-                    </CardTitle>
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {formatNumber(dashboardMetrics.upcomingEvents)}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Ingressos disponíveis
-                    </p>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Ingressos Cancelados
-                    </CardTitle>
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {formatNumber(dashboardMetrics.totalEvents)}
-                    </div>
-                    <p className="text-xs text-muted-foreground">Cancelados no total</p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Receita Total
-                    </CardTitle>
-                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {formatCurrency(dashboardMetrics.totalRevenue)}
-                    </div>
-                    <p className="text-xs text-muted-foreground">Neste evento</p>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Certificados Gerados
-                    </CardTitle>
-                    <Award className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{formatNumber(42)}</div>
-                    <p className="text-xs text-muted-foreground">
-                      Total de certificados
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Participantes Únicos
-                    </CardTitle>
-                    <UserCheck className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {formatNumber(156)}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Pessoas diferentes
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Overview</CardTitle>
-                    <CardDescription>
-                      Receita por mês{" "}
-                      {selectedDashboardEvent &&
-                        `- ${
-                          events.find((e) => e._id === selectedDashboardEvent)
-                            ?.title
-                        }`}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-[240px] sm:h-[300px] lg:h-[400px] w-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={revenueData} style={{ fontSize: 12 }}>
-                          <XAxis
-                            dataKey="name"
-                            axisLine={false}
-                            tickLine={false}
-                            dy={8}
-                            fontSize={10}
-                          />
-                          <YAxis
-                            axisLine={false}
-                            tickLine={false}
-                            width={60}
-                            fontSize={10}
-                            tickFormatter={(v) =>
-                              hideValues ? "***" : `R$${v}`
-                            }
-                          />
-                          <Bar
-                            dataKey="revenue"
-                            fill="#222"
-                            radius={[4, 4, 0, 0]}
-                          />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+            <Dashboard
+              events={events}
+              hideValues={hideValues}
+              setHideValues={setHideValues}
+              selectedDashboardEvent={selectedDashboardEvent}
+              setSelectedDashboardEvent={setSelectedDashboardEvent}
+              dashboardMetrics={dashboardMetrics}
+              revenueData={revenueData}
+            />
           )}
 
           {mainTab === "certificados" && (

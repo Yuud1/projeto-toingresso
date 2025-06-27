@@ -118,3 +118,54 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Customização da barra de rolagem */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #02488C;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1e40af;
+}
+
+::-webkit-scrollbar-corner {
+  background: #f1f5f9;
+}
+
+/* Para Firefox */
+* {
+  scrollbar-width: auto;
+  scrollbar-color: #02488C #f1f5f9;
+}
+
+/* Para elementos com scroll interno */
+.scroll-container::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 5px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background: #02488C;
+  border-radius: 5px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #1e40af;
+}
