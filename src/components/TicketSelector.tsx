@@ -77,8 +77,12 @@ export function TicketSelector({
         window.location.href = response.data.init_point
       }
       
-    } catch (error) {
+    } catch (error: any) {
       console.log("Erro ao realizar pagamento", error);
+
+      if (error.response.data.logged === false) {
+        window.location.href = "/login"
+      }
     } finally{
       setLoadingBuyButton(false)
     }
