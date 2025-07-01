@@ -63,6 +63,8 @@ const FreeEventForm = ({
     Record<string, string[]>
   >({});
 
+  console.log(customFields);
+  
   const handleChange = (key: string, value: any) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
@@ -144,6 +146,26 @@ const FreeEventForm = ({
                 {(field.type === "text" || field.type === "email") && (
                   <Input
                     type={field.type}
+                    required={field.required}
+                    placeholder={field.placeholder}
+                    onChange={(e) => {
+                      const rawValue = e.target.value;
+                      const maskedValue = applyMask(
+                        rawValue,
+                        field.maskType,
+                        field.mask
+                      );
+                      handleChange(field.label, maskedValue);
+                    }}
+                    value={formData[field.label] || ""}
+                    className="w-full"
+                  />
+                )}
+
+                {field.type === "number" && (
+                  <Input
+                    type="text"
+                    inputMode="numeric"
                     required={field.required}
                     placeholder={field.placeholder}
                     onChange={(e) => {
