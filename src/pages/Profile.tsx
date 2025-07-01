@@ -647,7 +647,7 @@ export default function Profile() {
                   </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg border">
+                {/* <div className="bg-white p-6 rounded-lg border">
                   <h3 className="text-lg font-semibold mb-4">
                     Preferências de notificação
                   </h3>
@@ -677,7 +677,7 @@ export default function Profile() {
                       </label>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             )}
 
@@ -692,13 +692,13 @@ export default function Profile() {
                       <div>
                         <h4 className="font-medium mb-2">Alterar senha</h4>
                         <div className="space-y-4">
-                          <Input
+                          {/* <Input
                             type="password"
                             id="newPassword"
                             placeholder="Senha atual"
                             name="newPassword"
                             onChange={handleChange}
-                          />
+                          /> */}
                           <Input
                             type="password"
                             id="newPassword"
