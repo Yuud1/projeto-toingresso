@@ -87,6 +87,9 @@ const FreeEventForm = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      if (!localStorage.getItem("token")) {
+        window.location.href = "/login"
+      }
       setLoading(true);
       const response = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}${

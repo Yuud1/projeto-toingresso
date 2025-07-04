@@ -32,22 +32,38 @@ type HeaderProps = {
   isScrolled?: boolean;
 };
 
-const cidadesTocantins = [
-  { nome: "Palmas", sigla: "PAL" },
-  { nome: "Gurupi", sigla: "GUR" },
-  { nome: "Araguaína", sigla: "ARA" },
-  { nome: "Porto Nacional", sigla: "POR" },
-  { nome: "Paraíso do Tocantins", sigla: "PAR" },
-  { nome: "Guaraí", sigla: "GUA" },
-  { nome: "Dianópolis", sigla: "DIA" },
-  { nome: "Miracema do Tocantins", sigla: "MIR" },
-  { nome: "Formoso do Araguaia", sigla: "FOR" },
-  { nome: "Pedro Afonso", sigla: "PED" },
-  { nome: "Tocantinópolis", sigla: "TOC" },
+const estadosMunicipios = [
+  { sigla: "AC", nome: "Acre" },
+  { sigla: "AL", nome: "Alagoas" },
+  { sigla: "AP", nome: "Amapá" },
+  { sigla: "AM", nome: "Amazonas" },
+  { sigla: "BA", nome: "Bahia" },
+  { sigla: "CE", nome: "Ceará" },
+  { sigla: "DF", nome: "Distrito Federal" },
+  { sigla: "ES", nome: "Espírito Santo" },
+  { sigla: "GO", nome: "Goiás" },
+  { sigla: "MA", nome: "Maranhão" },
+  { sigla: "MT", nome: "Mato Grosso" },
+  { sigla: "MS", nome: "Mato Grosso do Sul" },
+  { sigla: "MG", nome: "Minas Gerais" },
+  { sigla: "PA", nome: "Pará" },
+  { sigla: "PB", nome: "Paraíba" },
+  { sigla: "PR", nome: "Paraná" },
+  { sigla: "PE", nome: "Pernambuco" },
+  { sigla: "PI", nome: "Piauí" },
+  { sigla: "RJ", nome: "Rio de Janeiro" },
+  { sigla: "RN", nome: "Rio Grande do Norte" },
+  { sigla: "RS", nome: "Rio Grande do Sul" },
+  { sigla: "RO", nome: "Rondônia" },
+  { sigla: "RR", nome: "Roraima" },
+  { sigla: "SC", nome: "Santa Catarina" },
+  { sigla: "SP", nome: "São Paulo" },
+  { sigla: "SE", nome: "Sergipe" },
+  { sigla: "TO", nome: "Tocantins" },
 ];
 
 const CidadeDropdown = ({ isMobile = false }: { isMobile?: boolean }) => {
-  const [selectedCity, setSelectedCity] = useState(cidadesTocantins[0]);
+  const [selectedCity, setSelectedCity] = useState(estadosMunicipios[0]);
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -68,7 +84,7 @@ const CidadeDropdown = ({ isMobile = false }: { isMobile?: boolean }) => {
         sideOffset={5}
         className="w-56"
       >
-        {cidadesTocantins.map((cidade) => (
+        {estadosMunicipios.map((cidade) => (
           <DropdownMenuItem
             key={cidade.nome}
             onClick={() => {
@@ -437,8 +453,15 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
             )}
           >
             {isScrolled && (
-              <a href="/" className="transition-all duration-300 ease-out transform hover:scale-105">
-                <img className="w-11 animate-in fade-in slide-in-from-left-2 duration-300" src="/icon.png" alt="Logo" />
+              <a
+                href="/"
+                className="transition-all duration-300 ease-out transform hover:scale-105"
+              >
+                <img
+                  className="w-11 animate-in fade-in slide-in-from-left-2 duration-300"
+                  src="/icon.png"
+                  alt="Logo"
+                />
               </a>
             )}
             <div

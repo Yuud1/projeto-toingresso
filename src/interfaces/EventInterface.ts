@@ -1,6 +1,7 @@
 import CustomFieldInterface from "./CustomFieldInterface";
 import OrganizerInterface from "./OrganizerInterface";
 import TicketInterface from "./TicketInterface";
+import UserInterface from "./UserInterface";
 
 export default interface EventInterface {
   _id: string;
@@ -34,8 +35,9 @@ export default interface EventInterface {
   subscribers: [
     {
       userId: string;
-      fields: Record<string, string>,
-      subscribedAt: Date
+      fields: Record<string, string>;
+      subscribedAt: Date;
     }
   ];
+  participants: [user: UserInterface];
 }

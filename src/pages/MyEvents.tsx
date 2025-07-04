@@ -200,7 +200,6 @@ export default function MyEvents() {
             },
           }
         );
-        console.log("Response", response);
 
         if (response.data.events) {
           setEvents([...response.data.events]);
@@ -242,7 +241,8 @@ export default function MyEvents() {
       (total, event) =>
         total +
         event.tickets.reduce(
-          (ticketTotal, ticket) => ticketTotal + (ticket.quantity - ticket.soldQuantity),
+          (ticketTotal, ticket) =>
+            ticketTotal + (ticket.quantity - ticket.soldQuantity),
           0
         ),
       0
@@ -252,24 +252,16 @@ export default function MyEvents() {
       (total, event) =>
         total +
         event.tickets.reduce(
-          (ticketTotal, ticket) => ticketTotal + (ticket.soldQuantity * ticket.price),
+          (ticketTotal, ticket) =>
+            ticketTotal + ticket.soldQuantity * ticket.price,
           0
         ),
       0
     ),
-    checkinsCount: getFilteredEventsForDashboard().reduce(
-      (total, event) => {
-        // Aqui você pode adicionar a lógica para contar check-ins
-        // Por enquanto, vamos usar um valor mockado baseado nos ingressos vendidos
-        const soldTickets = event.tickets.reduce(
-          (ticketTotal, ticket) => ticketTotal + ticket.soldQuantity,
-          0
-        );
-        // Simulando que 70% dos ingressos vendidos foram utilizados
-        return total + Math.floor(soldTickets * 0.7);
-      },
-      0
-    ),
+    checkinsCount: getFilteredEventsForDashboard().reduce((total, event) => {
+      // Retorna o array de subscribers
+      return event.participants.length;
+    }, 0),
   };
 
   const handleEdit = (eventId: string) => {
@@ -768,14 +760,19 @@ export default function MyEvents() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                   {filteredEvents.map((event) => {
                     const isFree = event.isFree;
-                    const startDate = new Date(event.startDate).toLocaleDateString("pt-BR", {
+                    const startDate = new Date(
+                      event.startDate
+                    ).toLocaleDateString("pt-BR", {
                       day: "2-digit",
                       month: "short",
                     });
                     const startTime = event.startTime.slice(0, 5);
 
                     return (
-                      <div key={event._id} className="w-full h-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 mb-10">
+                      <div
+                        key={event._id}
+                        className="w-full h-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 mb-10"
+                      >
                         {/* Imagem */}
                         <div className="relative">
                           <img
@@ -786,7 +783,9 @@ export default function MyEvents() {
                           <div className="absolute top-3 right-3">
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                                isFree ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
+                                isFree
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-blue-100 text-blue-700"
                               }`}
                             >
                               {isFree ? "Gratuito" : "Pago"}
@@ -804,7 +803,9 @@ export default function MyEvents() {
                           <div className="flex items-start gap-2 mb-3">
                             <div className="text-sm text-gray-600">
                               <p className="font-medium">
-                                {truncateTextResponsive(`${event.venueName} | ${event.state}`)}
+                                {truncateTextResponsive(
+                                  `${event.venueName} | ${event.state}`
+                                )}
                               </p>
                             </div>
                           </div>
@@ -822,7 +823,9 @@ export default function MyEvents() {
                             <div className="flex items-center gap-1 text-gray-600 min-w-0 flex-1">
                               <MapPin className="w-4 h-4 flex-shrink-0" />
                               <p className="text-sm truncate">
-                                {truncateTextResponsive(`${event.neighborhood}, ${event.city}`)}
+                                {truncateTextResponsive(
+                                  `${event.neighborhood}, ${event.city}`
+                                )}
                               </p>
                             </div>
                           </div>

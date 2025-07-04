@@ -62,6 +62,10 @@ export function TicketSelector({
 
   const handleSubmit = async () => {
     try {
+      if (!localStorage.getItem('token')) {
+        window.location.href = "/login"
+      }
+      
       setLoadingBuyButton(true);
       const response = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_EVENT_PAY}`,
