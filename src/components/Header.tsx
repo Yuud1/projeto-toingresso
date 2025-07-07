@@ -84,17 +84,19 @@ const CidadeDropdown = ({ isMobile = false }: { isMobile?: boolean }) => {
         sideOffset={5}
         className="w-56"
       >
-        {estadosMunicipios.map((cidade) => (
-          <DropdownMenuItem
-            key={cidade.nome}
-            onClick={() => {
-              setSelectedCity(cidade);
-              setIsOpen(false);
-            }}
-          >
-            {cidade.nome}
-          </DropdownMenuItem>
-        ))}
+        <div className="max-h-64 overflow-y-auto">
+          {estadosMunicipios.map((cidade) => (
+            <DropdownMenuItem
+              key={cidade.nome}
+              onClick={() => {
+                setSelectedCity(cidade);
+                setIsOpen(false);
+              }}
+            >
+              {cidade.nome}
+            </DropdownMenuItem>
+          ))}
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );
