@@ -63,8 +63,8 @@ const estadosMunicipios = [
 ];
 
 interface estadosMunicipios {
-  sigla: string,
-  nome: string
+  sigla: string;
+  nome: string;
 }
 
 const CidadeDropdown = ({ isMobile = false }: { isMobile?: boolean }) => {
@@ -72,20 +72,19 @@ const CidadeDropdown = ({ isMobile = false }: { isMobile?: boolean }) => {
     const saved = localStorage.getItem("selectedCity");
     return saved ? JSON.parse(saved) : { nome: "Selecione", sigla: "" };
   });
-  const [isOpen, setIsOpen] = useState(false);
-    console.log(selectedCity);
-    
+  const [isOpen, setIsOpen] = useState(false);  
+
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen} modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button
+        {/* <Button
           variant="outline"
           className="flex items-center gap-1 bg-[#e2f0ff] text-[#02488C] border-none cursor-pointer hover:!bg-[#e2f0ff] hover:!text-[#02488C]"
         >
           <MapPin size={16} />
           {isMobile ? selectedCity?.sigla : selectedCity?.nome}
           <ChevronDown size={16} />
-        </Button>
+        </Button> */}
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="center"

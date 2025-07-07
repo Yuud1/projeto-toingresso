@@ -71,15 +71,12 @@ const Category: React.FC = () => {
     : eventsCategory.length > 5;
 
   return (
-    <div>
+    <div id="filter-grid">
       <h2 className="text-[#414141] text-2xl font-bold mb-8 pt-8">
         Explore Momentos
       </h2>
 
-      <div
-        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 place-items-center mb-10"
-        id="filter-grid"
-      >
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 place-items-center mb-10">
         {categories.map((cat) => {
           const isActive = activeCategory === cat.label;
 
@@ -146,7 +143,9 @@ const Category: React.FC = () => {
                       <h3 className="text-sm font-semibold text-gray-800 truncate">
                         {truncateTextResponsive(event.title)}
                       </h3>
-                      <p className="text-xs text-gray-500">{truncateTextResponsive(event.city)}</p>
+                      <p className="text-xs text-gray-500">
+                        {truncateTextResponsive(event.city)}
+                      </p>
                     </div>
                   </div>
                 </SwiperSlide>
@@ -201,7 +200,9 @@ const Category: React.FC = () => {
                       <div className="flex items-start gap-2 mb-3">
                         <div className="text-sm text-gray-600">
                           <p className="font-medium">
-                            {truncateTextResponsive(`${event.venueName} | ${event.state}`)}
+                            {truncateTextResponsive(
+                              `${event.venueName} | ${event.state}`
+                            )}
                           </p>
                         </div>
                       </div>
@@ -219,7 +220,9 @@ const Category: React.FC = () => {
                         <div className="flex items-center gap-1 text-gray-600 min-w-0 flex-1">
                           <MapPin className="w-4 h-4 flex-shrink-0" />
                           <p className="text-sm truncate">
-                            {truncateTextResponsive(`${event.neighborhood}, ${event.city}`)}
+                            {truncateTextResponsive(
+                              `${event.neighborhood}, ${event.city}`
+                            )}
                           </p>
                         </div>
                       </div>
