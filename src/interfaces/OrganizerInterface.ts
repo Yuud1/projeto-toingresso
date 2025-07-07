@@ -1,5 +1,5 @@
 export default interface OrganizerInterface {
-  id: string;
+  _id: string;
   name: string;
   avatar: string;
   avatarId: string;

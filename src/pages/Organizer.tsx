@@ -86,6 +86,7 @@ const Organizer = () => {
     "upcoming"
   );
   const [loading, setLoading] = useState(true);
+  console.log(organizer);
 
   useEffect(() => {
     if (id) {
@@ -98,47 +99,25 @@ const Organizer = () => {
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}${
-          import.meta.env.VITE_GET_USER_DATA
+          import.meta.env.VITE_ORGANIZER_GET_DATA
         }/${id}`,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
+      if (response.data.organizer) {
+        const userData = response.data.organizer;
 
-      if (response.data.userFound) {
-        const userData = response.data.userFound;
         setOrganizer({
-          id: userData._id || userData.id,
-          name: userData.name,
-          avatar: userData.avatar || "/logo.png",
-          avatarId: userData.avatarId || "",
-          description: userData.description || "Organizador de eventos",
-          location: userData.location || "Brasília, DF",
+          _id: userData._id,
+          avatar: userData.avatar,
           email: userData.email,
-          phone: userData.phone,
-          website: userData.website,
-          facebook: userData.facebook,
-          instagram: userData.instagram,
-          cover: userData.cover || "/background-login.png",
+          name: userData.name,
+          avatarId: userData.avatarId,
         });
       }
     } catch (error) {
       console.error("Erro ao buscar dados do organizador:", error);
-      setOrganizer({
-        id: id!,
-        name: "Organizador Exemplo",
-        avatar: "/logo.png",
-        avatarId: "",
-        description:
-          "Somos uma organização dedicada a criar eventos incríveis e memoráveis para nossa comunidade.",
-        location: "Brasília, DF",
-        email: "contato@organizador.com",
-        phone: "(61) 3333-4444",
-        website: "www.organizador.com",
-        facebook: "facebook.com/organizador",
-        instagram: "@organizador",
-        cover: "/background-login.png",
-      });
     }
   };
 
@@ -146,65 +125,18 @@ const Organizer = () => {
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}${
-          import.meta.env.VITE_GET_USER_EVENTS
+          import.meta.env.VITE_ORGANIZER_GET_EVENTS
         }/${id}`,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
-
+      console.log("Eventos: ", response.data);
       if (response.data.events) {
         setEvents(response.data.events);
       }
     } catch (error) {
       console.error("Erro ao buscar eventos do organizador:", error);
-      setEvents([
-        {
-          _id: "1",
-          title: "Evento Exemplo 1",
-          image: "/flyer1.jpg",
-          imageId: "",
-          category: "Música",
-          startDate: "2024-05-15",
-          startTime: "19:00",
-          endDate: "2024-05-15",
-          endTime: "23:00",
-          description: "Um evento incrível de música",
-          venueName: "Local do Evento",
-          zipCode: "70000-000",
-          street: "Rua Exemplo",
-          number: "123",
-          complement: "",
-          neighborhood: "Centro",
-          city: "Brasília",
-          state: "DF",
-          tickets: [],
-          organizer: {
-            id: id!,
-            name: "Organizador Exemplo",
-            avatar: "/logo.png",
-            avatarId: "",
-          },
-          acceptedTerms: true,
-          policy: "Política do evento",
-          status: "active",
-          isFree: false,
-          customFields: [],
-          ticketActivationToken: "",
-          mapUrl: "",
-          subscribers: [
-            {
-              userId: "abc123",
-              fields: {
-                nome: "Lucas Yudi",
-                email: "lucas@example.com",
-              },
-              subscribedAt: new Date(),
-            },
-          ],
-          formTitle: "Formulário de Inscrição",
-        },
-      ]);
     } finally {
       setLoading(false);
     }

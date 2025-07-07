@@ -148,7 +148,7 @@ const EventDetail = () => {
 
               {/* Organizador */}
               <a
-                href={`/organizer/${event?.organizer.id}`}
+                href={`/organizer/${event?.organizer._id}`}
                 className="flex items-center gap-3 pt-2 py-3 pr-3 rounded-lg transition-colors cursor-pointer"
               >
                 <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
@@ -259,7 +259,7 @@ const EventDetail = () => {
 
               {/* Organizador */}
               <a
-                href={`/organizer/${event?.organizer.id}`}
+                href={`/organizer/${event?.organizer._id}`}
                 className="flex items-center gap-3 pt-2 py-2 pr-3 rounded-lg transition-colors cursor-pointer"
               >
                 <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
