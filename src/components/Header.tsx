@@ -62,10 +62,19 @@ const estadosMunicipios = [
   { sigla: "TO", nome: "Tocantins" },
 ];
 
-const CidadeDropdown = ({ isMobile = false }: { isMobile?: boolean }) => {
-  const [selectedCity, setSelectedCity] = useState(estadosMunicipios[0]);
-  const [isOpen, setIsOpen] = useState(false);
+interface estadosMunicipios {
+  sigla: string,
+  nome: string
+}
 
+const CidadeDropdown = ({ isMobile = false }: { isMobile?: boolean }) => {
+  const [selectedCity, setSelectedCity] = useState<estadosMunicipios>(() => {
+    const saved = localStorage.getItem("selectedCity");
+    return saved ? JSON.parse(saved) : { nome: "Selecione", sigla: "" };
+  });
+  const [isOpen, setIsOpen] = useState(false);
+    console.log(selectedCity);
+    
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen} modal={false}>
       <DropdownMenuTrigger asChild>
@@ -74,7 +83,7 @@ const CidadeDropdown = ({ isMobile = false }: { isMobile?: boolean }) => {
           className="flex items-center gap-1 bg-[#e2f0ff] text-[#02488C] border-none cursor-pointer hover:!bg-[#e2f0ff] hover:!text-[#02488C]"
         >
           <MapPin size={16} />
-          {isMobile ? selectedCity.sigla : selectedCity.nome}
+          {isMobile ? selectedCity?.sigla : selectedCity?.nome}
           <ChevronDown size={16} />
         </Button>
       </DropdownMenuTrigger>
@@ -90,6 +99,7 @@ const CidadeDropdown = ({ isMobile = false }: { isMobile?: boolean }) => {
               key={cidade.nome}
               onClick={() => {
                 setSelectedCity(cidade);
+                localStorage.setItem("selectedCity", JSON.stringify(cidade));
                 setIsOpen(false);
               }}
             >
