@@ -75,6 +75,7 @@ export default function Profile() {
     emailVerified: "false",
     tickets: [],
     type: "user",
+    likedEvents: []
   });
   const [statusSaving, setStatusSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
