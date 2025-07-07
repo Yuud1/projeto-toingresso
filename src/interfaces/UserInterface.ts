@@ -14,4 +14,5 @@ export default interface UserInterface {
   phoneNumber: string;
   avatar: string,
   tickets: UserTicketsInterface[]
+  likedEvents: string[]
 }

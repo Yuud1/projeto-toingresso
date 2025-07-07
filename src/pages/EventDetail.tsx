@@ -8,14 +8,52 @@ import axios from "axios";
 import EventInterface from "@/interfaces/EventInterface";
 import FreeEventForm from "@/components/FreeEventForm";
 import Subscribed from "@/pages/Subscribed";
+import { useUser } from "@/contexts/useContext";
 
 const EventDetail = () => {
   const { id } = useParams();
+  const { user } = useUser();
 
-  const [isFavorited, setIsFavorited] = useState(false);
+  const [isFavorited, setIsFavorited] = useState<boolean>(false);
+
   const [event, setEvents] = useState<EventInterface | undefined>(undefined);
   const [subscribed, setSubscribed] = useState(false);
   const [qrCode, setQrCode] = useState(null);
+
+  useEffect(() => {
+    const condition =
+      user?.likedEvents.some((e) => e.toString() == id) ?? false;
+    setIsFavorited(condition);
+  }, [user]);
+
+  async function handleFavorite() {
+    setIsFavorited(!isFavorited);
+
+    if (!isFavorited) {
+      await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_USER_LIKE_EVENT
+        }/${id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+    } else {
+      await axios.delete(
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_USER_REMOVE_LIKE_EVENT
+        }/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+    }
+  }
 
   const [showFull, setShowFull] = useState(false);
   const togglePolicy = () => setShowFull((prev) => !prev);
@@ -61,7 +99,7 @@ const EventDetail = () => {
           style={{ backgroundImage: `url("${event?.image}")` }}
         ></div>
         <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent"></div>
-        
+
         {/* Seção principal: Info + imagem posicionada dentro do banner */}
         <section className="relative max-w-7xl mx-auto px-4 sm:px-6 md:px-10 h-full flex flex-col justify-end pb-6 sm:pb-8 md:pb-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 items-start w-full">
@@ -72,8 +110,8 @@ const EventDetail = () => {
                   {event?.title}
                 </h1>
                 <button
-                  onClick={() => setIsFavorited(!isFavorited)}
-                  className={`w-12 h-12 rounded-full transition-all duration-300 
+                  onClick={() => handleFavorite()}
+                  className={`w-12 h-12 rounded-full transition-all duration-300 bg-red-500 
                     flex items-center justify-center cursor-pointer shadow-lg hover:shadow-xl flex-shrink-0
                     ${
                       isFavorited
@@ -89,19 +127,22 @@ const EventDetail = () => {
                   />
                 </button>
               </div>
-              
+
               {/* Neighborhood | City com ícone */}
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-gray-600" />
-                <p className="text-base">{event?.neighborhood} | {event?.city}</p>
+                <p className="text-base">
+                  {event?.neighborhood} | {event?.city}
+                </p>
               </div>
-              
+
               {/* Data - Horário com ícone */}
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-gray-600" />
                 <p className="text-base">
                   {event?.startDate &&
-                    new Date(event.startDate).toLocaleDateString()} - {event?.startTime}
+                    new Date(event.startDate).toLocaleDateString()}{" "}
+                  - {event?.startTime}
                 </p>
               </div>
 
@@ -163,7 +204,7 @@ const EventDetail = () => {
                 alt={event?.title}
                 className="w-full h-full object-cover rounded-lg shadow-lg transition-all duration-300 group-hover:shadow-xl transform group-hover:scale-[1.01]"
               />
-              
+
               {/* Overlay de informações na imagem */}
               <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 bg-black/60 backdrop-blur-sm rounded-lg p-2 sm:p-3 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
@@ -201,15 +242,18 @@ const EventDetail = () => {
               {/* Neighborhood | City com ícone */}
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-gray-600" />
-                <p className="text-sm">{event?.neighborhood} | {event?.city}</p>
+                <p className="text-sm">
+                  {event?.neighborhood} | {event?.city}
+                </p>
               </div>
-              
+
               {/* Data - Horário com ícone */}
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-gray-600" />
                 <p className="text-sm">
                   {event?.startDate &&
-                    new Date(event.startDate).toLocaleDateString()} - {event?.startTime}
+                    new Date(event.startDate).toLocaleDateString()}{" "}
+                  - {event?.startTime}
                 </p>
               </div>
 
@@ -280,7 +324,9 @@ const EventDetail = () => {
             <div className="w-full max-w-full lg:max-w-[30rem]">
               <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
                 <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-[#414141]">
-                  {event.formTitle ? event.formTitle : "Formulário de Inscrição"}
+                  {event.formTitle
+                    ? event.formTitle
+                    : "Formulário de Inscrição"}
                 </h2>
 
                 <FreeEventForm

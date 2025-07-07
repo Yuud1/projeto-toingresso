@@ -62,8 +62,6 @@ const FreeEventForm = ({
   const [municipiosPorUF, setMunicipiosPorUF] = useState<
     Record<string, string[]>
   >({});
-
-  console.log(customFields);
   
   const handleChange = (key: string, value: any) => {
     setFormData((prev) => ({ ...prev, [key]: value }));

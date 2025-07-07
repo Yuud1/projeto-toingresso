@@ -33,7 +33,6 @@ export default function CarrosselMain() {
     { urlImage: "/background-login.png", _id: "7", redirectUrl: "/evento/7" },
     { urlImage: "/background-login.png", _id: "8", redirectUrl: "/evento/8" },
   ]);
-  console.log(images);
   
   useEffect(() => {
     async function getCarrossel() {
@@ -42,9 +41,7 @@ export default function CarrosselMain() {
           `${import.meta.env.VITE_API_BASE_URL}${
             import.meta.env.VITE_CARROSSEL_GET
           }`
-        )
-        
-        console.log(response);
+        )        
         
         if (response.data.carrossels) {
           response.data.carrossels.forEach((element: any) => {
