@@ -12,22 +12,48 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Link } from "react-router-dom";
 import SwiperCore from "swiper";
+import axios from "axios";
 
-const images = [
-  { src: "/background-login.png", id: 1 },
-  { src: "/background-login.png", id: 2 },
-  { src: "/background-login.png", id: 3 },
-  { src: "/background-login.png", id: 4 },
-  { src: "/background-login.png", id: 5 },
-  { src: "/background-login.png", id: 6 },
-  { src: "/background-login.png", id: 7 },
-  { src: "/background-login.png", id: 8 },
-  { src: "/background-login.png", id: 9 },
-];
+interface ImagesCarrossel {
+  urlImage: string;
+  _id: string;
+  redirectUrl: string;
+}
 
 export default function CarrosselMain() {
   const [swiperReady, setSwiperReady] = useState(false);
   const swiperRef = useRef<SwiperCore | null>(null);
+  const [images, setImages] = useState<ImagesCarrossel[]>([
+    { urlImage: "/background-login.png", _id: "1", redirectUrl: "/evento/1" },
+    { urlImage: "/background-login.png", _id: "2", redirectUrl: "/evento/2" },
+    { urlImage: "/background-login.png", _id: "3", redirectUrl: "/evento/3" },
+    { urlImage: "/background-login.png", _id: "4", redirectUrl: "/evento/4" },
+    { urlImage: "/background-login.png", _id: "5", redirectUrl: "/evento/5" },
+    { urlImage: "/background-login.png", _id: "6", redirectUrl: "/evento/6" },
+    { urlImage: "/background-login.png", _id: "7", redirectUrl: "/evento/7" },
+    { urlImage: "/background-login.png", _id: "8", redirectUrl: "/evento/8" },
+  ]);
+  console.log(images);
+  
+  useEffect(() => {
+    async function getCarrossel() {
+      const response = await axios
+        .get(
+          `${import.meta.env.VITE_API_BASE_URL}${
+            import.meta.env.VITE_CARROSSEL_GET
+          }`
+        )
+        
+        console.log(response);
+        
+        if (response.data.carrossels) {
+          response.data.carrossels.forEach((element: any) => {
+            setImages((prev) => [...prev, {urlImage: element.urlImage, _id: element._id, redirectUrl: element.redirectUrl}]);
+          });          
+        }
+    }
+    getCarrossel();
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -67,9 +93,9 @@ export default function CarrosselMain() {
         >
           {images.map((image, idx) => (
             <SwiperSlide key={idx} className="swiper-slide-custom">
-              <Link to={`/evento/${image.id}`}>
+              <Link to={`${image.redirectUrl}`}>
                 <img
-                  src={image.src}
+                  src={image.urlImage}
                   alt={`slide-${idx}`}
                   className="carousel-img w-full h-full object-cover rounded-2xl shadow-lg"
                 />

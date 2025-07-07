@@ -1,47 +1,55 @@
-import type React from "react"
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Lock, User, Eye, EyeOff, ArrowLeft } from "lucide-react"
+import type React from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Lock, User, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import axios from "axios";
 
 const AdminLogin: React.FC = () => {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
-  const navigate = useNavigate()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError("")
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
     try {
-      const ADMIN_EMAIL = "admin@toingresso.com"
-      const ADMIN_PASSWORD = "admin123"
-
-      if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-        const adminToken = "admin-token-" + Date.now()
-        localStorage.setItem("adminToken", adminToken)
-        navigate("/admin/dashboard")
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_ADMIN_LOGIN}`,
+        {
+          email,
+          password,
+        }
+      );
+      if (response.data.logged) {
+        localStorage.setItem("adminToken", response.data.token);
+        navigate("/admin/dashboard");
       } else {
-        setError("Email ou senha incorretos")
+        setError("Email ou senha incorretos");
       }
-
     } catch (error) {
-      setError("Erro ao fazer login. Tente novamente.")
+      setError("Erro ao fazer login. Tente novamente.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-
+  };
   const goBack = () => {
-    navigate("/")
-  }
+    navigate("/");
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
@@ -50,8 +58,12 @@ const AdminLogin: React.FC = () => {
           <div className="mx-auto w-12 h-12 bg-[#FEC800] rounded-full flex items-center justify-center mb-4">
             <Lock className="w-6 h-6 text-black" />
           </div>
-          <CardTitle className="text-2xl font-bold">Acesso Administrativo</CardTitle>
-          <CardDescription>Entre com suas credenciais de administrador</CardDescription>
+          <CardTitle className="text-2xl font-bold">
+            Acesso Administrativo
+          </CardTitle>
+          <CardDescription>
+            Entre com suas credenciais de administrador
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
@@ -95,7 +107,11 @@ const AdminLogin: React.FC = () => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 cursor-pointer"
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4 cursor-pointer" />}
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4 cursor-pointer" />
+                  )}
                 </button>
               </div>
             </div>
@@ -110,21 +126,27 @@ const AdminLogin: React.FC = () => {
           </form>
 
           <div className="mt-6 text-center">
-            <Button variant="ghost" onClick={goBack} className="gap-2 text-sm cursor-pointer">
+            <Button
+              variant="ghost"
+              onClick={goBack}
+              className="gap-2 text-sm cursor-pointer"
+            >
               <ArrowLeft className="w-4 h-4" />
               Voltar ao site
             </Button>
           </div>
 
           <div className="mt-4 p-3 bg-gray-50 rounded-md">
-            <p className="text-xs text-gray-600 font-medium mb-1">Acesso restrito:</p>
+            <p className="text-xs text-gray-600 font-medium mb-1">
+              Acesso restrito:
+            </p>
             <p className="text-xs text-gray-500">Apenas usuário da silva</p>
             <p className="text-xs text-gray-500">E japoneses</p>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
-}
+  );
+};
 
-export default AdminLogin
+export default AdminLogin;
