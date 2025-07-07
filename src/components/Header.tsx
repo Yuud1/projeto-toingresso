@@ -5,8 +5,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import SearchDropdown from "./SearchDropdown";
 
 import {
-  ChevronDown,
-  MapPin,
   CalendarPlus,
   Ticket,
   ClipboardList,
@@ -67,12 +65,12 @@ interface estadosMunicipios {
   nome: string;
 }
 
-const CidadeDropdown = ({ isMobile = false }: { isMobile?: boolean }) => {
-  const [selectedCity, setSelectedCity] = useState<estadosMunicipios>(() => {
-    const saved = localStorage.getItem("selectedCity");
-    return saved ? JSON.parse(saved) : { nome: "Selecione", sigla: "" };
-  });
-  const [isOpen, setIsOpen] = useState(false);  
+const CidadeDropdown = () => {
+  // const [selectedCity, setSelectedCity] = useState<estadosMunicipios>(() => {
+  //   const saved = localStorage.getItem("selectedCity");
+  //   return saved ? JSON.parse(saved) : { nome: "Selecione", sigla: "" };
+  // });
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen} modal={false}>
@@ -97,8 +95,8 @@ const CidadeDropdown = ({ isMobile = false }: { isMobile?: boolean }) => {
             <DropdownMenuItem
               key={cidade.nome}
               onClick={() => {
-                setSelectedCity(cidade);
-                localStorage.setItem("selectedCity", JSON.stringify(cidade));
+                // setSelectedCity(cidade);
+                // localStorage.setItem("selectedCity", JSON.stringify(cidade));
                 setIsOpen(false);
               }}
             >
@@ -363,7 +361,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
             <img className="w-10" src="/icon.png" alt="Logo" />
           </a>
           <div className="flex items-center gap-3">
-            <CidadeDropdown isMobile={true} />
+            <CidadeDropdown />
             {user ? (
               <ProfileMenu isMobile={true} />
             ) : (

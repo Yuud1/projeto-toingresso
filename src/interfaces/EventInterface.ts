@@ -40,4 +40,5 @@ export default interface EventInterface {
     }
   ];
   participants: [user: UserInterface];
+  certificateCount: number,
 }

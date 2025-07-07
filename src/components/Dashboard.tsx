@@ -9,7 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   Users,
-  Calendar,
   Ticket,
   TrendingUp,
   Award,
@@ -38,7 +37,8 @@ interface DashboardProps {
     upcomingEvents: number;
     totalEvents: number;
     totalRevenue: number;
-    checkinsCount?: number;
+    checkinsCount: number;
+    certificateCount: number;
   };
   revenueData: Array<{
     name: string;
@@ -72,7 +72,8 @@ const Dashboard: React.FC<DashboardProps> = ({
     // Se nenhum evento específico estiver selecionado, não faz nada
   };
 
-  const isCheckinsCardClickable = selectedDashboardEvent && selectedDashboardEvent !== "all";
+  const isCheckinsCardClickable =
+    selectedDashboardEvent && selectedDashboardEvent !== "all";
 
   return (
     <div className="space-y-6">
@@ -88,24 +89,24 @@ const Dashboard: React.FC<DashboardProps> = ({
           >
             <EyeOff className="h-4 w-4" />
           </Button>
-          
+
           <div className="flex-1">
-          <Select
-            value={selectedDashboardEvent}
-            onValueChange={setSelectedDashboardEvent}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Selecionar evento" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os eventos</SelectItem>
-              {events.map((event) => (
-                <SelectItem key={event._id} value={event._id}>
-                  {event.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <Select
+              value={selectedDashboardEvent}
+              onValueChange={setSelectedDashboardEvent}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Selecionar evento" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os eventos</SelectItem>
+                {events.map((event) => (
+                  <SelectItem key={event._id} value={event._id}>
+                    {event.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -126,22 +127,22 @@ const Dashboard: React.FC<DashboardProps> = ({
 
         <div className="hidden lg:block w-full lg:w-auto lg:min-w-[250px]">
           <div className="flex-1">
-          <Select
-            value={selectedDashboardEvent}
-            onValueChange={setSelectedDashboardEvent}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Selecionar evento" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os eventos</SelectItem>
-              {events.map((event) => (
-                <SelectItem key={event._id} value={event._id}>
-                  {event.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <Select
+              value={selectedDashboardEvent}
+              onValueChange={setSelectedDashboardEvent}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Selecionar evento" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os eventos</SelectItem>
+                {events.map((event) => (
+                  <SelectItem key={event._id} value={event._id}>
+                    {event.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
@@ -171,15 +172,18 @@ const Dashboard: React.FC<DashboardProps> = ({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatNumber(dashboardMetrics.upcomingEvents)}
+              {formatNumber(
+                dashboardMetrics.upcomingEvents -
+                  dashboardMetrics.totalTicketsSold
+              )}
             </div>
             <p className="text-xs text-muted-foreground">
               Ingressos disponíveis
             </p>
           </CardContent>
         </Card>
-        
-        <Card>
+
+        {/* <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Ingressos Cancelados
@@ -192,13 +196,11 @@ const Dashboard: React.FC<DashboardProps> = ({
             </div>
             <p className="text-xs text-muted-foreground">Cancelados no total</p>
           </CardContent>
-        </Card>
+        </Card> */}
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Receita Total
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Receita Total</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -211,14 +213,18 @@ const Dashboard: React.FC<DashboardProps> = ({
       </div>
 
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        <Card 
+        <Card
           className={`transition-all duration-200 ${
-            isCheckinsCardClickable 
-              ? "cursor-pointer hover:shadow-md hover:scale-[1.02]" 
+            isCheckinsCardClickable
+              ? "cursor-pointer hover:shadow-md hover:scale-[1.02]"
               : "cursor-default opacity-60"
           }`}
           onClick={isCheckinsCardClickable ? handleCheckinsClick : undefined}
-          title={isCheckinsCardClickable ? "Clique para ver check-ins" : "Selecione um evento específico para ver check-ins"}
+          title={
+            isCheckinsCardClickable
+              ? "Clique para ver check-ins"
+              : "Selecione um evento específico para ver check-ins"
+          }
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -231,10 +237,9 @@ const Dashboard: React.FC<DashboardProps> = ({
               {formatNumber(dashboardMetrics.checkinsCount || 0)}
             </div>
             <p className="text-xs text-muted-foreground">
-              {isCheckinsCardClickable 
-                ? "Pessoas que validaram ingresso" 
-                : "Selecione um evento para ver check-ins"
-              }
+              {isCheckinsCardClickable
+                ? "Pessoas que validaram ingresso"
+                : "Selecione um evento para ver check-ins"}
             </p>
           </CardContent>
         </Card>
@@ -247,14 +252,16 @@ const Dashboard: React.FC<DashboardProps> = ({
             <Award className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatNumber(42)}</div>
+            <div className="text-2xl font-bold">
+              {formatNumber(dashboardMetrics.certificateCount)}
+            </div>
             <p className="text-xs text-muted-foreground">
               Total de certificados
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        {/* <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Participantes Únicos
@@ -263,13 +270,13 @@ const Dashboard: React.FC<DashboardProps> = ({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatNumber(156)}
+              {formatNumber(dashboardMetrics.checkinsCount)}
             </div>
             <p className="text-xs text-muted-foreground">
               Pessoas diferentes
             </p>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
 
       <div className="grid grid-cols-1 gap-4">
@@ -280,8 +287,7 @@ const Dashboard: React.FC<DashboardProps> = ({
               Receita por mês{" "}
               {selectedDashboardEvent &&
                 `- ${
-                  events.find((e) => e._id === selectedDashboardEvent)
-                    ?.title
+                  events.find((e) => e._id === selectedDashboardEvent)?.title
                 }`}
             </CardDescription>
           </CardHeader>
@@ -301,15 +307,9 @@ const Dashboard: React.FC<DashboardProps> = ({
                     tickLine={false}
                     width={60}
                     fontSize={10}
-                    tickFormatter={(v) =>
-                      hideValues ? "***" : `R$${v}`
-                    }
+                    tickFormatter={(v) => (hideValues ? "***" : `R$${v}`)}
                   />
-                  <Bar
-                    dataKey="revenue"
-                    fill="#222"
-                    radius={[4, 4, 0, 0]}
-                  />
+                  <Bar dataKey="revenue" fill="#222" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -320,4 +320,4 @@ const Dashboard: React.FC<DashboardProps> = ({
   );
 };
 
-export default Dashboard; 
+export default Dashboard;
