@@ -21,11 +21,9 @@ const socket = io(`${import.meta.env.VITE_API_BASE_URL}`);
 
 export default function EventArrivalsPage() {
   const { id } = useParams();
-  console.log(id);
-  
+
   const [arrivals, setArrivals] = useState<ArrivalInterface[]>([]);
-  console.log("Arrivals: ",arrivals);
-  
+
   const [isConfigMode, setIsConfigMode] = useState(true);
   const [selectedFields, setSelectedFields] = useState<string[]>([]);
   const [showArrivalTime, setShowArrivalTime] = useState(true);
@@ -87,8 +85,8 @@ export default function EventArrivalsPage() {
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_API_BASE_URL}${
-            import.meta.env.VITE_EVENT_SECURE
-          }${id}`,
+            import.meta.env.VITE_EVENT_GET_SECURE
+          }/${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -99,7 +97,6 @@ export default function EventArrivalsPage() {
           setEventData(response.data.event);
         }
       } catch (error: any) {
-        
         console.log(error);
       }
     }
@@ -410,17 +407,25 @@ export default function EventArrivalsPage() {
                         {arrival.user?.avatar ? (
                           <img
                             src={arrival.user.avatar}
-                            alt={arrival.fields?.name || arrival.user?.name || "Avatar"}
+                            alt={
+                              arrival.fields?.name ||
+                              arrival.user?.name ||
+                              "Avatar"
+                            }
                             className="w-16 h-16 rounded-full object-cover mb-4 border"
                           />
                         ) : (
                           <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-white text-lg font-bold mb-4">
-                            {getInitials(arrival.fields?.name || arrival.user?.name || "U")}
+                            {getInitials(
+                              arrival.fields?.name || arrival.user?.name || "U"
+                            )}
                           </div>
                         )}
                         {/* Nome */}
                         <h3 className="font-bold text-lg text-gray-900 mb-3">
-                          {arrival.fields?.name || arrival.user?.name || "Sem nome"}
+                          {arrival.fields?.name ||
+                            arrival.user?.name ||
+                            "Sem nome"}
                         </h3>
                         {/* Email, se existir */}
                         {arrival.user?.email && (
@@ -431,16 +436,21 @@ export default function EventArrivalsPage() {
                         {/* Campos dinâmicos de fields (exceto name) */}
                         <div className="space-y-2 w-full">
                           {Object.entries(arrival.fields ?? {})
-                            .filter(([key]) =>
-                              key !== "name" &&
-                              (selectedFields.length === 0 || selectedFields.includes(key))
+                            .filter(
+                              ([key]) =>
+                                key !== "name" &&
+                                (selectedFields.length === 0 ||
+                                  selectedFields.includes(key))
                             )
                             .map(([key, value]) => (
                               <div
                                 key={key}
                                 className="text-gray-600 bg-gray-50 rounded-lg p-2 text-sm"
                               >
-                                <span className="font-semibold mr-1">{key}:</span> {value}
+                                <span className="font-semibold mr-1">
+                                  {key}:
+                                </span>{" "}
+                                {value}
                               </div>
                             ))}
                         </div>
@@ -463,17 +473,25 @@ export default function EventArrivalsPage() {
                         {arrival.user?.avatar ? (
                           <img
                             src={arrival.user.avatar}
-                            alt={arrival.fields?.name || arrival.user?.name || "Avatar"}
+                            alt={
+                              arrival.fields?.name ||
+                              arrival.user?.name ||
+                              "Avatar"
+                            }
                             className="w-12 h-12 rounded-full object-cover border"
                           />
                         ) : (
                           <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
-                            {getInitials(arrival.fields?.name || arrival.user?.name || "U")}
+                            {getInitials(
+                              arrival.fields?.name || arrival.user?.name || "U"
+                            )}
                           </div>
                         )}
                         <div className="flex-1">
                           <h3 className="font-bold text-gray-900">
-                            {arrival.fields?.name || arrival.user?.name || "Sem nome"}
+                            {arrival.fields?.name ||
+                              arrival.user?.name ||
+                              "Sem nome"}
                           </h3>
                           {/* Email, se existir */}
                           {arrival.user?.email && (
@@ -484,13 +502,20 @@ export default function EventArrivalsPage() {
                           {/* Primeiro campo extra de fields (exceto name) */}
                           <div className="text-gray-500 text-sm">
                             {Object.entries(arrival.fields ?? {})
-                              .filter(([key]) =>
-                                key !== "name" &&
-                                (selectedFields.length === 0 || selectedFields.includes(key))
+                              .filter(
+                                ([key]) =>
+                                  key !== "name" &&
+                                  (selectedFields.length === 0 ||
+                                    selectedFields.includes(key))
                               )
                               .slice(0, 1)
                               .map(([key, value]) => (
-                                <span key={key}><span className="font-semibold mr-1">{key}:</span> {value}</span>
+                                <span key={key}>
+                                  <span className="font-semibold mr-1">
+                                    {key}:
+                                  </span>{" "}
+                                  {value}
+                                </span>
                               ))}
                           </div>
                         </div>
@@ -518,4 +543,3 @@ export default function EventArrivalsPage() {
     </div>
   );
 }
-
