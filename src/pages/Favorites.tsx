@@ -3,10 +3,11 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 import { Clock, MapPin, Calendar } from "lucide-react";
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { truncateTextResponsive } from "@/utils/formatUtils";
 import axios from "axios";
 import EventInterface from "@/interfaces/EventInterface";
+import getInitials from "@/utils/getInitials";
 
 export default function Favorites() {
   const [likedEvents, setLikedEvents] = useState<EventInterface[]>([]);
@@ -121,10 +122,15 @@ export default function Favorites() {
                           <div className="text-xs text-gray-500 flex items-center justify-center">
                             {event.organizer ? (
                               <span className="font-medium text-gray-700 flex justify-center items-center gap-3">
-                                <Avatar
-                                  src={event.organizer.avatar}
-                                  className="max-w-10 max-h-10 border"
-                                />
+                                <Avatar className="w-9 h-9">
+                                  <AvatarImage
+                                    src={event.organizer.avatar}
+                                    alt={event.organizer.name}
+                                  />
+                                  <AvatarFallback>
+                                    {getInitials(event.organizer.name)}
+                                  </AvatarFallback>
+                                </Avatar>
                                 {truncateTextResponsive(event.organizer.name)}
                               </span>
                             ) : (

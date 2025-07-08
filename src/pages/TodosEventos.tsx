@@ -4,8 +4,9 @@ import Footer from "@/components/Footer";
 import EventInterface from "@/interfaces/EventInterface";
 import axios from "axios";
 import { MapPin, Clock, Calendar, Search } from "lucide-react";
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { truncateTextResponsive } from "@/utils/formatUtils";
+import getInitials from "@/utils/getInitials";
 
 const TodosEventos = () => {
   const [events, setEvents] = React.useState<EventInterface[]>([]);
@@ -16,7 +17,9 @@ const TodosEventos = () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_GET_ALL_EVENTS}`,
+          `${import.meta.env.VITE_API_BASE_URL}${
+            import.meta.env.VITE_GET_ALL_EVENTS
+          }`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -67,15 +70,21 @@ const TodosEventos = () => {
               <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
                 <Search className="w-8 h-8 text-gray-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Nenhum evento encontrado</h3>
-              <p className="text-gray-600">Tente ajustar os filtros ou termos de busca.</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Nenhum evento encontrado
+              </h3>
+              <p className="text-gray-600">
+                Tente ajustar os filtros ou termos de busca.
+              </p>
             </div>
           ) : (
             <>
               {/* Resultados */}
               <div className="flex items-center justify-between mb-8">
                 <p className="text-gray-600">
-                  {filteredEvents.length} evento{filteredEvents.length !== 1 ? 's' : ''} encontrado{filteredEvents.length !== 1 ? 's' : ''}
+                  {filteredEvents.length} evento
+                  {filteredEvents.length !== 1 ? "s" : ""} encontrado
+                  {filteredEvents.length !== 1 ? "s" : ""}
                 </p>
               </div>
 
@@ -83,7 +92,9 @@ const TodosEventos = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {filteredEvents.map((event) => {
                   const isFree = event.isFree;
-                  const startDate = new Date(event.startDate).toLocaleDateString("pt-BR", {
+                  const startDate = new Date(
+                    event.startDate
+                  ).toLocaleDateString("pt-BR", {
                     day: "2-digit",
                     month: "short",
                   });
@@ -102,7 +113,9 @@ const TodosEventos = () => {
                           <div className="absolute top-3 right-3">
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                                isFree ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
+                                isFree
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-blue-100 text-blue-700"
                               }`}
                             >
                               {isFree ? "Gratuito" : "Pago"}
@@ -120,7 +133,11 @@ const TodosEventos = () => {
                           <div className="flex items-start gap-2 mb-3">
                             <div className="text-sm text-gray-600">
                               <p className="font-medium">
-                                {truncateTextResponsive(`${event.venueName || ""} | ${event.state || ""}`)}
+                                {truncateTextResponsive(
+                                  `${event.venueName || ""} | ${
+                                    event.state || ""
+                                  }`
+                                )}
                               </p>
                             </div>
                           </div>
@@ -140,7 +157,11 @@ const TodosEventos = () => {
                             <div className="flex items-center gap-1 text-gray-600 min-w-0 flex-1">
                               <MapPin className="w-4 h-4 flex-shrink-0" />
                               <p className="text-sm truncate">
-                                {truncateTextResponsive(`${event.neighborhood || ""}, ${event.city || ""}`)}
+                                {truncateTextResponsive(
+                                  `${event.neighborhood || ""}, ${
+                                    event.city || ""
+                                  }`
+                                )}
                               </p>
                             </div>
                           </div>
@@ -150,10 +171,15 @@ const TodosEventos = () => {
                             <div className="text-xs text-gray-500 flex items-center justify-center">
                               {event.organizer ? (
                                 <span className="font-medium text-gray-700 flex justify-center items-center gap-3">
-                                  <Avatar
-                                    src={event.organizer.avatar}
-                                    className="max-w-10 max-h-10 border"
-                                  />
+                                  <Avatar className="w-9 h-9">
+                                    <AvatarImage
+                                      src={event.organizer.avatar}
+                                      alt={event.organizer.name}
+                                    />
+                                    <AvatarFallback>
+                                      {getInitials(event.organizer.name)}
+                                    </AvatarFallback>
+                                  </Avatar>
                                   {truncateTextResponsive(event.organizer.name)}
                                 </span>
                               ) : (
@@ -178,4 +204,4 @@ const TodosEventos = () => {
   );
 };
 
-export default TodosEventos; 
+export default TodosEventos;
