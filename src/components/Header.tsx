@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useUser } from "@/contexts/useContext";
 import getInitials from "@/utils/getInitials";
-import { Avatar } from "./ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 
 type HeaderProps = {
   isScrolled?: boolean;
@@ -186,9 +186,12 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
             }
           }}
         >
-          <div className="w-6 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium">
+          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium">
             {user?.avatar ? (
-              <Avatar src={user.avatar} className="w-9 h-9"></Avatar>
+              <Avatar className="w-9 h-9">
+                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+              </Avatar>
             ) : (
               getInitials(user.name)
             )}

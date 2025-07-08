@@ -1,545 +1,445 @@
-import { useState, useEffect } from "react";
-import { io } from "socket.io-client";
-import {
-  Settings,
-  Eye,
-  Check,
-  X,
-  LogOut,
-  UserCheck,
-  Grid,
-  Users,
-  Sparkles,
-  List,
-} from "lucide-react";
-import { useParams } from "react-router-dom";
-import EventInterface from "@/interfaces/EventInterface";
-import axios from "axios";
-import ArrivalInterface from "@/interfaces/ArrivalsInterface";
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator"
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Users, Settings, Eye, Clock, MapPin, Mail, Phone, Calendar, TrendingUp } from "lucide-react"
 
-const socket = io(`${import.meta.env.VITE_API_BASE_URL}`);
+interface Subscriber {
+  id: string
+  name: string
+  email: string
+  phone?: string
+  registeredAt: Date
+  status: "confirmed" | "pending" | "cancelled"
+  ticketType: string
+  location?: string
+  avatar?: string
+}
 
-export default function EventArrivalsPage() {
-  const { id } = useParams();
+interface DisplayConfig {
+  showEmail: boolean
+  showPhone: boolean
+  showLocation: boolean
+  showRegistrationTime: boolean
+  showTicketType: boolean
+  showAvatar: boolean
+  layout: "grid" | "list"
+  refreshInterval: number
+}
 
-  const [arrivals, setArrivals] = useState<ArrivalInterface[]>([]);
+export default function EventDashboard() {
+  const [subscribers, setSubscribers] = useState<Subscriber[]>([])
+  const [config, setConfig] = useState<DisplayConfig>({
+    showEmail: true,
+    showPhone: false,
+    showLocation: true,
+    showRegistrationTime: true,
+    showTicketType: true,
+    showAvatar: true,
+    layout: "grid",
+    refreshInterval: 5000,
+  })
+  const [totalSubscribers, setTotalSubscribers] = useState(0)
+  const [todaySubscribers, setTodaySubscribers] = useState(0)
 
-  const [isConfigMode, setIsConfigMode] = useState(true);
-  const [selectedFields, setSelectedFields] = useState<string[]>([]);
-  const [showArrivalTime, setShowArrivalTime] = useState(true);
-  const [cardStyle, setCardStyle] = useState<"grid" | "list">("grid");
-  const [previewMode, setPreviewMode] = useState(false);
-  const [commonParameter, setCommonParameter] = useState<string>("");
-  const [eventData, setEventData] = useState<EventInterface>();
-
+  // Simular dados iniciais
   useEffect(() => {
-    async function getArrivalsByEventId() {
-      let response;
+    const initialData: Subscriber[] = [
+      {
+        id: "1",
+        name: "Ana Silva",
+        email: "ana.silva@email.com",
+        phone: "+55 11 99999-9999",
+        registeredAt: new Date(Date.now() - 3600000),
+        status: "confirmed",
+        ticketType: "VIP",
+        location: "São Paulo, SP",
+        avatar: "/placeholder.svg?height=40&width=40",
+      },
+      {
+        id: "2",
+        name: "Carlos Santos",
+        email: "carlos.santos@email.com",
+        phone: "+55 21 88888-8888",
+        registeredAt: new Date(Date.now() - 7200000),
+        status: "confirmed",
+        ticketType: "Premium",
+        location: "Rio de Janeiro, RJ",
+      },
+      {
+        id: "3",
+        name: "Maria Oliveira",
+        email: "maria.oliveira@email.com",
+        registeredAt: new Date(Date.now() - 1800000),
+        status: "pending",
+        ticketType: "Standard",
+        location: "Belo Horizonte, MG",
+      },
+    ]
 
-      if (eventData?.isFree) {
-        response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}${
-            import.meta.env.VITE_GET_ARRIVALS_FREE_EVENT_ID
-          }/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        // Para evento gratuito, normalizar para ArrivalInterface-like
-        if (response.data.subscribers) {
-          setArrivals(
-            response.data.subscribers.map((sub: any) => ({
-              ...sub.fields,
-              fields: sub.fields,
-              user: sub.user,
-              subscribedAt: sub.subscribedAt,
-              arrivalTime: sub.subscribedAt, // ou outro campo se houver
-            }))
-          );
-        }
-      } else {
-        response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}${
-            import.meta.env.VITE_GET_ARRIVALS_PAID_EVENT_ID
-          }/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        if (response.data.participants) {
-          setArrivals(response.data.participants);
-        }
+    setSubscribers(initialData)
+    setTotalSubscribers(initialData.length)
+    setTodaySubscribers(initialData.filter((s) => s.registeredAt.toDateString() === new Date().toDateString()).length)
+  }, [])
+
+  // Simular WebSocket - adicionar novos inscritos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const names = [
+        "João Pedro",
+        "Fernanda Costa",
+        "Ricardo Lima",
+        "Juliana Rocha",
+        "Pedro Henrique",
+        "Camila Ferreira",
+      ]
+      const cities = [
+        "São Paulo, SP",
+        "Rio de Janeiro, RJ",
+        "Belo Horizonte, MG",
+        "Salvador, BA",
+        "Fortaleza, CE",
+        "Brasília, DF",
+      ]
+      const tickets = ["Standard", "Premium", "VIP"]
+
+      const randomName = names[Math.floor(Math.random() * names.length)]
+      const randomCity = cities[Math.floor(Math.random() * cities.length)]
+      const randomTicket = tickets[Math.floor(Math.random() * tickets.length)]
+
+      const newSubscriber: Subscriber = {
+        id: Date.now().toString(),
+        name: randomName,
+        email: `${randomName.toLowerCase().replace(" ", ".")}@email.com`,
+        phone: `+55 11 ${Math.floor(Math.random() * 90000) + 10000}-${Math.floor(Math.random() * 9000) + 1000}`,
+        registeredAt: new Date(),
+        status: Math.random() > 0.1 ? "confirmed" : "pending",
+        ticketType: randomTicket,
+        location: randomCity,
       }
+
+      setSubscribers((prev) => [newSubscriber, ...prev])
+      setTotalSubscribers((prev) => prev + 1)
+      setTodaySubscribers((prev) => prev + 1)
+    }, config.refreshInterval)
+
+    return () => clearInterval(interval)
+  }, [config.refreshInterval])
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "confirmed":
+        return "bg-green-500"
+      case "pending":
+        return "bg-yellow-500"
+      case "cancelled":
+        return "bg-red-500"
+      default:
+        return "bg-gray-500"
     }
-    if (id) {
-      getArrivalsByEventId();
+  }
+
+  const getTicketColor = (ticket: string) => {
+    switch (ticket) {
+      case "VIP":
+        return "bg-purple-100 text-purple-800 border-purple-200"
+      case "Premium":
+        return "bg-blue-100 text-blue-800 border-blue-200"
+      case "Standard":
+        return "bg-gray-100 text-gray-800 border-gray-200"
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200"
     }
-  }, [eventData]);
+  }
 
-  useEffect(() => {
-    async function getEventById() {
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}${
-            import.meta.env.VITE_EVENT_GET_SECURE
-          }/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        if (response.data.event) {
-          setEventData(response.data.event);
-        }
-      } catch (error: any) {
-        console.log(error);
-      }
-    }
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  }
 
-    if (id) {
-      getEventById();
-    }
-  }, [id]);
+  const SubscriberCard = ({ subscriber }: { subscriber: Subscriber }) => (
+    <Card className="hover:shadow-md transition-shadow duration-200">
+      <CardContent className="p-4">
+        <div className="flex items-start gap-3">
+          {config.showAvatar && (
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={subscriber.avatar || "/placeholder.svg"} />
+              <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                {subscriber.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
+              </AvatarFallback>
+            </Avatar>
+          )}
 
-  useEffect(() => {
-    if (!isConfigMode) {
-      socket.emit("registerChekcout", id);
-      socket.on("new_user_checked_in", (userData: ArrivalInterface) => {
-        setArrivals((prev) => [...prev, userData]);
-      });
-    }
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-2">
+              <h3 className="font-semibold text-sm truncate">{subscriber.name}</h3>
+              <div className={`w-2 h-2 rounded-full ${getStatusColor(subscriber.status)}`} />
+            </div>
 
-    return () => {
-      socket.off("new_user_checked_in");
-    };
-  }, [isConfigMode, id]);
-
-  const toggleField = (fieldName: string) => {
-    setSelectedFields((prev) =>
-      prev.includes(fieldName)
-        ? prev.filter((f) => f !== fieldName)
-        : [...prev, fieldName]
-    );
-  };
-
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                <Users className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">
-                  {eventData?.title}
-                </h1>
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  {!isConfigMode && (
-                    <>
-                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                      <span>AO VIVO</span>
-                    </>
-                  )}
+            <div className="space-y-1 text-xs text-muted-foreground">
+              {config.showEmail && (
+                <div className="flex items-center gap-1">
+                  <Mail className="h-3 w-3" />
+                  <span className="truncate">{subscriber.email}</span>
                 </div>
-              </div>
+              )}
+
+              {config.showPhone && subscriber.phone && (
+                <div className="flex items-center gap-1">
+                  <Phone className="h-3 w-3" />
+                  <span>{subscriber.phone}</span>
+                </div>
+              )}
+
+              {config.showLocation && subscriber.location && (
+                <div className="flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  <span>{subscriber.location}</span>
+                </div>
+              )}
+
+              {config.showRegistrationTime && (
+                <div className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  <span>{formatTime(subscriber.registeredAt)}</span>
+                </div>
+              )}
             </div>
 
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => window.history.back()}
-                className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all flex items-center gap-2"
-              >
-                <LogOut size={16} />
-                Sair
-              </button>
-
-              <button
-                onClick={() => setIsConfigMode(!isConfigMode)}
-                className={`px-4 py-2 rounded-lg flex items-center gap-2 font-medium transition-all ${
-                  isConfigMode
-                    ? "bg-blue-600 text-white hover:bg-blue-700"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                <Settings size={16} />
-                {isConfigMode ? "Iniciar" : "Configurar"}
-              </button>
-            </div>
+            {config.showTicketType && (
+              <Badge variant="outline" className={`mt-2 text-xs ${getTicketColor(subscriber.ticketType)}`}>
+                {subscriber.ticketType}
+              </Badge>
+            )}
           </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+
+  const SubscriberListItem = ({ subscriber }: { subscriber: Subscriber }) => (
+    <div className="flex items-center gap-4 p-4 border-b hover:bg-muted/50 transition-colors">
+      {config.showAvatar && (
+        <Avatar className="h-8 w-8">
+          <AvatarImage src={subscriber.avatar || "/placeholder.svg"} />
+          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs">
+            {subscriber.name
+              .split(" ")
+              .map((n) => n[0])
+              .join("")}
+          </AvatarFallback>
+        </Avatar>
+      )}
+
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-sm">{subscriber.name}</span>
+          <div className={`w-2 h-2 rounded-full ${getStatusColor(subscriber.status)}`} />
+        </div>
+
+        <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
+          {config.showEmail && <span className="truncate">{subscriber.email}</span>}
+          {config.showLocation && subscriber.location && <span>{subscriber.location}</span>}
+          {config.showRegistrationTime && <span>{formatTime(subscriber.registeredAt)}</span>}
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {isConfigMode ? (
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Sparkles className="h-5 w-5 text-blue-600" />
-                  <h2 className="text-xl font-bold text-gray-900">
-                    Configuração
-                  </h2>
-                </div>
-                <button
-                  onClick={() => setPreviewMode(!previewMode)}
-                  className="px-3 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all"
-                >
-                  <Eye size={16} />
-                </button>
-              </div>
+      {config.showTicketType && (
+        <Badge variant="outline" className={`text-xs ${getTicketColor(subscriber.ticketType)}`}>
+          {subscriber.ticketType}
+        </Badge>
+      )}
+    </div>
+  )
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Dashboard do Evento</h1>
+            <p className="text-slate-600 mt-1">Acompanhe as inscrições em tempo real</p>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className={`w-3 h-3 rounded-full bg-green-500 animate-pulse`} />
+              <span className="text-sm font-medium">AO VIVO</span>
             </div>
 
-            <div className="p-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="space-y-6">
-                  {/* Estilo */}
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                      Estilo
-                    </h3>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        onClick={() => setCardStyle("grid")}
-                        className={`p-3 rounded-lg border transition-all ${
-                          cardStyle === "grid"
-                            ? "border-blue-500 bg-blue-50 text-blue-700"
-                            : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-                        }`}
-                      >
-                        <Grid className="h-6 w-6 mx-auto mb-2" />
-                        <span className="text-sm">Grid</span>
-                      </button>
-                      <button
-                        onClick={() => setCardStyle("list")}
-                        className={`p-3 rounded-lg border transition-all ${
-                          cardStyle === "list"
-                            ? "border-blue-500 bg-blue-50 text-blue-700"
-                            : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-                        }`}
-                      >
-                        <List className="h-6 w-6 mx-auto mb-2" />
-                        <span className="text-sm">Lista</span>
-                      </button>
-                    </div>
-                  </div>
+            <Button variant="outline" size="sm" onClick={() => (window.location.href = "/dashboard")}>
+              <Eye className="h-4 w-4 mr-2" />
+              Sair
+            </Button>
 
-                  {/* Campos */}
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                      Campos
-                    </h3>
-                    <div className="space-y-2">
-                      {eventData?.customFields.map((field) => (
-                        <button
-                          key={field._id}
-                          onClick={() => toggleField(field.label)}
-                          className={`w-full p-3 rounded-lg border flex items-center justify-between transition-all ${
-                            selectedFields.includes(field.label)
-                              ? "border-blue-500 bg-blue-50 text-blue-700"
-                              : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-                          }`}
-                        >
-                          <span>{field.label}</span>
-                          {selectedFields.includes(field.label) ? (
-                            <Check size={16} className="text-blue-600" />
-                          ) : (
-                            <X size={16} className="text-gray-400" />
-                          )}
-                        </button>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Configurações
+                </Button>
+              </SheetTrigger>
+              <SheetContent>
+                <SheetHeader>
+                  <SheetTitle>Configurações de Exibição</SheetTitle>
+                  <SheetDescription>Personalize quais informações dos inscritos serão exibidas</SheetDescription>
+                </SheetHeader>
+
+                <div className="space-y-6 mt-6">
+                  <div>
+                    <h3 className="font-medium mb-3">Campos a Exibir</h3>
+                    <div className="space-y-3">
+                      {[
+                        { key: "showAvatar", label: "Avatar" },
+                        { key: "showEmail", label: "E-mail" },
+                        { key: "showPhone", label: "Telefone" },
+                        { key: "showLocation", label: "Localização" },
+                        { key: "showRegistrationTime", label: "Horário de Inscrição" },
+                        { key: "showTicketType", label: "Tipo de Ingresso" },
+                      ].map(({ key, label }) => (
+                        <div key={key} className="flex items-center justify-between">
+                          <Label htmlFor={key}>{label}</Label>
+                          <Switch
+                            id={key}
+                            checked={config[key as keyof DisplayConfig] as boolean}
+                            onCheckedChange={(checked) => setConfig((prev) => ({ ...prev, [key]: checked }))}
+                          />
+                        </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* Parâmetro */}
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                      Parâmetro
-                    </h3>
-                    <input
-                      type="text"
-                      value={commonParameter}
-                      onChange={(e) => setCommonParameter(e.target.value)}
-                      placeholder="Ex: VIP, Palestrante..."
-                      className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
+                  <Separator />
+
+                  <div>
+                    <h3 className="font-medium mb-3">Layout</h3>
+                    <Select
+                      value={config.layout}
+                      onValueChange={(value: "grid" | "list") => setConfig((prev) => ({ ...prev, layout: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="grid">Grade</SelectItem>
+                        <SelectItem value="list">Lista</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
-                  {/* Horário */}
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-900">Mostrar horário</span>
-                      <button
-                        onClick={() => setShowArrivalTime(!showArrivalTime)}
-                        className={`p-2 rounded-lg transition-all ${
-                          showArrivalTime
-                            ? "bg-blue-500 text-white"
-                            : "bg-gray-300 text-gray-600"
-                        }`}
-                      >
-                        {showArrivalTime ? (
-                          <Check size={16} />
-                        ) : (
-                          <X size={16} />
-                        )}
-                      </button>
-                    </div>
+                  <div>
+                    <h3 className="font-medium mb-3">Intervalo de Atualização</h3>
+                    <Select
+                      value={config.refreshInterval.toString()}
+                      onValueChange={(value) =>
+                        setConfig((prev) => ({ ...prev, refreshInterval: Number.parseInt(value) }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1000">1 segundo</SelectItem>
+                        <SelectItem value="3000">3 segundos</SelectItem>
+                        <SelectItem value="5000">5 segundos</SelectItem>
+                        <SelectItem value="10000">10 segundos</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
-
-                {/* Preview */}
-                {previewMode && (
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                      Preview
-                    </h3>
-                    <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-                      <div className="flex flex-col items-center">
-                        <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-white text-lg font-bold mb-4">
-                          AS
-                        </div>
-                        <h3 className="font-bold text-lg text-gray-900 mb-3">
-                          Ana Silva
-                        </h3>
-                        <div className="space-y-2 w-full">
-                          <div className="text-gray-600 bg-gray-50 rounded-lg p-2 text-sm text-center">
-                            @ana_silva
-                          </div>
-                          {commonParameter && (
-                            <div className="text-amber-700 bg-amber-50 rounded-lg p-2 text-sm text-center border border-amber-200">
-                              {commonParameter}
-                            </div>
-                          )}
-                        </div>
-                        {showArrivalTime && (
-                          <div className="text-gray-500 mt-4 bg-gray-50 rounded-lg p-2 text-sm text-center">
-                            10:15
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+              </SheetContent>
+            </Sheet>
           </div>
-        ) : (
-          <>
-            {/* Controles */}
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-4">
-                <UserCheck className="h-6 w-6 text-blue-600" />
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">
-                    Participantes
-                  </h2>
-                  <p className="text-gray-500 text-sm">
-                    {arrivals.length} presentes
-                  </p>
-                </div>
-              </div>
+        </div>
 
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 px-4 py-2 bg-red-50 border border-red-200 rounded-lg">
-                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm text-red-700 font-medium">
-                    {arrivals.length}
-                  </span>
-                </div>
-                <button
-                  onClick={() =>
-                    setCardStyle(cardStyle === "grid" ? "list" : "grid")
-                  }
-                  className="p-3 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all"
-                >
-                  {cardStyle === "grid" ? (
-                    <List size={18} />
-                  ) : (
-                    <Grid size={18} />
-                  )}
-                </button>
-              </div>
-            </div>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total de Inscritos</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{totalSubscribers}</div>
+              <p className="text-xs text-muted-foreground">+{todaySubscribers} hoje</p>
+            </CardContent>
+          </Card>
 
-            {/* Lista */}
-            {arrivals.length === 0 ? (
-              <div className="text-center py-20 bg-white rounded-xl border border-gray-200 shadow-sm">
-                <UserCheck className="h-16 w-16 text-blue-600 mx-auto mb-4" />
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  Aguardando
-                </h2>
-                <p className="text-gray-500">
-                  Os participantes aparecerão aqui
-                </p>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Inscrições Hoje</CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{todaySubscribers}</div>
+              <p className="text-xs text-muted-foreground">Últimas 24 horas</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Taxa de Confirmação</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {Math.round((subscribers.filter((s) => s.status === "confirmed").length / subscribers.length) * 100)}%
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {subscribers.filter((s) => s.status === "confirmed").length} confirmados
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Subscribers List */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Inscritos Recentes
+              <Badge variant="secondary" className="ml-auto">
+                {subscribers.length}
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            {config.layout === "grid" ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
+                {subscribers.map((subscriber) => (
+                  <SubscriberCard key={subscriber.id} subscriber={subscriber} />
+                ))}
               </div>
             ) : (
-              <div
-                className={
-                  cardStyle === "grid"
-                    ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                    : "space-y-4"
-                }
-              >
-                {arrivals.map((arrival, index) => (
-                  <div
-                    key={index}
-                    className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"
-                  >
-                    {cardStyle === "grid" ? (
-                      <div className="flex flex-col items-center text-center">
-                        {/* Avatar genérico ou personalizado */}
-                        {arrival.user?.avatar ? (
-                          <img
-                            src={arrival.user.avatar}
-                            alt={
-                              arrival.fields?.name ||
-                              arrival.user?.name ||
-                              "Avatar"
-                            }
-                            className="w-16 h-16 rounded-full object-cover mb-4 border"
-                          />
-                        ) : (
-                          <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-white text-lg font-bold mb-4">
-                            {getInitials(
-                              arrival.fields?.name || arrival.user?.name || "U"
-                            )}
-                          </div>
-                        )}
-                        {/* Nome */}
-                        <h3 className="font-bold text-lg text-gray-900 mb-3">
-                          {arrival.fields?.name ||
-                            arrival.user?.name ||
-                            "Sem nome"}
-                        </h3>
-                        {/* Email, se existir */}
-                        {arrival.user?.email && (
-                          <div className="text-gray-600 bg-gray-50 rounded-lg p-2 text-sm mb-2">
-                            {arrival.user.email}
-                          </div>
-                        )}
-                        {/* Campos dinâmicos de fields (exceto name) */}
-                        <div className="space-y-2 w-full">
-                          {Object.entries(arrival.fields ?? {})
-                            .filter(
-                              ([key]) =>
-                                key !== "name" &&
-                                (selectedFields.length === 0 ||
-                                  selectedFields.includes(key))
-                            )
-                            .map(([key, value]) => (
-                              <div
-                                key={key}
-                                className="text-gray-600 bg-gray-50 rounded-lg p-2 text-sm"
-                              >
-                                <span className="font-semibold mr-1">
-                                  {key}:
-                                </span>{" "}
-                                {value}
-                              </div>
-                            ))}
-                        </div>
-                        {/* arrivalTime, se mostrar horário estiver ativado */}
-                        {showArrivalTime && (
-                          <div className="text-gray-500 mt-4 bg-gray-50 rounded-lg p-2 text-sm">
-                            {arrival.arrivalTime}
-                          </div>
-                        )}
-                        {/* Parâmetro comum */}
-                        {commonParameter && (
-                          <div className="text-amber-700 bg-amber-50 rounded-lg p-2 text-sm border border-amber-200 mt-2">
-                            {commonParameter}
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-4">
-                        {/* Avatar genérico ou personalizado */}
-                        {arrival.user?.avatar ? (
-                          <img
-                            src={arrival.user.avatar}
-                            alt={
-                              arrival.fields?.name ||
-                              arrival.user?.name ||
-                              "Avatar"
-                            }
-                            className="w-12 h-12 rounded-full object-cover border"
-                          />
-                        ) : (
-                          <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
-                            {getInitials(
-                              arrival.fields?.name || arrival.user?.name || "U"
-                            )}
-                          </div>
-                        )}
-                        <div className="flex-1">
-                          <h3 className="font-bold text-gray-900">
-                            {arrival.fields?.name ||
-                              arrival.user?.name ||
-                              "Sem nome"}
-                          </h3>
-                          {/* Email, se existir */}
-                          {arrival.user?.email && (
-                            <div className="text-gray-600 text-sm">
-                              {arrival.user.email}
-                            </div>
-                          )}
-                          {/* Primeiro campo extra de fields (exceto name) */}
-                          <div className="text-gray-500 text-sm">
-                            {Object.entries(arrival.fields ?? {})
-                              .filter(
-                                ([key]) =>
-                                  key !== "name" &&
-                                  (selectedFields.length === 0 ||
-                                    selectedFields.includes(key))
-                              )
-                              .slice(0, 1)
-                              .map(([key, value]) => (
-                                <span key={key}>
-                                  <span className="font-semibold mr-1">
-                                    {key}:
-                                  </span>{" "}
-                                  {value}
-                                </span>
-                              ))}
-                          </div>
-                        </div>
-                        {/* arrivalTime, se mostrar horário estiver ativado */}
-                        {showArrivalTime && (
-                          <div className="text-gray-500 text-sm">
-                            {arrival.arrivalTime}
-                          </div>
-                        )}
-                        {/* Parâmetro comum */}
-                        {commonParameter && (
-                          <div className="text-amber-700 bg-amber-50 rounded-lg px-3 py-1 text-sm border border-amber-200">
-                            {commonParameter}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
+              <div className="divide-y">
+                {subscribers.map((subscriber) => (
+                  <SubscriberListItem key={subscriber.id} subscriber={subscriber} />
                 ))}
               </div>
             )}
-          </>
-        )}
+
+            {subscribers.length === 0 && (
+              <div className="text-center py-12 text-muted-foreground">
+                <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Nenhum inscrito ainda</p>
+                <p className="text-sm">Os inscritos aparecerão aqui em tempo real</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
-  );
+  )
 }
