@@ -1,6 +1,6 @@
 import type React from "react";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,6 @@ import {
 import { cn } from "@/lib/utils";
 import { User, Camera, Facebook, Instagram, Globe } from "lucide-react";
 import { useUser } from "@/contexts/useContext";
-import AddCardForm from "../components/AddCardForm";
 import axios from "axios";
 import { formatCPF } from "@/utils/formatUtils";
 import UserInterface from "@/interfaces/UserInterface";
@@ -80,93 +79,10 @@ export default function Profile() {
   });
   const [statusSaving, setStatusSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
-  const [loading, setLoading] = useState(false);
-  const [showAddCard, setShowAddCard] = useState(false);
+  const [loading, setLoading] = useState(false);  
 
-  const token = localStorage.getItem("token");
-  // Função para detectar a bandeira do cartão (fora do handleAddCard para reuso)
-  const detectCardBrand = (cardNumber: string) => {
-    const cleanNumber = cardNumber.replace(/\s/g, "");
-    if (cleanNumber.startsWith("4")) return "VISA";
-    if (cleanNumber.startsWith("5") || cleanNumber.startsWith("2"))
-      return "MASTERCARD";
-    if (cleanNumber.startsWith("34") || cleanNumber.startsWith("37"))
-      return "AMEX";
-    if (
-      cleanNumber.startsWith("636368") ||
-      cleanNumber.startsWith("438935") ||
-      cleanNumber.startsWith("504175")
-    )
-      return "ELO";
-    return "OUTRO";
-  };
+  const token = localStorage.getItem("token");  
 
-  async function getUserCards() {
-    try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}${
-          import.meta.env.VITE_GET_USER_CARD
-        }`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      if (response.data.cards) {
-        // Preenche o brand se não existir
-        const cardsWithBrand = response.data.cards.map((card: Cards) => ({
-          ...card,
-          brand: card.brand || detectCardBrand(card.cardNumber),
-        }));
-        setCards(cardsWithBrand);
-      }
-    } catch (error) {
-      console.log("Erro ao buscar cartões", error);
-    }
-  }
-
-  useEffect(() => {
-    if (user) {
-      setFormData(user);
-      getUserCards();
-    }
-  }, [user]);
-
-  interface Cards {
-    _id: string;
-    cardNumber: string;
-    expiryDate: string;
-    cvv: string;
-    cardholderName: string;
-    isDefault: boolean;
-    brand?: string;
-  }
-  const [cards, setCards] = useState<Cards[] | null>([]);
-
-  const setDefaultCard = async (cardId: string) => {
-    try {
-      const response = await axios.put(
-        `${import.meta.env.VITE_API_BASE_URL}${
-          import.meta.env.VITE_UPDATE_USER_CARD_SET_DEFAULT
-        }`,
-        { cardId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      if (!cards) {
-        return;
-      }
-      if (response.data.updated) {
-        setCards(
-          cards.map((card) => ({
-            ...card,
-            isDefault: card._id === cardId,
-          }))
-        );
-        console.log(`Cartão ${cardId} definido como padrão`);
-      }
-
-    } catch (error) {
-      console.log("Erro ao definir cartão como padrão", error);
-    }
-  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -301,50 +217,8 @@ export default function Profile() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleAddCard = (cardData: any) => {
-    console.log("Novo cartão adicionado:", cardData);
-
-    // Criar um novo cartão com os dados recebidos
-    const newCard: Cards = {
-      _id: cardData._id || Math.random().toString(36).substr(2, 9),
-      cardNumber: cardData.cardNumber,
-      expiryDate: cardData.expiryDate,
-      cvv: cardData.cvv,
-      cardholderName: cardData.cardholderName,
-      isDefault: cardData.isDefault || false,
-      brand: cardData.brand || detectCardBrand(cardData.cardNumber),
-    };
-
-    let updatedCards = cards ? [...cards] : [];
-    if (newCard.isDefault) {
-      updatedCards = updatedCards.map((card) => ({
-        ...card,
-        isDefault: false,
-      }));
-    }
-    updatedCards.push(newCard);
-    setCards(updatedCards);
-    setShowAddCard(false);
-  };
-
-  async function handleDeleteCard(cardId: string) {
-    try {
-      const response = await axios.delete(
-        `${import.meta.env.VITE_API_BASE_URL}${
-          import.meta.env.VITE_DELETE_USER_CARD
-        }`,
-        { headers: { Authorization: `Bearer ${token}` }, data: { cardId } }
-      );
-
-      if (response.data.deleted) {
-        window.location.reload();
-      }
-    } catch (error) {
-      console.log("Erro ao excluir cartão ", error);
-    }
-  }
+  };  
+  
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -583,124 +457,7 @@ export default function Profile() {
               </div>
             )}
 
-            {activeTab === "pagamentos" && (
-              <div className="space-y-6">
-                <div className="bg-white p-6 rounded-lg border">
-                  <h3 className="text-lg font-semibold mb-4">
-                    Métodos de pagamento
-                  </h3>
-                  <div className="space-y-4">
-                    {cards?.map((card) => (
-                      <div
-                        key={card._id}
-                        className={cn(
-                          "flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg gap-4",
-                          card.isDefault && "border-[#02488C] bg-blue-50"
-                        )}
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="min-w-[60px] w-15 h-10 rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-md relative overflow-hidden">
-                            {card.brand === "VISA" && (
-                              <div className="w-full h-full bg-gradient-to-r from-blue-600 to-blue-700 flex items-center justify-center relative">
-                                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent"></div>
-                                <span className="relative z-10 font-bold tracking-wider">
-                                  VISA
-                                </span>
-                              </div>
-                            )}
-                            {card.brand === "MASTERCARD" && (
-                              <div className="w-full h-full bg-gradient-to-r from-red-500 to-orange-500 flex items-center justify-center relative">
-                                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent"></div>
-                                <div className="relative z-10 flex items-center">
-                                  <div className="w-4 h-4 bg-red-600 rounded-full opacity-80"></div>
-                                  <div className="w-4 h-4 bg-yellow-400 rounded-full -ml-2 opacity-80"></div>
-                                </div>
-                              </div>
-                            )}
-                            {card.brand === "AMEX" && (
-                              <div className="w-full h-full bg-gradient-to-r from-green-600 to-teal-600 flex items-center justify-center relative">
-                                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent"></div>
-                                <span className="relative z-10 font-bold text-xs">
-                                  AMEX
-                                </span>
-                              </div>
-                            )}
-                            {card.brand === "ELO" && (
-                              <div className="w-full h-full bg-gradient-to-r from-yellow-500 to-orange-500 flex items-center justify-center relative">
-                                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent"></div>
-                                <span className="relative z-10 font-bold text-xs">
-                                  ELO
-                                </span>
-                              </div>
-                            )}
-                            {card.brand &&
-                              !["VISA", "MASTERCARD", "AMEX", "ELO"].includes(
-                                card.brand
-                              ) && (
-                                <div className="w-full h-full bg-gradient-to-r from-gray-600 to-gray-700 flex items-center justify-center relative">
-                                  <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent"></div>
-                                  <span className="relative z-10 font-bold text-xs">
-                                    {card.brand}
-                                  </span>
-                                </div>
-                              )}
-                            {!card.brand && (
-                              <div className="w-full h-full bg-gradient-to-r from-gray-600 to-gray-700 flex items-center justify-center relative">
-                                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent"></div>
-                                <span className="relative z-10 font-bold text-xs">
-                                  Cartão
-                                </span>
-                              </div>
-                            )}
-                            {/* Chip do cartão */}
-                            <div className="absolute bottom-1 left-1 w-2 h-1.5 bg-yellow-300 rounded-sm opacity-60"></div>
-                          </div>
-                          <div className="flex-grow">
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-medium">Cartão de crédito</h4>
-                              {card.isDefault && (
-                                <span className="bg-blue-100 text-[#02488C] text-xs px-2 py-1 rounded-full">
-                                  Principal
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-sm text-gray-500">
-                              Terminando em {card.cardNumber.slice(-4)}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                          {!card.isDefault && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setDefaultCard(card._id)}
-                              className="text-[#02488C] border-[#02488C] hover:bg-blue-50 w-full sm:w-auto"
-                            >
-                              Definir como principal
-                            </Button>
-                          )}
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-red-600 hover:text-red-700 cursor-pointer w-full sm:w-auto"
-                            onClick={() => handleDeleteCard(card._id)}
-                          >
-                            Remover
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                    <Button
-                      onClick={() => setShowAddCard(true)}
-                      className="w-full bg-[#02488C] text-white hover:bg-[#023a6f] cursor-pointer"
-                    >
-                      Adicionar novo cartão
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
+            
 
             {activeTab === "privacidade" && (
               <div className="space-y-6">
@@ -856,14 +613,7 @@ export default function Profile() {
             )}
           </div>
         </div>
-      </main>
-
-      <AddCardForm
-        isOpen={showAddCard}
-        onClose={() => setShowAddCard(false)}
-        onSave={handleAddCard}
-      />
-
+      </main>  
       <Footer />
     </div>
   );
