@@ -62,6 +62,7 @@ export default function Profile() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const [formData, setFormData] = useState<UserInterface>({
+    isPublic: false,
     name: "",
     email: "",
     phoneNumber: "",
@@ -75,7 +76,7 @@ export default function Profile() {
     emailVerified: "false",
     tickets: [],
     type: "user",
-    likedEvents: []
+    likedEvents: [],
   });
   const [statusSaving, setStatusSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
@@ -83,43 +84,88 @@ export default function Profile() {
   const [showAddCard, setShowAddCard] = useState(false);
 
   const token = localStorage.getItem("token");
+  // Função para detectar a bandeira do cartão (fora do handleAddCard para reuso)
+  const detectCardBrand = (cardNumber: string) => {
+    const cleanNumber = cardNumber.replace(/\s/g, "");
+    if (cleanNumber.startsWith("4")) return "VISA";
+    if (cleanNumber.startsWith("5") || cleanNumber.startsWith("2"))
+      return "MASTERCARD";
+    if (cleanNumber.startsWith("34") || cleanNumber.startsWith("37"))
+      return "AMEX";
+    if (
+      cleanNumber.startsWith("636368") ||
+      cleanNumber.startsWith("438935") ||
+      cleanNumber.startsWith("504175")
+    )
+      return "ELO";
+    return "OUTRO";
+  };
+
+  async function getUserCards() {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_GET_USER_CARD
+        }`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.data.cards) {
+        // Preenche o brand se não existir
+        const cardsWithBrand = response.data.cards.map((card: Cards) => ({
+          ...card,
+          brand: card.brand || detectCardBrand(card.cardNumber),
+        }));
+        setCards(cardsWithBrand);
+      }
+    } catch (error) {
+      console.log("Erro ao buscar cartões", error);
+    }
+  }
 
   useEffect(() => {
     if (user) {
       setFormData(user);
+      getUserCards();
     }
   }, [user]);
 
-  const [cards, setCards] = useState([
-    {
-      id: "1",
-      last4: "4242",
-      brand: "VISA",
-      isDefault: true,
-    },
-    {
-      id: "2",
-      last4: "5555",
-      brand: "MASTERCARD",
-      isDefault: false,
-    },
-    {
-      id: "3",
-      last4: "3782",
-      brand: "AMEX",
-      isDefault: false,
-    },
-  ]);
+  interface Cards {
+    _id: string;
+    cardNumber: string;
+    expiryDate: string;
+    cvv: string;
+    cardholderName: string;
+    isDefault: boolean;
+    brand?: string;
+  }
+  const [cards, setCards] = useState<Cards[] | null>([]);
 
-  const setDefaultCard = (cardId: string) => {
-    setCards(
-      cards.map((card) => ({
-        ...card,
-        isDefault: card.id === cardId,
-      }))
-    );
+  const setDefaultCard = async (cardId: string) => {
+    try {
+      const response = await axios.put(
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_UPDATE_USER_CARD_SET_DEFAULT
+        }`,
+        { cardId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (!cards) {
+        return;
+      }
+      if (response.data.updated) {
+        setCards(
+          cards.map((card) => ({
+            ...card,
+            isDefault: card._id === cardId,
+          }))
+        );
+        console.log(`Cartão ${cardId} definido como padrão`);
+      }
 
-    console.log(`Cartão ${cardId} definido como padrão`);
+    } catch (error) {
+      console.log("Erro ao definir cartão como padrão", error);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -156,30 +202,66 @@ export default function Profile() {
       setLoading(true);
       setStatusSaving(false);
 
-      const submitData = new FormData();
-
-      Object.entries(formData).forEach(([key, value]) => {
-        if (value !== undefined) {
-          submitData.append(key, value as string);
+      // Campos permitidos para atualização
+      const allowedFields = [
+        "name",
+        "email",
+        "phoneNumber",
+        "birthdaydata",
+        "facebook",
+        "instagram",
+        "mysite",
+        "cpf",
+        "avatar",
+        "isPublic",
+      ];
+      const filteredData: Record<string, any> = {};
+      allowedFields.forEach((field) => {
+        if ((formData as Record<string, any>)[field] !== undefined) {
+          filteredData[field] = (formData as Record<string, any>)[field];
         }
       });
 
+      let response;
       if (selectedFile) {
+        // Se tem imagem, usa FormData
+        const submitData = new FormData();
+        Object.entries(filteredData).forEach(([key, value]) => {
+          if (typeof value === "boolean") {
+            submitData.append(key, value ? "true" : "false");
+          } else if (value !== undefined && value !== null) {
+            submitData.append(key, value as string);
+          }
+        });
         submitData.append("profileImage", selectedFile);
-      }
 
-      const response = await axios.put(
-        `${import.meta.env.VITE_API_BASE_URL}${
-          import.meta.env.VITE_UPDATE_USER_DATA
-        }`,
-        submitData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+        response = await axios.put(
+          `${import.meta.env.VITE_API_BASE_URL}${
+            import.meta.env.VITE_UPDATE_USER_DATA
+          }`,
+          submitData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+      } else {
+        // Se não tem imagem, envia JSON puro
+        response = await axios.put(
+          `${import.meta.env.VITE_API_BASE_URL}${
+            import.meta.env.VITE_UPDATE_USER_DATA
+          }`,
+          filteredData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      }
 
       if (response.data.updated) {
         setStatusSaving(true);
@@ -224,46 +306,45 @@ export default function Profile() {
   const handleAddCard = (cardData: any) => {
     console.log("Novo cartão adicionado:", cardData);
 
-    // Função para detectar a bandeira do cartão
-    const detectCardBrand = (cardNumber: string) => {
-      const cleanNumber = cardNumber.replace(/\s/g, "");
-
-      if (cleanNumber.startsWith("4")) return "VISA";
-      if (cleanNumber.startsWith("5") || cleanNumber.startsWith("2"))
-        return "MASTERCARD";
-      if (cleanNumber.startsWith("34") || cleanNumber.startsWith("37"))
-        return "AMEX";
-      if (
-        cleanNumber.startsWith("636368") ||
-        cleanNumber.startsWith("438935") ||
-        cleanNumber.startsWith("504175")
-      )
-        return "ELO";
-      return "OUTRO";
-    };
-
     // Criar um novo cartão com os dados recebidos
-    const newCard = {
-      id: Date.now().toString(),
-      last4: cardData.cardNumber.slice(-4),
-      brand: detectCardBrand(cardData.cardNumber),
+    const newCard: Cards = {
+      _id: cardData._id || Math.random().toString(36).substr(2, 9),
+      cardNumber: cardData.cardNumber,
+      expiryDate: cardData.expiryDate,
+      cvv: cardData.cvv,
+      cardholderName: cardData.cardholderName,
       isDefault: cardData.isDefault || false,
+      brand: cardData.brand || detectCardBrand(cardData.cardNumber),
     };
 
-    // Se o novo cartão for definido como padrão, atualiza os outros
+    let updatedCards = cards ? [...cards] : [];
     if (newCard.isDefault) {
-      setCards(
-        cards.map((card) => ({
-          ...card,
-          isDefault: false,
-        }))
-      );
+      updatedCards = updatedCards.map((card) => ({
+        ...card,
+        isDefault: false,
+      }));
     }
-
-    // Adiciona o novo cartão à lista
-    setCards([...cards, newCard]);
+    updatedCards.push(newCard);
+    setCards(updatedCards);
     setShowAddCard(false);
   };
+
+  async function handleDeleteCard(cardId: string) {
+    try {
+      const response = await axios.delete(
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_DELETE_USER_CARD
+        }`,
+        { headers: { Authorization: `Bearer ${token}` }, data: { cardId } }
+      );
+
+      if (response.data.deleted) {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.log("Erro ao excluir cartão ", error);
+    }
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -509,9 +590,9 @@ export default function Profile() {
                     Métodos de pagamento
                   </h3>
                   <div className="space-y-4">
-                    {cards.map((card) => (
+                    {cards?.map((card) => (
                       <div
-                        key={card.id}
+                        key={card._id}
                         className={cn(
                           "flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg gap-4",
                           card.isDefault && "border-[#02488C] bg-blue-50"
@@ -552,13 +633,22 @@ export default function Profile() {
                                 </span>
                               </div>
                             )}
-                            {!["VISA", "MASTERCARD", "AMEX", "ELO"].includes(
-                              card.brand
-                            ) && (
+                            {card.brand &&
+                              !["VISA", "MASTERCARD", "AMEX", "ELO"].includes(
+                                card.brand
+                              ) && (
+                                <div className="w-full h-full bg-gradient-to-r from-gray-600 to-gray-700 flex items-center justify-center relative">
+                                  <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent"></div>
+                                  <span className="relative z-10 font-bold text-xs">
+                                    {card.brand}
+                                  </span>
+                                </div>
+                              )}
+                            {!card.brand && (
                               <div className="w-full h-full bg-gradient-to-r from-gray-600 to-gray-700 flex items-center justify-center relative">
                                 <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent"></div>
                                 <span className="relative z-10 font-bold text-xs">
-                                  {card.brand}
+                                  Cartão
                                 </span>
                               </div>
                             )}
@@ -575,7 +665,7 @@ export default function Profile() {
                               )}
                             </div>
                             <p className="text-sm text-gray-500">
-                              Terminando em {card.last4}
+                              Terminando em {card.cardNumber.slice(-4)}
                             </p>
                           </div>
                         </div>
@@ -584,7 +674,7 @@ export default function Profile() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => setDefaultCard(card.id)}
+                              onClick={() => setDefaultCard(card._id)}
                               className="text-[#02488C] border-[#02488C] hover:bg-blue-50 w-full sm:w-auto"
                             >
                               Definir como principal
@@ -594,6 +684,7 @@ export default function Profile() {
                             variant="outline"
                             size="sm"
                             className="text-red-600 hover:text-red-700 cursor-pointer w-full sm:w-auto"
+                            onClick={() => handleDeleteCard(card._id)}
                           >
                             Remover
                           </Button>
@@ -626,11 +717,17 @@ export default function Profile() {
                         </p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" className="sr-only peer" />
+                        <input
+                          type="checkbox"
+                          className="sr-only peer"
+                          name="isPublic"
+                          defaultChecked={user?.isPublic}
+                          onChange={handleChange}
+                        />
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#02488C]"></div>
                       </label>
                     </div>
-                    <div className="flex items-center justify-between">
+                    {/* <div className="flex items-center justify-between">
                       <div>
                         <h4 className="font-medium">
                           Compartilhar dados de uso
@@ -644,7 +741,7 @@ export default function Profile() {
                         <input type="checkbox" className="sr-only peer" />
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#02488C]"></div>
                       </label>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 

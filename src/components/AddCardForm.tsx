@@ -1,173 +1,207 @@
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { CreditCard, Lock, X } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CreditCard, Lock, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import axios from "axios";
 
 interface AddCardFormProps {
-  onClose?: () => void
-  onSave?: (cardData: CardData) => void
-  isOpen?: boolean
+  onClose?: () => void;
+  onSave?: (cardData: CardData) => void;
+  isOpen?: boolean;
 }
 
 interface CardData {
-  cardNumber: string
-  expiryDate: string
-  cvv: string
-  cardholderName: string
-  isDefault: boolean
+  cardNumber: string;
+  expiryDate: string;
+  cvv: string;
+  cardholderName: string;
+  isDefault: boolean;
 }
 
-export default function AddCardForm({ onClose, onSave, isOpen = true }: AddCardFormProps) {
+export default function AddCardForm({
+  onClose,
+  onSave,
+  isOpen = true,
+}: AddCardFormProps) {
   const [formData, setFormData] = useState<CardData>({
     cardNumber: "",
     expiryDate: "",
     cvv: "",
     cardholderName: "",
     isDefault: false,
-  })
+  });
 
-  const [errors, setErrors] = useState<Partial<CardData>>({})
-  const [loading, setLoading] = useState(false)
+  console.log(formData);
+  
+
+  const [errors, setErrors] = useState<Partial<CardData>>({});
+  const [loading, setLoading] = useState(false);
 
   // Função para formatar número do cartão
   const formatCardNumber = (value: string) => {
-    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "")
-    const matches = v.match(/\d{4,16}/g)
-    const match = (matches && matches[0]) || ""
-    const parts = []
+    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
+    const matches = v.match(/\d{4,16}/g);
+    const match = (matches && matches[0]) || "";
+    const parts = [];
 
     for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4))
+      parts.push(match.substring(i, i + 4));
     }
 
     if (parts.length) {
-      return parts.join(" ")
+      return parts.join(" ");
     } else {
-      return v
+      return v;
     }
-  }
+  };
 
   // Função para formatar data de expiração
   const formatExpiryDate = (value: string) => {
-    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "")
+    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
     if (v.length >= 2) {
-      return v.substring(0, 2) + "/" + v.substring(2, 4)
+      return v.substring(0, 2) + "/" + v.substring(2, 4);
     }
-    return v
-  }
+    return v;
+  };
 
   // Detectar tipo do cartão
   const getCardType = (number: string) => {
-    const cleanNumber = number.replace(/\s/g, "")
-    if (cleanNumber.startsWith("4")) return "VISA"
-    if (cleanNumber.startsWith("5") || cleanNumber.startsWith("2")) return "MASTERCARD"
-    if (cleanNumber.startsWith("34") || cleanNumber.startsWith("37")) return "AMEX"
-    if (cleanNumber.startsWith("636368") || cleanNumber.startsWith("438935") || cleanNumber.startsWith("504175"))
-      return "ELO"
-    return "OUTRO"
-  }
+    const cleanNumber = number.replace(/\s/g, "");
+    if (cleanNumber.startsWith("4")) return "VISA";
+    if (cleanNumber.startsWith("5") || cleanNumber.startsWith("2"))
+      return "MASTERCARD";
+    if (cleanNumber.startsWith("34") || cleanNumber.startsWith("37"))
+      return "AMEX";
+    if (
+      cleanNumber.startsWith("636368") ||
+      cleanNumber.startsWith("438935") ||
+      cleanNumber.startsWith("504175")
+    )
+      return "ELO";
+    return "OUTRO";
+  };
 
-  const handleInputChange = (field: keyof CardData, value: string | boolean) => {
-    let formattedValue = value
+  const handleInputChange = (
+    field: keyof CardData,
+    value: string | boolean
+  ) => {
+    let formattedValue = value;
 
     if (field === "cardNumber" && typeof value === "string") {
-      formattedValue = formatCardNumber(value)
+      formattedValue = formatCardNumber(value);
     } else if (field === "expiryDate" && typeof value === "string") {
-      formattedValue = formatExpiryDate(value)
+      formattedValue = formatExpiryDate(value);
     } else if (field === "cvv" && typeof value === "string") {
-      formattedValue = value.replace(/[^0-9]/g, "").substring(0, 4)
+      formattedValue = value.replace(/[^0-9]/g, "").substring(0, 4);
     }
 
     setFormData((prev) => ({
       ...prev,
       [field]: formattedValue,
-    }))
+    }));
 
     if (errors[field]) {
       setErrors((prev) => ({
         ...prev,
         [field]: undefined,
-      }))
+      }));
     }
-  }
+  };
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<CardData> = {}
+    const newErrors: Partial<CardData> = {};
 
-    const cleanCardNumber = formData.cardNumber.replace(/\s/g, "")
+    const cleanCardNumber = formData.cardNumber.replace(/\s/g, "");
     if (!cleanCardNumber) {
-      newErrors.cardNumber = "Número do cartão é obrigatório"
+      newErrors.cardNumber = "Número do cartão é obrigatório";
     } else if (cleanCardNumber.length < 13 || cleanCardNumber.length > 19) {
-      newErrors.cardNumber = "Número do cartão inválido"
+      newErrors.cardNumber = "Número do cartão inválido";
     }
 
     if (!formData.expiryDate) {
-      newErrors.expiryDate = "Data de expiração é obrigatória"
+      newErrors.expiryDate = "Data de expiração é obrigatória";
     } else if (!/^\d{2}\/\d{2}$/.test(formData.expiryDate)) {
-      newErrors.expiryDate = "Formato inválido (MM/AA)"
+      newErrors.expiryDate = "Formato inválido (MM/AA)";
     } else {
-      const [month, year] = formData.expiryDate.split("/")
-      const currentDate = new Date()
-      const currentYear = currentDate.getFullYear() % 100
-      const currentMonth = currentDate.getMonth() + 1
+      const [month, year] = formData.expiryDate.split("/");
+      const currentDate = new Date();
+      const currentYear = currentDate.getFullYear() % 100;
+      const currentMonth = currentDate.getMonth() + 1;
 
       if (Number.parseInt(month) < 1 || Number.parseInt(month) > 12) {
-        newErrors.expiryDate = "Mês inválido"
+        newErrors.expiryDate = "Mês inválido";
       } else if (
         Number.parseInt(year) < currentYear ||
-        (Number.parseInt(year) === currentYear && Number.parseInt(month) < currentMonth)
+        (Number.parseInt(year) === currentYear &&
+          Number.parseInt(month) < currentMonth)
       ) {
-        newErrors.expiryDate = "Cartão expirado"
+        newErrors.expiryDate = "Cartão expirado";
       }
     }
 
     if (!formData.cvv) {
-      newErrors.cvv = "CVV é obrigatório"
+      newErrors.cvv = "CVV é obrigatório";
     } else if (formData.cvv.length < 3 || formData.cvv.length > 4) {
-      newErrors.cvv = "CVV inválido"
+      newErrors.cvv = "CVV inválido";
     }
 
     if (!formData.cardholderName.trim()) {
-      newErrors.cardholderName = "Nome do portador é obrigatório"
+      newErrors.cardholderName = "Nome do portador é obrigatório";
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!validateForm()) return
+    if (!validateForm()) return;
 
-    setLoading(true)
+    setLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      onSave?.(formData)
-      onClose?.()
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_POST_USER_CARD
+        }`,
+        { formData },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );      
+      if (response.data.updated) {
+        onSave?.(formData);
+        onClose?.();        
+      }
     } catch (error) {
-      console.error("Erro ao salvar cartão:", error)
+      console.error("Erro ao salvar cartão:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
-  const cardType = getCardType(formData.cardNumber)
+  const cardType = getCardType(formData.cardNumber);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-50">
       <Card className="w-full max-w-md">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <CardTitle className="text-lg font-semibold">Adicionar Cartão</CardTitle>
-          <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0">
+          <CardTitle className="text-lg font-semibold">
+            Adicionar Cartão
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="h-8 w-8 p-0"
+          >
             <X className="h-4 w-4" />
           </Button>
         </CardHeader>
@@ -214,7 +248,9 @@ export default function AddCardForm({ onClose, onSave, isOpen = true }: AddCardF
                   {/* Logo da bandeira */}
                   <div className="text-right">
                     {cardType === "VISA" && (
-                      <div className="text-white font-bold italic text-xl tracking-tighter">VISA</div>
+                      <div className="text-white font-bold italic text-xl tracking-tighter">
+                        VISA
+                      </div>
                     )}
                     {cardType === "MASTERCARD" && (
                       <div className="flex items-center">
@@ -222,29 +258,44 @@ export default function AddCardForm({ onClose, onSave, isOpen = true }: AddCardF
                         <div className="w-6 h-6 bg-yellow-400 rounded-full -ml-3 opacity-80"></div>
                       </div>
                     )}
-                    {cardType === "AMEX" && <div className="text-white font-bold text-lg">AMEX</div>}
-                    {cardType === "ELO" && <div className="text-white font-bold text-lg">ELO</div>}
+                    {cardType === "AMEX" && (
+                      <div className="text-white font-bold text-lg">AMEX</div>
+                    )}
+                    {cardType === "ELO" && (
+                      <div className="text-white font-bold text-lg">ELO</div>
+                    )}
                     {cardType === "OUTRO" && <CreditCard className="h-6 w-6" />}
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <div className="text-lg font-mono tracking-wider">{formData.cardNumber || "•••• •••• •••• ••••"}</div>
+                  <div className="text-lg font-mono tracking-wider">
+                    {formData.cardNumber || "•••• •••• •••• ••••"}
+                  </div>
                   <div className="flex justify-between text-sm">
                     <div>
                       <div className="text-xs opacity-75">PORTADOR</div>
-                      <div className="uppercase font-medium">{formData.cardholderName || "NOME DO PORTADOR"}</div>
+                      <div className="uppercase font-medium">
+                        {formData.cardholderName || "NOME DO PORTADOR"}
+                      </div>
                     </div>
                     <div>
                       <div className="text-xs opacity-75">VÁLIDO ATÉ</div>
-                      <div className="font-medium">{formData.expiryDate || "MM/AA"}</div>
+                      <div className="font-medium">
+                        {formData.expiryDate || "MM/AA"}
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Elementos decorativos */}
                 <div className="absolute bottom-2 right-2 opacity-30">
-                  <svg width="40" height="26" viewBox="0 0 40 26" className="text-white">
+                  <svg
+                    width="40"
+                    height="26"
+                    viewBox="0 0 40 26"
+                    className="text-white"
+                  >
                     <path
                       d="M10.5 25.5C4.7 25.5 0 20.8 0 15C0 9.2 4.7 4.5 10.5 4.5C16.3 4.5 21 9.2 21 15C21 20.8 16.3 25.5 10.5 25.5ZM29.5 25.5C23.7 25.5 19 20.8 19 15C19 9.2 23.7 4.5 29.5 4.5C35.3 4.5 40 9.2 40 15C40 20.8 35.3 25.5 29.5 25.5Z"
                       fill="currentColor"
@@ -257,46 +308,72 @@ export default function AddCardForm({ onClose, onSave, isOpen = true }: AddCardF
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Número do cartão</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Número do cartão
+                </label>
                 <Input
                   type="text"
                   placeholder="1234 5678 9012 3456"
                   value={formData.cardNumber}
-                  onChange={(e) => handleInputChange("cardNumber", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("cardNumber", e.target.value)
+                  }
                   maxLength={19}
                   className={cn(errors.cardNumber && "border-red-500")}
                 />
-                {errors.cardNumber && <p className="text-red-500 text-xs mt-1">{errors.cardNumber}</p>}
+                {errors.cardNumber && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.cardNumber}
+                  </p>
+                )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nome do portador</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nome do portador
+                </label>
                 <Input
                   type="text"
                   placeholder="Nome como está no cartão"
                   value={formData.cardholderName}
-                  onChange={(e) => handleInputChange("cardholderName", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("cardholderName", e.target.value)
+                  }
                   className={cn(errors.cardholderName && "border-red-500")}
                 />
-                {errors.cardholderName && <p className="text-red-500 text-xs mt-1">{errors.cardholderName}</p>}
+                {errors.cardholderName && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.cardholderName}
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Data de expiração</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Data de expiração
+                  </label>
                   <Input
                     type="text"
                     placeholder="MM/AA"
                     value={formData.expiryDate}
-                    onChange={(e) => handleInputChange("expiryDate", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("expiryDate", e.target.value)
+                    }
                     maxLength={5}
                     className={cn(errors.expiryDate && "border-red-500")}
                   />
-                  {errors.expiryDate && <p className="text-red-500 text-xs mt-1">{errors.expiryDate}</p>}
+                  {errors.expiryDate && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.expiryDate}
+                    </p>
+                  )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">CVV</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    CVV
+                  </label>
                   <div className="relative">
                     <Input
                       type="text"
@@ -308,7 +385,9 @@ export default function AddCardForm({ onClose, onSave, isOpen = true }: AddCardF
                     />
                     <Lock className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   </div>
-                  {errors.cvv && <p className="text-red-500 text-xs mt-1">{errors.cvv}</p>}
+                  {errors.cvv && (
+                    <p className="text-red-500 text-xs mt-1">{errors.cvv}</p>
+                  )}
                 </div>
               </div>
 
@@ -317,7 +396,9 @@ export default function AddCardForm({ onClose, onSave, isOpen = true }: AddCardF
                   type="checkbox"
                   id="isDefault"
                   checked={formData.isDefault}
-                  onChange={(e) => handleInputChange("isDefault", e.target.checked)}
+                  onChange={(e) =>
+                    handleInputChange("isDefault", e.target.checked)
+                  }
                   className="rounded border-gray-300 text-[#02488C] focus:ring-[#02488C]"
                 />
                 <label htmlFor="isDefault" className="text-sm text-gray-700">
@@ -328,10 +409,20 @@ export default function AddCardForm({ onClose, onSave, isOpen = true }: AddCardF
 
             {/* Botões */}
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
-              <Button type="button" variant="outline" onClick={onClose} className="flex-1" disabled={loading}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                className="flex-1"
+                disabled={loading}
+              >
                 Cancelar
               </Button>
-              <Button type="submit" className="flex-1 bg-[#02488C] text-white hover:bg-[#023a6f]" disabled={loading}>
+              <Button
+                type="submit"
+                className="flex-1 bg-[#02488C] text-white hover:bg-[#023a6f]"
+                disabled={loading}
+              >
                 {loading ? "Salvando..." : "Salvar Cartão"}
               </Button>
             </div>
@@ -344,5 +435,5 @@ export default function AddCardForm({ onClose, onSave, isOpen = true }: AddCardF
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

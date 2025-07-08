@@ -15,4 +15,5 @@ export default interface UserInterface {
   avatar: string,
   tickets: UserTicketsInterface[]
   likedEvents: string[]
+  isPublic: boolean;
 }
