@@ -45,15 +45,14 @@ const Tab = ({ isActive, children, onClick, className }: TabProps) => {
 };
 
 const tabOptions = [
-  { value: "dados", label: "Conta" },
-  { value: "pagamentos", label: "Pagamentos" },
+  { value: "dados", label: "Conta" },  
   { value: "privacidade", label: "Privacidade" },
   { value: "avancada", label: "Avançada" },
 ] as const;
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState<
-    "dados" | "pagamentos" | "privacidade" | "avancada"
+    "dados" | "privacidade" | "avancada"
   >("dados");
   const { user } = useUser();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -250,7 +249,7 @@ export default function Profile() {
             <Select
               value={activeTab}
               onValueChange={(
-                value: "dados" | "pagamentos" | "privacidade" | "avancada"
+                value: "dados" | "privacidade" | "avancada"
               ) => setActiveTab(value)}
             >
               <SelectTrigger className="w-full">
