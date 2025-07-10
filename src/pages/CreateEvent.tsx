@@ -60,19 +60,22 @@ const CATEGORIES = [
 ];
 
 export default function CreateEvent() {
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(4);
   const [loading, setLoading] = useState(false);
   const [created, setCreated] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [clickedGratuito, setClickedGratuito] = useState(false);
   const [buscandoCoordenadas, setBuscandoCoordenadas] = useState(false);
   const [coordenadasEncontradas, setCoordenadasEncontradas] = useState(false);
+  const [buscandoSugestoes, setBuscandoSugestoes] = useState(false);
+  const [sugestoesEndereco, setSugestoesEndereco] = useState<any[]>([]);
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
   const [municipiosPorUF, setMunicipiosPorUF] = useState<
     Record<string, string[]>
   >({});
   console.log(errors);
 
-  const [formData, setFormData] = useState<FormDataInterface>({
+  const [formData, setFormData] = useState<FormDataInterface & { searchAddress?: string }>({
     title: "",
     image: null,
     category: "",
@@ -99,6 +102,7 @@ export default function CreateEvent() {
     acceptedTerms: false,
     token: localStorage.getItem("token"),
     status: "active",
+    searchAddress: "",
   });
 
   // Função de busca de estado
@@ -156,6 +160,176 @@ export default function CreateEvent() {
       console.error('Erro ao buscar coordenadas:', error);
     } finally {
       setBuscandoCoordenadas(false);
+    }
+  };
+
+  // Função para buscar sugestões de endereço
+  const buscarSugestoesEndereco = async (query: string) => {
+    try {
+      setBuscandoSugestoes(true);
+      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+      
+      // Usar apenas Geocoding API (sem problemas de CORS)
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${apiKey}&region=br&language=pt-BR`
+      );
+      const data = await response.json();
+      
+      if (data.results && data.results.length > 0) {
+        // Formatar resultados do geocoding
+        const formattedResults = data.results.slice(0, 5).map((result: any) => ({
+          place_id: null,
+          description: result.formatted_address,
+          structured_formatting: {
+            main_text: result.formatted_address.split(',')[0],
+            secondary_text: result.formatted_address.split(',').slice(1).join(',').trim()
+          },
+          formatted_address: result.formatted_address,
+          address_components: result.address_components,
+          geometry: result.geometry
+        }));
+        setSugestoesEndereco(formattedResults);
+      } else {
+        setSugestoesEndereco([]);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar sugestões:', error);
+      setSugestoesEndereco([]);
+    } finally {
+      setBuscandoSugestoes(false);
+    }
+  };
+
+  // Função para selecionar uma sugestão
+  const selecionarSugestao = async (sugestao: any) => {
+    try {
+      // Usar dados já obtidos do geocoding
+      const location = sugestao.geometry.location;
+      const addressComponents = sugestao.address_components;
+      
+      // Extrair informações do endereço
+      let street = "";
+      let number = "";
+      let neighborhood = "";
+      let city = "";
+      let state = "";
+      let zipCode = "";
+      let venueName = "";
+      
+      // Tentar extrair nome do estabelecimento do endereço
+      const addressParts = sugestao.formatted_address.split(',');
+      if (addressParts.length > 0) {
+        venueName = addressParts[0].trim();
+      }
+      
+      addressComponents.forEach((component: any) => {
+        const types = component.types;
+        if (types.includes("route")) {
+          street = component.long_name;
+        } else if (types.includes("street_number")) {
+          number = component.long_name;
+        } else if (types.includes("sublocality") || types.includes("neighborhood")) {
+          neighborhood = component.long_name;
+        } else if (types.includes("locality")) {
+          city = component.long_name;
+        } else if (types.includes("administrative_area_level_1")) {
+          state = component.short_name;
+        } else if (types.includes("postal_code")) {
+          zipCode = component.long_name;
+        }
+      });
+      
+      // Atualizar formulário com todos os dados
+      setFormData(prev => ({
+        ...prev,
+        latitude: location.lat.toString(),
+        longitude: location.lng.toString(),
+        venueName: venueName || prev.venueName,
+        street: street || prev.street,
+        number: number || prev.number,
+        neighborhood: neighborhood || prev.neighborhood,
+        city: city || prev.city,
+        state: state || prev.state,
+        zipCode: zipCode || prev.zipCode,
+        searchAddress: sugestao.formatted_address
+      }));
+      
+      setCoordenadasEncontradas(true);
+      toast.success(`Local selecionado: ${venueName || sugestao.formatted_address}`);
+      
+      // Limpar sugestões
+      setSugestoesEndereco([]);
+      
+    } catch (error) {
+      console.error('Erro ao selecionar sugestão:', error);
+      toast.error('Erro ao selecionar local. Tente novamente.');
+    }
+  };
+
+  // Função para buscar endereço reverso usando coordenadas
+  const buscarEnderecoPorCoordenadas = async (lat: number, lng: number) => {
+    try {
+      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`
+      );
+      const data = await response.json();
+      
+      if (data.results && data.results.length > 0) {
+        const result = data.results[0];
+        const addressComponents = result.address_components;
+        
+        // Extrair informações do endereço
+        let street = "";
+        let number = "";
+        let neighborhood = "";
+        let city = "";
+        let state = "";
+        let zipCode = "";
+        let venueName = "";
+        
+        // Tentar extrair o nome do local (establishment)
+        if (result.types && result.types.includes("establishment")) {
+          venueName = result.name || "";
+        }
+        
+        addressComponents.forEach((component: any) => {
+          const types = component.types;
+          if (types.includes("route")) {
+            street = component.long_name;
+          } else if (types.includes("street_number")) {
+            number = component.long_name;
+          } else if (types.includes("sublocality") || types.includes("neighborhood")) {
+            neighborhood = component.long_name;
+          } else if (types.includes("locality")) {
+            city = component.long_name;
+          } else if (types.includes("administrative_area_level_1")) {
+            state = component.short_name;
+          } else if (types.includes("postal_code")) {
+            zipCode = component.long_name;
+          }
+        });
+        
+        // Atualizar o formulário com os dados encontrados
+        setFormData(prev => ({
+          ...prev,
+          latitude: lat.toString(),
+          longitude: lng.toString(),
+          venueName: venueName || prev.venueName,
+          street: street || prev.street,
+          number: number || prev.number,
+          neighborhood: neighborhood || prev.neighborhood,
+          city: city || prev.city,
+          state: state || prev.state,
+          zipCode: zipCode || prev.zipCode
+        }));
+        
+        setCoordenadasEncontradas(true);
+        toast.success(`Localização selecionada! ${venueName ? `Local: ${venueName}` : 'Endereço atualizado automaticamente.'}`);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar endereço por coordenadas:', error);
+      toast.error('Erro ao buscar endereço. Tente novamente.');
     }
   };
 
@@ -325,7 +499,17 @@ export default function CreateEvent() {
           data.append("image", formData.image);
         }
 
-        const { image, ...rest } = formData;
+        // Gerar URL do mapa antes de enviar
+        const mapUrl = formData.latitude && formData.longitude 
+          ? `https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&q=${formData.latitude},${formData.longitude}&zoom=15`
+          : "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1963.4955007216295!2d-48.337388507953854!3d-10.181385600694082!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9324cb6b090918a5%3A0xec2ad53ac4f6cb12!2sBrasif%20M%C3%A1quinas!5e0!3m2!1spt-BR!2sbr!4v1749832543882!5m2!1spt-BR!2sbr";
+
+        const formDataToSend = {
+          ...formData,
+          mapUrl: mapUrl
+        };
+
+        const { image, ...rest } = formDataToSend;
         data.append("formData", JSON.stringify(rest));
 
         console.log(formData);
@@ -1003,11 +1187,97 @@ export default function CreateEvent() {
               </div>
             </div>
 
+            {/* Busca de Local */}
+            <div className="mt-8">
+              <h3 className="text-lg font-medium text-gray-800 mb-4">
+                Buscar Local
+              </h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Digite o nome do local ou endereço
+                  </label>
+                  <div className="relative">
+                    <Input
+                      type="text"
+                      placeholder="Ex: Shopping Ibirapuera, Teatro Municipal, Rua das Flores 123..."
+                      className="w-full pr-10"
+                      value={formData.searchAddress || ''}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFormData(prev => ({ ...prev, searchAddress: value }));
+                        
+                        // Limpar timeout anterior
+                        if (searchTimeout) {
+                          clearTimeout(searchTimeout);
+                        }
+                        
+                        // Buscar sugestões com debounce
+                        if (value.length > 2) {
+                          const timeout = setTimeout(() => {
+                            buscarSugestoesEndereco(value);
+                          }, 500); // 500ms de delay
+                          setSearchTimeout(timeout);
+                        } else {
+                          setSugestoesEndereco([]);
+                        }
+                      }}
+                    />
+                    {buscandoSugestoes && (
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Lista de sugestões */}
+                  {sugestoesEndereco.length > 0 && (
+                    <div className="mt-2 border border-gray-200 rounded-lg bg-white shadow-lg max-h-60 overflow-y-auto">
+                      {sugestoesEndereco.map((sugestao, index) => (
+                        <div
+                          key={index}
+                          className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                          onClick={() => selecionarSugestao(sugestao)}
+                        >
+                          <div className="font-medium text-gray-900">
+                            {sugestao.structured_formatting?.main_text || sugestao.name || sugestao.description?.split(',')[0]}
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            {sugestao.structured_formatting?.secondary_text || sugestao.formatted_address || sugestao.description}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Botão para buscar endereço atual */}
+                {formData.latitude && formData.longitude && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      const lat = parseFloat(formData.latitude);
+                      const lng = parseFloat(formData.longitude);
+                      if (!isNaN(lat) && !isNaN(lng)) {
+                        buscarEnderecoPorCoordenadas(lat, lng);
+                      }
+                    }}
+                    className="w-full"
+                  >
+                    🔄 Atualizar endereço das coordenadas atuais
+                  </Button>
+                )}
+              </div>
+            </div>
+
             {/* Mapa */}
             <div className="mt-8">
               <h3 className="text-lg font-medium text-gray-800 mb-4">
-                Localização no Mapa
+                Visualização no Mapa
               </h3>
+              
               <div className="w-full h-[400px] rounded-lg overflow-hidden shadow-lg border">
                 <iframe
                   src={getMapUrl()}
@@ -1019,9 +1289,18 @@ export default function CreateEvent() {
                   referrerPolicy="no-referrer-when-downgrade"
                 />
               </div>
-              <p className="text-sm text-gray-600 mt-2">
-                O mapa será atualizado automaticamente com as coordenadas do endereço informado.
-              </p>
+              
+              <div className="mt-4">
+                <p className="text-sm text-gray-600">
+                  O mapa será atualizado automaticamente com a localização selecionada.
+                </p>
+                
+                {formData.latitude && formData.longitude && (
+                  <div className="mt-2 text-sm text-green-600">
+                    <p>✓ Localização definida: {formData.latitude}, {formData.longitude}</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         );

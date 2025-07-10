@@ -21,6 +21,7 @@ export default interface FormDataInterface {
   state: string;
   latitude: string;
   longitude: string;
+  mapUrl?: string; // URL do mapa para renderização
   tickets: TicketType[];
   status: "active" | "finished" | "editing";
   isFree: boolean;

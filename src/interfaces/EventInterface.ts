@@ -22,6 +22,8 @@ export default interface EventInterface {
   neighborhood: string;
   city: string;
   state: string;
+  latitude: string;
+  longitude: string;
   tickets: TicketInterface[];
   organizer: OrganizerInterface;
   acceptedTerms: boolean;

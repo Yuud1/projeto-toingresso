@@ -305,9 +305,35 @@ const EventDetail = () => {
               <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-[#414141]">
                 Localização
               </h2>
+              
+              {/* Informações do endereço */}
+              <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <MapPin className="w-5 h-5 text-gray-600" />
+                  <h3 className="font-semibold text-[#414141]">
+                    {event?.venueName || 'Local do evento'}
+                  </h3>
+                </div>
+                <p className="text-sm text-gray-700">
+                  {event?.street && `${event.street}`}
+                  {event?.number && `, ${event.number}`}
+                  {event?.complement && ` - ${event.complement}`}
+                </p>
+                <p className="text-sm text-gray-700">
+                  {event?.neighborhood && `${event.neighborhood}`}
+                  {event?.city && `, ${event.city}`}
+                  {event?.state && ` - ${event.state}`}
+                  {event?.zipCode && ` (${event.zipCode})`}
+                </p>
+              </div>
+              
+              {/* Mapa */}
               <div className="w-full h-[250px] sm:h-[300px] md:h-[400px] rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.01]">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1963.4955007216295!2d-48.337388507953854!3d-10.181385600694082!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9324cb6b090918a5%3A0xec2ad53ac4f6cb12!2sBrasif%20M%C3%A1quinas!5e0!3m2!1spt-BR!2sbr!4v1749832543882!5m2!1spt-BR!2sbr"
+                  src={event?.mapUrl || (event?.latitude && event?.longitude 
+                    ? `https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&q=${event.latitude},${event.longitude}&zoom=15`
+                    : "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1963.4955007216295!2d-48.337388507953854!3d-10.181385600694082!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9324cb6b090918a5%3A0xec2ad53ac4f6cb12!2sBrasif%20M%C3%A1quinas!5e0!3m2!1spt-BR!2sbr!4v1749832543882!5m2!1spt-BR!2sbr"
+                  )}
                   width="100%"
                   height="100%"
                   className="border-0"
