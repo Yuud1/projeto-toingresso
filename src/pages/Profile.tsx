@@ -1,6 +1,6 @@
 import type React from "react";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -45,7 +45,7 @@ const Tab = ({ isActive, children, onClick, className }: TabProps) => {
 };
 
 const tabOptions = [
-  { value: "dados", label: "Conta" },  
+  { value: "dados", label: "Conta" },
   { value: "privacidade", label: "Privacidade" },
   { value: "avancada", label: "Avançada" },
 ] as const;
@@ -55,33 +55,41 @@ export default function Profile() {
     "dados" | "privacidade" | "avancada"
   >("dados");
   const { user } = useUser();
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const [formData, setFormData] = useState<UserInterface>({
-    isPublic: false,
-    name: "",
-    email: "",
-    phoneNumber: "",
-    birthdaydata: "",
-    facebook: "",
-    instagram: "",
-    mysite: "",
-    cpf: "",
-    avatar: "",
-    _id: "",
-    emailVerified: "false",
-    tickets: [],
-    type: "user",
-    likedEvents: [],
-  });
+  const [formData, setFormData] = useState<UserInterface>(() => ({
+    isPublic: user?.isPublic || false,
+    name: user?.name || "",
+    email: user?.email || "",
+    phoneNumber: user?.phoneNumber || "",
+    birthdaydata: user?.birthdaydata || "",
+    facebook: user?.facebook || "",
+    instagram: user?.instagram || "",
+    mysite: user?.mysite || "",
+    cpf: user?.cpf || "",
+    avatar: user?.avatar || "",
+    _id: user?._id || "",
+    emailVerified: user?.emailVerified || false,
+    tickets: user?.tickets || [],
+    type: user?.type || "user",
+    likedEvents: user?.likedEvents || [],
+  }));
+
+  useEffect(() => {
+    setFormData({
+      ...formData,
+      ...user,
+    });
+  }, [user]);
+  
   const [statusSaving, setStatusSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
-  const [loading, setLoading] = useState(false);  
+  const [loading, setLoading] = useState(false);
 
-  const token = localStorage.getItem("token");  
-
+  const token = localStorage.getItem("token");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -216,8 +224,7 @@ export default function Profile() {
     } finally {
       setLoading(false);
     }
-  };  
-  
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -248,9 +255,9 @@ export default function Profile() {
           <div className="sm:hidden mb-6">
             <Select
               value={activeTab}
-              onValueChange={(
-                value: "dados" | "privacidade" | "avancada"
-              ) => setActiveTab(value)}
+              onValueChange={(value: "dados" | "privacidade" | "avancada") =>
+                setActiveTab(value)
+              }
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Selecione uma seção" />
@@ -390,7 +397,6 @@ export default function Profile() {
                         inputMode="numeric"
                         pattern="[0-9]*"
                         onChange={handleChange}
-                        value={formData.cpf}
                       />
                     </div>
                   </div>
@@ -455,8 +461,6 @@ export default function Profile() {
                 )}
               </div>
             )}
-
-            
 
             {activeTab === "privacidade" && (
               <div className="space-y-6">
@@ -612,7 +616,7 @@ export default function Profile() {
             )}
           </div>
         </div>
-      </main>  
+      </main>
       <Footer />
     </div>
   );

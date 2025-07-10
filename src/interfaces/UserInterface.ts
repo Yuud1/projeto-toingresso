@@ -5,7 +5,7 @@ export default interface UserInterface {
   name: string;
   cpf: string;
   email: string;
-  emailVerified: string;
+  emailVerified: boolean;
   birthdaydata: string;
   type: "user" | "superUser" | "admin";
   mysite: string;
