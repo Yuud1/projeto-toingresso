@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { io } from "socket.io-client"
+import { useState, useEffect } from "react";
+import { io } from "socket.io-client";
 import {
   Settings,
   Eye,
@@ -19,15 +19,16 @@ import {
   Calendar,
   MapPin,
   TrendingUp,
-} from "lucide-react"
-import { useParams } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Switch } from "@/components/ui/switch"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+} from "lucide-react";
+import { useParams } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import axios from "axios";
 
 // Adicione após as importações
 const previewUpdateAnimation = `
@@ -39,182 +40,212 @@ const previewUpdateAnimation = `
   .preview-update {
     animation: previewUpdate 0.3s ease;
   }
-`
+`;
 
 // Interfaces (mantendo as originais)
 interface EventInterface {
-  _id: string
-  title: string
-  image: string
-  category: string
-  startDate: string
-  startTime: string
-  endDate: string
-  endTime: string
-  description: string
-  venueName: string
-  city: string
-  state: string
-  isFree: boolean
+  _id: string;
+  title: string;
+  image: string;
+  category: string;
+  startDate: string;
+  startTime: string;
+  endDate: string;
+  endTime: string;
+  description: string;
+  venueName: string;
+  city: string;
+  state: string;
+  isFree: boolean;
   customFields: Array<{
-    _id: string
-    label: string
-    type: string
-  }>
+    _id: string;
+    label: string;
+    type: string;
+  }>;
 }
 
 interface ArrivalInterface {
-  userId?: string
-  fields: Record<string, string>
-  subscribedAt: string
-  arrivalTime: string
+  userId?: string;
+  fields: Record<string, string>;
+  subscribedAt: string;
+  arrivalTime: string;
   user?: {
-    _id: string
-    name: string
-    email: string
-    avatar?: string
-  }
+    _id: string;
+    name: string;
+    email: string;
+    avatar?: string;
+  };
 }
 
-const socket = io(`${import.meta.env.VITE_API_BASE_URL}`)
+const socket = io(`${import.meta.env.VITE_API_BASE_URL}`);
 
 export default function EventArrivalsPage() {
-  const { id } = useParams()
+  const { id } = useParams();
 
   // Estados principais
-  const [arrivals, setArrivals] = useState<ArrivalInterface[]>([])
-  const [eventData, setEventData] = useState<EventInterface>()
-  const [loading, setLoading] = useState(true)
+  const [arrivals, setArrivals] = useState<ArrivalInterface[]>([]);
+  const [eventData, setEventData] = useState<EventInterface>();
+  const [loading, setLoading] = useState(true);  
 
   // Estados de configuração
-  const [isConfigMode, setIsConfigMode] = useState(true)
-  const [selectedFields, setSelectedFields] = useState<string[]>([])
-  const [showArrivalTime, setShowArrivalTime] = useState(true)
-  const [cardStyle, setCardStyle] = useState<"grid" | "list">("grid")
-  const [previewMode, setPreviewMode] = useState(false)
-  const [commonParameter, setCommonParameter] = useState<string>("")
-  const [showExportMenu, setShowExportMenu] = useState(false)
+  const [isConfigMode, setIsConfigMode] = useState(true);
+  const [selectedFields, setSelectedFields] = useState<string[]>([]);
+  const [showArrivalTime, setShowArrivalTime] = useState(true);
+  const [cardStyle, setCardStyle] = useState<"grid" | "list">("grid");
+  const [previewMode, setPreviewMode] = useState(false);
+  const [commonParameter, setCommonParameter] = useState<string>("");
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
   // Estados de filtro e busca
-  const [searchTerm, setSearchTerm] = useState("")
-  const [isLive, setIsLive] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isLive, setIsLive] = useState(false);
 
   // Dados filtrados
   const filteredArrivals = arrivals.filter((arrival) => {
-    const name = arrival.fields?.name || arrival.user?.name || ""
-    const email = arrival.user?.email || ""
+    const name = arrival.fields?.name || arrival.user?.name || "";
+    const email = arrival.user?.email || "";
     return (
-      name.toLowerCase().includes(searchTerm.toLowerCase()) || email.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  })
+      name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
   // Função para buscar dados do evento
   useEffect(() => {
     async function getEventById() {
       try {
-        setLoading(true)
+        setLoading(true);
         const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_EVENT_GET_SECURE}/${id}`,
+          `${import.meta.env.VITE_API_BASE_URL}${
+            import.meta.env.VITE_EVENT_GET_SECURE
+          }/${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-          },
-        )
-        const data = await response.json()
+          }
+        );
+        const data = await response.json();
         if (data.event) {
-          setEventData(data.event)
+          setEventData(data.event);
         }
       } catch (error) {
-        console.error("Erro ao buscar evento:", error)
+        console.error("Erro ao buscar evento:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
     if (id) {
-      getEventById()
+      getEventById();
     }
-  }, [id])
+  }, [id]);
 
   // Função para buscar chegadas
   useEffect(() => {
     async function getArrivalsByEventId() {
-      if (!eventData) return
+      if (!eventData) return;
 
       try {
-        let response
-        const baseUrl = import.meta.env.VITE_API_BASE_URL
-        const token = localStorage.getItem("token")
+        const baseUrl = import.meta.env.VITE_API_BASE_URL;
+        const token = localStorage.getItem("token");
 
-        if (eventData.isFree) {
-          response = await fetch(`${baseUrl}${import.meta.env.VITE_GET_ARRIVALS_FREE_EVENT_ID}/${id}`, {
+        const response = await axios.get(
+          `${baseUrl}${
+            import.meta.env.VITE_GET_ARRIVALS_PARTICIPANTS
+          }/${id}`,
+          {
             headers: { Authorization: `Bearer ${token}` },
-          })
-          const data = await response.json()
-          if (data.subscribers) {
-            setArrivals(
-              data.subscribers.map((sub: any) => ({
-                ...sub.fields,
-                fields: sub.fields,
-                user: sub.user,
-                subscribedAt: sub.subscribedAt,
-                arrivalTime: sub.subscribedAt,
-              })),
-            )
           }
-        } else {
-          response = await fetch(`${baseUrl}${import.meta.env.VITE_GET_ARRIVALS_PAID_EVENT_ID}/${id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-          const data = await response.json()
-          if (data.participants) {
-            setArrivals(data.participants)
-          }
+        );
+        
+        const data = response.data;
+        console.log("Dados recebidos:", data);
+
+        if (data.participants) {
+          // Normalizar os dados para o formato esperado
+          // A API pode retornar participantes com ou sem campos personalizados
+          // - Com fields: { user: {...}, fields: {...}, arrivedAt: "..." }
+          // - Sem fields: { user: {...}, arrivedAt: "..." }
+          const normalizedArrivals = data.participants.map((participant: any) => ({
+            userId: participant.user?._id,
+            user: participant.user,
+            fields: participant.fields || {}, // Se não tiver fields, usar objeto vazio
+            subscribedAt: participant.arrivedAt || participant.subscribedAt,
+            arrivalTime: participant.arrivedAt || participant.subscribedAt,
+          }));
+          
+          setArrivals(normalizedArrivals);
         }
       } catch (error) {
-        console.error("Erro ao buscar chegadas:", error)
+        console.error("Erro ao buscar chegadas:", error);
       }
     }
 
-    getArrivalsByEventId()
-  }, [eventData, id])
+    getArrivalsByEventId();
+  }, [eventData, id]);
 
   // Socket para tempo real
   useEffect(() => {
     if (!isConfigMode && isLive) {
-      socket.emit("registerChekcout", id)
-      socket.on("new_user_checked_in", (userData: ArrivalInterface) => {
-        setArrivals((prev) => [userData, ...prev])
-      })
+      socket.emit("registerChekcout", id);
+      
+      socket.on("new_user_checked_in", (userData: any) => {
+        console.log("Dados recebidos do socket:", userData);
+        
+        try {
+          // Normalizar os dados recebidos do socket da mesma forma que a API
+          const normalizedUserData: ArrivalInterface = {
+            userId: userData.user?._id,
+            user: userData.user,
+            fields: userData.fields || {}, // Se não tiver fields, usar objeto vazio
+            subscribedAt: userData.arrivedAt || userData.subscribedAt,
+            arrivalTime: userData.arrivedAt || userData.subscribedAt,
+          };
+          
+          console.log("Dados normalizados:", normalizedUserData);
+          setArrivals((prev) => [normalizedUserData, ...prev]);
+        } catch (error) {
+          console.error("Erro ao processar dados do socket:", error);
+          console.error("Dados que causaram erro:", userData);
+        }
+      });
+      
+      // Adicionar listener para erros do socket
+      socket.on("connect_error", (error) => {
+        console.error("Erro de conexão do socket:", error);
+      });
     }
 
     return () => {
-      socket.off("new_user_checked_in")
-    }
-  }, [isConfigMode, isLive, id])
+      socket.off("new_user_checked_in");
+      socket.off("connect_error");
+    };
+  }, [isConfigMode, isLive, id]);
 
   const toggleField = (fieldName: string) => {
     setSelectedFields((prev) => {
-      const newSelection = prev.includes(fieldName) ? prev.filter((f) => f !== fieldName) : [...prev, fieldName]
+      const newSelection = prev.includes(fieldName)
+        ? prev.filter((f) => f !== fieldName)
+        : [...prev, fieldName];
 
       // Forçar atualização da preview quando campos são alterados
       if (previewMode) {
         // Pequeno delay para dar feedback visual
         setTimeout(() => {
-          const previewElement = document.querySelector(".preview-card")
+          const previewElement = document.querySelector(".preview-card");
           if (previewElement) {
-            previewElement.classList.add("preview-update")
+            previewElement.classList.add("preview-update");
             setTimeout(() => {
-              previewElement.classList.remove("preview-update")
-            }, 300)
+              previewElement.classList.remove("preview-update");
+            }, 300);
           }
-        }, 100)
+        }, 100);
       }
 
-      return newSelection
-    })
-  }
+      return newSelection;
+    });
+  };
 
   const getInitials = (name: string) => {
     return name
@@ -222,25 +253,25 @@ export default function EventArrivalsPage() {
       .map((n) => n[0])
       .join("")
       .toUpperCase()
-      .slice(0, 2)
-  }
+      .slice(0, 2);
+  };
 
   const formatTime = (dateString: string) => {
     return new Date(dateString).toLocaleTimeString("pt-BR", {
       hour: "2-digit",
       minute: "2-digit",
-    })
-  }
+    });
+  };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("pt-BR")
-  }
+    return new Date(dateString).toLocaleDateString("pt-BR");
+  };
 
   // Função para exportar dados em CSV
   const exportToCSV = () => {
     if (filteredArrivals.length === 0) {
-      alert("Não há dados para exportar")
-      return
+      alert("Não há dados para exportar");
+      return;
     }
 
     // Cabeçalhos do CSV
@@ -251,44 +282,49 @@ export default function EventArrivalsPage() {
       ...(commonParameter ? ["Parâmetro"] : []),
       ...(showArrivalTime ? ["Horário de Chegada"] : []),
       "Data de Inscrição",
-    ]
+    ];
 
     // Dados dos participantes
     const csvData = filteredArrivals.map((arrival) => {
       const row = [
         arrival.fields?.name || arrival.user?.name || "Sem nome",
         arrival.user?.email || "Sem email",
-        ...selectedFields.map((field) => arrival.fields?.[field] || ""),
+        ...selectedFields.map((field) => arrival.fields?.[field] || "Não informado"),
         ...(commonParameter ? [commonParameter] : []),
         ...(showArrivalTime ? [formatTime(arrival.arrivalTime)] : []),
         formatDate(arrival.subscribedAt),
-      ]
-      return row
-    })
+      ];
+      return row;
+    });
 
     // Criar conteúdo CSV
-    const csvContent = [headers.join(","), ...csvData.map((row) => row.map((cell) => `"${cell}"`).join(","))].join("\n")
+    const csvContent = [
+      headers.join(","),
+      ...csvData.map((row) => row.map((cell) => `"${cell}"`).join(",")),
+    ].join("\n");
 
     // Download do arquivo
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
-    const link = document.createElement("a")
-    const url = URL.createObjectURL(blob)
-    link.setAttribute("href", url)
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
     link.setAttribute(
       "download",
-      `participantes_${eventData?.title?.replace(/[^a-zA-Z0-9]/g, "_")}_${new Date().toISOString().split("T")[0]}.csv`,
-    )
-    link.style.visibility = "hidden"
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
+      `participantes_${eventData?.title?.replace(/[^a-zA-Z0-9]/g, "_")}_${
+        new Date().toISOString().split("T")[0]
+      }.csv`
+    );
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   // Função para exportar dados em Excel (formato XLSX simulado)
   const exportToExcel = () => {
     if (filteredArrivals.length === 0) {
-      alert("Não há dados para exportar")
-      return
+      alert("Não há dados para exportar");
+      return;
     }
 
     // Cabeçalhos
@@ -299,7 +335,7 @@ export default function EventArrivalsPage() {
       ...(commonParameter ? ["Parâmetro"] : []),
       ...(showArrivalTime ? ["Horário de Chegada"] : []),
       "Data de Inscrição",
-    ]
+    ];
 
     // Criar HTML da tabela para Excel
     let tableHTML = `
@@ -310,66 +346,72 @@ export default function EventArrivalsPage() {
           </tr>
         </thead>
         <tbody>
-    `
+    `;
 
     filteredArrivals.forEach((arrival) => {
       tableHTML += `
         <tr>
           <td>${arrival.fields?.name || arrival.user?.name || "Sem nome"}</td>
           <td>${arrival.user?.email || "Sem email"}</td>
-          ${selectedFields.map((field) => `<td>${arrival.fields?.[field] || ""}</td>`).join("")}
+          ${selectedFields
+            .map((field) => `<td>${arrival.fields?.[field] || "Não informado"}</td>`)
+            .join("")}
           ${commonParameter ? `<td>${commonParameter}</td>` : ""}
-          ${showArrivalTime ? `<td>${formatTime(arrival.arrivalTime)}</td>` : ""}
+          ${
+            showArrivalTime ? `<td>${formatTime(arrival.arrivalTime)}</td>` : ""
+          }
           <td>${formatDate(arrival.subscribedAt)}</td>
         </tr>
-      `
-    })
+      `;
+    });
 
     tableHTML += `
         </tbody>
       </table>
-    `
+    `;
 
     // Download do arquivo Excel
-    const blob = new Blob([tableHTML], { type: "application/vnd.ms-excel" })
-    const link = document.createElement("a")
-    const url = URL.createObjectURL(blob)
-    link.setAttribute("href", url)
+    const blob = new Blob([tableHTML], { type: "application/vnd.ms-excel" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
     link.setAttribute(
       "download",
-      `participantes_${eventData?.title?.replace(/[^a-zA-Z0-9]/g, "_")}_${new Date().toISOString().split("T")[0]}.xls`,
-    )
-    link.style.visibility = "hidden"
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
+      `participantes_${eventData?.title?.replace(/[^a-zA-Z0-9]/g, "_")}_${
+        new Date().toISOString().split("T")[0]
+      }.xls`
+    );
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element
+      const target = event.target as Element;
       if (!target.closest(".relative")) {
-        setShowExportMenu(false)
+        setShowExportMenu(false);
       }
-    }
+    };
 
     if (showExportMenu) {
-      document.addEventListener("click", handleClickOutside)
-      return () => document.removeEventListener("click", handleClickOutside)
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
     }
-  }, [showExportMenu])
+  }, [showExportMenu]);
 
   // Adicione antes do return
   useEffect(() => {
     // Adicionar o estilo de animação ao documento
-    const styleElement = document.createElement("style")
-    styleElement.innerHTML = previewUpdateAnimation
-    document.head.appendChild(styleElement)
+    const styleElement = document.createElement("style");
+    styleElement.innerHTML = previewUpdateAnimation;
+    document.head.appendChild(styleElement);
 
     return () => {
-      document.head.removeChild(styleElement)
-    }
-  }, [])
+      document.head.removeChild(styleElement);
+    };
+  }, []);
 
   if (loading) {
     return (
@@ -379,7 +421,7 @@ export default function EventArrivalsPage() {
           <p className="text-slate-600">Carregando evento...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -398,7 +440,9 @@ export default function EventArrivalsPage() {
                 )}
               </div>
               <div>
-                <h1 className="text-xl font-bold text-slate-900">{eventData?.title}</h1>
+                <h1 className="text-xl font-bold text-slate-900">
+                  {eventData?.title}
+                </h1>
                 <div className="flex items-center gap-4 text-sm text-slate-500">
                   <div className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
@@ -421,20 +465,26 @@ export default function EventArrivalsPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              <Button variant="outline" onClick={() => window.history.back()} className="gap-2">
+              <Button
+                variant="outline"
+                onClick={() => window.history.back()}
+                className="gap-2"
+              >
                 <LogOut size={16} />
                 Sair
               </Button>
 
               <Button
                 onClick={() => {
-                  setIsConfigMode(!isConfigMode)
+                  setIsConfigMode(!isConfigMode);
                   if (isConfigMode) {
-                    setIsLive(true)
+                    setIsLive(true);
                   }
                 }}
                 className={`gap-2 ${
-                  isConfigMode ? "bg-blue-600 hover:bg-blue-700" : "bg-green-600 hover:bg-green-700"
+                  isConfigMode
+                    ? "bg-blue-600 hover:bg-blue-700"
+                    : "bg-green-600 hover:bg-green-700"
                 }`}
               >
                 <Settings size={16} />
@@ -454,7 +504,11 @@ export default function EventArrivalsPage() {
                 <TabsTrigger value="fields">Campos</TabsTrigger>
               </TabsList>
 
-              <Button variant="outline" onClick={() => setPreviewMode(!previewMode)} className="gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setPreviewMode(!previewMode)}
+                className="gap-2"
+              >
                 <Eye size={16} />
                 {previewMode ? "Ocultar" : "Mostrar"} Preview
               </Button>
@@ -502,10 +556,17 @@ export default function EventArrivalsPage() {
                     <CardContent>
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium">Mostrar horário de chegada</p>
-                          <p className="text-sm text-slate-500">Exibe quando cada participante chegou</p>
+                          <p className="font-medium">
+                            Mostrar horário de chegada
+                          </p>
+                          <p className="text-sm text-slate-500">
+                            Exibe quando cada participante chegou
+                          </p>
                         </div>
-                        <Switch checked={showArrivalTime} onCheckedChange={setShowArrivalTime} />
+                        <Switch
+                          checked={showArrivalTime}
+                          onCheckedChange={setShowArrivalTime}
+                        />
                       </div>
                     </CardContent>
                   </Card>
@@ -540,20 +601,29 @@ export default function EventArrivalsPage() {
                       </CardTitle>
                       <div className="flex justify-between items-center">
                         <p className="text-sm text-slate-500">
-                          {selectedFields.length} de {eventData?.customFields.length || 0} campos selecionados
+                          {selectedFields.length} de{" "}
+                          {eventData?.customFields.length || 0} campos
+                          selecionados
                         </p>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => {
-                            if (selectedFields.length === eventData?.customFields.length) {
-                              setSelectedFields([])
+                            if (
+                              selectedFields.length ===
+                              eventData?.customFields.length
+                            ) {
+                              setSelectedFields([]);
                             } else {
-                              setSelectedFields(eventData?.customFields.map((f) => f.label) || [])
+                              setSelectedFields(
+                                eventData?.customFields.map((f) => f.label) ||
+                                  []
+                              );
                             }
                           }}
                         >
-                          {selectedFields.length === eventData?.customFields.length
+                          {selectedFields.length ===
+                          eventData?.customFields.length
                             ? "Desmarcar todos"
                             : "Selecionar todos"}
                         </Button>
@@ -577,17 +647,24 @@ export default function EventArrivalsPage() {
                             >
                               <div>
                                 <p className="font-medium">{field.label}</p>
-                                <p className="text-sm text-slate-500">Tipo: {field.type}</p>
+                                <p className="text-sm text-slate-500">
+                                  Tipo: {field.type}
+                                </p>
                               </div>
                               <div className="flex items-center gap-2">
                                 {selectedFields.includes(field.label) && (
-                                  <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
+                                  <Badge
+                                    variant="outline"
+                                    className="bg-blue-100 text-blue-800 border-blue-200"
+                                  >
                                     Visível
                                   </Badge>
                                 )}
                                 <Switch
                                   checked={selectedFields.includes(field.label)}
-                                  onCheckedChange={() => toggleField(field.label)}
+                                  onCheckedChange={() =>
+                                    toggleField(field.label)
+                                  }
                                 />
                               </div>
                             </div>
@@ -614,25 +691,36 @@ export default function EventArrivalsPage() {
                         {cardStyle === "grid" ? (
                           <div className="text-center">
                             <Avatar className="w-16 h-16 mx-auto mb-4">
-                              <AvatarFallback className="bg-blue-600 text-white text-lg font-bold">AS</AvatarFallback>
+                              <AvatarFallback className="bg-blue-600 text-white text-lg font-bold">
+                                AS
+                              </AvatarFallback>
                             </Avatar>
-                            <h3 className="font-bold text-lg mb-3">Ana Silva</h3>
+                            <h3 className="font-bold text-lg mb-3">
+                              Ana Silva
+                            </h3>
                             <div className="space-y-2">
                               <Badge variant="secondary">ana@email.com</Badge>
 
                               {/* Campos personalizados selecionados */}
                               {eventData?.customFields
-                                .filter((field) => selectedFields.includes(field.label))
+                                .filter((field) =>
+                                  selectedFields.includes(field.label)
+                                )
                                 .map((field) => (
-                                  <div key={field._id} className="text-sm text-slate-600 bg-slate-50 rounded-lg p-2">
-                                    <span className="font-medium">{field.label}:</span>{" "}
+                                  <div
+                                    key={field._id}
+                                    className="text-sm text-slate-600 bg-slate-50 rounded-lg p-2"
+                                  >
+                                    <span className="font-medium">
+                                      {field.label}:
+                                    </span>{" "}
                                     {field.type === "email"
                                       ? "exemplo@email.com"
                                       : field.type === "phone"
-                                        ? "(11) 98765-4321"
-                                        : field.type === "number"
-                                          ? "123"
-                                          : "Valor de exemplo"}
+                                      ? "(11) 98765-4321"
+                                      : field.type === "number"
+                                      ? "123"
+                                      : "Valor de exemplo"}
                                   </div>
                                 ))}
 
@@ -642,36 +730,53 @@ export default function EventArrivalsPage() {
                                 </Badge>
                               )}
                             </div>
-                            {showArrivalTime && <p className="text-sm text-slate-500 mt-4">Chegou às 10:15</p>}
+                            {showArrivalTime && (
+                              <p className="text-sm text-slate-500 mt-4">
+                                Chegou às 10:15
+                              </p>
+                            )}
                           </div>
                         ) : (
                           <div className="flex items-center gap-3">
                             <Avatar>
-                              <AvatarFallback className="bg-blue-600 text-white font-bold">AS</AvatarFallback>
+                              <AvatarFallback className="bg-blue-600 text-white font-bold">
+                                AS
+                              </AvatarFallback>
                             </Avatar>
                             <div className="flex-1">
                               <h3 className="font-bold">Ana Silva</h3>
-                              <p className="text-sm text-slate-500">ana@email.com</p>
+                              <p className="text-sm text-slate-500">
+                                ana@email.com
+                              </p>
 
                               {/* Primeiro campo personalizado selecionado (para o modo lista) */}
                               {eventData?.customFields
-                                .filter((field) => selectedFields.includes(field.label))
+                                .filter((field) =>
+                                  selectedFields.includes(field.label)
+                                )
                                 .slice(0, 1)
                                 .map((field) => (
-                                  <p key={field._id} className="text-sm text-slate-500">
-                                    <span className="font-medium">{field.label}:</span>{" "}
+                                  <p
+                                    key={field._id}
+                                    className="text-sm text-slate-500"
+                                  >
+                                    <span className="font-medium">
+                                      {field.label}:
+                                    </span>{" "}
                                     {field.type === "email"
                                       ? "exemplo@email.com"
                                       : field.type === "phone"
-                                        ? "(11) 98765-4321"
-                                        : field.type === "number"
-                                          ? "123"
-                                          : "Valor de exemplo"}
+                                      ? "(11) 98765-4321"
+                                      : field.type === "number"
+                                      ? "123"
+                                      : "Valor de exemplo"}
                                   </p>
                                 ))}
                             </div>
                             <div className="flex flex-col items-end gap-2">
-                              {showArrivalTime && <p className="text-sm text-slate-500">10:15</p>}
+                              {showArrivalTime && (
+                                <p className="text-sm text-slate-500">10:15</p>
+                              )}
                               {commonParameter && (
                                 <Badge className="bg-amber-100 text-amber-800 border-amber-200 text-xs">
                                   {commonParameter}
@@ -699,7 +804,9 @@ export default function EventArrivalsPage() {
                     </div>
                     <div>
                       <p className="text-sm text-slate-500">Total Presentes</p>
-                      <p className="text-2xl font-bold text-slate-900">{arrivals.length}</p>
+                      <p className="text-2xl font-bold text-slate-900">
+                        {arrivals.length}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -713,7 +820,9 @@ export default function EventArrivalsPage() {
                     </div>
                     <div>
                       <p className="text-sm text-slate-500">Status</p>
-                      <p className="text-lg font-semibold text-green-600">{isLive ? "Ao Vivo" : "Pausado"}</p>
+                      <p className="text-lg font-semibold text-green-600">
+                        {isLive ? "Ao Vivo" : "Pausado"}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -728,7 +837,9 @@ export default function EventArrivalsPage() {
                     <div>
                       <p className="text-sm text-slate-500">Última Chegada</p>
                       <p className="text-lg font-semibold text-slate-900">
-                        {arrivals.length > 0 ? formatTime(arrivals[0].arrivalTime) : "--:--"}
+                        {arrivals.length > 0
+                          ? formatTime(arrivals[0].arrivalTime)
+                          : "--:--"}
                       </p>
                     </div>
                   </div>
@@ -743,7 +854,9 @@ export default function EventArrivalsPage() {
                     </div>
                     <div>
                       <p className="text-sm text-slate-500">Evento</p>
-                      <p className="text-lg font-semibold text-slate-900">{eventData?.isFree ? "Gratuito" : "Pago"}</p>
+                      <p className="text-lg font-semibold text-slate-900">
+                        {eventData?.isFree ? "Gratuito" : "Pago"}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -785,8 +898,8 @@ export default function EventArrivalsPage() {
                       <div className="p-2">
                         <button
                           onClick={() => {
-                            exportToCSV()
-                            setShowExportMenu(false)
+                            exportToCSV();
+                            setShowExportMenu(false);
                           }}
                           className="w-full text-left px-3 py-2 text-sm hover:bg-slate-100 rounded-md flex items-center gap-2"
                         >
@@ -795,8 +908,8 @@ export default function EventArrivalsPage() {
                         </button>
                         <button
                           onClick={() => {
-                            exportToExcel()
-                            setShowExportMenu(false)
+                            exportToExcel();
+                            setShowExportMenu(false);
                           }}
                           className="w-full text-left px-3 py-2 text-sm hover:bg-slate-100 rounded-md flex items-center gap-2"
                         >
@@ -805,7 +918,8 @@ export default function EventArrivalsPage() {
                         </button>
                         <div className="border-t border-slate-200 my-2"></div>
                         <div className="px-3 py-2 text-xs text-slate-500">
-                          {filteredArrivals.length} participante{filteredArrivals.length !== 1 ? "s" : ""}
+                          {filteredArrivals.length} participante
+                          {filteredArrivals.length !== 1 ? "s" : ""}
                         </div>
                       </div>
                     </div>
@@ -814,9 +928,15 @@ export default function EventArrivalsPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCardStyle(cardStyle === "grid" ? "list" : "grid")}
+                  onClick={() =>
+                    setCardStyle(cardStyle === "grid" ? "list" : "grid")
+                  }
                 >
-                  {cardStyle === "grid" ? <List className="h-4 w-4" /> : <Grid className="h-4 w-4" />}
+                  {cardStyle === "grid" ? (
+                    <List className="h-4 w-4" />
+                  ) : (
+                    <Grid className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
             </div>
@@ -827,7 +947,9 @@ export default function EventArrivalsPage() {
                 <CardContent>
                   <UserCheck className="h-16 w-16 text-slate-400 mx-auto mb-4" />
                   <h2 className="text-2xl font-bold text-slate-900 mb-2">
-                    {searchTerm ? "Nenhum resultado encontrado" : "Aguardando participantes"}
+                    {searchTerm
+                      ? "Nenhum resultado encontrado"
+                      : "Aguardando participantes"}
                   </h2>
                   <p className="text-slate-500">
                     {searchTerm
@@ -845,19 +967,30 @@ export default function EventArrivalsPage() {
                 }
               >
                 {filteredArrivals.map((arrival, index) => (
-                  <Card key={index} className="hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
+                  <Card
+                    key={index}
+                    className="hover:shadow-lg transition-all duration-200 hover:-translate-y-1"
+                  >
                     <CardContent className="p-6">
                       {cardStyle === "grid" ? (
                         <div className="text-center">
                           <Avatar className="w-16 h-16 mx-auto mb-4">
-                            <AvatarImage src={arrival.user?.avatar || "/placeholder.svg"} />
+                            <AvatarImage
+                              src={arrival.user?.avatar || "/placeholder.svg"}
+                            />
                             <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-700 text-white text-lg font-bold">
-                              {getInitials(arrival.fields?.name || arrival.user?.name || "U")}
+                              {getInitials(
+                                arrival.fields?.name ||
+                                  arrival.user?.name ||
+                                  "U"
+                              )}
                             </AvatarFallback>
                           </Avatar>
 
                           <h3 className="font-bold text-lg mb-3 text-slate-900">
-                            {arrival.fields?.name || arrival.user?.name || "Sem nome"}
+                            {arrival.fields?.name ||
+                              arrival.user?.name ||
+                              "Sem nome"}
                           </h3>
 
                           <div className="space-y-2">
@@ -870,16 +1003,24 @@ export default function EventArrivalsPage() {
                             {Object.entries(arrival.fields ?? {})
                               .filter(
                                 ([key]) =>
-                                  key !== "name" && (selectedFields.length === 0 || selectedFields.includes(key)),
+                                  key !== "name" &&
+                                  (selectedFields.length === 0 ||
+                                    selectedFields.includes(key))
                               )
                               .map(([key, value]) => (
-                                <div key={key} className="text-sm text-slate-600 bg-slate-50 rounded-lg p-2">
-                                  <span className="font-medium">{key}:</span> {value}
+                                <div
+                                  key={key}
+                                  className="text-sm text-slate-600 bg-slate-50 rounded-lg p-2"
+                                >
+                                  <span className="font-medium">{key}:</span>{" "}
+                                  {value || "Não informado"}
                                 </div>
                               ))}
 
                             {commonParameter && (
-                              <Badge className="bg-amber-100 text-amber-800 border-amber-200">{commonParameter}</Badge>
+                              <Badge className="bg-amber-100 text-amber-800 border-amber-200">
+                                {commonParameter}
+                              </Badge>
                             )}
                           </div>
 
@@ -892,35 +1033,53 @@ export default function EventArrivalsPage() {
                       ) : (
                         <div className="flex items-center gap-4">
                           <Avatar className="w-12 h-12">
-                            <AvatarImage src={arrival.user?.avatar || "/placeholder.svg"} />
+                            <AvatarImage
+                              src={arrival.user?.avatar || "/placeholder.svg"}
+                            />
                             <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-700 text-white font-bold">
-                              {getInitials(arrival.fields?.name || arrival.user?.name || "U")}
+                              {getInitials(
+                                arrival.fields?.name ||
+                                  arrival.user?.name ||
+                                  "U"
+                              )}
                             </AvatarFallback>
                           </Avatar>
 
                           <div className="flex-1 min-w-0">
                             <h3 className="font-bold text-slate-900 truncate">
-                              {arrival.fields?.name || arrival.user?.name || "Sem nome"}
+                              {arrival.fields?.name ||
+                                arrival.user?.name ||
+                                "Sem nome"}
                             </h3>
                             {arrival.user?.email && (
-                              <p className="text-sm text-slate-500 truncate">{arrival.user.email}</p>
+                              <p className="text-sm text-slate-500 truncate">
+                                {arrival.user.email}
+                              </p>
                             )}
                             {Object.entries(arrival.fields ?? {})
                               .filter(
                                 ([key]) =>
-                                  key !== "name" && (selectedFields.length === 0 || selectedFields.includes(key)),
+                                  key !== "name" &&
+                                  (selectedFields.length === 0 ||
+                                    selectedFields.includes(key))
                               )
                               .slice(0, 1)
                               .map(([key, value]) => (
-                                <p key={key} className="text-sm text-slate-500 truncate">
-                                  <span className="font-medium">{key}:</span> {value}
+                                <p
+                                  key={key}
+                                  className="text-sm text-slate-500 truncate"
+                                >
+                                  <span className="font-medium">{key}:</span>{" "}
+                                  {value || "Não informado"}
                                 </p>
                               ))}
                           </div>
 
                           <div className="flex flex-col items-end gap-2">
                             {showArrivalTime && (
-                              <p className="text-sm text-slate-500">{formatTime(arrival.arrivalTime)}</p>
+                              <p className="text-sm text-slate-500">
+                                {formatTime(arrival.arrivalTime)}
+                              </p>
                             )}
                             {commonParameter && (
                               <Badge className="bg-amber-100 text-amber-800 border-amber-200 text-xs">
@@ -939,5 +1098,5 @@ export default function EventArrivalsPage() {
         )}
       </div>
     </div>
-  )
+  );
 }
