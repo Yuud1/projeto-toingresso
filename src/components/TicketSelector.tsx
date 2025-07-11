@@ -119,7 +119,7 @@ export function TicketSelector({
                   em até {maxInstallments}x R$ {installmentValue.toFixed(2)}
                 </div>
                 <div className="text-xs text-gray-400 mt-1">
-                  Vendas até {formatDate(event.endDate, "dd/MM/yyyy")}
+                  Vendas até {formatDate(event.batches[0].saleEnd, "dd/MM/yyyy")}
                 </div>
               </div>
               <div className="flex items-center gap-2">

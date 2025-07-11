@@ -1,14 +1,24 @@
 import CustomFieldInterface from "./CustomFieldInterface";
 import TicketType from "./TicketTypeInterface";
 
+export interface Batch {
+  batchName: string;
+  saleStart: string;
+  saleEnd: string;
+  tickets: TicketType[];
+}
+
 export default interface FormDataInterface {
   title: string;
   image: File | null;
   category: string;
-  startDate: string;
-  startTime: string;
-  endDate: string;
-  endTime: string;
+  dates: {
+    startDate: string;
+    startTime: string;
+    endDate: string;
+    endTime: string;
+    attractions: { name: string; social?: string }[];
+  }[];
   description: string;
   policy: string;
   venueName: string;
@@ -21,8 +31,8 @@ export default interface FormDataInterface {
   state: string;
   latitude: string;
   longitude: string;
-  mapUrl?: string; // URL do mapa para renderização
-  tickets: TicketType[];
+  mapUrl?: string;
+  batches: Batch[];
   status: "active" | "finished" | "editing";
   isFree: boolean;
   acceptedTerms: boolean;

@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar, Clock, ImageIcon, Tag, Ticket } from "lucide-react";
+import { ImageIcon, Tag } from "lucide-react";
 import { NumericFormat } from "react-number-format";
 import axios from "axios";
 import { toast } from "sonner";
 import FormBuilder from "@/components/FormBuilder";
 import FormDataInterface from "@/interfaces/FormDataInterface";
-import TicketType from "@/interfaces/TicketTypeInterface";
+
 import {
   Select,
   SelectContent,
@@ -64,26 +64,27 @@ export default function CreateEvent() {
   const [loading, setLoading] = useState(false);
   const [created, setCreated] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [clickedGratuito, setClickedGratuito] = useState(false);
+
   const [buscandoCoordenadas, setBuscandoCoordenadas] = useState(false);
   const [coordenadasEncontradas, setCoordenadasEncontradas] = useState(false);
   const [buscandoSugestoes, setBuscandoSugestoes] = useState(false);
   const [sugestoesEndereco, setSugestoesEndereco] = useState<any[]>([]);
-  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(
+    null
+  );
   const [municipiosPorUF, setMunicipiosPorUF] = useState<
     Record<string, string[]>
   >({});
   console.log(errors);
 
-  const [formData, setFormData] = useState<FormDataInterface & { searchAddress?: string }>({
+  const [formData, setFormData] = useState<
+    FormDataInterface & { searchAddress?: string }
+  >({
     title: "",
     image: null,
     category: "",
-    startDate: "",
-    startTime: "",
+    dates: [{ startDate: "", startTime: "", endDate: "", endTime: "", attractions: [] }],
     formTitle: "",
-    endDate: "",
-    endTime: "",
     description: "",
     policy: "",
     venueName: "",
@@ -96,11 +97,11 @@ export default function CreateEvent() {
     state: "",
     latitude: "",
     longitude: "",
-    tickets: [],
+    batches: [],
     isFree: false,
     customFields: [],
     acceptedTerms: false,
-    token: localStorage.getItem("token"),
+    token: null,
     status: "active",
     searchAddress: "",
   });
@@ -135,29 +136,31 @@ export default function CreateEvent() {
       if (!cepData.erro) {
         // Monta o endereço completo
         const endereco = `${cepData.logradouro}, ${formData.number}, ${cepData.bairro}, ${cepData.localidade}, ${cepData.uf}, ${cep}`;
-        
+
         // Usa o Google Geocoding para obter coordenadas
         const geocodingResponse = await fetch(
-          `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(endereco)}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`
+          `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+            endereco
+          )}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`
         );
         const geocodingData = await geocodingResponse.json();
 
         if (geocodingData.results && geocodingData.results.length > 0) {
           const location = geocodingData.results[0].geometry.location;
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
             latitude: location.lat.toString(),
             longitude: location.lng.toString(),
             street: cepData.logradouro || prev.street,
             neighborhood: cepData.bairro || prev.neighborhood,
             city: cepData.localidade || prev.city,
-            state: cepData.uf || prev.state
+            state: cepData.uf || prev.state,
           }));
           setCoordenadasEncontradas(true);
         }
       }
     } catch (error) {
-      console.error('Erro ao buscar coordenadas:', error);
+      console.error("Erro ao buscar coordenadas:", error);
     } finally {
       setBuscandoCoordenadas(false);
     }
@@ -168,32 +171,40 @@ export default function CreateEvent() {
     try {
       setBuscandoSugestoes(true);
       const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-      
+
       // Usar apenas Geocoding API (sem problemas de CORS)
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${apiKey}&region=br&language=pt-BR`
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+          query
+        )}&key=${apiKey}&region=br&language=pt-BR`
       );
       const data = await response.json();
-      
+
       if (data.results && data.results.length > 0) {
         // Formatar resultados do geocoding
-        const formattedResults = data.results.slice(0, 5).map((result: any) => ({
-          place_id: null,
-          description: result.formatted_address,
-          structured_formatting: {
-            main_text: result.formatted_address.split(',')[0],
-            secondary_text: result.formatted_address.split(',').slice(1).join(',').trim()
-          },
-          formatted_address: result.formatted_address,
-          address_components: result.address_components,
-          geometry: result.geometry
-        }));
+        const formattedResults = data.results
+          .slice(0, 5)
+          .map((result: any) => ({
+            place_id: null,
+            description: result.formatted_address,
+            structured_formatting: {
+              main_text: result.formatted_address.split(",")[0],
+              secondary_text: result.formatted_address
+                .split(",")
+                .slice(1)
+                .join(",")
+                .trim(),
+            },
+            formatted_address: result.formatted_address,
+            address_components: result.address_components,
+            geometry: result.geometry,
+          }));
         setSugestoesEndereco(formattedResults);
       } else {
         setSugestoesEndereco([]);
       }
     } catch (error) {
-      console.error('Erro ao buscar sugestões:', error);
+      console.error("Erro ao buscar sugestões:", error);
       setSugestoesEndereco([]);
     } finally {
       setBuscandoSugestoes(false);
@@ -206,7 +217,7 @@ export default function CreateEvent() {
       // Usar dados já obtidos do geocoding
       const location = sugestao.geometry.location;
       const addressComponents = sugestao.address_components;
-      
+
       // Extrair informações do endereço
       let street = "";
       let number = "";
@@ -215,20 +226,23 @@ export default function CreateEvent() {
       let state = "";
       let zipCode = "";
       let venueName = "";
-      
+
       // Tentar extrair nome do estabelecimento do endereço
-      const addressParts = sugestao.formatted_address.split(',');
+      const addressParts = sugestao.formatted_address.split(",");
       if (addressParts.length > 0) {
         venueName = addressParts[0].trim();
       }
-      
+
       addressComponents.forEach((component: any) => {
         const types = component.types;
         if (types.includes("route")) {
           street = component.long_name;
         } else if (types.includes("street_number")) {
           number = component.long_name;
-        } else if (types.includes("sublocality") || types.includes("neighborhood")) {
+        } else if (
+          types.includes("sublocality") ||
+          types.includes("neighborhood")
+        ) {
           neighborhood = component.long_name;
         } else if (types.includes("locality")) {
           city = component.long_name;
@@ -238,9 +252,9 @@ export default function CreateEvent() {
           zipCode = component.long_name;
         }
       });
-      
+
       // Atualizar formulário com todos os dados
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         latitude: location.lat.toString(),
         longitude: location.lng.toString(),
@@ -251,18 +265,19 @@ export default function CreateEvent() {
         city: city || prev.city,
         state: state || prev.state,
         zipCode: zipCode || prev.zipCode,
-        searchAddress: sugestao.formatted_address
+        searchAddress: sugestao.formatted_address,
       }));
-      
+
       setCoordenadasEncontradas(true);
-      toast.success(`Local selecionado: ${venueName || sugestao.formatted_address}`);
-      
+      toast.success(
+        `Local selecionado: ${venueName || sugestao.formatted_address}`
+      );
+
       // Limpar sugestões
       setSugestoesEndereco([]);
-      
     } catch (error) {
-      console.error('Erro ao selecionar sugestão:', error);
-      toast.error('Erro ao selecionar local. Tente novamente.');
+      console.error("Erro ao selecionar sugestão:", error);
+      toast.error("Erro ao selecionar local. Tente novamente.");
     }
   };
 
@@ -274,11 +289,11 @@ export default function CreateEvent() {
         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`
       );
       const data = await response.json();
-      
+
       if (data.results && data.results.length > 0) {
         const result = data.results[0];
         const addressComponents = result.address_components;
-        
+
         // Extrair informações do endereço
         let street = "";
         let number = "";
@@ -287,19 +302,22 @@ export default function CreateEvent() {
         let state = "";
         let zipCode = "";
         let venueName = "";
-        
+
         // Tentar extrair o nome do local (establishment)
         if (result.types && result.types.includes("establishment")) {
           venueName = result.name || "";
         }
-        
+
         addressComponents.forEach((component: any) => {
           const types = component.types;
           if (types.includes("route")) {
             street = component.long_name;
           } else if (types.includes("street_number")) {
             number = component.long_name;
-          } else if (types.includes("sublocality") || types.includes("neighborhood")) {
+          } else if (
+            types.includes("sublocality") ||
+            types.includes("neighborhood")
+          ) {
             neighborhood = component.long_name;
           } else if (types.includes("locality")) {
             city = component.long_name;
@@ -309,9 +327,9 @@ export default function CreateEvent() {
             zipCode = component.long_name;
           }
         });
-        
+
         // Atualizar o formulário com os dados encontrados
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
           latitude: lat.toString(),
           longitude: lng.toString(),
@@ -321,22 +339,30 @@ export default function CreateEvent() {
           neighborhood: neighborhood || prev.neighborhood,
           city: city || prev.city,
           state: state || prev.state,
-          zipCode: zipCode || prev.zipCode
+          zipCode: zipCode || prev.zipCode,
         }));
-        
+
         setCoordenadasEncontradas(true);
-        toast.success(`Localização selecionada! ${venueName ? `Local: ${venueName}` : 'Endereço atualizado automaticamente.'}`);
+        toast.success(
+          `Localização selecionada! ${
+            venueName
+              ? `Local: ${venueName}`
+              : "Endereço atualizado automaticamente."
+          }`
+        );
       }
     } catch (error) {
-      console.error('Erro ao buscar endereço por coordenadas:', error);
-      toast.error('Erro ao buscar endereço. Tente novamente.');
+      console.error("Erro ao buscar endereço por coordenadas:", error);
+      toast.error("Erro ao buscar endereço. Tente novamente.");
     }
   };
 
   // Função para gerar URL do mapa com coordenadas
   const getMapUrl = () => {
     if (formData.latitude && formData.longitude) {
-      return `https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&q=${formData.latitude},${formData.longitude}&zoom=15`;
+      return `https://www.google.com/maps/embed/v1/place?key=${
+        import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+      }&q=${formData.latitude},${formData.longitude}&zoom=15`;
     }
     return "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1963.4955007216295!2d-48.337388507953854!3d-10.181385600694082!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9324cb6b090918a5%3A0xec2ad53ac4f6cb12!2sBrasif%20M%C3%A1quinas!5e0!3m2!1spt-BR!2sbr!4v1749832543882!5m2!1spt-BR!2sbr";
   };
@@ -353,24 +379,33 @@ export default function CreateEvent() {
         break;
 
       case 2: // Data e Horário
-        if (!formData.startDate)
-          newErrors.startDate = "Data de início é obrigatória";
-        if (!formData.startTime)
-          newErrors.startTime = "Hora de início é obrigatória";
-        if (!formData.endDate)
-          newErrors.endDate = "Data de término é obrigatória";
-        if (!formData.endTime)
-          newErrors.endTime = "Hora de término é obrigatória";
-
-        // Validação adicional para datas
-        if (formData.startDate && formData.endDate) {
-          const startDate = new Date(formData.startDate);
-          const endDate = new Date(formData.endDate);
-
-          if (endDate < startDate) {
-            newErrors.endDate =
-              "Data de término não pode ser anterior à data de início";
-          }
+        if (formData.dates.length === 0) {
+          newErrors.dates = "Pelo menos um período é obrigatório";
+        } else {
+          formData.dates.forEach((date, index) => {
+            if (!date.startDate)
+              newErrors[`startDate-${index}`] = "Data de início é obrigatória";
+            if (!date.startTime)
+              newErrors[`startTime-${index}`] = "Hora de início é obrigatória";
+            if (!date.endDate)
+              newErrors[`endDate-${index}`] = "Data de término é obrigatória";
+            if (!date.endTime)
+              newErrors[`endTime-${index}`] = "Hora de término é obrigatória";
+            // Só valida se todos os campos estiverem preenchidos
+            if (
+              date.startDate &&
+              date.startTime &&
+              date.endDate &&
+              date.endTime
+            ) {
+              const start = new Date(`${date.startDate}T${date.startTime}`);
+              const end = new Date(`${date.endDate}T${date.endTime}`);
+              if (end <= start) {
+                newErrors[`date-${index}-endDate`] =
+                  "Data/hora de término deve ser depois da data/hora de início";
+              }
+            }
+          });
         }
         break;
 
@@ -395,19 +430,41 @@ export default function CreateEvent() {
         break;
 
       case 5: // Ingressos
-        if (formData.tickets.length === 0 && formData.isFree === false) {
-          newErrors.tickets = "Pelo menos um tipo de ingresso é obrigatório";
+        if (formData.batches.length === 0 && formData.isFree === false) {
+          newErrors.batches = "Pelo menos um lote de ingresso é obrigatório";
         } else {
-          formData.tickets.forEach((ticket, index) => {
-            if (!ticket.name.trim())
-              newErrors[`ticket-${index}-name`] =
-                "Nome do ingresso é obrigatório";
-            if (ticket.price <= 0)
-              newErrors[`ticket-${index}-price`] =
-                "Preço deve ser maior que zero";
-            if (ticket.quantity <= 0)
-              newErrors[`ticket-${index}-quantity`] =
-                "Quantidade deve ser maior que zero";
+          formData.batches.forEach((batch, batchIndex) => {
+            if (!batch.batchName.trim()) {
+              newErrors[`batch-${batchIndex}-name`] =
+                "Nome do lote é obrigatório";
+            }
+            if (!batch.saleStart) {
+              newErrors[`batch-${batchIndex}-saleStart`] =
+                "Início das vendas é obrigatório";
+            }
+            if (!batch.saleEnd) {
+              newErrors[`batch-${batchIndex}-saleEnd`] =
+                "Fim das vendas é obrigatório";
+            }
+            if (batch.tickets.length === 0) {
+              newErrors[`batch-${batchIndex}-tickets`] =
+                "Pelo menos um ingresso é obrigatório";
+            } else {
+              batch.tickets.forEach((ticket, ticketIndex) => {
+                if (!ticket.name.trim()) {
+                  newErrors[`ticket-${batchIndex}-${ticketIndex}-name`] =
+                    "Nome do ingresso é obrigatório";
+                }
+                if (ticket.price <= 0) {
+                  newErrors[`ticket-${batchIndex}-${ticketIndex}-price`] =
+                    "Preço deve ser maior que zero";
+                }
+                if (ticket.quantity <= 0) {
+                  newErrors[`ticket-${batchIndex}-${ticketIndex}-quantity`] =
+                    "Quantidade deve ser maior que zero";
+                }
+              });
+            }
           });
         }
         break;
@@ -500,13 +557,16 @@ export default function CreateEvent() {
         }
 
         // Gerar URL do mapa antes de enviar
-        const mapUrl = formData.latitude && formData.longitude 
-          ? `https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&q=${formData.latitude},${formData.longitude}&zoom=15`
-          : "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1963.4955007216295!2d-48.337388507953854!3d-10.181385600694082!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9324cb6b090918a5%3A0xec2ad53ac4f6cb12!2sBrasif%20M%C3%A1quinas!5e0!3m2!1spt-BR!2sbr!4v1749832543882!5m2!1spt-BR!2sbr";
+        const mapUrl =
+          formData.latitude && formData.longitude
+            ? `https://www.google.com/maps/embed/v1/place?key=${
+                import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+              }&q=${formData.latitude},${formData.longitude}&zoom=15`
+            : "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1963.4955007216295!2d-48.337388507953854!3d-10.181385600694082!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9324cb6b090918a5%3A0xec2ad53ac4f6cb12!2sBrasif%20M%C3%A1quinas!5e0!3m2!1spt-BR!2sbr!4v1749832543882!5m2!1spt-BR!2sbr";
 
         const formDataToSend = {
           ...formData,
-          mapUrl: mapUrl
+          mapUrl: mapUrl,
         };
 
         const { image, ...rest } = formDataToSend;
@@ -532,7 +592,7 @@ export default function CreateEvent() {
           {
             headers: {
               "Content-Type": "multipart/form-data",
-              Authorization: `Bearer ${formData.token}`,
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           }
         );
@@ -862,70 +922,161 @@ export default function CreateEvent() {
         return (
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-800 pt-8">
-              2. Data e Horário
+              2. Datas, Horários e Atrações do Evento
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                {
-                  field: "startDate",
-                  label: "Data de Início",
-                  error: errors.startDate,
-                },
-                {
-                  field: "startTime",
-                  label: "Hora de Início",
-                  error: errors.startTime,
-                },
-                {
-                  field: "endDate",
-                  label: "Data de Término",
-                  error: errors.endDate,
-                },
-                {
-                  field: "endTime",
-                  label: "Hora de Término",
-                  error: errors.endTime,
-                },
-              ].map((item, idx) => (
-                <div key={idx}>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {item.label} *
-                  </label>
-                  <div className="relative">
-                    {item.label.includes("Hora") ? (
-                      <Clock
-                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                        size={20}
+            <div className="space-y-4">
+              {formData.dates && formData.dates.length > 0 ? (
+                formData.dates.map((dateObj, idx) => (
+                  <div key={idx} className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end border-b pb-4 mb-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Data de Início</label>
+                      <Input
+                        type="date"
+                        value={dateObj.startDate}
+                        onChange={e => {
+                          const newDates = [...formData.dates];
+                          newDates[idx].startDate = e.target.value;
+                          setFormData(prev => ({ ...prev, dates: newDates }));
+                        }}
+                        required
                       />
-                    ) : (
-                      <Calendar
-                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                        size={20}
+                      {renderError(`startDate-${idx}`)}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Hora de Início</label>
+                      <Input
+                        type="time"
+                        value={dateObj.startTime}
+                        onChange={e => {
+                          const newDates = [...formData.dates];
+                          newDates[idx].startTime = e.target.value;
+                          setFormData(prev => ({ ...prev, dates: newDates }));
+                        }}
+                        required
                       />
-                    )}
-                    <Input
-                      type={item.label.includes("Hora") ? "time" : "date"}
-                      value={
-                        formData[
-                          item.field as keyof FormDataInterface
-                        ] as string
-                      }
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          [item.field]: e.target.value,
-                        }))
-                      }
-                      className="pl-10"
-                      required
-                    />
+                      {renderError(`startTime-${idx}`)}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Data de Término</label>
+                      <Input
+                        type="date"
+                        value={dateObj.endDate}
+                        onChange={e => {
+                          const newDates = [...formData.dates];
+                          newDates[idx].endDate = e.target.value;
+                          setFormData(prev => ({ ...prev, dates: newDates }));
+                        }}
+                        required
+                      />
+                      {renderError(`endDate-${idx}`)}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Hora de Término</label>
+                      <Input
+                        type="time"
+                        value={dateObj.endTime}
+                        onChange={e => {
+                          const newDates = [...formData.dates];
+                          newDates[idx].endTime = e.target.value;
+                          setFormData(prev => ({ ...prev, dates: newDates }));
+                        }}
+                        required
+                      />
+                      {renderError(`endTime-${idx}`)}
+                      {renderError(`date-${idx}-endDate`)}
+                    </div>
+                    <div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="text-red-600 hover:text-red-700"
+                        onClick={() => {
+                          const newDates = formData.dates.filter((_, i) => i !== idx);
+                          setFormData(prev => ({ ...prev, dates: newDates }));
+                        }}
+                        disabled={formData.dates.length === 1}
+                      >
+                        Remover
+                      </Button>
+                    </div>
+                    {/* Atrações do período */}
+                    <div className="col-span-5 mt-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Atrações deste período</label>
+                      {dateObj.attractions && dateObj.attractions.length > 0 ? (
+                        dateObj.attractions.map((attraction, aIdx) => (
+                          <div key={aIdx} className="flex flex-col md:flex-row md:items-center gap-2 mb-2">
+                            <Input
+                              type="text"
+                              value={attraction.name}
+                              onChange={e => {
+                                const newDates = [...formData.dates];
+                                newDates[idx].attractions[aIdx].name = e.target.value;
+                                setFormData(prev => ({ ...prev, dates: newDates }));
+                              }}
+                              placeholder={`Nome da atração ${aIdx + 1}`}
+                              className="w-full md:w-1/2"
+                            />
+                            <Input
+                              type="text"
+                              value={attraction.social || ''}
+                              onChange={e => {
+                                const newDates = [...formData.dates];
+                                newDates[idx].attractions[aIdx].social = e.target.value;
+                                setFormData(prev => ({ ...prev, dates: newDates }));
+                              }}
+                              placeholder="Rede social, site ou link (opcional)"
+                              className="w-full md:w-1/2"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="text-red-600 hover:text-red-700"
+                              onClick={() => {
+                                const newDates = [...formData.dates];
+                                newDates[idx].attractions = newDates[idx].attractions.filter((_, i) => i !== aIdx);
+                                setFormData(prev => ({ ...prev, dates: newDates }));
+                              }}
+                            >
+                              Remover
+                            </Button>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-500">Nenhuma atração adicionada.</p>
+                      )}
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        className="mt-2"
+                        onClick={() => {
+                          const newDates = [...formData.dates];
+                          if (!newDates[idx].attractions) newDates[idx].attractions = [];
+                          newDates[idx].attractions.push({ name: '', social: '' });
+                          setFormData(prev => ({ ...prev, dates: newDates }));
+                        }}
+                      >
+                        Adicionar Atração
+                      </Button>
+                    </div>
                   </div>
-                  {item.error && (
-                    <p className="mt-1 text-sm text-red-600">{item.error}</p>
-                  )}
-                </div>
-              ))}
+                ))
+              ) : null}
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setFormData(prev => ({
+                    ...prev,
+                    dates: [
+                      ...prev.dates,
+                      { startDate: '', startTime: '', endDate: '', endTime: '', attractions: [] },
+                    ],
+                  }));
+                }}
+              >
+                Adicionar Período
+              </Button>
             </div>
           </div>
         );
@@ -1018,7 +1169,7 @@ export default function CreateEvent() {
                       const rawValue = e.target.value.replace(/\D/g, "");
                       setFormData((prev) => ({ ...prev, zipCode: rawValue }));
                       setCoordenadasEncontradas(false);
-                      
+
                       // Busca coordenadas quando o CEP estiver completo
                       if (rawValue.length === 8) {
                         buscarCoordenadasPorCEP(rawValue);
@@ -1037,10 +1188,14 @@ export default function CreateEvent() {
                 </div>
                 {renderError("zipCode")}
                 {buscandoCoordenadas && (
-                  <p className="mt-1 text-sm text-blue-600">Buscando localização...</p>
+                  <p className="mt-1 text-sm text-blue-600">
+                    Buscando localização...
+                  </p>
                 )}
                 {coordenadasEncontradas && !buscandoCoordenadas && (
-                  <p className="mt-1 text-sm text-green-600">✓ Localização encontrada!</p>
+                  <p className="mt-1 text-sm text-green-600">
+                    ✓ Localização encontrada!
+                  </p>
                 )}
               </div>
             </div>
@@ -1192,7 +1347,7 @@ export default function CreateEvent() {
               <h3 className="text-lg font-medium text-gray-800 mb-4">
                 Buscar Local
               </h3>
-              
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1203,16 +1358,19 @@ export default function CreateEvent() {
                       type="text"
                       placeholder="Ex: Shopping Ibirapuera, Teatro Municipal, Rua das Flores 123..."
                       className="w-full pr-10"
-                      value={formData.searchAddress || ''}
+                      value={formData.searchAddress || ""}
                       onChange={(e) => {
                         const value = e.target.value;
-                        setFormData(prev => ({ ...prev, searchAddress: value }));
-                        
+                        setFormData((prev) => ({
+                          ...prev,
+                          searchAddress: value,
+                        }));
+
                         // Limpar timeout anterior
                         if (searchTimeout) {
                           clearTimeout(searchTimeout);
                         }
-                        
+
                         // Buscar sugestões com debounce
                         if (value.length > 2) {
                           const timeout = setTimeout(() => {
@@ -1230,7 +1388,7 @@ export default function CreateEvent() {
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Lista de sugestões */}
                   {sugestoesEndereco.length > 0 && (
                     <div className="mt-2 border border-gray-200 rounded-lg bg-white shadow-lg max-h-60 overflow-y-auto">
@@ -1241,17 +1399,21 @@ export default function CreateEvent() {
                           onClick={() => selecionarSugestao(sugestao)}
                         >
                           <div className="font-medium text-gray-900">
-                            {sugestao.structured_formatting?.main_text || sugestao.name || sugestao.description?.split(',')[0]}
+                            {sugestao.structured_formatting?.main_text ||
+                              sugestao.name ||
+                              sugestao.description?.split(",")[0]}
                           </div>
                           <div className="text-sm text-gray-600">
-                            {sugestao.structured_formatting?.secondary_text || sugestao.formatted_address || sugestao.description}
+                            {sugestao.structured_formatting?.secondary_text ||
+                              sugestao.formatted_address ||
+                              sugestao.description}
                           </div>
                         </div>
                       ))}
                     </div>
                   )}
                 </div>
-                
+
                 {/* Botão para buscar endereço atual */}
                 {formData.latitude && formData.longitude && (
                   <Button
@@ -1277,7 +1439,7 @@ export default function CreateEvent() {
               <h3 className="text-lg font-medium text-gray-800 mb-4">
                 Visualização no Mapa
               </h3>
-              
+
               <div className="w-full h-[400px] rounded-lg overflow-hidden shadow-lg border">
                 <iframe
                   src={getMapUrl()}
@@ -1289,15 +1451,19 @@ export default function CreateEvent() {
                   referrerPolicy="no-referrer-when-downgrade"
                 />
               </div>
-              
+
               <div className="mt-4">
                 <p className="text-sm text-gray-600">
-                  O mapa será atualizado automaticamente com a localização selecionada.
+                  O mapa será atualizado automaticamente com a localização
+                  selecionada.
                 </p>
-                
+
                 {formData.latitude && formData.longitude && (
                   <div className="mt-2 text-sm text-green-600">
-                    <p>✓ Localização definida: {formData.latitude}, {formData.longitude}</p>
+                    <p>
+                      ✓ Localização definida: {formData.latitude},{" "}
+                      {formData.longitude}
+                    </p>
                   </div>
                 )}
               </div>
@@ -1312,236 +1478,289 @@ export default function CreateEvent() {
               6. Ingressos
             </h2>
 
-            {errors.tickets && (
-              <div className="bg-red-50 border-l-4 border-red-500 p-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg
-                      className="h-5 w-5 text-red-500"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-red-700">{errors.tickets}</p>
-                  </div>
-                </div>
-              </div>
-            )}
+            {/* Seleção entre evento gratuito ou pago */}
+            <div className="flex gap-4 mb-6">
+              <Button
+                type="button"
+                variant={formData.isFree ? "default" : "outline"}
+                onClick={() =>
+                  setFormData((prev) => ({ ...prev, isFree: true }))
+                }
+              >
+                Evento Gratuito
+              </Button>
+              <Button
+                type="button"
+                variant={!formData.isFree ? "default" : "outline"}
+                onClick={() =>
+                  setFormData((prev) => ({ ...prev, isFree: false }))
+                }
+              >
+                Evento Pago
+              </Button>
+            </div>
 
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="text-lg font-medium text-gray-800 mb-4">
-                Que tipo de ingresso você deseja criar?
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {[
-                  {
-                    type: "regular",
-                    label: "Ingresso Regular",
-                    description: "Ingresso com preço padrão",
-                  },
-                  {
-                    type: "student",
-                    label: "Meia-Entrada",
-                    description: "Ingresso com 50% de desconto",
-                  },
-                  {
-                    type: "free",
-                    label: "Gratuito",
-                    description:
-                      "Valide seu evento com formulário de inscrição",
-                  },
-                ].map((ticketType, idx) => {
-                  return (
-                    <div
-                      key={idx}
-                      onClick={() => {
-                        const newTicket: TicketType = {
-                          name: "",
-                          price: 0,
-                          quantity: 0,
-                          description: "",
-                          type: ticketType.type as TicketType["type"],
-                        };
-
-                        if (ticketType.type != "free") {
-                          setFormData((prev) => ({
-                            ...prev,
-                            tickets: [...prev.tickets, newTicket],
-                            customFields: [],
-                          }));
-                        } else {
-                          setFormData((prev) => ({
-                            ...prev,
-                            tickets: [],
-                          }));
-                        }
-
-                        setErrors((prev) => ({ ...prev, tickets: "" }));
-
-                        // Se for o ingresso gratuito (índice 2), avançar o step
-                        if (ticketType.type === "free") {
-                          setFormData((prev) => ({
-                            ...prev,
-                            isFree: true,
-                          }));
-                          setClickedGratuito(true);
-                        } else {
-                          setFormData((prev) => ({
-                            ...prev,
-                            isFree: false,
-                          }));
-                          setClickedGratuito(false);
-                        }
-                      }}
-                      className="bg-white p-6 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 cursor-pointer transition-all"
-                    >
-                      <div className="text-center">
-                        <Ticket className="w-12 h-12 mx-auto text-gray-400 mb-2" />
-                        <h4 className="font-medium text-gray-900">
-                          {ticketType.label}
-                        </h4>
-                        <p className="text-sm text-gray-500 mt-1">
-                          {ticketType.description}
-                        </p>
+            {formData.isFree ? (
+              <FormBuilder form={formData} setForm={setFormData}></FormBuilder>
+            ) : (
+              <div className="space-y-8">
+                {/* Lotes */}
+                <div>
+                  <h3 className="text-lg font-medium text-gray-800 mb-4">
+                    Lotes
+                  </h3>
+                  {formData.batches.map((batch, batchIdx) => (
+                    <div key={batchIdx} className="border rounded-lg p-4 mb-6">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Nome do Lote *
+                          </label>
+                          <Input
+                            type="text"
+                            value={batch.batchName}
+                            onChange={(e) => {
+                              const newBatches = [...formData.batches];
+                              newBatches[batchIdx].batchName = e.target.value;
+                              setFormData((prev) => ({
+                                ...prev,
+                                batches: newBatches,
+                              }));
+                            }}
+                            placeholder="Ex: 1º Lote, 2º Lote, Virada"
+                            className="w-full"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Início das vendas *
+                          </label>
+                          <Input
+                            type="datetime-local"
+                            value={batch.saleStart}
+                            onChange={(e) => {
+                              const newBatches = [...formData.batches];
+                              newBatches[batchIdx].saleStart = e.target.value;
+                              setFormData((prev) => ({
+                                ...prev,
+                                batches: newBatches,
+                              }));
+                            }}
+                            className="w-full"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Fim das vendas *
+                          </label>
+                          <Input
+                            type="datetime-local"
+                            value={batch.saleEnd}
+                            onChange={(e) => {
+                              const newBatches = [...formData.batches];
+                              newBatches[batchIdx].saleEnd = e.target.value;
+                              setFormData((prev) => ({
+                                ...prev,
+                                batches: newBatches,
+                              }));
+                            }}
+                            className="w-full"
+                            required
+                          />
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {formData.tickets.length > 0 && (
-                <div className="mt-8">
-                  <h4 className="font-medium text-gray-900 mb-4">
-                    Ingressos Criados
-                  </h4>
-                  <div className="space-y-4">
-                    {formData.tickets.map((ticket, index) => (
-                      <div
-                        key={index}
-                        className="bg-white p-4 rounded-lg shadow-sm"
-                      >
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Nome do Ingresso *
-                            </label>
-                            <Input
-                              type="text"
-                              value={ticket.name}
-                              onChange={(e) => {
-                                const updatedTickets = [...formData.tickets];
-                                updatedTickets[index].name = e.target.value;
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  tickets: updatedTickets,
-                                }));
-                                setErrors((prev) => ({
-                                  ...prev,
-                                  [`ticket-${index}-name`]: "",
-                                }));
-                              }}
-                              placeholder="Ex: VIP, Camarote, Pista"
-                              className="w-full"
-                              required
-                            />
-                            {renderError(`ticket-${index}-name`)}
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Preço *
-                            </label>
-                            <NumericFormat
-                              value={ticket.price}
-                              onValueChange={({ floatValue }) => {
-                                const updatedTickets = [...formData.tickets];
-                                updatedTickets[index].price = floatValue ?? 0;
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  tickets: updatedTickets,
-                                }));
-                                setErrors((prev) => ({
-                                  ...prev,
-                                  [`ticket-${index}-price`]: "",
-                                }));
-                              }}
-                              thousandSeparator="."
-                              decimalSeparator=","
-                              prefix="R$ "
-                              allowNegative={false}
-                              decimalScale={2}
-                              fixedDecimalScale
-                              placeholder="R$ 0,00"
-                              className="w-full border rounded px-3 py-2"
-                              required
-                            />
-                            {renderError(`ticket-${index}-price`)}
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Quantidade Disponível *
-                            </label>
-                            <Input
-                              type="number"
-                              value={ticket.quantity}
-                              onChange={(e) => {
-                                const value = Number(e.target.value);
-                                if (value >= 0) {
-                                  const updatedTickets = [...formData.tickets];
-                                  updatedTickets[index].quantity = value;
+                      {/* Ingressos dentro do lote */}
+                      <div>
+                        <h4 className="font-medium text-gray-900 mb-2">
+                          Ingressos do Lote
+                        </h4>
+                        {batch.tickets.map((ticket, ticketIdx) => (
+                          <div
+                            key={ticketIdx}
+                            className="bg-gray-50 p-4 rounded-lg mb-4"
+                          >
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Nome do Ingresso *
+                                </label>
+                                <Input
+                                  type="text"
+                                  value={ticket.name}
+                                  onChange={(e) => {
+                                    const newBatches = [...formData.batches];
+                                    newBatches[batchIdx].tickets[
+                                      ticketIdx
+                                    ].name = e.target.value;
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      batches: newBatches,
+                                    }));
+                                  }}
+                                  placeholder="Ex: Inteira, Meia, VIP"
+                                  className="w-full"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Preço *
+                                </label>
+                                <NumericFormat
+                                  value={ticket.price}
+                                  onValueChange={({ floatValue }) => {
+                                    const newBatches = [...formData.batches];
+                                    newBatches[batchIdx].tickets[
+                                      ticketIdx
+                                    ].price = floatValue ?? 0;
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      batches: newBatches,
+                                    }));
+                                  }}
+                                  thousandSeparator="."
+                                  decimalSeparator=","
+                                  prefix="R$ "
+                                  allowNegative={false}
+                                  decimalScale={2}
+                                  fixedDecimalScale
+                                  placeholder="R$ 0,00"
+                                  className="w-full border rounded px-3 py-2"
+                                  required
+                                />
+                                <p className="text-xs text-green-700 mt-1">
+                                  Você receberá:{" "}
+                                  <b>
+                                    R${" "}
+                                    {((ticket.price || 0) * 0.9)
+                                      .toFixed(2)
+                                      .replace(".", ",")}
+                                  </b>{" "}
+                                  (descontando 10% de taxa)
+                                </p>
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Quantidade *
+                                </label>
+                                <Input
+                                  type="number"
+                                  value={ticket.quantity}
+                                  onChange={(e) => {
+                                    const value = Number(e.target.value);
+                                    if (value >= 0) {
+                                      const newBatches = [...formData.batches];
+                                      newBatches[batchIdx].tickets[
+                                        ticketIdx
+                                      ].quantity = value;
+                                      setFormData((prev) => ({
+                                        ...prev,
+                                        batches: newBatches,
+                                      }));
+                                    }
+                                  }}
+                                  placeholder="0"
+                                  className="w-full"
+                                  min="0"
+                                  required
+                                />
+                              </div>
+                            </div>
+                            <div className="mt-2 flex justify-end">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="text-red-600 hover:text-red-700"
+                                onClick={() => {
+                                  const newBatches = [...formData.batches];
+                                  newBatches[batchIdx].tickets = newBatches[
+                                    batchIdx
+                                  ].tickets.filter((_, i) => i !== ticketIdx);
                                   setFormData((prev) => ({
                                     ...prev,
-                                    tickets: updatedTickets,
+                                    batches: newBatches,
                                   }));
-                                  setErrors((prev) => ({
-                                    ...prev,
-                                    [`ticket-${index}-quantity`]: "",
-                                  }));
-                                }
-                              }}
-                              placeholder="0"
-                              className="w-full"
-                              min="0"
-                              required
-                            />
-                            {renderError(`ticket-${index}-quantity`)}
+                                }}
+                              >
+                                Remover Ingresso
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-
+                        ))}
                         <Button
                           type="button"
-                          variant="outline"
-                          className="mt-4 text-red-600 hover:text-red-700 cursor-pointer"
+                          variant="secondary"
+                          className="mt-2"
                           onClick={() => {
-                            const updatedTickets = formData.tickets.filter(
-                              (_, i) => i !== index
-                            );
+                            const newBatches = [...formData.batches];
+                            newBatches[batchIdx].tickets.push({
+                              name: "",
+                              price: 0,
+                              quantity: 0,
+                              description: "",
+                              type: "regular",
+                            });
                             setFormData((prev) => ({
                               ...prev,
-                              tickets: updatedTickets,
+                              batches: newBatches,
                             }));
                           }}
                         >
-                          Remover Ingresso
+                          Adicionar Ingresso
                         </Button>
                       </div>
-                    ))}
-                  </div>
+                      <div className="mt-4 flex justify-end">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="text-red-600 hover:text-red-700"
+                          onClick={() => {
+                            const newBatches = formData.batches.filter(
+                              (_, i) => i !== batchIdx
+                            );
+                            setFormData((prev) => ({
+                              ...prev,
+                              batches: newBatches,
+                            }));
+                          }}
+                        >
+                          Remover Lote
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => {
+                      setFormData((prev) => {
+                        const batches = prev.batches;
+                        let newSaleStart = "";
+                        if (batches.length > 0) {
+                          newSaleStart = batches[batches.length - 1].saleEnd;
+                        }
+                        return {
+                          ...prev,
+                          batches: [
+                            ...batches,
+                            {
+                              batchName: "",
+                              saleStart: newSaleStart,
+                              saleEnd: "",
+                              tickets: [],
+                            },
+                          ],
+                        };
+                      });
+                    }}
+                  >
+                    Adicionar Lote
+                  </Button>
                 </div>
-              )}
-            </div>
-            {clickedGratuito ? (
-              <FormBuilder form={formData} setForm={setFormData}></FormBuilder>
-            ) : null}
+              </div>
+            )}
             <div className="ml-5">
               <p className="mt-1 text-sm text-red-600">{errors.customFields}</p>
             </div>
@@ -1610,7 +1829,7 @@ export default function CreateEvent() {
     <>
       <Header isScrolled={true} />
       <div className="min-h-screen bg-gray-50 pt-24 pb-12">
-        <div className="max-w-3xl mx-auto px-4">
+        <div className="max-w-4xl mx-auto px-4">
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <form onSubmit={handleSubmit} className="space-y-8">
               {renderProgressSteps()}
