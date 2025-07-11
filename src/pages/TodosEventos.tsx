@@ -93,12 +93,12 @@ const TodosEventos = () => {
                 {filteredEvents.map((event) => {
                   const isFree = event.isFree;
                   const startDate = new Date(
-                    event.startDate
+                    event.dates[0].startDate
                   ).toLocaleDateString("pt-BR", {
                     day: "2-digit",
                     month: "short",
                   });
-                  const startTime = event.startTime?.slice(0, 5) || "";
+                  const startTime = event.dates[0].startTime?.slice(0, 5) || "";
 
                   return (
                     <a href={`/evento/${event._id}`} key={event._id}>

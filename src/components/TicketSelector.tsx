@@ -184,9 +184,9 @@ export function TicketSelector({
                 <span>{event.city}</span>
               </div>
               <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
-                <span>{event.startDate && new Date(event.startDate).toLocaleDateString("pt-BR")}</span>
+                <span>{event.dates[0]?.startDate && new Date(event.dates[0].startDate).toLocaleDateString("pt-BR")}</span>
                 <span>às</span>
-                <span>{event.startTime}</span>
+                <span>{event.dates[0]?.startTime?.slice(0, 5)}</span>
               </div>
               {Object.entries(selectedTickets).map(([ticket_id, quantity]) => {
                 const ticket = tickets.find((t) => t._id === ticket_id);

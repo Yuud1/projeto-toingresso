@@ -13,7 +13,7 @@ import {
   ChevronDown,
   ChevronUp,
   Ticket,
-  Star,
+  
   Music,
   ExternalLink,
 } from "lucide-react"
@@ -163,27 +163,6 @@ const EventDetail = () => {
                       </p>
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                      <Calendar className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-white/70">Data</p>
-                      <div className="font-semibold">
-                        {event?.dates && event.dates.length > 0 ? (
-                          event.dates.map((period, i) => (
-                            <div key={i}>
-                              {new Date(period.startDate).toLocaleDateString()} {period.startTime} até{" "}
-                              {new Date(period.endDate).toLocaleDateString()} {period.endTime}
-                            </div>
-                          ))
-                        ) : (
-                          <span>Sem datas cadastradas</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
                 <div className="flex items-center gap-4 pt-4">
@@ -196,10 +175,6 @@ const EventDetail = () => {
                   <div>
                     <p className="text-white/70 text-sm">Organizado por</p>
                     <p className="text-white font-semibold text-lg">{event?.organizer.name}</p>
-                  </div>
-                  <div className="flex items-center gap-1 ml-auto">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-white/90 text-sm">4.8</span>
                   </div>
                 </div>
               </div>
@@ -554,7 +529,14 @@ const EventDetail = () => {
                   </div>
                 ) : (
                   <div>
-                    {event.currentTickets && event.currentTickets.length > 0 ? (
+                    {/* Verificação se batches está vazio */}
+                    {(!event.batches || event.batches.length === 0) ? (
+                      <div className="text-center text-gray-600 py-12">
+                        <Ticket className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                        <p className="text-lg font-medium mb-2">Ingressos Indisponíveis</p>
+                        <p className="text-sm text-gray-500">Eventos Indisponíveis no momento.</p>
+                      </div>
+                    ) : event.currentTickets && event.currentTickets.length > 0 ? (
                       <TicketSelector event={event} tickets={event.currentTickets} />
                     ) : (
                       <div className="text-center text-gray-600 py-12">

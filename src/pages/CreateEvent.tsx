@@ -1701,6 +1701,8 @@ export default function CreateEvent() {
                               quantity: 0,
                               description: "",
                               type: "regular",
+                              _id: "",
+                              soldQuantity: 0,
                             });
                             setFormData((prev) => ({
                               ...prev,

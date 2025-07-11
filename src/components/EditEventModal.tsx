@@ -10,11 +10,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar, Clock, Image, Tag, Ticket } from "lucide-react";
-import { format } from "date-fns";
+import { Calendar, Clock, Image, Tag, Plus, Trash2, X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import EventInterface from "@/interfaces/EventInterface";
 import TicketInterface from "@/interfaces/TicketInterface";
+import { Batch } from "@/interfaces/FormDataInterface";
 import axios from "axios";
 import FormBuilder from "./FormBuilder";
 
@@ -24,6 +31,36 @@ interface EditEventModalProps {
   onClose: () => void;
   onSave: (updatedEvent: EventInterface) => void;
 }
+
+const estadosMunicipios = {
+  AC: { nome: "Acre" },
+  AL: { nome: "Alagoas" },
+  AP: { nome: "Amapá" },
+  AM: { nome: "Amazonas" },
+  BA: { nome: "Bahia" },
+  CE: { nome: "Ceará" },
+  DF: { nome: "Distrito Federal" },
+  ES: { nome: "Espírito Santo" },
+  GO: { nome: "Goiás" },
+  MA: { nome: "Maranhão" },
+  MT: { nome: "Mato Grosso" },
+  MS: { nome: "Mato Grosso do Sul" },
+  MG: { nome: "Minas Gerais" },
+  PA: { nome: "Pará" },
+  PB: { nome: "Paraíba" },
+  PR: { nome: "Paraná" },
+  PE: { nome: "Pernambuco" },
+  PI: { nome: "Piauí" },
+  RJ: { nome: "Rio de Janeiro" },
+  RN: { nome: "Rio Grande do Norte" },
+  RS: { nome: "Rio Grande do Sul" },
+  RO: { nome: "Rondônia" },
+  RR: { nome: "Roraima" },
+  SC: { nome: "Santa Catarina" },
+  SP: { nome: "São Paulo" },
+  SE: { nome: "Sergipe" },
+  TO: { nome: "Tocantins" },
+};
 
 const formatCEP = (cep: string) => {
   if (!cep) return "";
@@ -39,6 +76,70 @@ const formatNumber = (number: string) => {
   return number.replace(/\D/g, "");
 };
 
+// Função para formatar data para datetime-local
+const formatDateTimeForInput = (dateString: string) => {
+  if (!dateString) return "";
+  
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    
+    // Formatar para YYYY-MM-DDTHH:mm (formato do datetime-local)
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  } catch (error) {
+    console.error("Erro ao formatar data:", error);
+    return "";
+  }
+};
+
+// Função para formatar data para input type="date"
+const formatDateForInput = (dateString: string) => {
+  if (!dateString) return "";
+  
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    
+    return date.toISOString().split('T')[0]; // YYYY-MM-DD
+  } catch (error) {
+    console.error("Erro ao formatar data:", error);
+    return "";
+  }
+};
+
+// Função para formatar hora para input type="time"
+const formatTimeForInput = (timeString: string) => {
+  if (!timeString) return "";
+  
+  try {
+    // Se for uma data completa, extrair apenas a hora
+    if (timeString.includes('T') || timeString.includes(' ')) {
+      const date = new Date(timeString);
+      if (isNaN(date.getTime())) return "";
+      
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${hours}:${minutes}`;
+    }
+    
+    // Se já for uma string de hora (HH:mm)
+    if (timeString.includes(':')) {
+      return timeString;
+    }
+    
+    return "";
+  } catch (error) {
+    console.error("Erro ao formatar hora:", error);
+    return "";
+  }
+};
+
 export function EditEventModal({
   event,
   isOpen,
@@ -47,17 +148,40 @@ export function EditEventModal({
 }: EditEventModalProps) {
   const [editedEvent, setEditedEvent] = useState<EventInterface | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
+  const [municipiosPorUF, setMunicipiosPorUF] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
     if (event) {
       setEditedEvent({
         ...event,
-        tickets: event.tickets || [],
+        dates: event.dates || [],
+        batches: event.batches || [],
         acceptedTerms: event.acceptedTerms || false,
       });
       setCurrentStep(1);
+      
+      // Carregar municípios do estado atual se existir
+      if (event.state) {
+        buscarMunicipios(event.state);
+      }
     }
   }, [event]);
+
+  // Função para buscar municípios
+  const buscarMunicipios = async (sigla: string) => {
+    if (municipiosPorUF[sigla]) return;
+
+    try {
+      const res = await fetch(
+        `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${sigla}/municipios`
+      );
+      const data = await res.json();
+      const nomes = data.map((m: any) => m.nome);
+      setMunicipiosPorUF((prev) => ({ ...prev, [sigla]: nomes }));
+    } catch (err) {
+      console.error("Erro ao buscar municípios:", err);
+    }
+  };
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -83,6 +207,153 @@ export function EditEventModal({
       };
       reader.readAsDataURL(e.target.files[0]);
     }
+  };
+
+  // Funções para gerenciar períodos
+  const addPeriod = () => {
+    if (!editedEvent) return;
+    const newPeriod = {
+      startDate: "",
+      startTime: "",
+      endDate: "",
+      endTime: "",
+      attractions: [],
+      _id: `temp_${Date.now()}`,
+    };
+    setEditedEvent({
+      ...editedEvent,
+      dates: [...editedEvent.dates, newPeriod],
+    });
+  };
+
+  const removePeriod = (index: number) => {
+    if (!editedEvent) return;
+    const newDates = editedEvent.dates.filter((_, i) => i !== index);
+    setEditedEvent({
+      ...editedEvent,
+      dates: newDates,
+    });
+  };
+
+  const updatePeriod = (index: number, field: string, value: string) => {
+    if (!editedEvent) return;
+    const newDates = [...editedEvent.dates];
+    newDates[index] = { ...newDates[index], [field]: value };
+    setEditedEvent({
+      ...editedEvent,
+      dates: newDates,
+    });
+  };
+
+  // Funções para gerenciar atrações
+  const addAttraction = (periodIndex: number) => {
+    if (!editedEvent) return;
+    const newDates = [...editedEvent.dates];
+    newDates[periodIndex].attractions.push({ name: "", social: "" });
+    setEditedEvent({
+      ...editedEvent,
+      dates: newDates,
+    });
+  };
+
+  const removeAttraction = (periodIndex: number, attractionIndex: number) => {
+    if (!editedEvent) return;
+    const newDates = [...editedEvent.dates];
+    newDates[periodIndex].attractions.splice(attractionIndex, 1);
+    setEditedEvent({
+      ...editedEvent,
+      dates: newDates,
+    });
+  };
+
+  const updateAttraction = (periodIndex: number, attractionIndex: number, field: string, value: string) => {
+    if (!editedEvent) return;
+    const newDates = [...editedEvent.dates];
+    newDates[periodIndex].attractions[attractionIndex] = {
+      ...newDates[periodIndex].attractions[attractionIndex],
+      [field]: value,
+    };
+    setEditedEvent({
+      ...editedEvent,
+      dates: newDates,
+    });
+  };
+
+  // Funções para gerenciar lotes
+  const addBatch = () => {
+    if (!editedEvent) return;
+    const newBatch: Batch = {
+      batchName: "",
+      saleStart: "",
+      saleEnd: "",
+      tickets: [],
+    };
+    setEditedEvent({
+      ...editedEvent,
+      batches: [...editedEvent.batches, newBatch],
+    });
+  };
+
+  const removeBatch = (index: number) => {
+    if (!editedEvent) return;
+    const newBatches = editedEvent.batches.filter((_, i) => i !== index);
+    setEditedEvent({
+      ...editedEvent,
+      batches: newBatches,
+    });
+  };
+
+  const updateBatch = (index: number, field: string, value: string) => {
+    if (!editedEvent) return;
+    const newBatches = [...editedEvent.batches];
+    newBatches[index] = { ...newBatches[index], [field]: value };
+    setEditedEvent({
+      ...editedEvent,
+      batches: newBatches,
+    });
+  };
+
+  // Funções para gerenciar ingressos nos lotes
+  const addTicketToBatch = (batchIndex: number) => {
+    if (!editedEvent) return;
+    const newTicket: TicketInterface = {
+      name: "",
+      price: 0,
+      quantity: 0,
+      description: "",
+      type: "regular",
+      _id: `temp_${Date.now()}`,
+      soldQuantity: 0,
+    };
+    const newBatches = [...editedEvent.batches];
+    newBatches[batchIndex].tickets.push(newTicket);
+    setEditedEvent({
+      ...editedEvent,
+      batches: newBatches,
+    });
+  };
+
+  const removeTicketFromBatch = (batchIndex: number, ticketIndex: number) => {
+    if (!editedEvent) return;
+    const newBatches = [...editedEvent.batches];
+    newBatches[batchIndex].tickets.splice(ticketIndex, 1);
+    setEditedEvent({
+      ...editedEvent,
+      batches: newBatches,
+    });
+  };
+
+  const updateTicketInBatch = (batchIndex: number, ticketIndex: number, field: string, value: any) => {
+    if (!editedEvent) return;
+    const newBatches = [...editedEvent.batches];
+    newBatches[batchIndex].tickets[ticketIndex] = {
+      ...newBatches[batchIndex].tickets[ticketIndex],
+      [field]: value,
+    };
+    setEditedEvent({
+      ...editedEvent,
+      batches: newBatches,
+    });
   };
 
   const handleSubmit = async () => {
@@ -177,7 +448,7 @@ export function EditEventModal({
                   }`}
                 >
                   {step === 1 && "Informações"}
-                  {step === 2 && "Data/Hora"}
+                  {step === 2 && "Períodos"}
                   {step === 3 && "Descrição"}
                   {step === 4 && "Local"}
                   {step === 5 && "Ingressos"}
@@ -275,98 +546,163 @@ export function EditEventModal({
 
           {currentStep === 2 && (
             <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Data de Início *
-                  </label>
-                  <div className="relative">
-                    <Calendar
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                      size={20}
-                    />
-                    <Input
-                      type="date"
-                      name="startDate"
-                      value={
-                        editedEvent.startDate
-                          ? format(
-                              new Date(editedEvent.startDate),
-                              "yyyy-MM-dd"
-                            )
-                          : ""
-                      }
-                      onChange={handleChange}
-                      className="pl-10"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Hora de Início *
-                  </label>
-                  <div className="relative">
-                    <Clock
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                      size={20}
-                    />
-                    <Input
-                      type="time"
-                      name="startTime"
-                      value={editedEvent.startTime || "19:00"}
-                      onChange={handleChange}
-                      className="pl-10"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Data de Término *
-                  </label>
-                  <div className="relative">
-                    <Calendar
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                      size={20}
-                    />
-                    <Input
-                      type="date"
-                      name="endDate"
-                      value={
-                        editedEvent.endDate
-                          ? format(new Date(editedEvent.endDate), "yyyy-MM-dd")
-                          : ""
-                      }
-                      onChange={handleChange}
-                      className="pl-10"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Hora de Término *
-                  </label>
-                  <div className="relative">
-                    <Clock
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                      size={20}
-                    />
-                    <Input
-                      type="time"
-                      name="endTime"
-                      value={editedEvent.endTime || "22:00"}
-                      onChange={handleChange}
-                      className="pl-10"
-                      required
-                    />
-                  </div>
-                </div>
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-medium">Períodos do Evento</h3>
+                <Button
+                  type="button"
+                  onClick={addPeriod}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Adicionar Período
+                </Button>
               </div>
+
+              {editedEvent.dates.map((period, index) => (
+                <div key={index} className="border rounded-lg p-4 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium">Período {index + 1}</h4>
+                    {editedEvent.dates.length > 1 && (
+                      <Button
+                        type="button"
+                        onClick={() => removePeriod(index)}
+                        variant="outline"
+                        size="sm"
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Data de Início *
+                      </label>
+                      <div className="relative">
+                        <Calendar
+                          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                          size={20}
+                        />
+                        <Input
+                          type="date"
+                          value={formatDateForInput(period.startDate)}
+                          onChange={(e) => updatePeriod(index, "startDate", e.target.value)}
+                          className="pl-10"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Hora de Início *
+                      </label>
+                      <div className="relative">
+                        <Clock
+                          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                          size={20}
+                        />
+                        <Input
+                          type="time"
+                          value={formatTimeForInput(period.startTime)}
+                          onChange={(e) => updatePeriod(index, "startTime", e.target.value)}
+                          className="pl-10"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Data de Término *
+                      </label>
+                      <div className="relative">
+                        <Calendar
+                          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                          size={20}
+                        />
+                        <Input
+                          type="date"
+                          value={formatDateForInput(period.endDate)}
+                          onChange={(e) => updatePeriod(index, "endDate", e.target.value)}
+                          className="pl-10"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Hora de Término *
+                      </label>
+                      <div className="relative">
+                        <Clock
+                          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                          size={20}
+                        />
+                        <Input
+                          type="time"
+                          value={formatTimeForInput(period.endTime)}
+                          onChange={(e) => updatePeriod(index, "endTime", e.target.value)}
+                          className="pl-10"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Atrações do período */}
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <label className="block text-sm font-medium text-gray-700">
+                        Atrações (opcional)
+                      </label>
+                      <Button
+                        type="button"
+                        onClick={() => addAttraction(index)}
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-1"
+                      >
+                        <Plus className="h-3 w-3" />
+                        Adicionar Atração
+                      </Button>
+                    </div>
+
+                    {period.attractions.map((attraction, attrIndex) => (
+                      <div key={attrIndex} className="flex gap-2 items-start">
+                        <Input
+                          type="text"
+                          placeholder="Nome da atração"
+                          value={attraction.name}
+                          onChange={(e) => updateAttraction(index, attrIndex, "name", e.target.value)}
+                          className="flex-1"
+                        />
+                        <Input
+                          type="text"
+                          placeholder="Rede social/link (opcional)"
+                          value={attraction.social || ""}
+                          onChange={(e) => updateAttraction(index, attrIndex, "social", e.target.value)}
+                          className="flex-1"
+                        />
+                        <Button
+                          type="button"
+                          onClick={() => removeAttraction(index, attrIndex)}
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
@@ -381,6 +717,7 @@ export function EditEventModal({
                   value={editedEvent.description}
                   onChange={handleChange}
                   className="w-full h-48"
+                  placeholder="Descreva seu evento, incluindo detalhes sobre as atrações, programação, o que os participantes podem esperar..."
                   required
                 />
               </div>
@@ -394,6 +731,7 @@ export function EditEventModal({
                   value={editedEvent.policy || ""}
                   onChange={handleChange}
                   className="w-full h-48"
+                  placeholder="Políticas de cancelamento, reembolso, regras do evento..."
                 />
               </div>
             </div>
@@ -525,262 +863,267 @@ export function EditEventModal({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Cidade *
+                    Selecione o Estado *
                   </label>
-                  <Input
-                    type="text"
-                    name="city"
-                    value={editedEvent.city || ""}
-                    onChange={handleChange}
-                    className="w-full"
-                    required
-                  />
+                  <Select
+                    onValueChange={async (sigla) => {
+                      setEditedEvent((prev) => ({
+                        ...prev!,
+                        state: sigla,
+                        city: "",
+                      }));
+                      await buscarMunicipios(sigla);
+                    }}
+                    value={editedEvent.state}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione o estado" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(estadosMunicipios).map(
+                        ([sigla, { nome }]) => (
+                          <SelectItem key={sigla} value={sigla}>
+                            {nome}
+                          </SelectItem>
+                        )
+                      )}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Estado *
+                    Selecione a Cidade
                   </label>
-                  <select
-                    name="state"
-                    value={editedEvent.state || ""}
-                    onChange={handleChange}
-                    className="w-full p-2 border rounded-md bg-white"
-                    required
+                  <Select
+                    onValueChange={(municipio) =>
+                      setEditedEvent((prev) => ({
+                        ...prev!,
+                        city: municipio,
+                      }))
+                    }
+                    value={editedEvent.city}
                   >
-                    <option value="">Selecione o estado</option>
-                    <option value="AC">Palmas</option>
-                    <option value="AL">Gurupi</option>
-                    <option value="AL">Araguaína</option>
-                    <option value="AL">Porto Nacional</option>
-                    <option value="AL">Paraíso do Tocantins</option>
-                    <option value="AL">Guaraí</option>
-                    <option value="AL">Dianópolis</option>
-                    <option value="AL">Miracema do Tocantins</option>
-                    <option value="AL">Formoso do Araguaia</option>
-                    <option value="AL">Pedro Afonso</option>
-                    <option value="AL">Tocantinópolis</option>
-                  </select>
+                    <SelectTrigger className="w-full">
+                      <SelectValue
+                        placeholder={
+                          editedEvent.state
+                            ? "Selecione o município"
+                            : "Selecione um estado primeiro"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(municipiosPorUF[editedEvent.state] || []).map(
+                        (municipio) => (
+                          <SelectItem key={municipio} value={municipio}>
+                            {municipio}
+                          </SelectItem>
+                        )
+                      )}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
           )}
 
-          {currentStep === 5 && !event?.isFree ? (                     
+          {currentStep === 5 && !event?.isFree ? (
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-800 pt-8">
-                Ingressos
-              </h2>
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-medium">Lotes de Ingressos</h3>
+                <Button
+                  type="button"
+                  onClick={addBatch}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Adicionar Lote
+                </Button>
+              </div>
 
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <h3 className="text-lg font-medium text-gray-800 mb-4">
-                  Que tipo de ingresso você deseja criar?
-                </h3>
+              {editedEvent.batches.map((batch, batchIndex) => (
+                <div key={batchIndex} className="border rounded-lg p-4 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium">Lote {batchIndex + 1}</h4>
+                    <Button
+                      type="button"
+                      onClick={() => removeBatch(batchIndex)}
+                      variant="outline"
+                      size="sm"
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Tipos de Ingresso */}
-                  <div
-                    onClick={() => {
-                      const newTicket: TicketInterface = {
-                        name: "",
-                        price: 0,
-                        quantity: 0,
-                        description: "",
-                        type: "regular",
-                        _id: "",
-                        soldQuantity: 0,
-                      };
-                      setEditedEvent({
-                        ...editedEvent,
-                        tickets: [...editedEvent.tickets, newTicket],
-                      });
-                    }}
-                    className="bg-white p-6 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 cursor-pointer transition-all"
-                  >
-                    <div className="text-center">
-                      <Ticket className="w-12 h-12 mx-auto text-gray-400 mb-2" />
-                      <h4 className="font-medium text-gray-900">
-                        Ingresso Regular
-                      </h4>
-                      <p className="text-sm text-gray-500 mt-1">
-                        Ingresso com preço padrão
-                      </p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Nome do Lote *
+                      </label>
+                      <Input
+                        type="text"
+                        value={batch.batchName}
+                        onChange={(e) => updateBatch(batchIndex, "batchName", e.target.value)}
+                        placeholder="Ex: Primeiro Lote, Promocional"
+                        className="w-full"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Início da Venda *
+                      </label>
+                      <Input
+                        type="datetime-local"
+                        value={formatDateTimeForInput(batch.saleStart)}
+                        onChange={(e) => updateBatch(batchIndex, "saleStart", e.target.value)}
+                        className="w-full"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Fim da Venda *
+                      </label>
+                      <Input
+                        type="datetime-local"
+                        value={formatDateTimeForInput(batch.saleEnd)}
+                        onChange={(e) => updateBatch(batchIndex, "saleEnd", e.target.value)}
+                        className="w-full"
+                        required
+                      />
                     </div>
                   </div>
 
-                  <div
-                    onClick={() => {
-                      const newTicket: TicketInterface = {
-                        name: "",
-                        price: 0,
-                        quantity: 0,
-                        description: "",
-                        type: "student",
-                        _id: "",
-                        soldQuantity: 0,
-                      };
-                      setEditedEvent({
-                        ...editedEvent,
-                        tickets: [...editedEvent.tickets, newTicket],
-                      });
-                    }}
-                    className="bg-white p-6 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 cursor-pointer transition-all"
-                  >
-                    <div className="text-center">
-                      <Ticket className="w-12 h-12 mx-auto text-gray-400 mb-2" />
-                      <h4 className="font-medium text-gray-900">
-                        Meia-Entrada
-                      </h4>
-                      <p className="text-sm text-gray-500 mt-1">
-                        Ingresso com 50% de desconto
-                      </p>
+                  {/* Ingressos do lote */}
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <label className="block text-sm font-medium text-gray-700">
+                        Ingressos do Lote
+                      </label>
+                      <Button
+                        type="button"
+                        onClick={() => addTicketToBatch(batchIndex)}
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-1"
+                      >
+                        <Plus className="h-3 w-3" />
+                        Adicionar Ingresso
+                      </Button>
                     </div>
-                  </div>
-                </div>
 
-                {/* Lista de Ingressos */}
-                {editedEvent.tickets.length > 0 && (
-                  <div className="mt-8">
-                    <h4 className="font-medium text-gray-900 mb-4">
-                      Ingressos Criados
-                    </h4>
-                    <div className="space-y-4">
-                      {editedEvent.tickets.map((ticket, index) => (
-                        <div
-                          key={index}
-                          className="bg-white p-4 rounded-lg shadow-sm"
-                        >
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* Nome do Ingresso */}
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Nome do Ingresso *
-                              </label>
-                              <Input
-                                type="text"
-                                value={ticket.name}
-                                onChange={(e) => {
-                                  const updatedTickets = [
-                                    ...editedEvent.tickets,
-                                  ];
-                                  updatedTickets[index].name = e.target.value;
-                                  setEditedEvent({
-                                    ...editedEvent,
-                                    tickets: updatedTickets,
-                                  });
-                                }}
-                                placeholder="Ex: VIP, Camarote, Pista"
-                                className="w-full"
-                                required
-                              />
-                            </div>
-
-                            {/* Preço */}
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Preço *
-                              </label>
-                              <Input
-                                type="number"
-                                value={ticket.price}
-                                onChange={(e) => {
-                                  const updatedTickets = [
-                                    ...editedEvent.tickets,
-                                  ];
-                                  updatedTickets[index].price = Number(
-                                    e.target.value
-                                  );
-                                  setEditedEvent({
-                                    ...editedEvent,
-                                    tickets: updatedTickets,
-                                  });
-                                }}
-                                placeholder="R$ 0,00"
-                                className="w-full"
-                                required
-                              />
-                            </div>
-
-                            {/* Quantidade */}
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Quantidade Disponível *
-                              </label>
-                              <Input
-                                type="number"
-                                value={ticket.quantity}
-                                onChange={(e) => {
-                                  const updatedTickets = [
-                                    ...editedEvent.tickets,
-                                  ];
-                                  updatedTickets[index].quantity = Number(
-                                    e.target.value
-                                  );
-                                  setEditedEvent({
-                                    ...editedEvent,
-                                    tickets: updatedTickets,
-                                  });
-                                }}
-                                placeholder="0"
-                                className="w-full"
-                                required
-                              />
-                            </div>
-
-                            {/* Descrição */}
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Descrição
-                              </label>
-                              <Input
-                                type="text"
-                                value={ticket.description}
-                                onChange={(e) => {
-                                  const updatedTickets = [
-                                    ...editedEvent.tickets,
-                                  ];
-                                  updatedTickets[index].description =
-                                    e.target.value;
-                                  setEditedEvent({
-                                    ...editedEvent,
-                                    tickets: updatedTickets,
-                                  });
-                                }}
-                                placeholder="Descrição do ingresso (opcional)"
-                                className="w-full"
-                              />
-                            </div>
-                          </div>
-
-                          {/* Botão Remover */}
+                    {batch.tickets.map((ticket, ticketIndex) => (
+                      <div key={ticketIndex} className="border rounded p-3 space-y-3">
+                        <div className="flex justify-between items-center">
+                          <h5 className="font-medium">Ingresso {ticketIndex + 1}</h5>
                           <Button
                             type="button"
+                            onClick={() => removeTicketFromBatch(batchIndex, ticketIndex)}
                             variant="outline"
-                            className="mt-4 text-red-600 hover:text-red-700"
-                            onClick={() => {
-                              const updatedTickets = editedEvent.tickets.filter(
-                                (_, i) => i !== index
-                              );
-                              setEditedEvent({
-                                ...editedEvent,
-                                tickets: updatedTickets,
-                              });
-                            }}
+                            size="sm"
+                            className="text-red-600 hover:text-red-700"
                           >
-                            Remover Ingresso
+                            <X className="h-4 w-4" />
                           </Button>
                         </div>
-                      ))}
-                    </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Nome do Ingresso *
+                            </label>
+                            <Input
+                              type="text"
+                              value={ticket.name}
+                              onChange={(e) => updateTicketInBatch(batchIndex, ticketIndex, "name", e.target.value)}
+                              placeholder="Ex: VIP, Camarote, Pista"
+                              className="w-full"
+                              required
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Preço *
+                            </label>
+                            <Input
+                              type="number"
+                              value={ticket.price}
+                              onChange={(e) => updateTicketInBatch(batchIndex, ticketIndex, "price", Number(e.target.value))}
+                              placeholder="R$ 0,00"
+                              className="w-full"
+                              required
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Quantidade Disponível *
+                            </label>
+                            <Input
+                              type="number"
+                              value={ticket.quantity}
+                              onChange={(e) => updateTicketInBatch(batchIndex, ticketIndex, "quantity", Number(e.target.value))}
+                              placeholder="0"
+                              className="w-full"
+                              required
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Tipo
+                            </label>
+                            <select
+                              value={ticket.type}
+                              onChange={(e) => updateTicketInBatch(batchIndex, ticketIndex, "type", e.target.value)}
+                              className="w-full p-2 border rounded-md bg-white"
+                            >
+                              <option value="regular">Regular</option>
+                              <option value="student">Meia-Entrada</option>
+                              <option value="senior">Idoso</option>
+                              <option value="free">Gratuito</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Descrição
+                          </label>
+                          <Input
+                            type="text"
+                            value={ticket.description}
+                            onChange={(e) => updateTicketInBatch(batchIndex, ticketIndex, "description", e.target.value)}
+                            placeholder="Descrição do ingresso (opcional)"
+                            className="w-full"
+                          />
+                        </div>
+
+                        {/* Valor líquido (após taxa) */}
+                        <div className="bg-gray-50 p-3 rounded">
+                          <p className="text-sm text-gray-600">
+                            Valor líquido (após taxa de 10%):{" "}
+                            <span className="font-medium text-green-600">
+                              R$ {(ticket.price * 0.9).toFixed(2)}
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                )}
-              </div>
+                </div>
+              ))}
             </div>
-          ): currentStep === 5 && event?.isFree && event ?
-          (
-            <FormBuilder form={event} setForm={setEditedEvent}></FormBuilder> 
-          ) :
-          null
-          }
+          ) : currentStep === 5 && event?.isFree ? (
+            <FormBuilder form={event} setForm={setEditedEvent} />
+          ) : null}
 
           {currentStep === 6 && (
             <div className="space-y-6">

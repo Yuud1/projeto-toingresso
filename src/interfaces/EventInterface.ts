@@ -18,11 +18,7 @@ export default interface EventInterface {
     endTime: string;
     attractions: { name: string; social?: string }[];
     _id?: string;
-  }[];
-  startDate: string;
-  startTime: string;
-  endDate: string;
-  endTime: string;
+  }[];      
   description: string;
   venueName: string;
   zipCode: string;
@@ -33,8 +29,7 @@ export default interface EventInterface {
   city: string;
   state: string;
   latitude: string;
-  longitude: string;
-  tickets: TicketInterface[];
+  longitude: string;  
   organizer: OrganizerInterface;
   acceptedTerms: boolean;
   policy: string;

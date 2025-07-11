@@ -1,11 +1,11 @@
 import CustomFieldInterface from "./CustomFieldInterface";
-import TicketType from "./TicketTypeInterface";
+import TicketInterface from "./TicketInterface";
 
 export interface Batch {
   batchName: string;
   saleStart: string;
   saleEnd: string;
-  tickets: TicketType[];
+  tickets: TicketInterface[];
 }
 
 export default interface FormDataInterface {

@@ -48,14 +48,14 @@ export default function Favorites() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {likedEvents.map((event) => {
                 const isFree = event.isFree;
-                const startDate = new Date(event.startDate).toLocaleDateString(
+                const startDate = new Date(event.dates[0].startDate).toLocaleDateString(
                   "pt-BR",
                   {
                     day: "2-digit",
                     month: "short",
                   }
                 );
-                const startTime = event.startTime.slice(0, 5);
+                const startTime = event.dates[0].startTime.slice(0, 5);
 
                 return (
                   <a href={`/evento/${event._id}`} key={event._id}>
