@@ -511,7 +511,7 @@ const EventDetail = () => {
               <CardHeader className="pb-4">
                 <CardTitle className="text-2xl text-gray-800 flex items-center gap-3">
                   <Ticket className="h-6 w-6 text-blue-600" />
-                  {event?.isFree ? event.formTitle || "Formulário de Inscrição" : "Ingressos"}
+                  {event?.isFree ? event.formTitle || "Formulário de Inscrição" : `Ingressos ${event.batches[0].batchName}`}
                 </CardTitle>
               </CardHeader>
               <CardContent>
