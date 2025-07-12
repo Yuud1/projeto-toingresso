@@ -72,7 +72,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
   // Debounce para evitar muitas requisições
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      if (query) {
+      if (query.length > 2) {        
         searchEvents(query);
       } else {
         setResults([]);

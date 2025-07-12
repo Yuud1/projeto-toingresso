@@ -166,6 +166,7 @@ const EventDetail = () => {
                 </div>
 
                 <div className="flex items-center gap-4 pt-4">
+                  <a href={`/organizer/${event?.organizer._id}`} className="flex items-center gap-3">
                   <Avatar className="h-14 w-14 border-2 border-white/30">
                     <AvatarImage src={event?.organizer.avatar || "/placeholder.svg"} />
                     <AvatarFallback className="bg-white/20 text-white">
@@ -174,8 +175,9 @@ const EventDetail = () => {
                   </Avatar>
                   <div>
                     <p className="text-white/70 text-sm">Organizado por</p>
-                    <p className="text-white font-semibold text-lg">{event?.organizer.name}</p>
-                  </div>
+                      <p className="text-white font-semibold text-lg">{event?.organizer.name}</p>
+                    </div>
+                  </a>
                 </div>
               </div>
 
