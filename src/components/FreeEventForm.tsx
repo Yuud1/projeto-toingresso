@@ -124,7 +124,7 @@ const FreeEventForm = ({
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} >
         <div className="p-4 border rounded-lg space-y-4">
           {customFields.map((field) => (
             <div

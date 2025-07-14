@@ -22,10 +22,11 @@ import {
   Upload,
   Search,
   Plus,
-  Trash2,
-  Star,
+  Trash2,  
   Music,
   Ticket,
+  RollerCoaster,
+  PartyPopper,
 } from "lucide-react";
 import {
   Select,
@@ -37,6 +38,8 @@ import {
 import FormBuilder from "@/components/FormBuilder";
 import type FormDataInterface from "@/interfaces/FormDataInterface";
 import Header from "@/components/Header";
+import { FaFootballBall, FaQuestionCircle } from "react-icons/fa";
+import axios from "axios";
 
 const estadosMunicipios = {
   AC: { nome: "Acre" },
@@ -71,10 +74,13 @@ const estadosMunicipios = {
 const CATEGORIES = [
   { value: "shows", label: "Shows", icon: Music },
   { value: "teatro", label: "Teatro", icon: Users },
-  { value: "esportes", label: "Esportes", icon: Star },
-  { value: "festas", label: "Festas", icon: Users },
+  { value: "esportes", label: "Esportes", icon: FaFootballBall },
+  { value: "festas", label: "Festas", icon: PartyPopper },
   { value: "comedia", label: "Comédia", icon: Users },
   { value: "gospel", label: "Gospel", icon: Music },
+  { value: "parque", label: "Parque de Diversões", icon: RollerCoaster },
+  { value: "publico", label: "Evento Público", icon: Users },
+  { value: "outros", label: "Outros", icon: FaQuestionCircle },
 ];
 
 export default function CreateEvent() {
@@ -346,10 +352,12 @@ export default function CreateEvent() {
       e.preventDefault();
 
       if (!formData.acceptedTerms) {
+          
         return;
       }
 
       if (!validateCurrentStep()) {
+        
         return;
       }
 
@@ -361,24 +369,53 @@ export default function CreateEvent() {
           data.append("image", formData.image);
         }
 
+        // Gerar URL do mapa antes de enviar
         const mapUrl =
           formData.latitude && formData.longitude
-            ? `https://www.google.com/maps/embed/v1/place?key=DEMO_KEY&q=${formData.latitude},${formData.longitude}&zoom=15`
+            ? `https://www.google.com/maps/embed/v1/place?key=${
+                import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+              }&q=${formData.latitude},${formData.longitude}&zoom=15`
             : "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1963.4955007216295!2d-48.337388507953854!3d-10.181385600694082!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9324cb6b090918a5%3A0xec2ad53ac4f6cb12!2sBrasif%20M%C3%A1quinas!5e0!3m2!1spt-BR!2sbr!4v1749832543882!5m2!1spt-BR!2sbr";
 
-        const formDataToSend = { ...formData, mapUrl };
+        const formDataToSend = {
+          ...formData,
+          mapUrl: mapUrl,
+        };
+
         const { image, ...rest } = formDataToSend;
         data.append("formData", JSON.stringify(rest));
 
-        // Mock API call for demo
-        setTimeout(() => {
+        console.log(formData);
+        if (formData.isFree && formData.customFields.length == 0) {
+          
+          console.log("naoo cadastrei o evento");
+          throw new Error(
+            "Nenhum campo de formulário adicionado para eventos gratuitos."
+          );
+        }
+
+        console.log("cadastrei o evento");
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_BASE_URL}${
+            import.meta.env.VITE_CREATE_EVENT
+          }`,
+          data,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        if (response.data.saved) {
           setCreated(true);
-          setLoading(false);
-        }, 2000);
+          
+        }
       } catch (error) {
-        console.error("Erro ao criar Evento", error);
+        console.error("Erro ao criar Evento", error);        
       } finally {
-        // setLoading(false);
+        setLoading(false);
       }
     },
     [formData, validateCurrentStep]
@@ -820,6 +857,9 @@ export default function CreateEvent() {
                             newDates[idx].attractions.push({
                               name: "",
                               social: "",
+                              description: "",
+                              startTime: "",
+                              endTime: "",
                             });
                             setFormData((prev) => ({
                               ...prev,
@@ -870,6 +910,38 @@ export default function CreateEvent() {
                                   placeholder="Rede social ou site (opcional)"
                                   className="flex-1"
                                 />
+                                <div className="flex gap-2">
+                                  <Input
+                                    type="time"
+                                    value={attraction.startTime || ""}
+                                    onChange={(e) => {
+                                      const newDates = [...formData.dates];
+                                      newDates[idx].attractions[a].startTime =
+                                        e.target.value;
+                                      setFormData((prev) => ({
+                                        ...prev,
+                                        dates: newDates,
+                                      }));
+                                    }}
+                                    placeholder="Início"
+                                    className="flex-1"
+                                  />
+                                  <Input
+                                    type="time"
+                                    value={attraction.endTime || ""}
+                                    onChange={(e) => {
+                                      const newDates = [...formData.dates];
+                                      newDates[idx].attractions[a].endTime =
+                                        e.target.value;
+                                      setFormData((prev) => ({
+                                        ...prev,
+                                        dates: newDates,
+                                      }));
+                                    }}
+                                    placeholder="Término"
+                                    className="flex-1"
+                                  />
+                                </div>
                               </div>
                               <Textarea                                
                                 value={attraction.description || ""}

@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
-import axios from "axios"
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 import {
   Heart,
   MapPin,
@@ -13,239 +13,355 @@ import {
   ChevronDown,
   ChevronUp,
   Ticket,
-  
   Music,
   ExternalLink,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-import { TicketSelector } from "@/components/TicketSelector"
-import FreeEventForm from "@/components/FreeEventForm"
-import Subscribed from "@/pages/Subscribed"
-import { useUser } from "@/contexts/useContext"
-import type EventInterface from "@/interfaces/EventInterface"
+  Star,
+  Share2,
+  Bookmark,
+  Play,
+  Sparkles,
+  Zap,
+  Globe,
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { TicketSelector } from "@/components/TicketSelector";
+import FreeEventForm from "@/components/FreeEventForm";
+import Subscribed from "@/pages/Subscribed";
+import { useUser } from "@/contexts/useContext";
+import type EventInterface from "@/interfaces/EventInterface";
 
 const EventDetail = () => {
-  const { id } = useParams()
-  const { user } = useUser()
+  const { id } = useParams();
+  const { user } = useUser();
 
-  const [isFavorited, setIsFavorited] = useState<boolean>(false)
-  const [event, setEvents] = useState<EventInterface | undefined>(undefined)
-  const [subscribed, setSubscribed] = useState(false)
-  const [qrCode, setQrCode] = useState(null)
-  const [showFull, setShowFull] = useState(false)
-
-  console.log(event)
+  const [isFavorited, setIsFavorited] = useState<boolean>(false);
+  const [event, setEvents] = useState<EventInterface | undefined>(undefined);
+  const [subscribed, setSubscribed] = useState(false);
+  const [qrCode, setQrCode] = useState(null);
+  const [showFull, setShowFull] = useState(false);
+  const [selectedAttraction, setSelectedAttraction] = useState<any | null>(
+    null
+  );
+  const [modalOpen, setModalOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    const condition = user?.likedEvents.some((e) => e.toString() == id) ?? false
-    setIsFavorited(condition)
-  }, [user])
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 100);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const condition =
+      user?.likedEvents.some((e) => e.toString() == id) ?? false;
+    setIsFavorited(condition);
+  }, [user]);
 
   async function handleFavorite() {
-    setIsFavorited(!isFavorited)
+    setIsFavorited(!isFavorited);
 
     if (!isFavorited) {
       await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_USER_LIKE_EVENT}/${id}`,
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_USER_LIKE_EVENT
+        }/${id}`,
         {},
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        },
-      )
+        }
+      );
     } else {
-      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_USER_REMOVE_LIKE_EVENT}/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
+      await axios.delete(
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_USER_REMOVE_LIKE_EVENT
+        }/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
     }
   }
 
-  const togglePolicy = () => setShowFull((prev) => !prev)
-  const policy = event?.policy || ""
-  const visibleText = showFull ? policy : `${policy.slice(0, 150)}...`
+  const togglePolicy = () => setShowFull((prev) => !prev);
+  const policy = event?.policy || "";
+  const visibleText = showFull ? policy : `${policy.slice(0, 150)}...`;
 
   useEffect(() => {
     try {
       async function getEvento() {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_EVENT_GETID}${id}`,
+          `${import.meta.env.VITE_API_BASE_URL}${
+            import.meta.env.VITE_EVENT_GETID
+          }${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-          },
-        )
+          }
+        );
 
         if (response.data.event) {
-          setEvents(response.data.event)
+          setEvents(response.data.event);
         }
       }
 
-      getEvento()
+      getEvento();
     } catch (error) {
-      console.log("Erro ao buscar evento", error)
+      console.log("Erro ao buscar evento", error);
     }
-  }, [id])
+  }, [id]);
 
   if (!event || !id) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando evento...</p>
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-blue-50 flex items-center justify-center relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-yellow-200/30 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-amber-200/30 rounded-full blur-3xl animate-pulse delay-500"></div>
+        </div>
+
+        <div className="text-center relative z-10">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-32 w-32 border-4 border-transparent bg-gradient-to-r from-yellow-400 via-blue-500 to-amber-400 mx-auto mb-8 p-1">
+              <div className="rounded-full h-full w-full bg-white"></div>
+            </div>
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400 via-blue-500 to-amber-400 blur-xl opacity-30 animate-pulse"></div>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            Carregando experiência
+          </h2>
+          <p className="text-gray-600">Preparando algo incrível para você...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50/50 via-white to-blue-50/50 text-gray-900 relative overflow-hidden">
+      {/* Animated background */}
+      <div className="fixed inset-0 z-0">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-yellow-200/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-amber-200/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+      </div>
+
       <Header isScrolled={true} />
 
       {/* Hero Section */}
-      <div className="relative h-[70vh] overflow-hidden mt-20">
+      <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Background Image with Parallax Effect */}
         <div
-          className="absolute inset-0 bg-cover bg-center scale-105"
-          style={{ backgroundImage: `url("${event?.image}")` }}
+          className="absolute inset-0 scale-110 transition-transform duration-1000 ease-out"
+          style={{
+            backgroundImage: `url("${event?.image}")`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            transform: `translateY(${isScrolled ? "-20px" : "0px"})`,
+          }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
 
-        {/* Floating elements for visual interest */}
-        <div className="absolute top-20 right-20 w-32 h-32 bg-white/10 rounded-full blur-xl animate-pulse" />
-        <div className="absolute bottom-40 left-10 w-24 h-24 bg-blue-500/20 rounded-full blur-lg animate-pulse delay-1000" />
+        {/* Gradient Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-yellow-900/30 via-transparent to-blue-900/30"></div>
 
-        <div className="relative h-full flex items-end">
-          <div className="container mx-auto px-6 pb-16">
-            <div className="grid lg:grid-cols-2 gap-12 items-end">
-              {/* Event Info */}
-              <div className="text-white space-y-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="space-y-4">
-                    <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                      {event?.category || "Evento"}
-                    </Badge>
-                    <h1 className="text-4xl lg:text-5xl font-bold leading-tight bg-gradient-to-r from-white to-white/80 bg-clip-text">
-                      {event?.title}
-                    </h1>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleFavorite}
-                    className={`rounded-full h-14 w-14 transition-all duration-300 backdrop-blur-sm ${
-                      isFavorited
-                        ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/25"
-                        : "bg-white/20 hover:bg-white/30 text-white border border-white/30"
-                    }`}
-                  >
-                    <Heart className={`h-6 w-6 ${isFavorited ? "fill-current" : ""}`} />
-                  </Button>
-                </div>
+        {/* Floating Action Buttons */}
+        <div className="absolute top-32 right-8 flex flex-col gap-4 z-20">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleFavorite}
+            className={`rounded-2xl h-14 w-14 backdrop-blur-xl border transition-all duration-500 hover:scale-110 ${
+              isFavorited
+                ? "bg-gradient-to-r from-red-500/90 to-pink-500/90 border-red-400/50 shadow-lg shadow-red-500/25 text-white"
+                : "bg-white/90 hover:bg-white border-white/50 text-gray-700 hover:text-gray-900 shadow-lg"
+            }`}
+          >
+            <Heart
+              className={`h-6 w-6 transition-all duration-300 ${
+                isFavorited ? "fill-current scale-110" : ""
+              }`}
+            />
+          </Button>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-white/90">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                      <MapPin className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-white/70">Localização</p>
-                      <p className="font-semibold">
-                        {event?.neighborhood} | {event?.city}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-2xl h-14 w-14 backdrop-blur-xl bg-white/90 hover:bg-white border border-white/50 text-gray-700 hover:text-gray-900 transition-all duration-300 hover:scale-110 shadow-lg"
+          >
+            <Share2 className="h-6 w-6" />
+          </Button>
 
-                <div className="flex items-center gap-4 pt-4">
-                  <a href={`/organizer/${event?.organizer._id}`} className="flex items-center gap-3">
-                  <Avatar className="h-14 w-14 border-2 border-white/30">
-                    <AvatarImage src={event?.organizer.avatar || "/placeholder.svg"} />
-                    <AvatarFallback className="bg-white/20 text-white">
-                      <User className="h-6 w-6" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="text-white/70 text-sm">Organizado por</p>
-                      <p className="text-white font-semibold text-lg">{event?.organizer.name}</p>
-                    </div>
-                  </a>
-                </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-2xl h-14 w-14 backdrop-blur-xl bg-white/90 hover:bg-white border border-white/50 text-gray-700 hover:text-gray-900 transition-all duration-300 hover:scale-110 shadow-lg"
+          >
+            <Bookmark className="h-6 w-6" />
+          </Button>
+        </div>
+
+        {/* Main Content */}
+        <div className="relative z-10 container mx-auto px-6 py-20">
+          <div className="max-w-4xl mx-auto text-center space-y-8">
+            {/* Category Badge */}
+            <div className="flex justify-center">
+              <Badge className="px-6 py-2 text-sm font-semibold bg-gradient-to-r text-white border-0 backdrop-blur-xl rounded-full shadow-lg">
+                <Sparkles className="w-4 h-4 mr-2" />
+                {event?.category || "Evento Especial"}
+              </Badge>
+            </div>
+
+            {/* Title */}
+            <h1 className="text-5xl md:text-7xl font-black leading-tight text-white drop-shadow-2xl">
+              {event?.title}
+            </h1>
+
+            {/* Event Stats */}
+            <div className="flex flex-wrap justify-center gap-8 text-sm">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 backdrop-blur-xl border border-white/50 text-gray-700 shadow-lg">
+                <MapPin className="w-4 h-4 text-yellow-600" />
+                <span>
+                  {event?.city}, {event?.state}
+                </span>
               </div>
 
-              {/* Event Image Card */}
-              <div className="hidden lg:block">
-                <div className="relative group">
-                  <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
-                  <img
-                    src={event?.image || "/placeholder.svg"}
-                    alt={event?.title}
-                    className="relative w-full h-96 object-cover rounded-2xl shadow-2xl transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="absolute bottom-6 left-6 right-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Users className="h-5 w-5" />
-                        <span className="font-medium">Evento imperdível</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-5 w-5" />
-                        <span className="font-medium">Em breve</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 backdrop-blur-xl border border-white/50 text-gray-700 shadow-lg">
+                <Calendar className="w-4 h-4 text-blue-600" />
+                <span>
+                  {event?.dates && event.dates.length > 0
+                    ? new Date(event.dates[0].startDate).toLocaleDateString(
+                        "pt-BR"
+                      )
+                    : "Data a definir"}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 backdrop-blur-xl border border-white/50 text-gray-700 shadow-lg">
+                <Users className="w-4 h-4 text-amber-600" />
+                <span>{event?.participants?.length || 0} participantes</span>
               </div>
             </div>
+
+            {/* Organizer */}
+            <div className="flex justify-center">
+              <a
+                href={`/organizer/${event?.organizer._id}`}
+                className="flex items-center gap-4 p-4 rounded-2xl bg-white/90 backdrop-blur-xl border border-white/50 hover:bg-white transition-all duration-300 hover:scale-105 group shadow-lg"
+              >
+                <Avatar className="h-12 w-12 border-2 border-yellow-400 group-hover:border-yellow-500 transition-colors">
+                  <AvatarImage
+                    src={event?.organizer.avatar || "/placeholder.svg"}
+                  />
+                  <AvatarFallback className="bg-gradient-to-r from-yellow-500 to-blue-500 text-white">
+                    <User className="h-6 w-6" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="text-left">
+                  <p className="text-xs text-gray-600">Organizado por</p>
+                  <p className="font-semibold text-gray-800 group-hover:text-yellow-700 transition-colors">
+                    {event?.organizer.name}
+                  </p>
+                </div>
+              </a>
+            </div>
+
+            {/* CTA Button */}
+            <div className="pt-8">
+              <Button
+                size="lg"
+                className="px-12 py-6 text-lg font-bold rounded-2xl bg-white hover:from-yellow-600 hover:via-blue-600 hover:to-amber-600 text-black hover:text-white cursor-pointer border-0 shadow-2xl hover:shadow-yellow-500/25 transition-all duration-300 hover:scale-105"
+                onClick={() => {
+                  const ticketSection =
+                    document.getElementById("tickets-section");
+                  ticketSection?.scrollIntoView({ behavior: "smooth" });
+                }}
+              >
+                <Zap className="w-6 h-6 mr-3" />
+                {event?.isFree
+                  ? "Inscrever-se Gratuitamente"
+                  : "Garantir Ingresso"}
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <div className="w-6 h-10 border-2 border-white/70 rounded-full flex justify-center">
+            <div className="w-1 h-3 bg-white/70 rounded-full mt-2 animate-pulse"></div>
           </div>
         </div>
       </div>
 
       {/* Subscribed Modal */}
-      {subscribed ? <Subscribed qrCode={qrCode} open={subscribed} onOpenChange={setSubscribed} /> : null}
+      {subscribed && (
+        <Subscribed
+          qrCode={qrCode}
+          open={subscribed}
+          onOpenChange={setSubscribed}
+        />
+      )}
 
       {/* Main Content */}
-      <div className="container mx-auto px-6 py-16">
+      <div className="relative z-10 container mx-auto px-6 py-20">
         <div className="grid lg:grid-cols-3 gap-12">
           {/* Left Column - Event Details */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-12">
             {/* Description */}
-            <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-3xl text-gray-800 flex items-center gap-3">
-                  <div className="w-2 h-8 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full"></div>
-                  Sobre o evento
+            <Card className="border-0 bg-white/80 backdrop-blur-xl shadow-2xl hover:shadow-yellow-500/10 transition-all duration-500 hover:scale-[1.02]">
+              <CardHeader className="pb-6">
+                <CardTitle className="text-3xl font-bold flex items-center gap-4 text-gray-800">
+                  <div className="w-12 h-12 rounded-2xl  flex items-center justify-center">
+                    <Globe className="w-6 h-6 " />
+                  </div>
+                  Sobre o Evento
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 leading-relaxed text-lg whitespace-pre-line">{event?.description}</p>
+                <p className="text-gray-700 leading-relaxed text-lg whitespace-pre-line">
+                  {event?.description}
+                </p>
 
                 {/* Mobile Event Info */}
-                <div className="md:hidden mt-8 p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl space-y-4">
+                <div className="md:hidden mt-8 p-6 rounded-2xl bg-gradient-to-r from-yellow-50 to-blue-50 border border-yellow-200/50 space-y-4">
                   <div className="flex items-center gap-3">
-                    <MapPin className="w-5 h-5 text-gray-600" />
-                    <p className="text-sm font-medium">
+                    <MapPin className="w-5 h-5 text-yellow-600" />
+                    <p className="text-sm font-medium text-gray-700">
                       {event?.neighborhood} | {event?.city}
                     </p>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <Calendar className="w-5 h-5 text-gray-600" />
-                    <div className="text-sm">
+                    <Calendar className="w-5 h-5 text-blue-600" />
+                    <div className="text-sm text-gray-700">
                       {event?.dates && event.dates.length > 0 ? (
                         event.dates.map((period, i) => (
                           <div key={i}>
-                            {new Date(period.startDate).toLocaleDateString()} {period.startTime} até{" "}
-                            {new Date(period.endDate).toLocaleDateString()} {period.endTime}
+                            {new Date(period.startDate).toLocaleDateString()}{" "}
+                            {period.startTime} até{" "}
+                            {new Date(period.endDate).toLocaleDateString()}{" "}
+                            {period.endTime}
                           </div>
                         ))
                       ) : (
@@ -253,22 +369,6 @@ const EventDetail = () => {
                       )}
                     </div>
                   </div>
-
-                  <a
-                    href={`/organizer/${event?.organizer._id}`}
-                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/50 transition-colors cursor-pointer"
-                  >
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={event?.organizer.avatar || "/placeholder.svg"} />
-                      <AvatarFallback>
-                        <User className="w-5 h-5 text-gray-500" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="text-xs text-gray-600">Organizador</p>
-                      <p className="text-sm font-medium text-gray-800">{event?.organizer.name}</p>
-                    </div>
-                  </a>
                 </div>
               </CardContent>
             </Card>
@@ -276,147 +376,197 @@ const EventDetail = () => {
             {/* Lineup/Attractions Section */}
             {event?.dates &&
               event.dates.length > 0 &&
-              event.dates.some((date) => date.attractions && date.attractions.length > 0) && (
-                <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="text-3xl text-gray-800 flex items-center gap-3">
-                      <div className="w-2 h-8 bg-gradient-to-b from-purple-500 to-pink-600 rounded-full"></div>
+              event.dates.some(
+                (date) => date.attractions && date.attractions.length > 0
+              ) && (
+                <Card className="border-0 bg-white/80 backdrop-blur-xl shadow-2xl hover:shadow-blue-500/10 transition-all duration-500">
+                  <CardHeader className="pb-6">
+                    <CardTitle className="text-3xl font-bold flex items-center gap-4 text-gray-800">
+                      <div className="w-12 h-12 rounded-2xl  flex items-center justify-center">
+                        <Music className="w-6 h-6 text-black" />
+                      </div>
                       Lineup & Atrações
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     {event.dates.length === 1 ? (
-                      // Single date - no tabs needed
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-3 mb-6">
-                          <Calendar className="h-5 w-5 text-purple-600" />
+                      // Single date
+                      <div className="space-y-6">
+                        <div className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-yellow-100 to-blue-100 border border-yellow-200/50">
+                          <Calendar className="h-6 w-6 text-yellow-600" />
                           <div>
-                            <p className="font-semibold text-gray-800">
-                              {new Date(event.dates[0].startDate).toLocaleDateString("pt-BR", {
+                            <p className="font-bold text-gray-800 text-lg">
+                              {new Date(
+                                event.dates[0].startDate
+                              ).toLocaleDateString("pt-BR", {
                                 weekday: "long",
                                 year: "numeric",
                                 month: "long",
                                 day: "numeric",
                               })}
                             </p>
-                            <p className="text-sm text-gray-600">
-                              {event.dates[0].startTime} às {event.dates[0].endTime}
+                            <p className="text-gray-600">
+                              {event.dates[0].startTime} às{" "}
+                              {event.dates[0].endTime}
                             </p>
                           </div>
                         </div>
 
-                        {event.dates[0].attractions && event.dates[0].attractions.length > 0 ? (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {event.dates[0].attractions.map((attraction, attractionIndex) => (
-                              <div
-                                key={attractionIndex}
-                                className="group p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-100 hover:shadow-lg transition-all duration-300 hover:scale-105"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
-                                    <Music className="h-5 w-5 text-white" />
-                                  </div>
-                                  <div className="flex-1">
-                                    <h4 className="font-bold text-gray-800 group-hover:text-purple-700 transition-colors">
-                                      {attraction.name}
-                                    </h4>
-                                    {attraction.social && (
-                                      <a
-                                        href={attraction.social}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1 text-sm text-purple-600 hover:text-purple-800 mt-1"
-                                      >
-                                        <ExternalLink className="h-3 w-3" />
-                                        Ver perfil
-                                      </a>
-                                    )}
-                                  </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {(event.dates[0].attractions
+                            ? [...event.dates[0].attractions].sort((a, b) => {
+                                const aStart = (a as any).startTime || "";
+                                const bStart = (b as any).startTime || "";
+                                if (!aStart) return -1;
+                                if (!bStart) return 1;
+                                return aStart.localeCompare(bStart);
+                              })
+                            : []
+                          ).map((attraction, index) => (
+                            <div
+                              key={index}
+                              className="group p-6 rounded-2xl bg-white border border-gray-200 hover:border-yellow-400 hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer"
+                              onClick={() => {
+                                setSelectedAttraction(attraction);
+                                setModalOpen(true);
+                              }}
+                            >
+                              <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-xl  flex items-center justify-center group-hover:scale-110 transition-transform">
+                                  <Play className="h-6 w-6 text-black" />
+                                </div>
+                                <div className="flex-1">
+                                  <h4 className="font-bold text-gray-800 text-lg group-hover:text-yellow-700 transition-colors">
+                                    {attraction.name}
+                                  </h4>
+                                  {attraction.startTime && (
+                                    <p className="text-gray-600 text-sm mt-1">
+                                      {attraction.startTime}
+                                      {attraction.endTime &&
+                                        ` - ${attraction.endTime}`}
+                                    </p>
+                                  )}
+                                  {attraction.social && (
+                                    <a
+                                      href={attraction.social}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 mt-2 transition-colors"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <ExternalLink className="h-3 w-3" />
+                                      Ver perfil
+                                    </a>
+                                  )}
                                 </div>
                               </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-gray-500 text-center py-8">Nenhuma atração cadastrada para esta data.</p>
-                        )}
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     ) : (
-                      // Multiple dates - use tabs
+                      // Multiple dates with tabs
                       <Tabs defaultValue="0" className="w-full">
-                        <TabsList className="grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 h-auto p-1 bg-gray-100">
+                        <TabsList className="grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 h-auto p-2 bg-gray-100 rounded-2xl">
                           {event.dates.map((date, index) => (
                             <TabsTrigger
                               key={index}
                               value={index.toString()}
-                              className="flex flex-col items-center p-4 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg transition-all duration-200"
+                              className="flex flex-col items-center p-4 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-blue-500 data-[state=active]:text-white rounded-xl transition-all duration-200 hover:scale-105"
                             >
-                              <span className="font-semibold text-sm">
-                                {new Date(date.startDate).toLocaleDateString("pt-BR", {
-                                  day: "2-digit",
-                                  month: "short",
-                                })}
+                              <span className="font-bold text-lg">
+                                {new Date(date.startDate).toLocaleDateString(
+                                  "pt-BR",
+                                  {
+                                    day: "2-digit",
+                                    month: "short",
+                                  }
+                                )}
                               </span>
-                              <span className="text-xs text-gray-600 mt-1">{date.startTime}</span>
+                              <span className="text-xs opacity-80 mt-1">
+                                {date.startTime}
+                              </span>
                             </TabsTrigger>
                           ))}
                         </TabsList>
 
                         {event.dates.map((date, index) => (
-                          <TabsContent key={index} value={index.toString()} className="mt-6">
-                            <div className="space-y-4">
-                              <div className="flex items-center gap-3 mb-6">
-                                <Calendar className="h-5 w-5 text-purple-600" />
+                          <TabsContent
+                            key={index}
+                            value={index.toString()}
+                            className="mt-8"
+                          >
+                            <div className="space-y-6">
+                              <div className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-yellow-100 to-blue-100 border border-yellow-200/50">
+                                <Calendar className="h-6 w-6 text-yellow-600" />
                                 <div>
-                                  <p className="font-semibold text-gray-800">
-                                    {new Date(date.startDate).toLocaleDateString("pt-BR", {
+                                  <p className="font-bold text-gray-800 text-lg">
+                                    {new Date(
+                                      date.startDate
+                                    ).toLocaleDateString("pt-BR", {
                                       weekday: "long",
                                       year: "numeric",
                                       month: "long",
                                       day: "numeric",
                                     })}
                                   </p>
-                                  <p className="text-sm text-gray-600">
+                                  <p className="text-gray-600">
                                     {date.startTime} às {date.endTime}
                                   </p>
                                 </div>
                               </div>
 
-                              {date.attractions && date.attractions.length > 0 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  {date.attractions.map((attraction, attractionIndex) => (
-                                    <div
-                                      key={attractionIndex}
-                                      className="group p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-100 hover:shadow-lg transition-all duration-300 hover:scale-105"
-                                    >
-                                      <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
-                                          <Music className="h-5 w-5 text-white" />
-                                        </div>
-                                        <div className="flex-1">
-                                          <h4 className="font-bold text-gray-800 group-hover:text-purple-700 transition-colors">
-                                            {attraction.name}
-                                          </h4>
-                                          {attraction.social && (
-                                            <a
-                                              href={attraction.social}
-                                              target="_blank"
-                                              rel="noopener noreferrer"
-                                              className="inline-flex items-center gap-1 text-sm text-purple-600 hover:text-purple-800 mt-1"
-                                            >
-                                              <ExternalLink className="h-3 w-3" />
-                                              Ver perfil
-                                            </a>
-                                          )}
-                                        </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {(date.attractions
+                                  ? [...date.attractions].sort((a, b) => {
+                                      const aStart = (a as any).startTime || "";
+                                      const bStart = (b as any).startTime || "";
+                                      if (!aStart) return -1;
+                                      if (!bStart) return 1;
+                                      return aStart.localeCompare(bStart);
+                                    })
+                                  : []
+                                ).map((attraction, attractionIndex) => (
+                                  <div
+                                    key={attractionIndex}
+                                    className="group p-6 rounded-2xl bg-white border border-gray-200 hover:border-yellow-400 hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer"
+                                    onClick={() => {
+                                      setSelectedAttraction(attraction);
+                                      setModalOpen(true);
+                                    }}
+                                  >
+                                    <div className="flex items-center gap-4">
+                                      <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-yellow-500 to-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <Play className="h-6 w-6 text-white" />
+                                      </div>
+                                      <div className="flex-1">
+                                        <h4 className="font-bold text-gray-800 text-lg group-hover:text-yellow-700 transition-colors">
+                                          {attraction.name}
+                                        </h4>
+                                        {attraction.startTime && (
+                                          <p className="text-gray-600 text-sm mt-1">
+                                            {attraction.startTime}
+                                            {attraction.endTime &&
+                                              ` - ${attraction.endTime}`}
+                                          </p>
+                                        )}
+                                        {attraction.social && (
+                                          <a
+                                            href={attraction.social}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 mt-2 transition-colors"
+                                            onClick={(e) => e.stopPropagation()}
+                                          >
+                                            <ExternalLink className="h-3 w-3" />
+                                            Ver perfil
+                                          </a>
+                                        )}
                                       </div>
                                     </div>
-                                  ))}
-                                </div>
-                              ) : (
-                                <p className="text-gray-500 text-center py-8">
-                                  Nenhuma atração cadastrada para esta data.
-                                </p>
-                              )}
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                           </TabsContent>
                         ))}
@@ -427,28 +577,32 @@ const EventDetail = () => {
               )}
 
             {/* Event Policy */}
-            <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-2xl text-gray-800 flex items-center gap-3">
-                  <div className="w-2 h-6 bg-gradient-to-b from-orange-500 to-red-500 rounded-full"></div>
-                  Política do evento
+            <Card className="border-0 bg-white/80 backdrop-blur-xl shadow-2xl hover:shadow-amber-500/10 transition-all duration-500">
+              <CardHeader className="pb-6">
+                <CardTitle className="text-2xl font-bold flex items-center gap-4 text-gray-800">
+                  <div className="w-10 h-10 rounded-xl  flex items-center justify-center">
+                    <Star className="w-5 h-5 text-black" />
+                  </div>
+                  Política do Evento
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 leading-relaxed whitespace-pre-line">{visibleText}</p>
+                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                  {visibleText}
+                </p>
                 {policy.length > 150 && (
                   <Button
                     variant="ghost"
                     onClick={togglePolicy}
-                    className="mt-4 p-0 h-auto text-blue-600 hover:text-blue-700 font-medium"
+                    className="mt-6 p-0 h-auto text-blue-600 hover:text-yellow-600 font-medium transition-colors"
                   >
                     {showFull ? (
                       <>
-                        Ver menos <ChevronUp className="ml-1 h-4 w-4" />
+                        Ver menos <ChevronUp className="ml-2 h-4 w-4" />
                       </>
                     ) : (
                       <>
-                        Ver mais <ChevronDown className="ml-1 h-4 w-4" />
+                        Ver mais <ChevronDown className="ml-2 h-4 w-4" />
                       </>
                     )}
                   </Button>
@@ -457,26 +611,30 @@ const EventDetail = () => {
             </Card>
 
             {/* Location */}
-            <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-3xl text-gray-800 flex items-center gap-3">
-                  <div className="w-2 h-8 bg-gradient-to-b from-green-500 to-teal-600 rounded-full"></div>
+            <Card className="border-0 bg-white/80 backdrop-blur-xl shadow-2xl hover:shadow-yellow-500/10 transition-all duration-500">
+              <CardHeader className="pb-6">
+                <CardTitle className="text-3xl font-bold flex items-center gap-4 text-gray-800">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center">
+                    <MapPin className="w-6 text-black" />
+                  </div>
                   Localização
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-start gap-4 p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl">
-                  <div className="p-3 bg-white rounded-lg shadow-sm">
-                    <MapPin className="h-6 w-6 text-gray-600" />
+              <CardContent className="space-y-8">
+                <div className="flex items-start gap-6 p-6 rounded-2xl">
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <MapPin className="h-8 w-8 text-black" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-800 text-lg mb-2">{event?.venueName || "Local do evento"}</h3>
-                    <p className="text-gray-600">
+                    <h3 className="font-bold text-gray-800 text-xl mb-3">
+                      {event?.venueName || "Local do evento"}
+                    </h3>
+                    <p className="text-gray-700 mb-2">
                       {event?.street && `${event.street}`}
                       {event?.number && `, ${event.number}`}
                       {event?.complement && ` - ${event.complement}`}
                     </p>
-                    <p className="text-gray-600">
+                    <p className="text-gray-700">
                       {event?.neighborhood && `${event.neighborhood}`}
                       {event?.city && `, ${event.city}`}
                       {event?.state && ` - ${event.state}`}
@@ -485,16 +643,18 @@ const EventDetail = () => {
                   </div>
                 </div>
 
-                <div className="rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+                <div className="rounded-2xl overflow-hidden shadow-2xl hover:shadow-yellow-500/20 transition-all duration-500 transform hover:scale-[1.02] border-2 border-gray-200 hover:border-yellow-400">
                   <iframe
                     src={
                       event?.mapUrl ||
                       (event?.latitude && event?.longitude
-                        ? `https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&q=${event.latitude},${event.longitude}&zoom=15`
+                        ? `https://www.google.com/maps/embed/v1/place?key=${
+                            import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+                          }&q=${event.latitude},${event.longitude}&zoom=15`
                         : "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1963.4955007216295!2d-48.337388507953854!3d-10.181385600694082!3m2!1i1024!2i768!4f13.1!3m3!1m2!1spt-BR!2sbr!4v1749832543882!5m2!1spt-BR!2sbr")
                     }
                     width="100%"
-                    height="350"
+                    height="400"
                     className="border-0"
                     allowFullScreen
                     loading="lazy"
@@ -506,19 +666,24 @@ const EventDetail = () => {
           </div>
 
           {/* Right Column - Tickets */}
-          <div className="space-y-6">
-            <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm sticky top-6">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-2xl text-gray-800 flex items-center gap-3">
-                  <Ticket className="h-6 w-6 text-blue-600" />
-                  {event?.isFree ? event.formTitle || "Formulário de Inscrição" : `Ingressos ${event.batches[0].batchName}`}
+          <div className="space-y-8" id="tickets-section">
+            <Card className="border-0 bg-white/90 backdrop-blur-xl shadow-2xl sticky top-8 hover:shadow-blue-500/20 transition-all duration-500">
+              <CardHeader className="pb-6">
+                <CardTitle className="text-2xl font-bold flex items-center gap-4 text-gray-800">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-blue-500 to-yellow-500 flex items-center justify-center">
+                    <Ticket className="w-6 h-6 text-white" />
+                  </div>
+                  {event?.isFree
+                    ? event.formTitle || "Inscrição Gratuita"
+                    : `Ingressos ${event.batches[0]?.batchName || ""}`}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {event?.isFree ? (
-                  <div className="space-y-6">
-                    <div className="text-center py-4">
-                      <Badge variant="secondary" className="text-lg px-6 py-3 mb-4 bg-green-100 text-green-800">
+                  <div className="space-y-8">
+                    <div className="text-center py-6">
+                      <Badge className="text-lg px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 shadow-lg shadow-green-500/25 rounded-2xl">
+                        <Sparkles className="w-5 h-5 mr-2" />
                         Evento Gratuito
                       </Badge>
                     </div>
@@ -531,20 +696,38 @@ const EventDetail = () => {
                   </div>
                 ) : (
                   <div>
-                    {/* Verificação se batches está vazio */}
-                    {(!event.batches || event.batches.length === 0) ? (
-                      <div className="text-center text-gray-600 py-12">
-                        <Ticket className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                        <p className="text-lg font-medium mb-2">Ingressos Indisponíveis</p>
-                        <p className="text-sm text-gray-500">Eventos Indisponíveis no momento.</p>
+                    {!event.batches || event.batches.length === 0 ? (
+                      <div className="text-center py-16">
+                        <div className="w-24 h-24 rounded-3xl bg-gradient-to-r from-gray-200 to-gray-300 flex items-center justify-center mx-auto mb-6">
+                          <Ticket className="h-12 w-12 text-gray-500" />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-800 mb-3">
+                          Ingressos Indisponíveis
+                        </h3>
+                        <p className="text-gray-600">
+                          Este evento não está disponível no momento.
+                        </p>
                       </div>
-                    ) : event.currentTickets && event.currentTickets.length > 0 ? (
-                      <TicketSelector event={event} tickets={event.currentTickets} />
+                    ) : event.currentTickets &&
+                      event.currentTickets.length > 0 ? (
+                      <TicketSelector
+                        event={event}
+                        tickets={event.currentTickets}
+                      />
                     ) : (
-                      <div className="text-center text-gray-600 py-12">
-                        <Ticket className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                        <p className="text-lg font-medium mb-2">Não há ingressos à venda no momento.</p>
-                        <p className="text-sm text-gray-500">Volte em breve para conferir a disponibilidade.</p>
+                      <div className="text-center py-16">
+                        <div className="w-24 h-24 rounded-3xl bg-gradient-to-r from-yellow-400 to-blue-500 flex items-center justify-center mx-auto mb-6">
+                          <Clock className="h-12 w-12 text-white" />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-800 mb-3">
+                          Em Breve
+                        </h3>
+                        <p className="text-gray-600 mb-6">
+                          Os ingressos serão disponibilizados em breve.
+                        </p>
+                        <Button className="bg-gradient-to-r from-yellow-500 to-blue-500 hover:from-yellow-600 hover:to-blue-600 text-white border-0 rounded-xl px-6 py-3">
+                          Notificar-me
+                        </Button>
                       </div>
                     )}
                   </div>
@@ -556,8 +739,63 @@ const EventDetail = () => {
       </div>
 
       <Footer />
-    </>
-  )
-}
 
-export default EventDetail
+      {/* Attraction Modal */}
+      {selectedAttraction && (
+        <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+          <DialogContent className="border-0 bg-white shadow-2xl max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-gray-800">
+                {selectedAttraction.name}
+              </DialogTitle>
+              <DialogDescription className="text-gray-600 text-lg">
+                {selectedAttraction.description ||
+                  "Prepare-se para uma experiência incrível!"}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-6 space-y-4">
+              {selectedAttraction.startTime && (
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-yellow-50">
+                  <Clock className="w-5 h-5 text-yellow-600" />
+                  <span className="text-gray-700">
+                    <strong className="text-gray-800">Início:</strong>{" "}
+                    {selectedAttraction.startTime}
+                  </span>
+                </div>
+              )}
+              {selectedAttraction.endTime && (
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-50">
+                  <Clock className="w-5 h-5 text-blue-600" />
+                  <span className="text-gray-700">
+                    <strong className="text-gray-800">Término:</strong>{" "}
+                    {selectedAttraction.endTime}
+                  </span>
+                </div>
+              )}
+              {selectedAttraction.social && (
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50">
+                  <ExternalLink className="w-5 h-5 text-amber-600" />
+                  <a
+                    href={selectedAttraction.social}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-amber-600 hover:text-amber-700 transition-colors font-medium"
+                  >
+                    Ver perfil/rede social
+                  </a>
+                </div>
+              )}
+            </div>
+            <DialogClose asChild>
+              <Button className="mt-8 w-full bg-gradient-to-r from-blue-500 to-yellow-500 hover:from-blue-600 hover:to-yellow-600 text-white border-0 rounded-xl py-3 text-lg font-semibold">
+                Fechar
+              </Button>
+            </DialogClose>
+          </DialogContent>
+        </Dialog>
+      )}
+    </div>
+  );
+};
+
+export default EventDetail;

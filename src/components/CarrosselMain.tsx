@@ -24,14 +24,14 @@ export default function CarrosselMain() {
   const [swiperReady, setSwiperReady] = useState(false);
   const swiperRef = useRef<SwiperCore | null>(null);
   const [images, setImages] = useState<ImagesCarrossel[]>([
-    { urlImage: "/background-login.png", _id: "1", redirectUrl: "/evento/1" },
-    { urlImage: "/background-login.png", _id: "2", redirectUrl: "/evento/2" },
-    { urlImage: "/background-login.png", _id: "3", redirectUrl: "/evento/3" },
-    { urlImage: "/background-login.png", _id: "4", redirectUrl: "/evento/4" },
-    { urlImage: "/background-login.png", _id: "5", redirectUrl: "/evento/5" },
-    { urlImage: "/background-login.png", _id: "6", redirectUrl: "/evento/6" },
-    { urlImage: "/background-login.png", _id: "7", redirectUrl: "/evento/7" },
-    { urlImage: "/background-login.png", _id: "8", redirectUrl: "/evento/8" },
+    // { urlImage: "/background-login.png", _id: "1", redirectUrl: "/evento/1" },
+    // { urlImage: "/background-login.png", _id: "2", redirectUrl: "/evento/2" },
+    // { urlImage: "/background-login.png", _id: "3", redirectUrl: "/evento/3" },
+    // { urlImage: "/background-login.png", _id: "4", redirectUrl: "/evento/4" },
+    // { urlImage: "/background-login.png", _id: "5", redirectUrl: "/evento/5" },
+    // { urlImage: "/background-login.png", _id: "6", redirectUrl: "/evento/6" },
+    // { urlImage: "/background-login.png", _id: "7", redirectUrl: "/evento/7" },
+    // { urlImage: "/background-login.png", _id: "8", redirectUrl: "/evento/8" },
   ]);
   
   useEffect(() => {
@@ -80,7 +80,7 @@ export default function CarrosselMain() {
             rotate: 1,
             stretch: 0,
             depth: 100,
-            modifier: 2.5,
+            modifier: 3.5,
             slideShadows: false,
           }}
           pagination={{ clickable: true }}
@@ -138,7 +138,7 @@ export default function CarrosselMain() {
 
         /* Tamanho dos slides */
         .swiper-slide-custom {
-          width: 500px;
+          width: 50em;
         }
 
         @media (max-width: 640px) {

@@ -11,7 +11,7 @@ export default function Home() {
     <>
       <Header />
       <main className="pt-[60px] sm:pt-[230px]">
-        <div className="mt-12 mb-8 sm:mt-0">
+        <div className="w-full flex justify-center mt-12 mb-8 sm:mt-0">
           <CarrosselMain />
         </div>
         <div className="max-w-full">
