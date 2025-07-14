@@ -175,7 +175,7 @@ const EventDetail = () => {
             variant="ghost"
             size="icon"
             onClick={handleFavorite}
-            className={`rounded-2xl h-14 w-14 backdrop-blur-xl border transition-all duration-500 hover:scale-110 ${
+            className={`rounded-2xl h-14 w-14 border transition-all duration-500 hover:scale-110 ${
               isFavorited
                 ? "bg-gradient-to-r from-red-500/90 to-pink-500/90 border-red-400/50 shadow-lg shadow-red-500/25 text-white"
                 : "bg-white/90 hover:bg-white border-white/50 text-gray-700 hover:text-gray-900 shadow-lg"
@@ -191,7 +191,7 @@ const EventDetail = () => {
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-2xl h-14 w-14 backdrop-blur-xl bg-white/90 hover:bg-white border border-white/50 text-gray-700 hover:text-gray-900 transition-all duration-300 hover:scale-110 shadow-lg"
+            className="rounded-2xl h-14 w-14  bg-white/90 hover:bg-white border border-white/50 text-gray-700 hover:text-gray-900 transition-all duration-300 hover:scale-110 shadow-lg"
           >
             <Share2 className="h-6 w-6" />
           </Button>
@@ -199,7 +199,7 @@ const EventDetail = () => {
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-2xl h-14 w-14 backdrop-blur-xl bg-white/90 hover:bg-white border border-white/50 text-gray-700 hover:text-gray-900 transition-all duration-300 hover:scale-110 shadow-lg"
+            className="rounded-2xl h-14 w-14  bg-white/90 hover:bg-white border border-white/50 text-gray-700 hover:text-gray-900 transition-all duration-300 hover:scale-110 shadow-lg"
           >
             <Bookmark className="h-6 w-6" />
           </Button>
