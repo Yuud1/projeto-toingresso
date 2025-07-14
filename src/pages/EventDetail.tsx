@@ -19,9 +19,8 @@ import {
   Share2,
   Bookmark,
   Play,
-  Sparkles,
-  Zap,
-  Globe,  
+  Sparkles,  
+  Globe,
   ArrowDown,
 } from "lucide-react";
 
@@ -275,18 +274,18 @@ const EventDetail = () => {
             <div className="pt-8 gap-3 flex flex-col items-center">
               {/* Scroll Indicator */}
               <div className="flex justify-center animate-bounce text-white">
-                <ArrowDown/>
+                <ArrowDown />
               </div>
               <Button
                 size="lg"
-                className="px-12 py-6 text-lg w-full font-bold rounded-2xl bg-white hover:from-yellow-600 hover:via-blue-600 hover:to-amber-600 text-black hover:text-white cursor-pointer border-0 shadow-2xl hover:shadow-yellow-500/25 transition-all duration-300 hover:scale-105"
+                className="px-12 py-6 text-lg w-full font-bold rounded-2xl bg-white hover:from-yellow-600 hover:via-blue-600 hover:to-amber-600 text-black hover:text-white cursor-pointer border-0 shadow-2xl hover:shadow-yellow-500/25 transition-all duration-300 hover:scale-[1.02]"
                 onClick={() => {
                   const ticketSection =
                     document.getElementById("tickets-section");
                   ticketSection?.scrollIntoView({ behavior: "smooth" });
                 }}
               >
-                <Zap className="w-6 h-6 mr-3" />
+                <Ticket className="w-6 h-6 mr-3" />
                 {event?.isFree
                   ? "Inscrever-se Gratuitamente"
                   : "Garantir Ingresso"}
@@ -454,7 +453,7 @@ const EventDetail = () => {
                             <TabsTrigger
                               key={index}
                               value={index.toString()}
-                              className="flex flex-col items-center p-4 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-blue-500 data-[state=active]:text-white rounded-xl transition-all duration-200 hover:scale-105"
+                              className="flex flex-col items-center p-4  rounded-xl transition-all duration-200 hover:scale-105"
                             >
                               <span className="font-bold text-lg">
                                 {new Date(date.startDate).toLocaleDateString(
@@ -518,8 +517,8 @@ const EventDetail = () => {
                                     }}
                                   >
                                     <div className="flex items-center gap-4">
-                                      <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-yellow-500 to-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <Play className="h-6 w-6 text-white" />
+                                      <div className="w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <Play className="h-6 w-6 text-black" />
                                       </div>
                                       <div className="flex-1">
                                         <h4 className="font-bold text-gray-800 text-lg group-hover:text-yellow-700 transition-colors">
@@ -652,7 +651,7 @@ const EventDetail = () => {
             <Card className="border-0 bg-white/90 backdrop-blur-xl shadow-2xl sticky top-8 hover:shadow-blue-500/20 transition-all duration-500">
               <CardHeader className="pb-6">
                 <CardTitle className="text-2xl font-bold flex items-center gap-4 text-gray-800">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-blue-500 to-yellow-500 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-2xl  flex items-center justify-center">
                     <Ticket className="w-6 h-6 text-white" />
                   </div>
                   {event?.isFree
@@ -664,7 +663,7 @@ const EventDetail = () => {
                 {event?.isFree ? (
                   <div className="space-y-8 w-full">
                     <div className="text-center py-6">
-                      <Badge className="text-lg px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 shadow-lg shadow-green-500/25 rounded-2xl">
+                      <Badge className="text-lg px-8 py-4 text-white border-0 shadow-lg shadow-black-500/25 rounded-2xl">
                         <Sparkles className="w-5 h-5 mr-2" />
                         Evento Gratuito
                       </Badge>
