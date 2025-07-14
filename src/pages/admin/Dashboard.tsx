@@ -5,6 +5,7 @@ import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import logoToIngresso from "../../../public/logos/TOingresso_logo_512x512.png"
 import {
   Card,
   CardContent,
@@ -297,7 +298,7 @@ const AdminDashboard: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-4">
-              <img className="w-10" src="/public/icon.png" alt="logo header" />
+              <img className="w-10" src={logoToIngresso} alt="logo header" />
               <div className="flex items-center gap-2 sm:gap-3">
                 <h1 className="text-lg sm:text-xl font-semibold text-gray-900 whitespace-nowrap hidden sm:inline">
                   Painel Administrativo
