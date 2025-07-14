@@ -21,7 +21,8 @@ import {
   Play,
   Sparkles,
   Zap,
-  Globe,
+  Globe,  
+  ArrowDown,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -41,7 +42,6 @@ import AttractionModal from "@/components/AttractionModal";
 const EventDetail = () => {
   const { id } = useParams();
   const { user } = useUser();
-  
 
   const [isFavorited, setIsFavorited] = useState<boolean>(false);
   const [event, setEvents] = useState<EventInterface | undefined>(undefined);
@@ -272,7 +272,11 @@ const EventDetail = () => {
             </div>
 
             {/* CTA Button */}
-            <div className="pt-8">
+            <div className="pt-8 gap-3 flex flex-col items-center">
+              {/* Scroll Indicator */}
+              <div className="flex justify-center animate-bounce text-white">
+                <ArrowDown/>
+              </div>
               <Button
                 size="lg"
                 className="px-12 py-6 text-lg w-full font-bold rounded-2xl bg-white hover:from-yellow-600 hover:via-blue-600 hover:to-amber-600 text-black hover:text-white cursor-pointer border-0 shadow-2xl hover:shadow-yellow-500/25 transition-all duration-300 hover:scale-105"
@@ -288,13 +292,6 @@ const EventDetail = () => {
                   : "Garantir Ingresso"}
               </Button>
             </div>
-          </div>
-        </div>
-
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-white/70 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-white/70 rounded-full mt-2 animate-pulse"></div>
           </div>
         </div>
       </div>
