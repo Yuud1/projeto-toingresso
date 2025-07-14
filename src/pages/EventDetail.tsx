@@ -19,7 +19,7 @@ import {
   Share2,
   Bookmark,
   Play,
-  Sparkles,  
+  Sparkles,
   Globe,
   ArrowDown,
 } from "lucide-react";
@@ -191,7 +191,19 @@ const EventDetail = () => {
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-2xl h-14 w-14  bg-white/90 hover:bg-white border border-white/50 text-gray-700 hover:text-gray-900 transition-all duration-300 hover:scale-110 shadow-lg"
+            className="cursor-pointer rounded-2xl h-14 w-14  bg-white/90 hover:bg-white border border-white/50 text-gray-700 hover:text-gray-900 transition-all duration-300 hover:scale-110 shadow-lg"
+            onClick={() => {
+              if (navigator.share) {
+                navigator.share({
+                  title: event?.title || "Evento",
+                  text: event?.description || "Confira este evento!",
+                  url: window.location.href,
+                });
+              } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert("Link copiado para a área de transferência!");
+              }
+            }}
           >
             <Share2 className="h-6 w-6" />
           </Button>
@@ -210,7 +222,7 @@ const EventDetail = () => {
           <div className="max-w-4xl mx-auto text-center space-y-8">
             {/* Category Badge */}
             <div className="flex justify-center">
-              <Badge className="px-6 py-2 text-sm font-semibold bg-gradient-to-r text-white border-0 backdrop-blur-xl rounded-full shadow-lg">
+              <Badge className="px-6 py-2 text-sm font-semibold bg-gradient-to-r text-white border-0 rounded-full shadow-lg">
                 <Sparkles className="w-4 h-4 mr-2" />
                 {event?.category || "Evento Especial"}
               </Badge>
@@ -223,14 +235,14 @@ const EventDetail = () => {
 
             {/* Event Stats */}
             <div className="flex flex-wrap justify-center gap-8 text-sm">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 backdrop-blur-xl border border-white/50 text-gray-700 shadow-lg">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 border border-white/50 text-gray-700 shadow-lg">
                 <MapPin className="w-4 h-4 text-yellow-600" />
                 <span>
                   {event?.city}, {event?.state}
                 </span>
               </div>
 
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 backdrop-blur-xl border border-white/50 text-gray-700 shadow-lg">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/90  border border-white/50 text-gray-700 shadow-lg">
                 <Calendar className="w-4 h-4 text-blue-600" />
                 <span>
                   {event?.dates && event.dates.length > 0
@@ -241,7 +253,7 @@ const EventDetail = () => {
                 </span>
               </div>
 
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 backdrop-blur-xl border border-white/50 text-gray-700 shadow-lg">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/90  border border-white/50 text-gray-700 shadow-lg">
                 <Users className="w-4 h-4 text-amber-600" />
                 <span>{event?.participants?.length || 0} participantes</span>
               </div>
@@ -251,7 +263,7 @@ const EventDetail = () => {
             <div className="flex justify-center">
               <a
                 href={`/organizer/${event?.organizer._id}`}
-                className="flex items-center gap-4 p-4 rounded-2xl bg-white/90 backdrop-blur-xl border border-white/50 hover:bg-white transition-all duration-300 hover:scale-105 group shadow-lg"
+                className="flex items-center gap-4 p-4 rounded-2xl bg-white/90  border border-white/50 hover:bg-white transition-all duration-300 hover:scale-105 group shadow-lg"
               >
                 <Avatar className="h-12 w-12 border-2 border-yellow-400 group-hover:border-yellow-500 transition-colors">
                   <AvatarImage
@@ -310,7 +322,7 @@ const EventDetail = () => {
           {/* Left Column - Event Details */}
           <div className="lg:col-span-2 space-y-12">
             {/* Description */}
-            <Card className="text-wrap border-0 bg-white/80 backdrop-blur-xl shadow-2xl hover:shadow-yellow-500/10 transition-all duration-500 hover:scale-[1.02]">
+            <Card className="text-wrap border-0 bg-white/80  shadow-2xl hover:shadow-yellow-500/10 transition-all duration-500 hover:scale-[1.02]">
               <CardHeader className="pb-6">
                 <CardTitle className="text-3xl font-bold flex items-center gap-4 text-gray-800">
                   <div className="w-12 h-12 rounded-2xl  flex items-center justify-center">
@@ -360,7 +372,7 @@ const EventDetail = () => {
               event.dates.some(
                 (date) => date.attractions && date.attractions.length > 0
               ) && (
-                <Card className="border-0 bg-white/80 backdrop-blur-xl shadow-2xl hover:shadow-blue-500/10 transition-all duration-500">
+                <Card className="border-0 bg-white/80  shadow-2xl hover:shadow-blue-500/10 transition-all duration-500">
                   <CardHeader className="pb-6">
                     <CardTitle className="text-3xl font-bold flex items-center gap-4 text-gray-800">
                       <div className="w-12 h-12 rounded-2xl  flex items-center justify-center">
@@ -558,7 +570,7 @@ const EventDetail = () => {
               )}
 
             {/* Event Policy */}
-            <Card className="border-0 bg-white/80 backdrop-blur-xl shadow-2xl hover:shadow-amber-500/10 transition-all duration-500">
+            <Card className="border-0 bg-white/80  shadow-2xl hover:shadow-amber-500/10 transition-all duration-500">
               <CardHeader className="pb-6">
                 <CardTitle className="text-2xl font-bold flex items-center gap-4 text-gray-800">
                   <div className="w-10 h-10 rounded-xl  flex items-center justify-center">
@@ -592,7 +604,7 @@ const EventDetail = () => {
             </Card>
 
             {/* Location */}
-            <Card className="border-0 bg-white/80 backdrop-blur-xl shadow-2xl hover:shadow-yellow-500/10 transition-all duration-500">
+            <Card className="border-0 bg-white/80  shadow-2xl hover:shadow-yellow-500/10 transition-all duration-500">
               <CardHeader className="pb-6">
                 <CardTitle className="text-3xl flex-col sm:flex-row font-bold flex items-center gap-4 text-gray-800">
                   <div className="w-12 h-12 rounded-2xl flex items-center justify-center">
@@ -648,7 +660,7 @@ const EventDetail = () => {
 
           {/* Right Column - Tickets */}
           <div className="space-y-8" id="tickets-section">
-            <Card className="border-0 bg-white/90 backdrop-blur-xl shadow-2xl sticky top-8 hover:shadow-blue-500/20 transition-all duration-500">
+            <Card className="border-0 bg-white/90  shadow-2xl sticky top-8 hover:shadow-blue-500/20 transition-all duration-500">
               <CardHeader className="pb-6">
                 <CardTitle className="text-2xl font-bold flex items-center gap-4 text-gray-800">
                   <div className="w-12 h-12 rounded-2xl  flex items-center justify-center">
