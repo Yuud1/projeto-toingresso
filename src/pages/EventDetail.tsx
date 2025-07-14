@@ -680,7 +680,7 @@ const EventDetail = () => {
               </CardHeader>
               <CardContent>
                 {event?.isFree ? (
-                  <div className="space-y-8">
+                  <div className="space-y-8 w-full">
                     <div className="text-center py-6">
                       <Badge className="text-lg px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 shadow-lg shadow-green-500/25 rounded-2xl">
                         <Sparkles className="w-5 h-5 mr-2" />

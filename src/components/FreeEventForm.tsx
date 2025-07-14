@@ -62,7 +62,7 @@ const FreeEventForm = ({
   const [municipiosPorUF, setMunicipiosPorUF] = useState<
     Record<string, string[]>
   >({});
-  
+
   const handleChange = (key: string, value: any) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
@@ -86,7 +86,7 @@ const FreeEventForm = ({
     e.preventDefault();
     try {
       if (!localStorage.getItem("token")) {
-        window.location.href = "/login"
+        window.location.href = "/login";
       }
       setLoading(true);
       const response = await axios.post(
@@ -123,13 +123,13 @@ const FreeEventForm = ({
     });
 
   return (
-    <div className="space-y-6">
-      <form onSubmit={handleSubmit} >
+    <div className="space-y-6 w-full">
+      <form onSubmit={handleSubmit}>
         <div className="p-4 border rounded-lg space-y-4">
           {customFields.map((field) => (
             <div
               key={field._id}
-              className="space-y-3 border-b pb-4 last:border-b-0 last:pb-0"
+              className="space-y-3 border-b pb-4 last:border-b-0 last:pb-0 min-w-32"
             >
               <div className="space-y-1">
                 <Label className="font-semibold text-base">
@@ -212,7 +212,7 @@ const FreeEventForm = ({
                     value={formData[field.label] || ""}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder={`Selecione ${field.label}`} />
+                      <SelectValue placeholder={`Selecione`} />
                     </SelectTrigger>
                     <SelectContent>
                       {field.options.map((option) => (
