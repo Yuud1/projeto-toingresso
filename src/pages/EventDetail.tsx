@@ -23,14 +23,7 @@ import {
   Zap,
   Globe,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogClose,
-} from "@/components/ui/dialog";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -43,10 +36,12 @@ import FreeEventForm from "@/components/FreeEventForm";
 import Subscribed from "@/pages/Subscribed";
 import { useUser } from "@/contexts/useContext";
 import type EventInterface from "@/interfaces/EventInterface";
+import AttractionModal from "@/components/AttractionModal";
 
 const EventDetail = () => {
   const { id } = useParams();
   const { user } = useUser();
+  
 
   const [isFavorited, setIsFavorited] = useState<boolean>(false);
   const [event, setEvents] = useState<EventInterface | undefined>(undefined);
@@ -57,15 +52,6 @@ const EventDetail = () => {
     null
   );
   const [modalOpen, setModalOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 100);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   useEffect(() => {
     const condition =
@@ -177,7 +163,6 @@ const EventDetail = () => {
             backgroundImage: `url("${event?.image}")`,
             backgroundSize: "cover",
             backgroundPosition: "center",
-            transform: `translateY(${isScrolled ? "-20px" : "0px"})`,
           }}
         />
 
@@ -742,57 +727,11 @@ const EventDetail = () => {
 
       {/* Attraction Modal */}
       {selectedAttraction && (
-        <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-          <DialogContent className="border-0 bg-white shadow-2xl max-w-2xl">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-gray-800">
-                {selectedAttraction.name}
-              </DialogTitle>
-              <DialogDescription className="text-gray-600 text-lg">
-                {selectedAttraction.description ||
-                  "Prepare-se para uma experiência incrível!"}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="mt-6 space-y-4">
-              {selectedAttraction.startTime && (
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-yellow-50">
-                  <Clock className="w-5 h-5 text-yellow-600" />
-                  <span className="text-gray-700">
-                    <strong className="text-gray-800">Início:</strong>{" "}
-                    {selectedAttraction.startTime}
-                  </span>
-                </div>
-              )}
-              {selectedAttraction.endTime && (
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-50">
-                  <Clock className="w-5 h-5 text-blue-600" />
-                  <span className="text-gray-700">
-                    <strong className="text-gray-800">Término:</strong>{" "}
-                    {selectedAttraction.endTime}
-                  </span>
-                </div>
-              )}
-              {selectedAttraction.social && (
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50">
-                  <ExternalLink className="w-5 h-5 text-amber-600" />
-                  <a
-                    href={selectedAttraction.social}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-amber-600 hover:text-amber-700 transition-colors font-medium"
-                  >
-                    Ver perfil/rede social
-                  </a>
-                </div>
-              )}
-            </div>
-            <DialogClose asChild>
-              <Button className="mt-8 w-full bg-gradient-to-r from-blue-500 to-yellow-500 hover:from-blue-600 hover:to-yellow-600 text-white border-0 rounded-xl py-3 text-lg font-semibold">
-                Fechar
-              </Button>
-            </DialogClose>
-          </DialogContent>
-        </Dialog>
+        <AttractionModal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          attraction={selectedAttraction}
+        />
       )}
     </div>
   );
