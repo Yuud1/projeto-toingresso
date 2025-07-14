@@ -18,6 +18,8 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [results, setResults] = useState<EventInterface[]>([]);
+  console.log("results",results);
+  
   const [isLoading, setIsLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -70,7 +72,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
   // Debounce para evitar muitas requisições
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      if (query) {
+      if (query.length > 2) {        
         searchEvents(query);
       } else {
         setResults([]);
@@ -209,11 +211,11 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
                       </div>
                       <div className="flex items-center gap-1">
                         <Calendar size={12} />
-                        <span>{formatDate(event.startDate)}</span>
+                        <span>{formatDate(event.dates[0].startDate)}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Clock size={12} />
-                        <span>{formatTime(event.startTime)}</span>
+                        <span>{formatTime(event.dates[0].startTime)}</span>
                       </div>
                     </div>
 
@@ -223,7 +225,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
                       </span>
                       <div className="flex items-center gap-1 text-xs text-gray-500">
                         <Users size={12} />
-                        <span>{event.tickets.length} tipos de ingresso</span>
+                        <span>{event.batches[0].tickets.length} tipos de ingresso</span>
                       </div>
                     </div>
                   </div>
@@ -234,7 +236,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
                       <span className="text-green-600 font-semibold text-sm">Grátis</span>
                     ) : (
                       <span className="text-[#02488C] font-semibold text-sm">
-                        A partir de R$ {Math.min(...event.tickets.map(t => t.price))}
+                        A partir de R$ {Math.min(...event.batches[0].tickets.map(t => t.price))}
                       </span>
                     )}
                   </div>

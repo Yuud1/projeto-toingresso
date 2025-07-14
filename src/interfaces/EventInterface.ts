@@ -1,4 +1,5 @@
 import CustomFieldInterface from "./CustomFieldInterface";
+import { Batch } from "./FormDataInterface";
 import OrganizerInterface from "./OrganizerInterface";
 import TicketInterface from "./TicketInterface";
 import UserInterface from "./UserInterface";
@@ -9,10 +10,15 @@ export default interface EventInterface {
   image: string;
   imageId: string;
   category: string;
-  startDate: string;
-  startTime: string;
-  endDate: string;
-  endTime: string;
+  // Novo campo para múltiplos períodos
+  dates: {
+    startDate: string;
+    startTime: string;
+    endDate: string;
+    endTime: string;
+    attractions: { name: string; social?: string }[];
+    _id?: string;
+  }[];      
   description: string;
   venueName: string;
   zipCode: string;
@@ -23,8 +29,7 @@ export default interface EventInterface {
   city: string;
   state: string;
   latitude: string;
-  longitude: string;
-  tickets: TicketInterface[];
+  longitude: string;  
   organizer: OrganizerInterface;
   acceptedTerms: boolean;
   policy: string;
@@ -43,4 +48,7 @@ export default interface EventInterface {
   ];
   participants: [user: UserInterface];
   certificateCount: number,
+  batches: Batch[];
+  // Novo campo para ingressos disponíveis no momento
+  currentTickets: TicketInterface[];
 }

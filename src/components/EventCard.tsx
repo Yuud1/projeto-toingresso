@@ -12,11 +12,11 @@ interface EventCardProps {
 
 const EventCard: React.FC<EventCardProps> = ({ event, className = "" }) => {
   const isFree = event.isFree;
-  const startDate = new Date(event.startDate).toLocaleDateString("pt-BR", {
+  const startDate = new Date(event.dates[0].startDate).toLocaleDateString("pt-BR", {
     day: "2-digit",
     month: "short",
   });
-  const startTime = event.startTime.slice(0, 5);
+  const startTime = event.dates[0].startTime.slice(0, 5);
 
   return (
     <a href={`/evento/${event._id}`}>

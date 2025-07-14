@@ -175,10 +175,13 @@ export default function MyEvents() {
   const revenueData = months.map((month, idx) => {
     const filteredEvents = getFilteredEventsForDashboard();
     const monthRevenue = filteredEvents
-      .filter((e) => new Date(e.startDate).getMonth() === idx)
+      .filter((e) => e.dates && e.dates.length > 0 && new Date(e.dates[0].startDate).getMonth() === idx)
       .reduce((acc, event) => {
-        const eventRevenue = event.tickets.reduce(
-          (ticketAcc, ticket) => ticketAcc + ticket.price * ticket.soldQuantity,
+        const eventRevenue = event.batches.reduce(
+          (batchAcc, batch) => batchAcc + batch.tickets.reduce(
+            (ticketAcc, ticket) => ticketAcc + ticket.price * ticket.soldQuantity,
+            0
+          ),
           0
         );
         return acc + eventRevenue;
@@ -238,8 +241,8 @@ export default function MyEvents() {
     totalTicketsSold: getFilteredEventsForDashboard().reduce(
       (total, event) =>
         total +
-        event.tickets.reduce(
-          (ticketTotal, ticket) => ticketTotal + ticket.soldQuantity,
+        event.batches.reduce(
+          (ticketTotal, batch) => ticketTotal + batch.tickets.reduce((ticketTotal, ticket) => ticketTotal + ticket.soldQuantity, 0),
           0
         ),
       0
@@ -247,10 +250,10 @@ export default function MyEvents() {
     upcomingEvents: getFilteredEventsForDashboard().reduce(
       (total, event) =>
         total +
-        event.tickets.reduce(
-          (ticketTotal, ticket) =>{          
+        event.batches.reduce(
+          (ticketTotal, batch) => ticketTotal + batch.tickets.reduce((ticketTotal, ticket) =>{          
            return ticketTotal + (ticket.quantity - ticket.soldQuantity)
-          },
+          }, 0),
           0
         ),
       0
@@ -260,9 +263,8 @@ export default function MyEvents() {
     totalRevenue: getFilteredEventsForDashboard().reduce(
       (total, event) =>
         total +
-        event.tickets.reduce(
-          (ticketTotal, ticket) =>
-            ticketTotal + ticket.soldQuantity * ticket.price,
+        event.batches.reduce(
+          (ticketTotal, batch) => ticketTotal + batch.tickets.reduce((ticketTotal, ticket) => ticketTotal + ticket.soldQuantity * ticket.price, 0),
           0
         ),
       0
@@ -437,17 +439,48 @@ export default function MyEvents() {
           {selectedEvent && (
             <div className="space-y-4">
               <div>
-                <h4 className="text-sm font-medium">Data</h4>
-                <p className="text-sm text-gray-600">
-                  {new Date(selectedEvent.startDate).toLocaleDateString(
-                    "pt-BR",
-                    {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    }
+                <h4 className="text-sm font-medium">Datas e Períodos</h4>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  {selectedEvent.dates && selectedEvent.dates.length > 0 ? (
+                    selectedEvent.dates.map((period, idx) => (
+                      <li key={idx}>
+                        <span>
+                          {new Date(period.startDate).toLocaleDateString("pt-BR", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                          })}
+                          {" "}
+                          {period.startTime} até {new Date(period.endDate).toLocaleDateString("pt-BR", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                          })}
+                          {" "}
+                          {period.endTime}
+                        </span>
+                        {/* Se quiser, pode exibir atrações aqui também */}
+                        {period.attractions && period.attractions.length > 0 && (
+                          <ul className="ml-4 text-xs text-gray-500 list-disc">
+                            {period.attractions.map((attr, aIdx) => (
+                              <li key={aIdx}>
+                                {attr.name}
+                                {attr.social && (
+                                  <>
+                                    {" "}
+                                    <a href={attr.social} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{attr.social}</a>
+                                  </>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </li>
+                    ))
+                  ) : (
+                    <li>-</li>
                   )}
-                </p>
+                </ul>
               </div>
               <div>
                 <h4 className="text-sm font-medium">Local</h4>
@@ -506,7 +539,7 @@ export default function MyEvents() {
               </div>
 
               {selectedEvent.status !== "editing" &&
-                selectedEvent.tickets.map((ticket, index) => {
+                selectedEvent.batches.map((batch, index) => {
                   return (
                     <div key={index} className="grid grid-cols-2 gap-4">
                       <div>
@@ -514,13 +547,13 @@ export default function MyEvents() {
                           Ingressos Vendidos
                         </h4>
                         <p className="text-sm text-gray-600">
-                          {ticket.soldQuantity} / {ticket.quantity}
+                          {batch.tickets.reduce((acc, ticket) => acc + ticket.soldQuantity, 0)} / {batch.tickets.reduce((acc, ticket) => acc + ticket.quantity, 0)}
                         </p>
                       </div>
                       <div>
                         <h4 className="text-sm font-medium">Receita</h4>
                         <p className="text-sm text-gray-600">
-                          {formatCurrency(ticket.soldQuantity * ticket.price)}
+                          {formatCurrency(batch.tickets.reduce((acc, ticket) => acc + ticket.soldQuantity * ticket.price, 0))}
                         </p>
                       </div>
                     </div>
@@ -772,13 +805,13 @@ export default function MyEvents() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                   {filteredEvents.map((event) => {
                     const isFree = event.isFree;
-                    const startDate = new Date(
-                      event.startDate
-                    ).toLocaleDateString("pt-BR", {
-                      day: "2-digit",
-                      month: "short",
-                    });
-                    const startTime = event.startTime.slice(0, 5);
+                    const startDate = event.dates[0]?.startDate
+                      ? new Date(event.dates[0].startDate).toLocaleDateString("pt-BR", {
+                          day: "2-digit",
+                          month: "short",
+                        })
+                      : "-";
+                    const startTime = event.dates[0]?.startTime?.slice(0, 5) || "-";
 
                     return (
                       <div

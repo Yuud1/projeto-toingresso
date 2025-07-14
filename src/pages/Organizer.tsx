@@ -63,7 +63,7 @@ const EventList = ({
             <h3 className="font-semibold text-lg mb-2">{event.title}</h3>
             <div className="flex items-center gap-2 text-gray-600 text-sm">
               <Calendar size={14} />
-              <span>{new Date(event.startDate).toLocaleDateString()}</span>
+              <span>{new Date(event.dates[0].startDate).toLocaleDateString()}</span>
             </div>
             <div className="flex items-center gap-2 text-gray-600 text-sm mt-1">
               <MapPin size={14} />

@@ -1,381 +1,563 @@
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { TicketSelector } from "@/components/TicketSelector";
-import { useEffect, useState } from "react";
-import { User, Heart, MapPin, Calendar, Users, Clock } from "lucide-react";
-import { useParams } from "react-router-dom";
-import axios from "axios";
-import EventInterface from "@/interfaces/EventInterface";
-import FreeEventForm from "@/components/FreeEventForm";
-import Subscribed from "@/pages/Subscribed";
-import { useUser } from "@/contexts/useContext";
+"use client"
+
+import { useEffect, useState } from "react"
+import { useParams } from "react-router-dom"
+import axios from "axios"
+import {
+  Heart,
+  MapPin,
+  Calendar,
+  Users,
+  Clock,
+  User,
+  ChevronDown,
+  ChevronUp,
+  Ticket,
+  
+  Music,
+  ExternalLink,
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import Header from "@/components/Header"
+import Footer from "@/components/Footer"
+import { TicketSelector } from "@/components/TicketSelector"
+import FreeEventForm from "@/components/FreeEventForm"
+import Subscribed from "@/pages/Subscribed"
+import { useUser } from "@/contexts/useContext"
+import type EventInterface from "@/interfaces/EventInterface"
 
 const EventDetail = () => {
-  const { id } = useParams();
-  const { user } = useUser();
+  const { id } = useParams()
+  const { user } = useUser()
 
-  const [isFavorited, setIsFavorited] = useState<boolean>(false);
+  const [isFavorited, setIsFavorited] = useState<boolean>(false)
+  const [event, setEvents] = useState<EventInterface | undefined>(undefined)
+  const [subscribed, setSubscribed] = useState(false)
+  const [qrCode, setQrCode] = useState(null)
+  const [showFull, setShowFull] = useState(false)
 
-  const [event, setEvents] = useState<EventInterface | undefined>(undefined);
-  const [subscribed, setSubscribed] = useState(false);
-  const [qrCode, setQrCode] = useState(null);
+  console.log(event)
 
   useEffect(() => {
-    const condition =
-      user?.likedEvents.some((e) => e.toString() == id) ?? false;
-    setIsFavorited(condition);
-  }, [user]);
+    const condition = user?.likedEvents.some((e) => e.toString() == id) ?? false
+    setIsFavorited(condition)
+  }, [user])
 
   async function handleFavorite() {
-    setIsFavorited(!isFavorited);
+    setIsFavorited(!isFavorited)
 
     if (!isFavorited) {
       await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}${
-          import.meta.env.VITE_USER_LIKE_EVENT
-        }/${id}`,
+        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_USER_LIKE_EVENT}/${id}`,
         {},
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        }
-      );
+        },
+      )
     } else {
-      await axios.delete(
-        `${import.meta.env.VITE_API_BASE_URL}${
-          import.meta.env.VITE_USER_REMOVE_LIKE_EVENT
-        }/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_USER_REMOVE_LIKE_EVENT}/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
     }
   }
 
-  const [showFull, setShowFull] = useState(false);
-  const togglePolicy = () => setShowFull((prev) => !prev);
-  const policy = event?.policy || "";
-  const visibleText = showFull ? policy : `${policy.slice(0, 60)}...`;
+  const togglePolicy = () => setShowFull((prev) => !prev)
+  const policy = event?.policy || ""
+  const visibleText = showFull ? policy : `${policy.slice(0, 150)}...`
 
   useEffect(() => {
     try {
       async function getEvento() {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}${
-            import.meta.env.VITE_EVENT_GETID
-          }${id}`,
+          `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_EVENT_GETID}${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-          }
-        );
+          },
+        )
 
         if (response.data.event) {
-          setEvents(response.data.event);
+          setEvents(response.data.event)
         }
       }
 
-      getEvento();
+      getEvento()
     } catch (error) {
-      console.log("Fudeu", error);
+      console.log("Erro ao buscar evento", error)
     }
-  }, [id]);
+  }, [id])
 
   if (!event || !id) {
-    return null;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Carregando evento...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
     <>
       <Header isScrolled={true} />
-      {/* Banner superior da imagem */}
-      <div className="relative w-full h-80 sm:h-96 md:h-[500px] mt-28 sm:mt-16 md:mt-4">
+
+      {/* Hero Section */}
+      <div className="relative h-[70vh] overflow-hidden mt-20">
         <div
-          className="absolute mb-10 inset-0 bg-cover bg-center blur-sm"
+          className="absolute inset-0 bg-cover bg-center scale-105"
           style={{ backgroundImage: `url("${event?.image}")` }}
-        ></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent"></div>
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
 
-        {/* Seção principal: Info + imagem posicionada dentro do banner */}
-        <section className="relative max-w-7xl mx-auto px-4 sm:px-6 md:px-10 h-full flex flex-col justify-end pb-6 sm:pb-8 md:pb-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 items-start w-full">
-            {/* Informações do evento - apenas desktop */}
-            <div className="hidden md:block space-y-4 text-[#414141]">
-              <div className="flex items-center justify-between">
-                <h1 className="text-3xl md:text-4xl font-bold text-black flex-1 mr-4">
-                  {event?.title}
-                </h1>
-                <button
-                  onClick={() => handleFavorite()}
-                  className={`w-12 h-12 rounded-full transition-all duration-300 bg-red-500 
-                    flex items-center justify-center cursor-pointer shadow-lg hover:shadow-xl flex-shrink-0
-                    ${
+        {/* Floating elements for visual interest */}
+        <div className="absolute top-20 right-20 w-32 h-32 bg-white/10 rounded-full blur-xl animate-pulse" />
+        <div className="absolute bottom-40 left-10 w-24 h-24 bg-blue-500/20 rounded-full blur-lg animate-pulse delay-1000" />
+
+        <div className="relative h-full flex items-end">
+          <div className="container mx-auto px-6 pb-16">
+            <div className="grid lg:grid-cols-2 gap-12 items-end">
+              {/* Event Info */}
+              <div className="text-white space-y-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-4">
+                    <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                      {event?.category || "Evento"}
+                    </Badge>
+                    <h1 className="text-4xl lg:text-5xl font-bold leading-tight bg-gradient-to-r from-white to-white/80 bg-clip-text">
+                      {event?.title}
+                    </h1>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleFavorite}
+                    className={`rounded-full h-14 w-14 transition-all duration-300 backdrop-blur-sm ${
                       isFavorited
-                        ? "bg-red-500 text-white hover:bg-red-600 transform scale-110"
-                        : "bg-white/90 backdrop-blur-sm text-gray-600 hover:bg-white hover:text-red-500 border border-gray-200"
+                        ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/25"
+                        : "bg-white/20 hover:bg-white/30 text-white border border-white/30"
                     }`}
-                  title="Favoritar evento"
-                >
-                  <Heart
-                    className={`h-6 w-6 transition-all duration-300 ${
-                      isFavorited ? "fill-current" : ""
-                    }`}
-                  />
-                </button>
-              </div>
-
-              {/* Neighborhood | City com ícone */}
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-gray-600" />
-                <p className="text-base">
-                  {event?.neighborhood} | {event?.city}
-                </p>
-              </div>
-
-              {/* Data - Horário com ícone */}
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-gray-600" />
-                <p className="text-base">
-                  {event?.startDate &&
-                    new Date(event.startDate).toLocaleDateString()}{" "}
-                  - {event?.startTime}
-                </p>
-              </div>
-
-              {/* Organizador */}
-              <a
-                href={`/organizer/${event?.organizer._id}`}
-                className="flex items-center gap-3 pt-2 py-3 pr-3 rounded-lg transition-colors cursor-pointer"
-              >
-                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                  {event?.organizer.avatar ? (
-                    <img
-                      src={event.organizer.avatar}
-                      alt={event.organizer.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <User className="w-5 h-5 text-gray-500" />
-                  )}
+                  >
+                    <Heart className={`h-6 w-6 ${isFavorited ? "fill-current" : ""}`} />
+                  </Button>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-600">Organizador</p>
-                  <p className="font-medium text-[#414141]">
-                    {event?.organizer.name}
-                  </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-white/90">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                      <MapPin className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-white/70">Localização</p>
+                      <p className="font-semibold">
+                        {event?.neighborhood} | {event?.city}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </a>
-            </div>
 
-            {/* Título apenas mobile */}
-            <div className="md:hidden space-y-3 text-[#414141] bg-white/80 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-[#414141] flex-1 mr-3 ">
-                  {event?.title}
-                </h1>
-                <button
-                  onClick={() => setIsFavorited(!isFavorited)}
-                  className={`w-10 h-10 rounded-full transition-all duration-300 
-                    flex items-center justify-center cursor-pointer shadow-lg hover:shadow-xl flex-shrink-0
-                    ${
-                      isFavorited
-                        ? "bg-red-500 text-white hover:bg-red-600 transform scale-110"
-                        : "bg-white/90 backdrop-blur-sm text-gray-600 hover:bg-white hover:text-red-500 border border-gray-200"
-                    }`}
-                  title="Favoritar evento"
-                >
-                  <Heart
-                    className={`h-5 w-5 transition-all duration-300 ${
-                      isFavorited ? "fill-current" : ""
-                    }`}
-                  />
-                </button>
+                <div className="flex items-center gap-4 pt-4">
+                  <a href={`/organizer/${event?.organizer._id}`} className="flex items-center gap-3">
+                  <Avatar className="h-14 w-14 border-2 border-white/30">
+                    <AvatarImage src={event?.organizer.avatar || "/placeholder.svg"} />
+                    <AvatarFallback className="bg-white/20 text-white">
+                      <User className="h-6 w-6" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-white/70 text-sm">Organizado por</p>
+                      <p className="text-white font-semibold text-lg">{event?.organizer.name}</p>
+                    </div>
+                  </a>
+                </div>
               </div>
-            </div>
 
-            {/* Imagem lateral no desktop com hover */}
-            <div className="h-56 sm:h-72 md:h-80 relative group">
-              <img
-                src={event?.image}
-                alt={event?.title}
-                className="w-full h-full object-cover rounded-lg shadow-lg transition-all duration-300 group-hover:shadow-xl transform group-hover:scale-[1.01]"
-              />
-
-              {/* Overlay de informações na imagem */}
-              <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 bg-black/60 backdrop-blur-sm rounded-lg p-2 sm:p-3 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-                  <Users className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span>Evento imperdível</span>
-                  <Clock className="w-3 h-3 sm:w-4 sm:h-4 ml-auto" />
-                  <span>Em breve</span>
+              {/* Event Image Card */}
+              <div className="hidden lg:block">
+                <div className="relative group">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
+                  <img
+                    src={event?.image || "/placeholder.svg"}
+                    alt={event?.title}
+                    className="relative w-full h-96 object-cover rounded-2xl shadow-2xl transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute bottom-6 left-6 right-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Users className="h-5 w-5" />
+                        <span className="font-medium">Evento imperdível</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-5 w-5" />
+                        <span className="font-medium">Em breve</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </section>
-      </div>
-      {/* Seção principal: Info + imagem no desktop */}
-      {subscribed ? (
-        <Subscribed
-          qrCode={qrCode}
-          open={subscribed}
-          onOpenChange={setSubscribed}
-        ></Subscribed>
-      ) : null}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 py-8 sm:py-10 md:py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 sm:gap-8 md:gap-12">
-          {/* Descrição completa */}
-          <div>
-            <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-[#414141]">
-              Descrição do evento
-            </h2>
-            <p className="text-sm sm:text-base text-[#414141] leading-relaxed whitespace-pre-line">
-              {event?.description}
-            </p>
-
-            {/* Informações do evento - apenas mobile */}
-            <div className="md:hidden mt-6 p-4 bg-gray-50 rounded-lg space-y-3">
-              {/* Neighborhood | City com ícone */}
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-gray-600" />
-                <p className="text-sm">
-                  {event?.neighborhood} | {event?.city}
-                </p>
-              </div>
-
-              {/* Data - Horário com ícone */}
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-gray-600" />
-                <p className="text-sm">
-                  {event?.startDate &&
-                    new Date(event.startDate).toLocaleDateString()}{" "}
-                  - {event?.startTime}
-                </p>
-              </div>
-
-              {/* Organizador */}
-              <a
-                href={`/organizer/${event?.organizer._id}`}
-                className="flex items-center gap-3 pt-2 py-2 pr-3 rounded-lg transition-colors cursor-pointer"
-              >
-                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                  {event?.organizer.avatar ? (
-                    <img
-                      src={event.organizer.avatar}
-                      alt={event.organizer.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <User className="w-4 h-4 text-gray-500" />
-                  )}
-                </div>
-                <div>
-                  <p className="text-xs text-gray-600">Organizador</p>
-                  <p className="text-sm font-medium text-[#414141]">
-                    {event?.organizer.name}
-                  </p>
-                </div>
-              </a>
-            </div>
-
-            {/* Política do Evento */}
-            <div className="mt-6 sm:mt-8 p-3 sm:p-4 border border-gray-300 rounded-lg bg-gray-50">
-              <h3 className="font-semibold mb-2 text-sm sm:text-base text-[#414141]">
-                Política do Evento
-              </h3>
-              <p className="text-xs sm:text-sm text-[#414141] break-words whitespace-pre-line">
-                {visibleText}
-              </p>
-              {policy.length > 55 && (
-                <button
-                  onClick={togglePolicy}
-                  className="mt-2 text-blue-600 hover:underline text-xs sm:text-sm"
-                >
-                  {showFull ? "Ver menos" : "Ver mais"}
-                </button>
-              )}
-            </div>
-
-            {/* Localização com hover */}
-            <div className="mt-8 sm:mt-12">
-              <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-[#414141]">
-                Localização
-              </h2>
-              
-              {/* Informações do endereço */}
-              <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <MapPin className="w-5 h-5 text-gray-600" />
-                  <h3 className="font-semibold text-[#414141]">
-                    {event?.venueName || 'Local do evento'}
-                  </h3>
-                </div>
-                <p className="text-sm text-gray-700">
-                  {event?.street && `${event.street}`}
-                  {event?.number && `, ${event.number}`}
-                  {event?.complement && ` - ${event.complement}`}
-                </p>
-                <p className="text-sm text-gray-700">
-                  {event?.neighborhood && `${event.neighborhood}`}
-                  {event?.city && `, ${event.city}`}
-                  {event?.state && ` - ${event.state}`}
-                  {event?.zipCode && ` (${event.zipCode})`}
-                </p>
-              </div>
-              
-              {/* Mapa */}
-              <div className="w-full h-[250px] sm:h-[300px] md:h-[400px] rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.01]">
-                <iframe
-                  src={event?.mapUrl || (event?.latitude && event?.longitude 
-                    ? `https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&q=${event.latitude},${event.longitude}&zoom=15`
-                    : "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1963.4955007216295!2d-48.337388507953854!3d-10.181385600694082!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9324cb6b090918a5%3A0xec2ad53ac4f6cb12!2sBrasif%20M%C3%A1quinas!5e0!3m2!1spt-BR!2sbr!4v1749832543882!5m2!1spt-BR!2sbr"
-                  )}
-                  width="100%"
-                  height="100%"
-                  className="border-0"
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Ingressos com design simples */}
-          {event?.isFree ? (
-            <div className="w-full max-w-full lg:max-w-[30rem]">
-              <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
-                <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-[#414141]">
-                  {event.formTitle
-                    ? event.formTitle
-                    : "Formulário de Inscrição"}
-                </h2>
-
-                <FreeEventForm
-                  customFields={event?.customFields ?? []}
-                  eventId={event._id}
-                  setSubscribed={setSubscribed}
-                  setQrCode={setQrCode}
-                />
-              </div>
-            </div>
-          ) : (
-            <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm">
-              <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-[#414141]">
-                Ingressos
-              </h2>
-              <TicketSelector event={event} tickets={event?.tickets ?? []} />
-            </div>
-          )}
         </div>
-      </main>
+      </div>
+
+      {/* Subscribed Modal */}
+      {subscribed ? <Subscribed qrCode={qrCode} open={subscribed} onOpenChange={setSubscribed} /> : null}
+
+      {/* Main Content */}
+      <div className="container mx-auto px-6 py-16">
+        <div className="grid lg:grid-cols-3 gap-12">
+          {/* Left Column - Event Details */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Description */}
+            <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-3xl text-gray-800 flex items-center gap-3">
+                  <div className="w-2 h-8 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full"></div>
+                  Sobre o evento
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 leading-relaxed text-lg whitespace-pre-line">{event?.description}</p>
+
+                {/* Mobile Event Info */}
+                <div className="md:hidden mt-8 p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl space-y-4">
+                  <div className="flex items-center gap-3">
+                    <MapPin className="w-5 h-5 text-gray-600" />
+                    <p className="text-sm font-medium">
+                      {event?.neighborhood} | {event?.city}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <Calendar className="w-5 h-5 text-gray-600" />
+                    <div className="text-sm">
+                      {event?.dates && event.dates.length > 0 ? (
+                        event.dates.map((period, i) => (
+                          <div key={i}>
+                            {new Date(period.startDate).toLocaleDateString()} {period.startTime} até{" "}
+                            {new Date(period.endDate).toLocaleDateString()} {period.endTime}
+                          </div>
+                        ))
+                      ) : (
+                        <span>Sem datas cadastradas</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <a
+                    href={`/organizer/${event?.organizer._id}`}
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/50 transition-colors cursor-pointer"
+                  >
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={event?.organizer.avatar || "/placeholder.svg"} />
+                      <AvatarFallback>
+                        <User className="w-5 h-5 text-gray-500" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="text-xs text-gray-600">Organizador</p>
+                      <p className="text-sm font-medium text-gray-800">{event?.organizer.name}</p>
+                    </div>
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Lineup/Attractions Section */}
+            {event?.dates &&
+              event.dates.length > 0 &&
+              event.dates.some((date) => date.attractions && date.attractions.length > 0) && (
+                <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-3xl text-gray-800 flex items-center gap-3">
+                      <div className="w-2 h-8 bg-gradient-to-b from-purple-500 to-pink-600 rounded-full"></div>
+                      Lineup & Atrações
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {event.dates.length === 1 ? (
+                      // Single date - no tabs needed
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3 mb-6">
+                          <Calendar className="h-5 w-5 text-purple-600" />
+                          <div>
+                            <p className="font-semibold text-gray-800">
+                              {new Date(event.dates[0].startDate).toLocaleDateString("pt-BR", {
+                                weekday: "long",
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              {event.dates[0].startTime} às {event.dates[0].endTime}
+                            </p>
+                          </div>
+                        </div>
+
+                        {event.dates[0].attractions && event.dates[0].attractions.length > 0 ? (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {event.dates[0].attractions.map((attraction, attractionIndex) => (
+                              <div
+                                key={attractionIndex}
+                                className="group p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-100 hover:shadow-lg transition-all duration-300 hover:scale-105"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
+                                    <Music className="h-5 w-5 text-white" />
+                                  </div>
+                                  <div className="flex-1">
+                                    <h4 className="font-bold text-gray-800 group-hover:text-purple-700 transition-colors">
+                                      {attraction.name}
+                                    </h4>
+                                    {attraction.social && (
+                                      <a
+                                        href={attraction.social}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1 text-sm text-purple-600 hover:text-purple-800 mt-1"
+                                      >
+                                        <ExternalLink className="h-3 w-3" />
+                                        Ver perfil
+                                      </a>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-gray-500 text-center py-8">Nenhuma atração cadastrada para esta data.</p>
+                        )}
+                      </div>
+                    ) : (
+                      // Multiple dates - use tabs
+                      <Tabs defaultValue="0" className="w-full">
+                        <TabsList className="grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 h-auto p-1 bg-gray-100">
+                          {event.dates.map((date, index) => (
+                            <TabsTrigger
+                              key={index}
+                              value={index.toString()}
+                              className="flex flex-col items-center p-4 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg transition-all duration-200"
+                            >
+                              <span className="font-semibold text-sm">
+                                {new Date(date.startDate).toLocaleDateString("pt-BR", {
+                                  day: "2-digit",
+                                  month: "short",
+                                })}
+                              </span>
+                              <span className="text-xs text-gray-600 mt-1">{date.startTime}</span>
+                            </TabsTrigger>
+                          ))}
+                        </TabsList>
+
+                        {event.dates.map((date, index) => (
+                          <TabsContent key={index} value={index.toString()} className="mt-6">
+                            <div className="space-y-4">
+                              <div className="flex items-center gap-3 mb-6">
+                                <Calendar className="h-5 w-5 text-purple-600" />
+                                <div>
+                                  <p className="font-semibold text-gray-800">
+                                    {new Date(date.startDate).toLocaleDateString("pt-BR", {
+                                      weekday: "long",
+                                      year: "numeric",
+                                      month: "long",
+                                      day: "numeric",
+                                    })}
+                                  </p>
+                                  <p className="text-sm text-gray-600">
+                                    {date.startTime} às {date.endTime}
+                                  </p>
+                                </div>
+                              </div>
+
+                              {date.attractions && date.attractions.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  {date.attractions.map((attraction, attractionIndex) => (
+                                    <div
+                                      key={attractionIndex}
+                                      className="group p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-100 hover:shadow-lg transition-all duration-300 hover:scale-105"
+                                    >
+                                      <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
+                                          <Music className="h-5 w-5 text-white" />
+                                        </div>
+                                        <div className="flex-1">
+                                          <h4 className="font-bold text-gray-800 group-hover:text-purple-700 transition-colors">
+                                            {attraction.name}
+                                          </h4>
+                                          {attraction.social && (
+                                            <a
+                                              href={attraction.social}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              className="inline-flex items-center gap-1 text-sm text-purple-600 hover:text-purple-800 mt-1"
+                                            >
+                                              <ExternalLink className="h-3 w-3" />
+                                              Ver perfil
+                                            </a>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <p className="text-gray-500 text-center py-8">
+                                  Nenhuma atração cadastrada para esta data.
+                                </p>
+                              )}
+                            </div>
+                          </TabsContent>
+                        ))}
+                      </Tabs>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+            {/* Event Policy */}
+            <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-2xl text-gray-800 flex items-center gap-3">
+                  <div className="w-2 h-6 bg-gradient-to-b from-orange-500 to-red-500 rounded-full"></div>
+                  Política do evento
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 leading-relaxed whitespace-pre-line">{visibleText}</p>
+                {policy.length > 150 && (
+                  <Button
+                    variant="ghost"
+                    onClick={togglePolicy}
+                    className="mt-4 p-0 h-auto text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    {showFull ? (
+                      <>
+                        Ver menos <ChevronUp className="ml-1 h-4 w-4" />
+                      </>
+                    ) : (
+                      <>
+                        Ver mais <ChevronDown className="ml-1 h-4 w-4" />
+                      </>
+                    )}
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Location */}
+            <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-3xl text-gray-800 flex items-center gap-3">
+                  <div className="w-2 h-8 bg-gradient-to-b from-green-500 to-teal-600 rounded-full"></div>
+                  Localização
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-start gap-4 p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl">
+                  <div className="p-3 bg-white rounded-lg shadow-sm">
+                    <MapPin className="h-6 w-6 text-gray-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-800 text-lg mb-2">{event?.venueName || "Local do evento"}</h3>
+                    <p className="text-gray-600">
+                      {event?.street && `${event.street}`}
+                      {event?.number && `, ${event.number}`}
+                      {event?.complement && ` - ${event.complement}`}
+                    </p>
+                    <p className="text-gray-600">
+                      {event?.neighborhood && `${event.neighborhood}`}
+                      {event?.city && `, ${event.city}`}
+                      {event?.state && ` - ${event.state}`}
+                      {event?.zipCode && ` (${event.zipCode})`}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+                  <iframe
+                    src={
+                      event?.mapUrl ||
+                      (event?.latitude && event?.longitude
+                        ? `https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&q=${event.latitude},${event.longitude}&zoom=15`
+                        : "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1963.4955007216295!2d-48.337388507953854!3d-10.181385600694082!3m2!1i1024!2i768!4f13.1!3m3!1m2!1spt-BR!2sbr!4v1749832543882!5m2!1spt-BR!2sbr")
+                    }
+                    width="100%"
+                    height="350"
+                    className="border-0"
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Column - Tickets */}
+          <div className="space-y-6">
+            <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm sticky top-6">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-2xl text-gray-800 flex items-center gap-3">
+                  <Ticket className="h-6 w-6 text-blue-600" />
+                  {event?.isFree ? event.formTitle || "Formulário de Inscrição" : `Ingressos ${event.batches[0].batchName}`}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {event?.isFree ? (
+                  <div className="space-y-6">
+                    <div className="text-center py-4">
+                      <Badge variant="secondary" className="text-lg px-6 py-3 mb-4 bg-green-100 text-green-800">
+                        Evento Gratuito
+                      </Badge>
+                    </div>
+                    <FreeEventForm
+                      customFields={event?.customFields ?? []}
+                      eventId={event._id}
+                      setSubscribed={setSubscribed}
+                      setQrCode={setQrCode}
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    {/* Verificação se batches está vazio */}
+                    {(!event.batches || event.batches.length === 0) ? (
+                      <div className="text-center text-gray-600 py-12">
+                        <Ticket className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                        <p className="text-lg font-medium mb-2">Ingressos Indisponíveis</p>
+                        <p className="text-sm text-gray-500">Eventos Indisponíveis no momento.</p>
+                      </div>
+                    ) : event.currentTickets && event.currentTickets.length > 0 ? (
+                      <TicketSelector event={event} tickets={event.currentTickets} />
+                    ) : (
+                      <div className="text-center text-gray-600 py-12">
+                        <Ticket className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                        <p className="text-lg font-medium mb-2">Não há ingressos à venda no momento.</p>
+                        <p className="text-sm text-gray-500">Volte em breve para conferir a disponibilidade.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+
       <Footer />
     </>
-  );
-};
+  )
+}
 
-export default EventDetail;
+export default EventDetail

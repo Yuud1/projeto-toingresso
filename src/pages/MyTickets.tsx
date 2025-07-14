@@ -245,11 +245,11 @@ export default function MyTickets() {
               {filteredTickets.map((ticket) => {
                 const event = ticket.Event;
                 
-                const startDate = event?.startDate ? new Date(event.startDate).toLocaleDateString("pt-BR", {
+                const startDate = event?.dates[0]?.startDate ? new Date(event.dates[0].startDate).toLocaleDateString("pt-BR", {
                   day: "2-digit",
                   month: "short",
                 }) : "Data não informada";
-                const startTime = event?.startTime ? event.startTime.slice(0, 5) : "Hora não informada";
+                const startTime = event?.dates[0]?.startTime ? event.dates[0].startTime.slice(0, 5) : "Hora não informada";
 
                 return (
                   <div
