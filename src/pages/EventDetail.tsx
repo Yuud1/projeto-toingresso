@@ -172,7 +172,7 @@ const EventDetail = () => {
       <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background Image with Parallax Effect */}
         <div
-          className="absolute inset-0 scale-110 transition-transform duration-1000 ease-out"
+          className="absolute inset-0 scale-110 transition-transform duration-500 ease-out"
           style={{
             backgroundImage: `url("${event?.image}")`,
             backgroundSize: "cover",
@@ -290,7 +290,7 @@ const EventDetail = () => {
             <div className="pt-8">
               <Button
                 size="lg"
-                className="px-12 py-6 text-lg font-bold rounded-2xl bg-white hover:from-yellow-600 hover:via-blue-600 hover:to-amber-600 text-black hover:text-white cursor-pointer border-0 shadow-2xl hover:shadow-yellow-500/25 transition-all duration-300 hover:scale-105"
+                className="px-12 py-6 text-lg w-full font-bold rounded-2xl bg-white hover:from-yellow-600 hover:via-blue-600 hover:to-amber-600 text-black hover:text-white cursor-pointer border-0 shadow-2xl hover:shadow-yellow-500/25 transition-all duration-300 hover:scale-105"
                 onClick={() => {
                   const ticketSection =
                     document.getElementById("tickets-section");
@@ -324,12 +324,12 @@ const EventDetail = () => {
       )}
 
       {/* Main Content */}
-      <div className="relative z-10 container mx-auto px-6 py-20">
+      <div className="relative z-10 container mx-auto px-6 py-20 w-full">
         <div className="grid lg:grid-cols-3 gap-12">
           {/* Left Column - Event Details */}
           <div className="lg:col-span-2 space-y-12">
             {/* Description */}
-            <Card className="border-0 bg-white/80 backdrop-blur-xl shadow-2xl hover:shadow-yellow-500/10 transition-all duration-500 hover:scale-[1.02]">
+            <Card className="text-wrap border-0 bg-white/80 backdrop-blur-xl shadow-2xl hover:shadow-yellow-500/10 transition-all duration-500 hover:scale-[1.02]">
               <CardHeader className="pb-6">
                 <CardTitle className="text-3xl font-bold flex items-center gap-4 text-gray-800">
                   <div className="w-12 h-12 rounded-2xl  flex items-center justify-center">
@@ -344,16 +344,16 @@ const EventDetail = () => {
                 </p>
 
                 {/* Mobile Event Info */}
-                <div className="md:hidden mt-8 p-6 rounded-2xl bg-gradient-to-r from-yellow-50 to-blue-50 border border-yellow-200/50 space-y-4">
+                <div className="md:hidden mt-8 p-6 rounded-2xl space-y-4">
                   <div className="flex items-center gap-3">
-                    <MapPin className="w-5 h-5 text-yellow-600" />
+                    <MapPin className="w-5 h-5 " />
                     <p className="text-sm font-medium text-gray-700">
                       {event?.neighborhood} | {event?.city}
                     </p>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <Calendar className="w-5 h-5 text-blue-600" />
+                    <Calendar className="w-5 h-5 " />
                     <div className="text-sm text-gray-700">
                       {event?.dates && event.dates.length > 0 ? (
                         event.dates.map((period, i) => (
@@ -392,8 +392,8 @@ const EventDetail = () => {
                     {event.dates.length === 1 ? (
                       // Single date
                       <div className="space-y-6">
-                        <div className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-yellow-100 to-blue-100 border border-yellow-200/50">
-                          <Calendar className="h-6 w-6 text-yellow-600" />
+                        <div className="flex items-center gap-4 p-4 rounded-2xl ">
+                          <Calendar className="h-6 w-6 " />
                           <div>
                             <p className="font-bold text-gray-800 text-lg">
                               {new Date(
@@ -497,8 +497,8 @@ const EventDetail = () => {
                             className="mt-8"
                           >
                             <div className="space-y-6">
-                              <div className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-yellow-100 to-blue-100 border border-yellow-200/50">
-                                <Calendar className="h-6 w-6 text-yellow-600" />
+                              <div className="flex items-center gap-4 p-4 rounded-2xl ">
+                                <Calendar className="h-6 w-6 " />
                                 <div>
                                   <p className="font-bold text-gray-800 text-lg">
                                     {new Date(
@@ -613,7 +613,7 @@ const EventDetail = () => {
             {/* Location */}
             <Card className="border-0 bg-white/80 backdrop-blur-xl shadow-2xl hover:shadow-yellow-500/10 transition-all duration-500">
               <CardHeader className="pb-6">
-                <CardTitle className="text-3xl font-bold flex items-center gap-4 text-gray-800">
+                <CardTitle className="text-3xl flex-col sm:flex-row font-bold flex items-center gap-4 text-gray-800">
                   <div className="w-12 h-12 rounded-2xl flex items-center justify-center">
                     <MapPin className="w-6 text-black" />
                   </div>
@@ -621,7 +621,7 @@ const EventDetail = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-8">
-                <div className="flex items-start gap-6 p-6 rounded-2xl">
+                <div className="flex flex-col sm:flex-row justify-center items-center gap-6 p-6 rounded-2xl">
                   <div className="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0">
                     <MapPin className="h-8 w-8 text-black" />
                   </div>
