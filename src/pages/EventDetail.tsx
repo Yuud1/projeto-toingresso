@@ -143,7 +143,7 @@ const EventDetail = () => {
           className="absolute inset-0 transition-transform duration-300 ease-out"
           style={{
             backgroundImage: `url("${event?.image}")`,
-            backgroundSize: "fit",
+            backgroundSize: "cover",
             backgroundPosition: "center",
           }}
         />
