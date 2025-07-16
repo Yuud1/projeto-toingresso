@@ -244,7 +244,7 @@ export default function TermsOfUse() {
                     <Mail className="text-[#02488C]" size={20} />
                     <div>
                       <p className="font-semibold text-sm">E-mail</p>
-                      <p className="text-sm text-gray-600">suporte@empresa.com</p>
+                      <p className="text-sm text-gray-600">toingresso@gmail.com</p>
                     </div>
                   </div>
                   
@@ -252,7 +252,7 @@ export default function TermsOfUse() {
                     <Phone className="text-[#02488C]" size={20} />
                     <div>
                       <p className="font-semibold text-sm">Telefone</p>
-                      <p className="text-sm text-gray-600">(11) 1234-5678</p>
+                      <p className="text-sm text-gray-600">(63) 99282-5487</p>
                     </div>
                   </div>
                 </div>

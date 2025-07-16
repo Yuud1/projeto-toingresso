@@ -76,10 +76,7 @@ export default function PrivacyPolicy() {
                 <ul className="list-disc pl-6 space-y-1">
                   <li>
                     <strong>Informações de conta:</strong> Nome, e-mail, telefone, data de nascimento, CPF/CNPJ
-                  </li>
-                  <li>
-                    <strong>Informações de pagamento:</strong> Dados do cartão de crédito, informações bancárias
-                  </li>
+                  </li>                  
                   <li>
                     <strong>Informações de perfil:</strong> Foto, preferências, redes sociais
                   </li>

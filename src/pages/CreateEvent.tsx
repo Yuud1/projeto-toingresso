@@ -40,6 +40,7 @@ import type FormDataInterface from "@/interfaces/FormDataInterface";
 import Header from "@/components/Header";
 import { FaFootballBall, FaQuestionCircle } from "react-icons/fa";
 import axios from "axios";
+import Footer from "@/components/Footer";
 
 const estadosMunicipios = {
   AC: { nome: "Acre" },
@@ -1859,6 +1860,7 @@ export default function CreateEvent() {
           </form>
         </div>
       </main>
+      <Footer/>
     </div>
   );
 }

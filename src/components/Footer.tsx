@@ -198,8 +198,8 @@ const Footer = () => {
           <div>
             <h3 className="text-base font-semibold mb-3">Fale Conosco</h3>
             <ul className="space-y-2 text-sm text-gray-300">
-              <li>Email: contato@dasilva.com</li>
-              <li>Telefone: (11) 99999-9999</li>
+              <li>Email: toingresso@gmail.com</li>
+              <li>Telefone: (63) 99282-5487</li>
               <li><a href="/question-help" className="hover:underline">Ajuda & Suporte</a></li>
             </ul>
           </div>

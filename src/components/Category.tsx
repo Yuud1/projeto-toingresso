@@ -70,15 +70,15 @@ const Category: React.FC = () => {
     : eventsCategory.length > 5;
 
   return (
-    <div className="max-w-7xl mx-auto py-10  w-full h-fit ">
+    <div className="max-w-7xl mx-auto py-10  w-full h-fit">
       <div className="w-full flex flex-row justify-center items-center">
         <h1 className="text-white text-2xl font-bold mb-15 pt-8">
           Explore Momentos
-        </h1>        
+        </h1>
       </div>
 
       <div
-        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8 place-items-center mb-10"
+        className=" grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8 place-items-center mb-10"
         id="filter-grid"
       >
         {categories.map((cat) => {
