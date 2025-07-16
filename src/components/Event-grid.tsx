@@ -12,7 +12,9 @@ const EventGrid = () => {
     async function getEvents() {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_GET_ALL_EVENTS}`,
+          `${import.meta.env.VITE_API_BASE_URL}${
+            import.meta.env.VITE_GET_ALL_EVENTS
+          }`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -27,7 +29,6 @@ const EventGrid = () => {
         console.log("Erro ao buscar eventos", error);
       }
     }
-    
 
     getEvents();
   }, []);
@@ -37,17 +38,17 @@ const EventGrid = () => {
   const hasMoreEvents = events.length > 8;
 
   return (
-    <section id="event-grid" className="max-w-7xl mx-auto py-10">
-      <div className="flex items-center justify-between">
-        <h2 className="text-[#414141] text-2xl font-bold mb-8 pt-8">
+    <section id="event-grid" className="max-w-7xl mx-auto py-10  w-full h-fit">
+      <div className="flex items-center justify-between w-full">
+        <h1 className="text-black text-2xl font-bold mb-8 pt-8">
           Próximos Eventos
-        </h2>
-        
+        </h1>
+
         {/* Botão "Ver Todos os Eventos" */}
-              {hasMoreEvents && (
+        {hasMoreEvents && (
           <div className="flex justify-end">
             <Button
-              onClick={() => window.location.href = '/todos-eventos'}
+              onClick={() => (window.location.href = "/todos-eventos")}
               className="bg-[#02488C] hover:bg-[#023a70] text-white px-5 py-4 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 cursor-pointer"
             >
               Todos os Eventos
@@ -61,8 +62,6 @@ const EventGrid = () => {
           <EventCard key={event._id} event={event} />
         ))}
       </div>
-
-
     </section>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {  
+import {
   ChevronLeft,
   ChevronRight,
   Music,
@@ -19,18 +19,17 @@ import EventInterface from "@/interfaces/EventInterface";
 import axios from "axios";
 import { truncateTextResponsive } from "@/utils/formatUtils";
 import EventCard from "./EventCard";
-import { FaFootballBall, FaQuestionCircle } from "react-icons/fa";
+import { FaFootballBall } from "react-icons/fa";
 
 const categories = [
-  { label: "Shows", icon: <Music/> },
-  { label: "Teatro", icon: <TheaterIcon/> },
-  { label: "Esportes", icon: <FaFootballBall/> },
-  { label: "Festas", icon: <PartyPopper/> },
-  { label: "Comédia", icon: <Users/> },
-  { label: "Gospel", icon: <Music/> },
-  { label: "Parque de Diversões", icon: <RollerCoaster/> },
-  { label: "Público", icon: <Users/> },
-  { label: "Outros", icon: <FaQuestionCircle/> },
+  { label: "Shows", icon: <Music /> },
+  { label: "Teatro", icon: <TheaterIcon /> },
+  { label: "Esportes", icon: <FaFootballBall /> },
+  { label: "Festas", icon: <PartyPopper /> },
+  { label: "Comédia", icon: <Users /> },
+  { label: "Gospel", icon: <Music /> },
+  { label: "Diversões", icon: <RollerCoaster /> },
+  { label: "Público", icon: <Users /> },
 ];
 
 const Category: React.FC = () => {
@@ -71,13 +70,15 @@ const Category: React.FC = () => {
     : eventsCategory.length > 5;
 
   return (
-    <div>
-      <h2 className="text-[#414141] text-2xl font-bold mb-8 pt-8">
-        Explore Momentos
-      </h2>
+    <div className="max-w-7xl mx-auto py-10  w-full h-fit ">
+      <div className="w-full flex flex-row justify-center items-center">
+        <h1 className="text-white text-2xl font-bold mb-15 pt-8">
+          Explore Momentos
+        </h1>        
+      </div>
 
       <div
-        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 place-items-center mb-10"
+        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8 place-items-center mb-10"
         id="filter-grid"
       >
         {categories.map((cat) => {

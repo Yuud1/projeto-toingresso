@@ -6,7 +6,6 @@ import AdBanner from "../components/AdBanner";
 import Footer from "../components/Footer";
 
 export default function Home() {
-  
   return (
     <>
       <Header />
@@ -15,11 +14,17 @@ export default function Home() {
           <CarrosselMain />
         </div>
         <div className="max-w-full">
-          <section className="h-full bg-[#FEC800]">
-            <div className="max-w-7xl mx-auto px-8">
-              <EventGrid />
-              <AdBanner />
-              <Category />
+          <section className="h-full w-full">
+            <div className=" max-w-full mx-auto w-full flex flex-col items-center justify-center gap-25">
+              <div className="w-full bg-[#FEC800] ">
+                <EventGrid />
+              </div>
+              <div className=" w-3/4">
+                <AdBanner />
+              </div>
+              <div className="w-full bg-[#014A8E] mb-30">
+                <Category />
+              </div>
             </div>
           </section>
         </div>

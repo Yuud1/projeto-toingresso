@@ -22,7 +22,7 @@ import {
   Upload,
   Search,
   Plus,
-  Trash2,  
+  Trash2,
   Music,
   Ticket,
   RollerCoaster,
@@ -78,7 +78,7 @@ const CATEGORIES = [
   { value: "festas", label: "Festas", icon: PartyPopper },
   { value: "comedia", label: "Comédia", icon: Users },
   { value: "gospel", label: "Gospel", icon: Music },
-  { value: "parque", label: "Parque de Diversões", icon: RollerCoaster },
+  { value: "diversões", label: "Diversões", icon: RollerCoaster },
   { value: "publico", label: "Evento Público", icon: Users },
   { value: "outros", label: "Outros", icon: FaQuestionCircle },
 ];
@@ -135,7 +135,7 @@ export default function CreateEvent() {
     status: "active",
     searchAddress: "",
   });
-  console.log("Formdata", formData)
+  console.log("Formdata", formData);
   const buscarMunicipios = async (sigla: string) => {
     if (municipiosPorUF[sigla]) return;
 
@@ -196,7 +196,7 @@ export default function CreateEvent() {
       );
       const data = await response.json();
       console.log(data);
-      
+
       if (data.results && data.results.length > 0) {
         // Formatar resultados do geocoding
         const formattedResults = data.results
@@ -353,12 +353,10 @@ export default function CreateEvent() {
       e.preventDefault();
 
       if (!formData.acceptedTerms) {
-          
         return;
       }
 
       if (!validateCurrentStep()) {
-        
         return;
       }
 
@@ -388,7 +386,6 @@ export default function CreateEvent() {
 
         console.log(formData);
         if (formData.isFree && formData.customFields.length == 0) {
-          
           console.log("naoo cadastrei o evento");
           throw new Error(
             "Nenhum campo de formulário adicionado para eventos gratuitos."
@@ -411,10 +408,9 @@ export default function CreateEvent() {
 
         if (response.data.saved) {
           setCreated(true);
-          
         }
       } catch (error) {
-        console.error("Erro ao criar Evento", error);        
+        console.error("Erro ao criar Evento", error);
       } finally {
         setLoading(false);
       }
@@ -461,14 +457,15 @@ export default function CreateEvent() {
             return (
               <div
                 key={stepNumber}
-                className="flex flex-col items-center space-y-2"
+                className="flex flex-col items-center space-y-2 cursor-pointer"
+                onClick={() => setCurrentStep(stepNumber)}
               >
                 <div
                   className={`
                   w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300
                   ${
                     isActive
-                      ? "bg-yellow-400 text-white shadow-lg scale-110"
+                      ? "bg-gray-200 text-gray-500 shadow-lg scale-110"
                       : isCompleted
                       ? "bg-green-500 text-white"
                       : "bg-gray-200 text-gray-500"
@@ -480,14 +477,14 @@ export default function CreateEvent() {
                   ) : (
                     <Icon
                       className="w-6 h-6"
-                      color={isActive ? "blue" : "white"}
+                      color={isActive ? "white" : "white"}
                     />
                   )}
                 </div>
                 <span
                   className={`text-sm font-medium ${
                     isActive
-                      ? "text-yellow-400"
+                      ? "text-gray-500"
                       : isCompleted
                       ? "text-green-500"
                       : "text-gray-500"
@@ -606,17 +603,17 @@ export default function CreateEvent() {
       case 1:
         return (
           <div className="space-y-8">
-                      <div className="mb-8">
-            <h1 className="text-2xl font-bold mb-4">Criar Evento</h1>
-            <div className="text-left space-y-2">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Informações Básicas
-              </h2>
-              <p className="text-gray-600">
-                Vamos começar com as informações essenciais do seu evento
-              </p>
+            <div className="mb-8">
+              <h1 className="text-2xl font-bold mb-4">Criar Evento</h1>
+              <div className="text-left space-y-2">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Informações Básicas
+                </h2>
+                <p className="text-gray-600">
+                  Vamos começar com as informações essenciais do seu evento
+                </p>
+              </div>
             </div>
-          </div>
 
             <div className="grid gap-6 w-full">
               <Card>
@@ -947,7 +944,7 @@ export default function CreateEvent() {
                                   />
                                 </div>
                               </div>
-                              <Textarea                                
+                              <Textarea
                                 value={attraction.description || ""}
                                 onChange={(e) => {
                                   const newDates = [...formData.dates];
