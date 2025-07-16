@@ -355,7 +355,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-sm p-5",
+        "fixed top-0 left-0 w-full z-50 bg-white/90 backdrop-blur-sm p-5",
         isScrolled ? "shadow-md py-2" : "py-4"
       )}
     >

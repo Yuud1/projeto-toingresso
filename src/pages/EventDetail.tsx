@@ -158,13 +158,12 @@ const EventDetail = () => {
             backgroundImage: `url("${event?.image}")`,
             backgroundSize: "cover",
             backgroundPosition: "center",
+            maskImage: "linear-gradient(to bottom, black 0%, black 90%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 90%, transparent 100%)",
           }}
         />
 
         {/* Gradient Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-white/100 via-white/0 to-black/70"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-white/0 to-black/10"></div>
-        {/* <div className="absolute inset-0 bg-gradient-to-r from-yellow-900/30 via-transparent to-blue-900/30"></div> */}
 
         {/* Main Content */}
         <div className="relative z-10 container mx-auto px-6">
@@ -217,7 +216,7 @@ const EventDetail = () => {
             className={`rounded-xl h-14 w-14 border transition-all duration-300 hover:scale-110 ${
               isFavorited
                 ? "bg-gradient-to-r from-red-500/90 to-pink-500/90 border-red-400/50 shadow-lg shadow-red-500/25 text-white"
-                : "bg-white/90 hover:bg-white border-white/50 text-gray-700 hover:text-gray-900 shadow-lg"
+                : "bg-white/90 hover:bg-white border-white/50 text-gray-700 hover:text-red-500 shadow-lg"
             }`}
           >
             <Heart
