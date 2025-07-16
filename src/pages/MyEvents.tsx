@@ -734,6 +734,22 @@ export default function MyEvents() {
             </div>
           </div>
 
+          <div className="mb-6">
+            <div className="relative w-full max-w-md">
+              <Search
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={20}
+              />
+              <Input
+                type="text"
+                placeholder="Buscar eventos..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
           {mainTab === "scan" && <EventScanner />}
 
           {mainTab === "inicio" && (
@@ -774,19 +790,7 @@ export default function MyEvents() {
                   ))}
                 </div>
 
-                <div className="relative w-full">
-                  <Search
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                    size={20}
-                  />
-                  <Input
-                    type="text"
-                    placeholder="Buscar eventos..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
+
               </div>
 
               {filteredEvents.length === 0 ? (

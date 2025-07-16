@@ -294,6 +294,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Sair</span>
                 </div>
+                <div className="pb-2"></div>
               </>
             )}
 
@@ -342,6 +343,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Sair</span>
                 </div>
+                <div className="pb-2"></div>
               </>
             )}
           </div>
@@ -380,9 +382,35 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
           </div>
         </div>
 
+        {/* TOPO TABLET */}
+        <div className="hidden sm:flex lg:hidden items-center justify-between py-2">
+          <a href="/">
+            <img 
+              className="w-10" 
+              src="/icon.png" 
+              alt="Logo" 
+            />
+          </a>
+          <div className="flex items-center gap-3">
+            <CidadeDropdown />
+            {user ? (
+              <ProfileMenu isMobile={true} />
+            ) : (
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 cursor-pointer"
+                onClick={() => navigate("/login")}
+              >
+                <LogIn size={16} />
+                <span>Login</span>
+              </Button>
+            )}
+          </div>
+        </div>
+
         {/* TOPO DESKTOP */}
         {!isScrolled && (
-          <div className="hidden sm:flex items-center justify-between gap-4">
+          <div className="hidden lg:flex items-center justify-between gap-4">
             <a href="/">
               <img className="w-32" src="/logo-sf.png" alt="Logo" />
             </a>
@@ -451,10 +479,12 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
           </div>
         )}
 
-        {/* BARRA DE PESQUISA */}
+
+
+        {/* BARRA DE PESQUISA - DESKTOP */}
         <div
           className={cn(
-            "hidden sm:flex items-center gap-4 flex-wrap w-full",
+            "hidden lg:flex items-center gap-4 flex-wrap w-full",
             isScrolled ? "justify-between" : "justify-center"
           )}
         >
@@ -553,9 +583,11 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
           )}
         </div>
 
+
+
         {/* FILTROS (DESKTOP) */}
         {!isScrolled && (
-          <div className="hidden sm:flex justify-center flex-wrap gap-2">
+          <div className="hidden lg:flex justify-center flex-wrap gap-2">
             <CidadeDropdown />
 
             <Button

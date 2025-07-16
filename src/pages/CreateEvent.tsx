@@ -605,14 +605,17 @@ export default function CreateEvent() {
       case 1:
         return (
           <div className="space-y-8">
-            <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-gray-900">
+                      <div className="mb-8">
+            <h1 className="text-2xl font-bold mb-4">Criar Evento</h1>
+            <div className="text-left space-y-2">
+              <h2 className="text-xl font-semibold text-gray-900">
                 Informações Básicas
               </h2>
               <p className="text-gray-600">
                 Vamos começar com as informações essenciais do seu evento
               </p>
             </div>
+          </div>
 
             <div className="grid gap-6 w-full">
               <Card>
@@ -694,8 +697,8 @@ export default function CreateEvent() {
       case 2:
         return (
           <div className="space-y-8">
-            <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-gray-900">
+            <div className="text-left space-y-2">
+              <h2 className="text-xl font-semibold text-gray-900">
                 Data, Horário e Atrações
               </h2>
               <p className="text-gray-600">
@@ -994,8 +997,8 @@ export default function CreateEvent() {
       case 3:
         return (
           <div className="space-y-8">
-            <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-gray-900">
+            <div className="text-left space-y-2">
+              <h2 className="text-xl font-semibold text-gray-900">
                 Descrição e Política
               </h2>
               <p className="text-gray-600">
@@ -1056,8 +1059,8 @@ export default function CreateEvent() {
       case 4:
         return (
           <div className="space-y-8">
-            <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-gray-900">
+            <div className="text-left space-y-2">
+              <h2 className="text-xl font-semibold text-gray-900">
                 Local do Evento
               </h2>
               <p className="text-gray-600">Onde seu evento acontecerá?</p>
@@ -1359,8 +1362,8 @@ export default function CreateEvent() {
       case 5:
         return (
           <div className="space-y-8">
-            <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-gray-900">
+            <div className="text-left space-y-2">
+              <h2 className="text-xl font-semibold text-gray-900">
                 Ingressos e Formulário
               </h2>
               <p className="text-gray-600">
@@ -1727,8 +1730,8 @@ export default function CreateEvent() {
       case 6:
         return (
           <div className="space-y-8">
-            <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-gray-900">
+            <div className="text-left space-y-2">
+              <h2 className="text-xl font-semibold text-gray-900">
                 Termos e Condições
               </h2>
               <p className="text-gray-600">
@@ -1848,21 +1851,17 @@ export default function CreateEvent() {
   };
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <Header isScrolled={true} />
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
-            <CardContent className="p-8">
-              <form onSubmit={handleSubmit} className="space-y-8">
-                {renderProgressSteps()}
-                {renderStep()}
-                {renderNavigation()}
-              </form>
-            </CardContent>
-          </Card>
+      <main className="flex-1 container mx-auto px-4 py-8 pt-24">
+        <div className="max-w-6xl mx-auto">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {renderProgressSteps()}
+            {renderStep()}
+            {renderNavigation()}
+          </form>
         </div>
-      </div>
-    </>
+      </main>
+    </div>
   );
 }
