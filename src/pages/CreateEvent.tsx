@@ -135,7 +135,7 @@ export default function CreateEvent() {
     status: "active",
     searchAddress: "",
   });
-
+  console.log("Formdata", formData)
   const buscarMunicipios = async (sigla: string) => {
     if (municipiosPorUF[sigla]) return;
 
@@ -195,7 +195,8 @@ export default function CreateEvent() {
         )}&key=${apiKey}&region=br&language=pt-BR`
       );
       const data = await response.json();
-
+      console.log(data);
+      
       if (data.results && data.results.length > 0) {
         // Formatar resultados do geocoding
         const formattedResults = data.results
@@ -1570,7 +1571,6 @@ export default function CreateEvent() {
                                     quantity: 0,
                                     description: "",
                                     type: "regular",
-                                    _id: "",
                                     soldQuantity: 0,
                                   });
                                   setFormData((prev) => ({

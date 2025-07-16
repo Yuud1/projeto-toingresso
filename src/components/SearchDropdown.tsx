@@ -11,14 +11,14 @@ interface SearchDropdownProps {
   className?: string;
 }
 
-const SearchDropdown: React.FC<SearchDropdownProps> = ({ 
-  isScrolled = false, 
-  className 
+const SearchDropdown: React.FC<SearchDropdownProps> = ({
+  isScrolled = false,
+  className,
 }) => {
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [results, setResults] = useState<EventInterface[]>([]);  
-  
+  const [results, setResults] = useState<EventInterface[]>([]);
+
   const [isLoading, setIsLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -42,7 +42,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
           params: { querySearch: searchQuery },
         }
       );
-      
+
       // Verificar diferentes possíveis estruturas da resposta
       let eventos = [];
       if (response.data.eventos) {
@@ -54,7 +54,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
       } else if (response.data.data && Array.isArray(response.data.data)) {
         eventos = response.data.data;
       }
-      
+
       if (eventos.length > 0) {
         setResults(eventos.slice(0, 6)); // Limita a 6 resultados
       } else {
@@ -71,7 +71,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
   // Debounce para evitar muitas requisições
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      if (query.length > 2) {        
+      if (query.length > 2) {
         searchEvents(query);
       } else {
         setResults([]);
@@ -84,7 +84,10 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
   // Fechar dropdown quando clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
         setSelectedIndex(-1);
       }
@@ -98,12 +101,10 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setSelectedIndex(prev => 
-        prev < results.length - 1 ? prev + 1 : prev
-      );
+      setSelectedIndex((prev) => (prev < results.length - 1 ? prev + 1 : prev));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setSelectedIndex(prev => prev > 0 ? prev - 1 : -1);
+      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
     } else if (e.key === "Enter") {
       e.preventDefault();
       if (selectedIndex >= 0 && results[selectedIndex]) {
@@ -124,10 +125,10 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
+    return date.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     });
   };
 
@@ -202,7 +203,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
                     <h3 className="font-semibold text-gray-900 text-sm mb-1 truncate">
                       {event.title}
                     </h3>
-                    
+
                     <div className="flex items-center gap-4 text-xs text-gray-600 mb-2">
                       <div className="flex items-center gap-1">
                         <MapPin size={12} />
@@ -222,20 +223,29 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
                       <span className="text-xs text-gray-500 capitalize">
                         {event.category}
                       </span>
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
-                        <Users size={12} />
-                        <span>{event.batches[0].tickets.length} tipos de ingresso</span>
-                      </div>
+                      {event.batches ? (
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                          <Users size={12} />
+                          <span>
+                            {event.batches[0].tickets.length} tipos de ingresso
+                          </span>
+                        </div>
+                      ) : null}
                     </div>
                   </div>
 
                   {/* Preço */}
                   <div className="flex-shrink-0 text-right">
                     {event.isFree ? (
-                      <span className="text-green-600 font-semibold text-sm">Grátis</span>
+                      <span className="text-green-600 font-semibold text-sm">
+                        Grátis
+                      </span>
                     ) : (
                       <span className="text-[#02488C] font-semibold text-sm">
-                        A partir de R$ {Math.min(...event.batches[0].tickets.map(t => t.price))}
+                        A partir de R${" "}
+                        {Math.min(
+                          ...event.batches[0].tickets.map((t) => t.price)
+                        )}
                       </span>
                     )}
                   </div>
@@ -255,4 +265,4 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
   );
 };
 
-export default SearchDropdown; 
+export default SearchDropdown;

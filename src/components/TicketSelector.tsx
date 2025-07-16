@@ -100,24 +100,31 @@ export function TicketSelector({
           const maxInstallments = ticket.maxInstallments || 1;
           const total = ticket.price + (ticket.fee || 0);
           const installmentValue = maxInstallments > 1 ? total / maxInstallments : total;
+          const isSoldOut = ticket.soldQuantity >= ticket.quantity;
           return (
             <div
               key={ticket._id}
-              className="flex items-center justify-between p-3 border border-gray-200 rounded-xl bg-white/90 shadow-sm"
+              className={`flex items-center justify-between p-3 border border-gray-200 rounded-xl bg-white/90 shadow-sm ${isSoldOut ? "opacity-60 grayscale" : ""}`}
             >
               <div className="space-y-1">
                 <div className="text-base font-bold text-gray-700">
                   {ticket.name}
                 </div>
-                <div className="text-sm font-normal text-[#02488C]">
-                  R$ {ticket.price.toFixed(2)}
-                  {ticket.fee ? (
-                    <span className="text-gray-400 text-xs font-normal"> (+ R$ {ticket.fee.toFixed(2)} taxa)</span>
-                  ) : null}
-                </div>
-                <div className="text-sm font-bold text-green-600">
-                  em até {maxInstallments}x R$ {installmentValue.toFixed(2)}
-                </div>
+                {isSoldOut ? (
+                  <div className="text-sm font-bold text-red-500">Esgotado</div>
+                ) : (
+                  <div className="text-sm font-normal text-[#02488C]">
+                    R$ {ticket.price.toFixed(2)}
+                    {ticket.fee ? (
+                      <span className="text-gray-400 text-xs font-normal"> (+ R$ {ticket.fee.toFixed(2)} taxa)</span>
+                    ) : null}
+                  </div>
+                )}
+                {!isSoldOut && (
+                  <div className="text-sm font-bold text-green-600">
+                    em até {maxInstallments}x R$ {installmentValue.toFixed(2)}
+                  </div>
+                )}
                 <div className="text-xs text-gray-400 mt-1">
                   Vendas até {formatDate(event.batches[0].saleEnd, "dd/MM/yyyy")}
                 </div>
@@ -126,20 +133,20 @@ export function TicketSelector({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => handleQuantityChange(ticket._id, -1)}
-                  disabled={!selectedTickets[ticket._id]}
+                  onClick={() => handleQuantityChange(ticket._id ?? "", -1)}
+                  disabled={isSoldOut || !selectedTickets[ticket._id ?? ""]}
                   className="border border-gray-300"
                 >
                   <Minus className="h-4 w-4" />
                 </Button>
                 <span className="w-8 text-center font-semibold text-base">
-                  {selectedTickets[ticket._id] || 0}
+                  {selectedTickets[ticket._id ?? ""] || 0}
                 </span>
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => handleQuantityChange(ticket._id, 1)}
-                  disabled={selectedTickets[ticket._id] >= ticket.quantity}
+                  onClick={() => handleQuantityChange(ticket._id ?? "", 1)}
+                  disabled={isSoldOut || selectedTickets[ticket._id ?? ""] >= ticket.quantity}
                   className="border border-gray-300"
                 >
                   <Plus className="h-4 w-4" />

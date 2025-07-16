@@ -59,8 +59,7 @@ export default function MyTickets() {
   const [searchQuery, setSearchQuery] = useState("");
   const [tickets, setTickets] = useState<UserTicketsInterface[] | undefined>(
     user?.tickets
-  );
-  console.log(tickets);
+  );  
   
   const [openModalTicket, setOpenModalTicket] = useState(false);
   const [openModalTransfer, setOpenModalTransfer] = useState(false);
@@ -243,12 +242,14 @@ export default function MyTickets() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {filteredTickets.map((ticket) => {
-                const event = ticket.Event;
+                const event = ticket.Event;                
+                console.log(event);
                 
                 const startDate = event?.dates[0]?.startDate ? new Date(event.dates[0].startDate).toLocaleDateString("pt-BR", {
                   day: "2-digit",
                   month: "short",
                 }) : "Data não informada";
+                
                 const startTime = event?.dates[0]?.startTime ? event.dates[0].startTime.slice(0, 5) : "Hora não informada";
 
                 return (
