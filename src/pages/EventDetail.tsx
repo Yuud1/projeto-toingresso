@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
-import axios from "axios"
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 import {
   Heart,
   MapPin,
@@ -23,106 +23,123 @@ import {
   Globe,
   ArrowDown,
   ChevronRight,
-} from "lucide-react"
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-import { TicketSelector } from "@/components/TicketSelector"
-import FreeEventForm from "@/components/FreeEventForm"
-import Subscribed from "@/pages/Subscribed"
-import { useUser } from "@/contexts/useContext"
-import type EventInterface from "@/interfaces/EventInterface"
-import AttractionModal from "@/components/AttractionModal"
-import LoadingPage from "./LoadingPage"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { TicketSelector } from "@/components/TicketSelector";
+import FreeEventForm from "@/components/FreeEventForm";
+import Subscribed from "@/pages/Subscribed";
+import { useUser } from "@/contexts/useContext";
+import type EventInterface from "@/interfaces/EventInterface";
+import AttractionModal from "@/components/AttractionModal";
+import LoadingPage from "./LoadingPage";
 
 const EventDetail = () => {
-  const { id } = useParams()
-  const { user } = useUser()
+  const { id } = useParams();
+  const { user } = useUser();
 
-  const [isFavorited, setIsFavorited] = useState<boolean>(false)
-  const [event, setEvents] = useState<EventInterface | undefined>(undefined)
-  const [subscribed, setSubscribed] = useState(false)
-  const [qrCode, setQrCode] = useState(null)
-  const [showFull, setShowFull] = useState(false)
-  const [selectedAttraction, setSelectedAttraction] = useState<any | null>(null)
-  const [modalOpen, setModalOpen] = useState(false)
-  const [openDates, setOpenDates] = useState<{ [key: number]: boolean }>({})
+  const [isFavorited, setIsFavorited] = useState<boolean>(false);
+  const [event, setEvents] = useState<EventInterface | undefined>(undefined);
+  const [subscribed, setSubscribed] = useState(false);
+  const [qrCode, setQrCode] = useState(null);
+  const [showFull, setShowFull] = useState(false);
+  const [selectedAttraction, setSelectedAttraction] = useState<any | null>(
+    null
+  );
+  const [modalOpen, setModalOpen] = useState(false);
+  const [openDates, setOpenDates] = useState<{ [key: number]: boolean }>({});
 
   useEffect(() => {
-    const condition = user?.likedEvents.some((e) => e.toString() == id) ?? false
-    setIsFavorited(condition)
-  }, [user])
+    const condition =
+      user?.likedEvents.some((e) => e.toString() == id) ?? false;
+    setIsFavorited(condition);
+  }, [user]);
 
   async function handleFavorite() {
-    setIsFavorited(!isFavorited)
+    setIsFavorited(!isFavorited);
 
     if (!isFavorited) {
       await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_USER_LIKE_EVENT}/${id}`,
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_USER_LIKE_EVENT
+        }/${id}`,
         {},
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        },
-      )
+        }
+      );
     } else {
-      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_USER_REMOVE_LIKE_EVENT}/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
+      await axios.delete(
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_USER_REMOVE_LIKE_EVENT
+        }/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
     }
   }
 
-  const togglePolicy = () => setShowFull((prev) => !prev)
-  const policy = event?.policy || ""
-  const visibleText = showFull ? policy : `${policy.slice(0, 150)}...`
+  const togglePolicy = () => setShowFull((prev) => !prev);
+  const policy = event?.policy || "";
+  const visibleText = showFull ? policy : `${policy.slice(0, 150)}...`;
 
   const toggleDate = (index: number) => {
     setOpenDates((prev) => ({
       ...prev,
       [index]: !prev[index],
-    }))
-  }
+    }));
+  };
 
   useEffect(() => {
     try {
       async function getEvento() {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_EVENT_GETID}${id}`,
+          `${import.meta.env.VITE_API_BASE_URL}${
+            import.meta.env.VITE_EVENT_GETID
+          }${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-          },
-        )
+          }
+        );
 
         if (response.data.event) {
-          setEvents(response.data.event)
+          setEvents(response.data.event);
           // Initialize first date as open for mobile
-          if (response.data.event.dates && response.data.event.dates.length > 1) {
-            setOpenDates({ 0: true })
+          if (
+            response.data.event.dates &&
+            response.data.event.dates.length > 1
+          ) {
+            setOpenDates({ 0: true });
           }
         }
       }
 
-      getEvento()
+      getEvento();
     } catch (error) {
-      console.log("Erro ao buscar evento", error)
+      console.log("Erro ao buscar evento", error);
     }
-  }, [id])
+  }, [id]);
 
   if (!event || !id) {
-    return (
-      <LoadingPage></LoadingPage>
-    )
+    return <LoadingPage></LoadingPage>;
   }
 
   return (
@@ -164,7 +181,11 @@ const EventDetail = () => {
                 : "bg-white/90 hover:bg-white border-white/50 text-gray-700 hover:text-gray-900 shadow-lg"
             }`}
           >
-            <Heart className={`h-6 w-6 transition-all duration-300 ${isFavorited ? "fill-current scale-110" : ""}`} />
+            <Heart
+              className={`h-6 w-6 transition-all duration-300 ${
+                isFavorited ? "fill-current scale-110" : ""
+              }`}
+            />
           </Button>
 
           <Button
@@ -177,10 +198,10 @@ const EventDetail = () => {
                   title: event?.title || "Evento",
                   text: event?.description || "Confira este evento!",
                   url: window.location.href,
-                })
+                });
               } else {
-                navigator.clipboard.writeText(window.location.href)
-                alert("Link copiado para a área de transferência!")
+                navigator.clipboard.writeText(window.location.href);
+                alert("Link copiado para a área de transferência!");
               }
             }}
           >
@@ -208,7 +229,9 @@ const EventDetail = () => {
             </div>
 
             {/* Title */}
-            <h1 className="text-5xl md:text-7xl font-black leading-tight text-white drop-shadow-2xl">{event?.title}</h1>
+            <h1 className="text-5xl md:text-7xl font-black leading-tight text-white drop-shadow-2xl">
+              {event?.title}
+            </h1>
 
             {/* Event Stats */}
             <div className="flex flex-wrap justify-center gap-8 text-sm">
@@ -223,7 +246,9 @@ const EventDetail = () => {
                 <Calendar className="w-4 h-4 text-blue-600" />
                 <span>
                   {event?.dates && event.dates.length > 0
-                    ? new Date(event.dates[0].startDate).toLocaleDateString("pt-BR")
+                    ? new Date(event.dates[0].startDate).toLocaleDateString(
+                        "pt-BR"
+                      )
                     : "Data a definir"}
                 </span>
               </div>
@@ -241,7 +266,9 @@ const EventDetail = () => {
                 className="flex items-center gap-4 p-4 rounded-2xl bg-white/90 border border-white/50 hover:bg-white transition-all duration-300 hover:scale-105 group shadow-lg"
               >
                 <Avatar className="h-12 w-12 border-2 border-yellow-400 group-hover:border-yellow-500 transition-colors">
-                  <AvatarImage src={event?.organizer.avatar || "/placeholder.svg"} />
+                  <AvatarImage
+                    src={event?.organizer.avatar || "/placeholder.svg"}
+                  />
                   <AvatarFallback className="bg-gradient-to-r from-yellow-500 to-blue-500 text-white">
                     <User className="h-6 w-6" />
                   </AvatarFallback>
@@ -263,14 +290,17 @@ const EventDetail = () => {
               </div>
               <Button
                 size="lg"
-                className="px-12 py-6 text-lg w-full font-bold rounded-2xl bg-white hover:from-yellow-600 hover:via-blue-600 hover:to-amber-600 text-black hover:text-white cursor-pointer border-0 shadow-2xl hover:shadow-yellow-500/25 transition-all duration-300 hover:scale-[1.02]"
+                className="px-12 py-6 text-lg w-1/4 hover:w-1/3 font-bold rounded-2xl bg-white text-black hover:text-white transition-all duration-300 hover:scale-[1.02]"
                 onClick={() => {
-                  const ticketSection = document.getElementById("tickets-section")
-                  ticketSection?.scrollIntoView({ behavior: "smooth" })
+                  const ticketSection =
+                    document.getElementById("tickets-section");
+                  ticketSection?.scrollIntoView({ behavior: "smooth" });
                 }}
               >
                 <Ticket className="w-6 h-6 mr-3" />
-                {event?.isFree ? "Inscrever-se Gratuitamente" : "Garantir Ingresso"}
+                {event?.isFree
+                  ? "Inscrever-se Gratuitamente"
+                  : "Garantir Ingresso"}
               </Button>
             </div>
           </div>
@@ -278,7 +308,13 @@ const EventDetail = () => {
       </div>
 
       {/* Subscribed Modal */}
-      {subscribed && <Subscribed qrCode={qrCode} open={subscribed} onOpenChange={setSubscribed} />}
+      {subscribed && (
+        <Subscribed
+          qrCode={qrCode}
+          open={subscribed}
+          onOpenChange={setSubscribed}
+        />
+      )}
 
       {/* Main Content */}
       <div className="relative z-10 container mx-auto lg:px-6 py-20 w-full">
@@ -286,7 +322,7 @@ const EventDetail = () => {
           {/* Left Column - Event Details */}
           <div className="lg:col-span-2 space-y-12">
             {/* Description */}
-            <Card className="text-wrap border-0 bg-white/80 shadow-2xl hover:shadow-yellow-500/10 transition-all duration-300 hover:scale-[1.02]">
+            <Card className="text-wrap border-0 bg-white/80">
               <CardHeader className="pb-6">
                 <CardTitle className="text-3xl font-bold flex items-center gap-4 text-gray-800">
                   <div className="w-12 h-12 rounded-2xl flex items-center justify-center">
@@ -296,7 +332,9 @@ const EventDetail = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 leading-relaxed text-lg whitespace-pre-line">{event?.description}</p>
+                <p className="text-gray-700 leading-relaxed text-lg whitespace-pre-line">
+                  {event?.description}
+                </p>
 
                 {/* Mobile Event Info */}
                 <div className="md:hidden mt-8 p-6 rounded-2xl space-y-4">
@@ -313,8 +351,10 @@ const EventDetail = () => {
                       {event?.dates && event.dates.length > 0 ? (
                         event.dates.map((period, i) => (
                           <div key={i}>
-                            {new Date(period.startDate).toLocaleDateString()} {period.startTime} até{" "}
-                            {new Date(period.endDate).toLocaleDateString()} {period.endTime}
+                            {new Date(period.startDate).toLocaleDateString()}{" "}
+                            {period.startTime} até{" "}
+                            {new Date(period.endDate).toLocaleDateString()}{" "}
+                            {period.endTime}
                           </div>
                         ))
                       ) : (
@@ -327,11 +367,13 @@ const EventDetail = () => {
             </Card>
 
             {/* Lineup/Attractions Section - Mobile Optimized */}
-          
+
             {event?.dates &&
               event.dates.length > 0 &&
-              event.dates.some((date) => date.attractions && date.attractions.length > 0) && (
-                <Card className="border-0 bg-white/80 shadow-2xl hover:shadow-blue-500/10 transition-all duration-300">
+              event.dates.some(
+                (date) => date.attractions && date.attractions.length > 0
+              ) && (
+                <Card className="border-0 bg-white/80 transition-all duration-300">
                   <CardHeader className="pb-6">
                     <CardTitle className="text-3xl font-bold flex items-center gap-4 text-gray-800">
                       <div className="w-12 h-12 rounded-2xl flex items-center justify-center">
@@ -348,7 +390,9 @@ const EventDetail = () => {
                           <Calendar className="h-6 w-6" />
                           <div>
                             <p className="font-bold text-gray-800 text-lg">
-                              {new Date(event.dates[0].startDate).toLocaleDateString("pt-BR", {
+                              {new Date(
+                                event.dates[0].startDate
+                              ).toLocaleDateString("pt-BR", {
                                 weekday: "long",
                                 year: "numeric",
                                 month: "long",
@@ -356,7 +400,8 @@ const EventDetail = () => {
                               })}
                             </p>
                             <p className="text-gray-600">
-                              {event.dates[0].startTime} às {event.dates[0].endTime}
+                              {event.dates[0].startTime} às{" "}
+                              {event.dates[0].endTime}
                             </p>
                           </div>
                         </div>
@@ -365,20 +410,20 @@ const EventDetail = () => {
                         <div className="space-y-4">
                           {(event.dates[0].attractions
                             ? [...event.dates[0].attractions].sort((a, b) => {
-                                const aStart = (a as any).startTime || ""
-                                const bStart = (b as any).startTime || ""
-                                if (!aStart) return -1
-                                if (!bStart) return 1
-                                return aStart.localeCompare(bStart)
+                                const aStart = (a as any).startTime || "";
+                                const bStart = (b as any).startTime || "";
+                                if (!aStart) return -1;
+                                if (!bStart) return 1;
+                                return aStart.localeCompare(bStart);
                               })
                             : []
                           ).map((attraction, index) => (
                             <div
                               key={index}
-                              className="group p-4 rounded-xl bg-white border border-gray-200  hover:shadow-lg transition-all duration-300 active:scale-95 cursor-pointer"
+                              className="group p-4 rounded-xl bg-white border border-gray-200 transition-all duration-300 active:scale-95 cursor-pointer"
                               onClick={() => {
-                                setSelectedAttraction(attraction)
-                                setModalOpen(true)
+                                setSelectedAttraction(attraction);
+                                setModalOpen(true);
                               }}
                             >
                               <div className="flex items-center justify-between">
@@ -396,7 +441,8 @@ const EventDetail = () => {
                                     {attraction.startTime && (
                                       <p className="text-gray-600 text-sm">
                                         {attraction.startTime}
-                                        {attraction.endTime && ` - ${attraction.endTime}`}
+                                        {attraction.endTime &&
+                                          ` - ${attraction.endTime}`}
                                       </p>
                                     )}
                                   </div>
@@ -426,7 +472,11 @@ const EventDetail = () => {
                         <div className="block md:hidden">
                           {/* Mobile: Accordion layout */}
                           {event.dates.map((date, index) => (
-                            <Collapsible key={index} open={openDates[index]} onOpenChange={() => toggleDate(index)}>
+                            <Collapsible
+                              key={index}
+                              open={openDates[index]}
+                              onOpenChange={() => toggleDate(index)}
+                            >
                               <CollapsibleTrigger asChild>
                                 <Button
                                   variant="ghost"
@@ -438,20 +488,29 @@ const EventDetail = () => {
                                     </div>
                                     <div className="text-left">
                                       <p className="font-bold text-gray-800">
-                                        {new Date(date.startDate).toLocaleDateString("pt-BR", {
+                                        {new Date(
+                                          date.startDate
+                                        ).toLocaleDateString("pt-BR", {
                                           day: "2-digit",
                                           month: "short",
                                         })}
                                       </p>
-                                      <p className="text-sm text-gray-600">{date.startTime}</p>
+                                      <p className="text-sm text-gray-600">
+                                        {date.startTime}
+                                      </p>
                                     </div>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <Badge variant="secondary" className="text-xs">
+                                    <Badge
+                                      variant="secondary"
+                                      className="text-xs"
+                                    >
                                       {date.attractions?.length || 0} atrações
                                     </Badge>
                                     <ChevronDown
-                                      className={`h-4 w-4 transition-transform ${openDates[index] ? "rotate-180" : ""}`}
+                                      className={`h-4 w-4 transition-transform ${
+                                        openDates[index] ? "rotate-180" : ""
+                                      }`}
                                     />
                                   </div>
                                 </Button>
@@ -460,11 +519,13 @@ const EventDetail = () => {
                                 <div className="border-l-2 border-yellow-400 pl-4 space-y-3">
                                   {(date.attractions
                                     ? [...date.attractions].sort((a, b) => {
-                                        const aStart = (a as any).startTime || ""
-                                        const bStart = (b as any).startTime || ""
-                                        if (!aStart) return -1
-                                        if (!bStart) return 1
-                                        return aStart.localeCompare(bStart)
+                                        const aStart =
+                                          (a as any).startTime || "";
+                                        const bStart =
+                                          (b as any).startTime || "";
+                                        if (!aStart) return -1;
+                                        if (!bStart) return 1;
+                                        return aStart.localeCompare(bStart);
                                       })
                                     : []
                                   ).map((attraction, attractionIndex) => (
@@ -472,8 +533,8 @@ const EventDetail = () => {
                                       key={attractionIndex}
                                       className="group p-3 rounded-lg bg-white border border-gray-100 hover:border-yellow-300 hover:shadow-md transition-all duration-300 active:scale-95 cursor-pointer"
                                       onClick={() => {
-                                        setSelectedAttraction(attraction)
-                                        setModalOpen(true)
+                                        setSelectedAttraction(attraction);
+                                        setModalOpen(true);
                                       }}
                                     >
                                       <div className="flex items-center justify-between">
@@ -491,7 +552,8 @@ const EventDetail = () => {
                                             {attraction.startTime && (
                                               <p className="text-gray-600 text-xs">
                                                 {attraction.startTime}
-                                                {attraction.endTime && ` - ${attraction.endTime}`}
+                                                {attraction.endTime &&
+                                                  ` - ${attraction.endTime}`}
                                               </p>
                                             )}
                                           </div>
@@ -503,7 +565,9 @@ const EventDetail = () => {
                                               target="_blank"
                                               rel="noopener noreferrer"
                                               className="p-1 rounded text-blue-600 hover:bg-blue-50 transition-colors"
-                                              onClick={(e) => e.stopPropagation()}
+                                              onClick={(e) =>
+                                                e.stopPropagation()
+                                              }
                                             >
                                               <ExternalLink className="h-3 w-3" />
                                             </a>
@@ -530,24 +594,34 @@ const EventDetail = () => {
                                   className="flex flex-col items-center p-4 rounded-xl transition-all duration-200 hover:scale-105"
                                 >
                                   <span className="font-bold text-lg">
-                                    {new Date(date.startDate).toLocaleDateString("pt-BR", {
+                                    {new Date(
+                                      date.startDate
+                                    ).toLocaleDateString("pt-BR", {
                                       day: "2-digit",
                                       month: "short",
                                     })}
                                   </span>
-                                  <span className="text-xs opacity-80 mt-1">{date.startTime}</span>
+                                  <span className="text-xs opacity-80 mt-1">
+                                    {date.startTime}
+                                  </span>
                                 </TabsTrigger>
                               ))}
                             </TabsList>
 
                             {event.dates.map((date, index) => (
-                              <TabsContent key={index} value={index.toString()} className="mt-8">
+                              <TabsContent
+                                key={index}
+                                value={index.toString()}
+                                className="mt-8"
+                              >
                                 <div className="space-y-6">
                                   <div className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-yellow-50 to-blue-50">
                                     <Calendar className="h-6 w-6 text-blue-600" />
                                     <div>
                                       <p className="font-bold text-gray-800 text-lg">
-                                        {new Date(date.startDate).toLocaleDateString("pt-BR", {
+                                        {new Date(
+                                          date.startDate
+                                        ).toLocaleDateString("pt-BR", {
                                           weekday: "long",
                                           year: "numeric",
                                           month: "long",
@@ -563,20 +637,22 @@ const EventDetail = () => {
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {(date.attractions
                                       ? [...date.attractions].sort((a, b) => {
-                                          const aStart = (a as any).startTime || ""
-                                          const bStart = (b as any).startTime || ""
-                                          if (!aStart) return -1
-                                          if (!bStart) return 1
-                                          return aStart.localeCompare(bStart)
+                                          const aStart =
+                                            (a as any).startTime || "";
+                                          const bStart =
+                                            (b as any).startTime || "";
+                                          if (!aStart) return -1;
+                                          if (!bStart) return 1;
+                                          return aStart.localeCompare(bStart);
                                         })
                                       : []
                                     ).map((attraction, attractionIndex) => (
                                       <div
                                         key={attractionIndex}
-                                        className="group p-6 rounded-2xl bg-white border border-gray-200 hover:border-yellow-400 hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer"
+                                        className="group p-6 rounded-2xl bg-white border transition-all duration-300 hover:scale-105 cursor-pointer"
                                         onClick={() => {
-                                          setSelectedAttraction(attraction)
-                                          setModalOpen(true)
+                                          setSelectedAttraction(attraction);
+                                          setModalOpen(true);
                                         }}
                                       >
                                         <div className="flex items-center gap-4">
@@ -590,7 +666,8 @@ const EventDetail = () => {
                                             {attraction.startTime && (
                                               <p className="text-gray-600 text-sm mt-1">
                                                 {attraction.startTime}
-                                                {attraction.endTime && ` - ${attraction.endTime}`}
+                                                {attraction.endTime &&
+                                                  ` - ${attraction.endTime}`}
                                               </p>
                                             )}
                                             {attraction.social && (
@@ -599,7 +676,9 @@ const EventDetail = () => {
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 mt-2 transition-colors"
-                                                onClick={(e) => e.stopPropagation()}
+                                                onClick={(e) =>
+                                                  e.stopPropagation()
+                                                }
                                               >
                                                 <ExternalLink className="h-3 w-3" />
                                                 Ver perfil
@@ -620,19 +699,21 @@ const EventDetail = () => {
                   </CardContent>
                 </Card>
               )}
-           
+
             {/* Event Policy */}
-            <Card className="border-0 bg-white/80 shadow-2xl hover:shadow-amber-500/10 transition-all duration-300">
+            <Card className="border-0 bg-white/80 transition-all duration-300">
               <CardHeader className="pb-6">
-                <CardTitle className="text-2xl font-bold flex items-center gap-4 text-gray-800">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center">
-                    <Star className="w-5 h-5 text-black" />
+                <CardTitle className="text-3xl font-bold flex items-center gap-4 text-gray-800">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center">
+                    <Star className="w-6 h-6 text-black" />
                   </div>
                   Política do Evento
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 leading-relaxed whitespace-pre-line">{visibleText}</p>
+                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                  {visibleText}
+                </p>
                 {policy.length > 150 && (
                   <Button
                     variant="ghost"
@@ -654,7 +735,7 @@ const EventDetail = () => {
             </Card>
 
             {/* Location */}
-            <Card className="border-0 bg-white/80 shadow-2xl hover:shadow-yellow-500/10 transition-all duration-300">
+            <Card className="border-0  transition-all duration-300">
               <CardHeader className="pb-6">
                 <CardTitle className="text-3xl flex-col sm:flex-row font-bold flex items-center gap-4 text-gray-800">
                   <div className="w-12 h-12 rounded-2xl flex items-center justify-center">
@@ -666,7 +747,9 @@ const EventDetail = () => {
               <CardContent className="space-y-8">
                 <div className="flex flex-col sm:flex-row justify-start p-6 rounded-2xl">
                   <div>
-                    <h3 className="font-bold text-gray-800 text-xl mb-3">{event?.venueName || "Local do evento"}</h3>
+                    <h3 className="font-bold text-gray-800 text-xl mb-3">
+                      {event?.venueName || "Local do evento"}
+                    </h3>
                     <p className="text-gray-700 mb-2">
                       {event?.street && `${event.street}`}
                       {event?.number && `, ${event.number}`}
@@ -705,12 +788,9 @@ const EventDetail = () => {
 
           {/* Right Column - Tickets */}
           <div className="space-y-8" id="tickets-section">
-            <Card className="border-0 bg-white/90 shadow-2xl sticky top-8 hover:shadow-blue-500/20 transition-all duration-300">
+            <Card className="border bg-white/90 sticky top-8 ">
               <CardHeader className="">
-                <CardTitle className="text-2xl font-bold flex items-center gap-4 text-gray-800">
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center">
-                    <Ticket className="w-6 h-6 text-white" />
-                  </div>
+                <CardTitle className="text-3xl font-bold flex justify-center gap-4 text-gray-800">
                   {event?.isFree
                     ? event.formTitle || "Formulário de Inscrição"
                     : `Ingressos ${event.batches[0]?.batchName || ""}`}
@@ -718,7 +798,7 @@ const EventDetail = () => {
               </CardHeader>
               <CardContent>
                 {event?.isFree ? (
-                  <div className="space-y-8 w-full">                    
+                  <div className="space-y-8 w-full">
                     <FreeEventForm
                       customFields={event?.customFields ?? []}
                       eventId={event._id}
@@ -733,18 +813,30 @@ const EventDetail = () => {
                         <div className="w-24 h-24 rounded-3xl bg-gradient-to-r from-gray-200 to-gray-300 flex items-center justify-center mx-auto mb-6">
                           <Ticket className="h-12 w-12 text-gray-500" />
                         </div>
-                        <h3 className="text-xl font-bold text-gray-800 mb-3">Ingressos Indisponíveis</h3>
-                        <p className="text-gray-600">Este evento não está disponível no momento.</p>
+                        <h3 className="text-xl font-bold text-gray-800 mb-3">
+                          Ingressos Indisponíveis
+                        </h3>
+                        <p className="text-gray-600">
+                          Este evento não está disponível no momento.
+                        </p>
                       </div>
-                    ) : event.currentTickets && event.currentTickets.length > 0 ? (
-                      <TicketSelector event={event} tickets={event.currentTickets} />
+                    ) : event.currentTickets &&
+                      event.currentTickets.length > 0 ? (
+                      <TicketSelector
+                        event={event}
+                        tickets={event.currentTickets}
+                      />
                     ) : (
                       <div className="text-center py-16">
                         <div className="w-24 h-24 rounded-3xl bg-gradient-to-r from-yellow-400 to-blue-500 flex items-center justify-center mx-auto mb-6">
                           <Clock className="h-12 w-12 text-white" />
                         </div>
-                        <h3 className="text-xl font-bold text-gray-800 mb-3">Em Breve</h3>
-                        <p className="text-gray-600 mb-6">Os ingressos serão disponibilizados em breve.</p>
+                        <h3 className="text-xl font-bold text-gray-800 mb-3">
+                          Em Breve
+                        </h3>
+                        <p className="text-gray-600 mb-6">
+                          Os ingressos serão disponibilizados em breve.
+                        </p>
                         <Button className="bg-gradient-to-r from-yellow-500 to-blue-500 hover:from-yellow-600 hover:to-blue-600 text-white border-0 rounded-xl px-6 py-3">
                           Notificar-me
                         </Button>
@@ -762,10 +854,14 @@ const EventDetail = () => {
 
       {/* Attraction Modal */}
       {selectedAttraction && (
-        <AttractionModal open={modalOpen} onOpenChange={setModalOpen} attraction={selectedAttraction} />
+        <AttractionModal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          attraction={selectedAttraction}
+        />
       )}
     </div>
-  )
-}
+  );
+};
 
-export default EventDetail
+export default EventDetail;
