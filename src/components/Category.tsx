@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
-import {
-  Music2,
-  Drama,
-  Mic2,
-  Presentation,
-  Church,
-  Trophy,
+import {  
   ChevronLeft,
   ChevronRight,
+  Music,
+  Users,
+  PartyPopper,
+  RollerCoaster,
+  TheaterIcon,
 } from "lucide-react";
 
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -20,14 +19,18 @@ import EventInterface from "@/interfaces/EventInterface";
 import axios from "axios";
 import { truncateTextResponsive } from "@/utils/formatUtils";
 import EventCard from "./EventCard";
+import { FaFootballBall, FaQuestionCircle } from "react-icons/fa";
 
 const categories = [
-  { icon: <Music2 className="w-6 h-6" />, label: "Shows" },
-  { icon: <Drama className="w-6 h-6" />, label: "Teatro" },
-  { icon: <Mic2 className="w-6 h-6" />, label: "Comédia" },
-  { icon: <Presentation className="w-6 h-6" />, label: "Cursos" },
-  { icon: <Church className="w-6 h-6" />, label: "Gospel" },
-  { icon: <Trophy className="w-6 h-6" />, label: "Esportes" },
+  { label: "Shows", icon: <Music/> },
+  { label: "Teatro", icon: <TheaterIcon/> },
+  { label: "Esportes", icon: <FaFootballBall/> },
+  { label: "Festas", icon: <PartyPopper/> },
+  { label: "Comédia", icon: <Users/> },
+  { label: "Gospel", icon: <Music/> },
+  { label: "Parque de Diversões", icon: <RollerCoaster/> },
+  { label: "Público", icon: <Users/> },
+  { label: "Outros", icon: <FaQuestionCircle/> },
 ];
 
 const Category: React.FC = () => {
@@ -143,7 +146,9 @@ const Category: React.FC = () => {
                       <h3 className="text-sm font-semibold text-gray-800 truncate">
                         {truncateTextResponsive(event.title)}
                       </h3>
-                      <p className="text-xs text-gray-500">{truncateTextResponsive(event.city)}</p>
+                      <p className="text-xs text-gray-500">
+                        {truncateTextResponsive(event.city)}
+                      </p>
                     </div>
                   </div>
                 </SwiperSlide>
