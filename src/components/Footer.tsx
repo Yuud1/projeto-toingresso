@@ -1,5 +1,10 @@
-import { FaInstagram, FaWhatsapp, FaChevronDown, FaChevronUp } from 'react-icons/fa';
-import { useState } from 'react';
+import {
+  FaInstagram,
+  FaWhatsapp,
+  FaChevronDown,
+  FaChevronUp,
+} from "react-icons/fa";
+import { useState } from "react";
 
 const Footer = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -7,14 +12,14 @@ const Footer = () => {
 
   const scrollToFilterGrid = (event: React.MouseEvent, category?: string) => {
     event.preventDefault();
-    const filterGridElement = document.getElementById('filter-grid');
+    const filterGridElement = document.getElementById("filter-grid");
 
     if (filterGridElement) {
       if (category) {
         console.log(`Filtrar por: ${category}`);
       }
 
-      filterGridElement.scrollIntoView({ behavior: 'smooth' });
+      filterGridElement.scrollIntoView({ behavior: "smooth" });
     }
   };
 
@@ -32,10 +37,14 @@ const Footer = () => {
 
   return (
     <footer className="bg-[#363636] text-white pt-10 pb-6">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-6 ">
         {/* Mobile: Logo acima dos dropdowns */}
         <div className="sm:hidden text-center mb-8">
-          <img src="/logo-branca.png" alt="Logo" className="w-28 mx-auto mb-4" />
+          <img
+            src="/logo-branca.png"
+            alt="Logo"
+            className="w-28 mx-auto mb-4"
+          />
           <p className="text-sm text-gray-300 leading-relaxed">
             Descubra, participe e aproveite os melhores eventos da sua cidade.
           </p>
@@ -45,20 +54,24 @@ const Footer = () => {
         <div className="sm:hidden space-y-4">
           {/* Eventos Dropdown */}
           <div className="border-b border-gray-600 pb-2">
-            <button 
+            <button
               className="flex items-center justify-between w-full text-base font-semibold"
-              onClick={() => toggleDropdown('eventos')}
+              onClick={() => toggleDropdown("eventos")}
             >
               Eventos
-              {activeDropdown === 'eventos' ? <FaChevronUp /> : <FaChevronDown />}
+              {activeDropdown === "eventos" ? (
+                <FaChevronUp />
+              ) : (
+                <FaChevronDown />
+              )}
             </button>
-            {activeDropdown === 'eventos' && (
+            {activeDropdown === "eventos" && (
               <ul className="mt-2 space-y-2 text-sm text-gray-300 pl-4">
                 <li>
                   <a
                     href="#festas-shows"
                     className="hover:underline block py-1"
-                    onClick={(e) => scrollToFilterGrid(e, 'Festas & Shows')}
+                    onClick={(e) => scrollToFilterGrid(e, "Festas & Shows")}
                   >
                     Festas & Shows
                   </a>
@@ -67,7 +80,7 @@ const Footer = () => {
                   <a
                     href="#stand-up"
                     className="hover:underline block py-1"
-                    onClick={(e) => scrollToFilterGrid(e, 'Stand-up Comedy')}
+                    onClick={(e) => scrollToFilterGrid(e, "Stand-up Comedy")}
                   >
                     Stand-up Comedy
                   </a>
@@ -76,7 +89,7 @@ const Footer = () => {
                   <a
                     href="#esportes"
                     className="hover:underline block py-1"
-                    onClick={(e) => scrollToFilterGrid(e, 'Esportes')}
+                    onClick={(e) => scrollToFilterGrid(e, "Esportes")}
                   >
                     Esportes
                   </a>
@@ -86,42 +99,71 @@ const Footer = () => {
           </div>
 
           <div className="border-b border-gray-600 pb-2">
-            <button 
+            <button
               className="flex items-center justify-between w-full text-base font-semibold"
-              onClick={() => toggleDropdown('conta')}
+              onClick={() => toggleDropdown("conta")}
             >
               Minha Conta
-              {activeDropdown === 'conta' ? <FaChevronUp /> : <FaChevronDown />}
+              {activeDropdown === "conta" ? <FaChevronUp /> : <FaChevronDown />}
             </button>
-            {activeDropdown === 'conta' && (
+            {activeDropdown === "conta" && (
               <ul className="mt-2 space-y-2 text-sm text-gray-300 pl-4">
-                <li><a href="/meus-ingressos" className="hover:underline block py-1">Meus ingressos</a></li>
-                <li><a href="meus-eventos" className="hover:underline block py-1">Meus eventos</a></li>
-                <li><a href="/criar-evento" className="hover:underline block py-1">Criar evento</a></li>
+                <li>
+                  <a
+                    href="/meus-ingressos"
+                    className="hover:underline block py-1"
+                  >
+                    Meus ingressos
+                  </a>
+                </li>
+                <li>
+                  <a href="meus-eventos" className="hover:underline block py-1">
+                    Meus eventos
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="/criar-evento"
+                    className="hover:underline block py-1"
+                  >
+                    Criar evento
+                  </a>
+                </li>
               </ul>
             )}
           </div>
 
           <div className="border-b border-gray-600 pb-2">
-            <button 
+            <button
               className="flex items-center justify-between w-full text-base font-semibold"
-              onClick={() => toggleDropdown('contato')}
+              onClick={() => toggleDropdown("contato")}
             >
               Fale Conosco
-              {activeDropdown === 'contato' ? <FaChevronUp /> : <FaChevronDown />}
+              {activeDropdown === "contato" ? (
+                <FaChevronUp />
+              ) : (
+                <FaChevronDown />
+              )}
             </button>
-            {activeDropdown === 'contato' && (
+            {activeDropdown === "contato" && (
               <ul className="mt-2 space-y-2 text-sm text-gray-300 pl-4">
                 <li>Email: contato@dasilva.com</li>
                 <li>Telefone: (11) 99999-9999</li>
-                <li><a href="/question-help" className="hover:underline block py-1">Ajuda & Suporte</a></li>
+                <li>
+                  <a
+                    href="/question-help"
+                    className="hover:underline block py-1"
+                  >
+                    Ajuda & Suporte
+                  </a>
+                </li>
               </ul>
             )}
           </div>
 
           {/* Termos Dropdown */}
           <div className="border-b border-gray-600 pb-2">
-            <button 
+            <button
               className="flex items-center justify-between w-full text-base font-semibold"
               onClick={toggleTerms}
             >
@@ -130,11 +172,46 @@ const Footer = () => {
             </button>
             {termsOpen && (
               <ul className="mt-2 space-y-2 text-sm text-gray-300 pl-4">
-                <li><a href="termos-de-uso" className="hover:underline block py-1">Termos de uso</a></li>
-                <li><a href="diretrizes-da-comunidade" className="hover:underline block py-1">Diretrizes de Comunidade</a></li>
-                <li><a href="politica-de-privacidade" className="hover:underline block py-1">Política de Privacidade</a></li>
-                <li><a href="obrigatoriedades-legais" className="hover:underline block py-1">Obrigatoriedades Legais</a></li>
-                <li><a href="regra-da-meia-entrada" className="hover:underline block py-1">Regras de meia-entrada</a></li>
+                <li>
+                  <a
+                    href="termos-de-uso"
+                    className="hover:underline block py-1"
+                  >
+                    Termos de uso
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="diretrizes-da-comunidade"
+                    className="hover:underline block py-1"
+                  >
+                    Diretrizes de Comunidade
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="politica-de-privacidade"
+                    className="hover:underline block py-1"
+                  >
+                    Política de Privacidade
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="obrigatoriedades-legais"
+                    className="hover:underline block py-1"
+                  >
+                    Obrigatoriedades Legais
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="regra-da-meia-entrada"
+                    className="hover:underline block py-1"
+                  >
+                    Regras de meia-entrada
+                  </a>
+                </li>
               </ul>
             )}
           </div>
@@ -158,7 +235,7 @@ const Footer = () => {
                 <a
                   href="#festas-shows"
                   className="hover:underline"
-                  onClick={(e) => scrollToFilterGrid(e, 'Festas & Shows')}
+                  onClick={(e) => scrollToFilterGrid(e, "Festas & Shows")}
                 >
                   Festas & Shows
                 </a>
@@ -167,7 +244,7 @@ const Footer = () => {
                 <a
                   href="#stand-up"
                   className="hover:underline"
-                  onClick={(e) => scrollToFilterGrid(e, 'Stand-up Comedy')}
+                  onClick={(e) => scrollToFilterGrid(e, "Stand-up Comedy")}
                 >
                   Stand-up Comedy
                 </a>
@@ -176,7 +253,7 @@ const Footer = () => {
                 <a
                   href="#esportes"
                   className="hover:underline"
-                  onClick={(e) => scrollToFilterGrid(e, 'Esportes')}
+                  onClick={(e) => scrollToFilterGrid(e, "Esportes")}
                 >
                   Esportes
                 </a>
@@ -188,9 +265,21 @@ const Footer = () => {
           <div>
             <h3 className="text-base font-semibold mb-3">Minha Conta</h3>
             <ul className="space-y-2 text-sm text-gray-300">
-              <li><a href="/meus-ingressos" className="hover:underline">Meus ingressos</a></li>
-              <li><a href="#" className="hover:underline">Meus eventos</a></li>
-              <li><a href="/criar-evento" className="hover:underline">Criar evento</a></li>
+              <li>
+                <a href="/meus-ingressos" className="hover:underline">
+                  Meus ingressos
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:underline">
+                  Meus eventos
+                </a>
+              </li>
+              <li>
+                <a href="/criar-evento" className="hover:underline">
+                  Criar evento
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -200,22 +289,46 @@ const Footer = () => {
             <ul className="space-y-2 text-sm text-gray-300">
               <li>Email: toingresso@gmail.com</li>
               <li>Telefone: (63) 99282-5487</li>
-              <li><a href="/question-help" className="hover:underline">Ajuda & Suporte</a></li>
+              <li>
+                <a href="/question-help" className="hover:underline">
+                  Ajuda & Suporte
+                </a>
+              </li>
             </ul>
           </div>
         </div>
       </div>
 
       {/* Linha inferior com termos e redes sociais */}
-      <div className="mt-10 border-t border-gray-600 pt-6 px-4 sm:px-6 md:px-12 lg:px-20 text-sm text-gray-400">
+      <div className=" mt-10 border-t border-gray-600 pt-6 px-4 sm:px-6 md:px-12 lg:px-20 text-sm text-gray-400">
         {/* Desktop - termos inline */}
         <div className="hidden sm:flex flex-col items-center md:flex-row md:items-center justify-between gap-6 text-center md:text-left px-10">
-          <ul className="flex flex-wrap justify-center md:justify-start gap-2 md:gap-4 text-gray-300">
-            <li><a href="/termos-de-uso" className="hover:underline">Termos de uso</a></li>
-            <li><a href="/diretrizes-da-comunidade" className="hover:underline">Diretrizes de Comunidade</a></li>
-            <li><a href="/politica-de-privacidade" className="hover:underline">Política de Privacidade</a></li>
-            <li><a href="/obrigatoriedades-legais" className="hover:underline">Obrigatoriedades Legais</a></li>
-            <li><a href="/regra-da-meia-entrada" className="hover:underline">Regras de meia-entrada</a></li>
+          <ul className="ml-5 flex flex-wrap justify-center md:justify-start gap-2 md:gap-4 text-gray-300">
+            <li>
+              <a href="/termos-de-uso" className="hover:underline">
+                Termos de uso
+              </a>
+            </li>
+            <li>
+              <a href="/diretrizes-da-comunidade" className="hover:underline">
+                Diretrizes de Comunidade
+              </a>
+            </li>
+            <li>
+              <a href="/politica-de-privacidade" className="hover:underline">
+                Política de Privacidade
+              </a>
+            </li>
+            <li>
+              <a href="/obrigatoriedades-legais" className="hover:underline">
+                Obrigatoriedades Legais
+              </a>
+            </li>
+            <li>
+              <a href="/regra-da-meia-entrada" className="hover:underline">
+                Regras de meia-entrada
+              </a>
+            </li>
           </ul>
 
           <div className="flex justify-center md:justify-end gap-4">
