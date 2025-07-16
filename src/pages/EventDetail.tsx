@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
@@ -17,7 +15,6 @@ import {
   ExternalLink,
   Star,
   Share2,
-  Bookmark,
   Play,
   Sparkles,
   Globe,
@@ -43,7 +40,6 @@ import Subscribed from "@/pages/Subscribed";
 import { useUser } from "@/contexts/useContext";
 import type EventInterface from "@/interfaces/EventInterface";
 import AttractionModal from "@/components/AttractionModal";
-import LoadingPage from "./LoadingPage";
 
 const EventDetail = () => {
   const { id } = useParams();
@@ -139,7 +135,7 @@ const EventDetail = () => {
   }, [id]);
 
   if (!event || !id) {
-    return <LoadingPage></LoadingPage>;
+    return null;
   }
 
   return (
@@ -166,70 +162,23 @@ const EventDetail = () => {
         />
 
         {/* Gradient Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-white/100 via-black/50 to-black/70"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-white/100 via-white/0 to-black/70"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-white/0 to-black/10"></div>
         {/* <div className="absolute inset-0 bg-gradient-to-r from-yellow-900/30 via-transparent to-blue-900/30"></div> */}
 
-        {/* Floating Action Buttons */}
-        <div className="absolute top-32 right-8 flex flex-col gap-4 z-20">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleFavorite}
-            className={`rounded-2xl h-14 w-14 border transition-all duration-300 hover:scale-110 ${
-              isFavorited
-                ? "bg-gradient-to-r from-red-500/90 to-pink-500/90 border-red-400/50 shadow-lg shadow-red-500/25 text-white"
-                : "bg-white/90 hover:bg-white border-white/50 text-gray-700 hover:text-gray-900 shadow-lg"
-            }`}
-          >
-            <Heart
-              className={`h-6 w-6 transition-all duration-300 ${
-                isFavorited ? "fill-current scale-110" : ""
-              }`}
-            />
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            className="cursor-pointer rounded-2xl h-14 w-14 bg-white/90 hover:bg-white border border-white/50 text-gray-700 hover:text-gray-900 transition-all duration-300 hover:scale-110 shadow-lg"
-            onClick={() => {
-              if (navigator.share) {
-                navigator.share({
-                  title: event?.title || "Evento",
-                  text: event?.description || "Confira este evento!",
-                  url: window.location.href,
-                });
-              } else {
-                navigator.clipboard.writeText(window.location.href);
-                alert("Link copiado para a área de transferência!");
-              }
-            }}
-          >
-            <Share2 className="h-6 w-6" />
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-2xl h-14 w-14 bg-white/90 hover:bg-white border border-white/50 text-gray-700 hover:text-gray-900 transition-all duration-300 hover:scale-110 shadow-lg"
-          >
-            <Bookmark className="h-6 w-6" />
-          </Button>
-        </div>
-
         {/* Main Content */}
-        <div className="relative z-10 container mx-auto px-6 py-20">
+        <div className="relative z-10 container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center space-y-8">
             {/* Category Badge */}
-            <div className="flex justify-center">
-              <Badge className="px-6 py-2 text-sm font-semibold bg-gradient-to-r text-white border-0 rounded-full shadow-lg">
+            <div className="flex justify-center mt-25">
+              <Badge className="px-6 py-2 text-sm font-semibold bg-gradient-to-r text-white border-0 rounded-full shadow-xl">
                 <Sparkles className="w-4 h-4 mr-2" />
                 {event?.category || "Evento Especial"}
               </Badge>
             </div>
 
             {/* Title */}
-            <h1 className="text-5xl md:text-7xl font-black leading-tight text-white drop-shadow-2xl">
+            <h1 className="text-5xl md:text-7xl font-bold text-white drop-shadow-2xl">
               {event?.title}
             </h1>
 
@@ -255,15 +204,55 @@ const EventDetail = () => {
 
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 border border-white/50 text-gray-700 shadow-lg">
                 <Users className="w-4 h-4 text-amber-600" />
-                <span>{event?.participants?.length || 0} participantes</span>
+                <span>{event?.subscribers?.length || 0} Inscritos</span>
               </div>
             </div>
+
+
+        <div className="flex flex-row justify-center gap-4 mt-10">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleFavorite}
+            className={`rounded-xl h-14 w-14 border transition-all duration-300 hover:scale-110 ${
+              isFavorited
+                ? "bg-gradient-to-r from-red-500/90 to-pink-500/90 border-red-400/50 shadow-lg shadow-red-500/25 text-white"
+                : "bg-white/90 hover:bg-white border-white/50 text-gray-700 hover:text-gray-900 shadow-lg"
+            }`}
+          >
+            <Heart
+              className={`h-6 w-6 transition-all duration-300 ${
+                isFavorited ? "fill-current scale-110" : ""
+              }`}
+            />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="cursor-pointer rounded-xl h-14 w-14 bg-white/90 hover:bg-white border border-white/50 text-gray-700 hover:text-gray-900 transition-all duration-300 hover:scale-110 shadow-lg"
+            onClick={() => {
+              if (navigator.share) {
+                navigator.share({
+                  title: event?.title || "Evento",
+                  text: event?.description || "Confira este evento!",
+                  url: window.location.href,
+                });
+              } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert("Link copiado para a área de transferência!");
+              }
+            }}
+          >
+            <Share2 className="h-6 w-6" />
+          </Button>
+        </div>
 
             {/* Organizer */}
             <div className="flex justify-center">
               <a
                 href={`/organizer/${event?.organizer._id}`}
-                className="flex items-center gap-4 p-4 rounded-2xl bg-white/90 border border-white/50 hover:bg-white transition-all duration-300 hover:scale-105 group shadow-lg"
+                className="flex items-center gap-4 p-4 rounded-xl bg-white/90 border border-white/50 hover:bg-white transition-all duration-300 hover:scale-105 group shadow-lg"
               >
                 <Avatar className="h-12 w-12 border-2 border-yellow-400 group-hover:border-yellow-500 transition-colors">
                   <AvatarImage
@@ -285,23 +274,9 @@ const EventDetail = () => {
             {/* CTA Button */}
             <div className="pt-8 gap-3 flex flex-col items-center">
               {/* Scroll Indicator */}
-              <div className="flex justify-center animate-bounce text-white">
+              <div className="flex justify-center animate-bounce text-black">
                 <ArrowDown />
               </div>
-              <Button
-                size="lg"
-                className="px-12 py-6 text-lg w-1/4 hover:w-1/3 font-bold rounded-2xl bg-white text-black hover:text-white transition-all duration-300 hover:scale-[1.02]"
-                onClick={() => {
-                  const ticketSection =
-                    document.getElementById("tickets-section");
-                  ticketSection?.scrollIntoView({ behavior: "smooth" });
-                }}
-              >
-                <Ticket className="w-6 h-6 mr-3" />
-                {event?.isFree
-                  ? "Inscrever-se Gratuitamente"
-                  : "Garantir Ingresso"}
-              </Button>
             </div>
           </div>
         </div>
@@ -317,15 +292,15 @@ const EventDetail = () => {
       )}
 
       {/* Main Content */}
-      <div className="relative z-10 container mx-auto lg:px-6 py-20 w-full">
+      <div className="relative z-10 container mx-auto px-1 sm:px-4 lg:px-6 py-20 w-full">
         <div className="grid lg:grid-cols-3 gap-12">
           {/* Left Column - Event Details */}
           <div className="lg:col-span-2 space-y-12">
             {/* Description */}
-            <Card className="text-wrap border-0 bg-white/80">
+            <Card className="text-wrap border-0 bg-white/100">
               <CardHeader className="pb-6">
-                <CardTitle className="text-3xl font-bold flex items-center gap-4 text-gray-800">
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center">
+                <CardTitle className="text-2xl font-bold flex items-center gap-4 text-gray-800">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center">
                     <Globe className="w-6 h-6" />
                   </div>
                   Sobre o Evento
@@ -337,7 +312,7 @@ const EventDetail = () => {
                 </p>
 
                 {/* Mobile Event Info */}
-                <div className="md:hidden mt-8 p-6 rounded-2xl space-y-4">
+                <div className="md:hidden mt-8 p-6 rounded-xl space-y-4">
                   <div className="flex items-center gap-3">
                     <MapPin className="w-5 h-5" />
                     <p className="text-sm font-medium text-gray-700">
@@ -375,8 +350,8 @@ const EventDetail = () => {
               ) && (
                 <Card className="border-0 bg-white/80 transition-all duration-300">
                   <CardHeader className="pb-6">
-                    <CardTitle className="text-3xl font-bold flex items-center gap-4 text-gray-800">
-                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center">
+                    <CardTitle className="text-2xl font-bold flex items-center gap-4 text-gray-800">
+                      <div className="w-12 h-12 rounded-xl flex items-center justify-center">
                         <Music className="w-6 h-6 text-black" />
                       </div>
                       Lineup & Atrações
@@ -386,7 +361,7 @@ const EventDetail = () => {
                     {event.dates.length === 1 ? (
                       // Single date - Mobile optimized list
                       <div className="space-y-6">
-                        <div className="flex items-center gap-4 p-4 rounded-2xl">
+                        <div className="flex items-center gap-4 p-4 rounded-xl">
                           <Calendar className="h-6 w-6" />
                           <div>
                             <p className="font-bold text-gray-800 text-lg">
@@ -586,7 +561,7 @@ const EventDetail = () => {
                         {/* Desktop: Keep original tabs layout */}
                         <div className="hidden md:block">
                           <Tabs defaultValue="0" className="w-full">
-                            <TabsList className="grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 h-auto p-2 bg-gray-100 rounded-2xl">
+                            <TabsList className="grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 h-auto p-2 bg-gray-100 rounded-xl">
                               {event.dates.map((date, index) => (
                                 <TabsTrigger
                                   key={index}
@@ -615,7 +590,7 @@ const EventDetail = () => {
                                 className="mt-8"
                               >
                                 <div className="space-y-6">
-                                  <div className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-yellow-50 to-blue-50">
+                                  <div className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-yellow-50 to-blue-50">
                                     <Calendar className="h-6 w-6 text-blue-600" />
                                     <div>
                                       <p className="font-bold text-gray-800 text-lg">
@@ -649,7 +624,7 @@ const EventDetail = () => {
                                     ).map((attraction, attractionIndex) => (
                                       <div
                                         key={attractionIndex}
-                                        className="group p-6 rounded-2xl bg-white border transition-all duration-300 hover:scale-105 cursor-pointer"
+                                        className="group p-6 rounded-xl bg-white border transition-all duration-300 hover:scale-105 cursor-pointer"
                                         onClick={() => {
                                           setSelectedAttraction(attraction);
                                           setModalOpen(true);
@@ -703,8 +678,8 @@ const EventDetail = () => {
             {/* Event Policy */}
             <Card className="border-0 bg-white/80 transition-all duration-300">
               <CardHeader className="pb-6">
-                <CardTitle className="text-3xl font-bold flex items-center gap-4 text-gray-800">
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center">
+                <CardTitle className="text-2xl font-bold flex items-center gap-4 text-gray-800">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center">
                     <Star className="w-6 h-6 text-black" />
                   </div>
                   Política do Evento
@@ -737,15 +712,15 @@ const EventDetail = () => {
             {/* Location */}
             <Card className="border-0  transition-all duration-300">
               <CardHeader className="pb-6">
-                <CardTitle className="text-3xl flex-col sm:flex-row font-bold flex items-center gap-4 text-gray-800">
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center">
+                <CardTitle className="text-2xl flex-col sm:flex-row font-bold flex items-center gap-4 text-gray-800">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center">
                     <MapPin className="w-6 text-black" />
                   </div>
                   Localização
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-8">
-                <div className="flex flex-col sm:flex-row justify-start p-6 rounded-2xl">
+                <div className="flex flex-col sm:flex-row justify-start p-6 rounded-xl">
                   <div>
                     <h3 className="font-bold text-gray-800 text-xl mb-3">
                       {event?.venueName || "Local do evento"}
@@ -764,7 +739,7 @@ const EventDetail = () => {
                   </div>
                 </div>
 
-                <div className="rounded-2xl overflow-hidden shadow-2xl transform hover:scale-[1.02] transition-all duration-300">
+                <div className="rounded-xl overflow-hidden shadow-2xl transform hover:scale-[1.02] transition-all duration-300">
                   <iframe
                     src={
                       event?.mapUrl ||
@@ -790,7 +765,7 @@ const EventDetail = () => {
           <div className="space-y-8" id="tickets-section">
             <Card className="border bg-white/90 sticky top-8 ">
               <CardHeader className="">
-                <CardTitle className="text-3xl font-bold flex justify-center gap-4 text-gray-800">
+                <CardTitle className="text-2xl font-bold flex justify-center gap-4 text-gray-800">
                   {event?.isFree
                     ? event.formTitle || "Formulário de Inscrição"
                     : `Ingressos ${event.batches[0]?.batchName || ""}`}
