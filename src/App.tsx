@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import EditEvent from "./pages/EditEvent";
 
 const Login = lazy(() => import("@/pages/Login"));
 const Register = lazy(() => import("@/pages/Register"));
@@ -44,6 +45,7 @@ function App() {
           <Route path="/perfil" element={<Profile />} />
           <Route path="/organizer/:id" element={<Organizer />} />
           <Route path="/criar-evento" element={<CreateEvent />} />
+          <Route path="/editar-evento/:id" element={<EditEvent />} />
           <Route path="/meus-ingressos" element={<MyTickets />} />
           <Route path="/favoritos" element={<Favorites />} />
           <Route path="/meus-eventos" element={<MyEvents />} />

@@ -41,7 +41,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import DeleteModal from "@/components/DeleteModal";
 import GenericModal from "@/components/GenericModal";
-import { EditEventModal } from "@/components/EditEventModal";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import CertificateTutorial from "./CertificateTutorial";
@@ -49,6 +48,7 @@ import CertificateGenerator from "./CertificateGenerator";
 import EventScanner from "./EventScanner";
 import { truncateTextResponsive } from "@/utils/formatUtils";
 import Dashboard from "@/components/Dashboard";
+import { Link } from "react-router-dom";
 
 interface TabProps {
   isActive: boolean;
@@ -136,7 +136,6 @@ export default function MyEvents() {
   const [eventToStop, setEventToStop] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<EventInterface | null>(
     null
   );
@@ -175,13 +174,21 @@ export default function MyEvents() {
   const revenueData = months.map((month, idx) => {
     const filteredEvents = getFilteredEventsForDashboard();
     const monthRevenue = filteredEvents
-      .filter((e) => e.dates && e.dates.length > 0 && new Date(e.dates[0].startDate).getMonth() === idx)
+      .filter(
+        (e) =>
+          e.dates &&
+          e.dates.length > 0 &&
+          new Date(e.dates[0].startDate).getMonth() === idx
+      )
       .reduce((acc, event) => {
         const eventRevenue = event.batches.reduce(
-          (batchAcc, batch) => batchAcc + batch.tickets.reduce(
-            (ticketAcc, ticket) => ticketAcc + ticket.price * ticket.soldQuantity,
-            0
-          ),
+          (batchAcc, batch) =>
+            batchAcc +
+            batch.tickets.reduce(
+              (ticketAcc, ticket) =>
+                ticketAcc + ticket.price * ticket.soldQuantity,
+              0
+            ),
           0
         );
         return acc + eventRevenue;
@@ -242,7 +249,12 @@ export default function MyEvents() {
       (total, event) =>
         total +
         event.batches.reduce(
-          (ticketTotal, batch) => ticketTotal + batch.tickets.reduce((ticketTotal, ticket) => ticketTotal + ticket.soldQuantity, 0),
+          (ticketTotal, batch) =>
+            ticketTotal +
+            batch.tickets.reduce(
+              (ticketTotal, ticket) => ticketTotal + ticket.soldQuantity,
+              0
+            ),
           0
         ),
       0
@@ -251,9 +263,11 @@ export default function MyEvents() {
       (total, event) =>
         total +
         event.batches.reduce(
-          (ticketTotal, batch) => ticketTotal + batch.tickets.reduce((ticketTotal, ticket) =>{          
-           return ticketTotal + (ticket.quantity - ticket.soldQuantity)
-          }, 0),
+          (ticketTotal, batch) =>
+            ticketTotal +
+            batch.tickets.reduce((ticketTotal, ticket) => {
+              return ticketTotal + (ticket.quantity - ticket.soldQuantity);
+            }, 0),
           0
         ),
       0
@@ -264,7 +278,13 @@ export default function MyEvents() {
       (total, event) =>
         total +
         event.batches.reduce(
-          (ticketTotal, batch) => ticketTotal + batch.tickets.reduce((ticketTotal, ticket) => ticketTotal + ticket.soldQuantity * ticket.price, 0),
+          (ticketTotal, batch) =>
+            ticketTotal +
+            batch.tickets.reduce(
+              (ticketTotal, ticket) =>
+                ticketTotal + ticket.soldQuantity * ticket.price,
+              0
+            ),
           0
         ),
       0
@@ -276,14 +296,6 @@ export default function MyEvents() {
       // Retorna o array de subscribers
       return event.participants.length;
     }, 0),
-  };
-
-  const handleEdit = (eventId: string) => {
-    const event = events.find((e) => e._id === eventId);
-    if (event) {
-      setSelectedEvent(event);
-      setIsEditModalOpen(true);
-    }
   };
 
   const handleStopEvent = async (eventId: string) => {
@@ -329,15 +341,6 @@ export default function MyEvents() {
         });
       }
     }
-  };
-
-  const handleSaveEvent = (updatedEvent: EventInterface) => {
-    setEvents((prevEvents) =>
-      prevEvents.map((event) =>
-        event._id === updatedEvent._id ? updatedEvent : event
-      )
-    );
-    setIsEditModalOpen(false);
   };
 
   const handleView = (eventId: string) => {
@@ -445,36 +448,49 @@ export default function MyEvents() {
                     selectedEvent.dates.map((period, idx) => (
                       <li key={idx}>
                         <span>
-                          {new Date(period.startDate).toLocaleDateString("pt-BR", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                          })}
-                          {" "}
-                          {period.startTime} até {new Date(period.endDate).toLocaleDateString("pt-BR", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                          })}
-                          {" "}
+                          {new Date(period.startDate).toLocaleDateString(
+                            "pt-BR",
+                            {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                            }
+                          )}{" "}
+                          {period.startTime} até{" "}
+                          {new Date(period.endDate).toLocaleDateString(
+                            "pt-BR",
+                            {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                            }
+                          )}{" "}
                           {period.endTime}
                         </span>
                         {/* Se quiser, pode exibir atrações aqui também */}
-                        {period.attractions && period.attractions.length > 0 && (
-                          <ul className="ml-4 text-xs text-gray-500 list-disc">
-                            {period.attractions.map((attr, aIdx) => (
-                              <li key={aIdx}>
-                                {attr.name}
-                                {attr.social && (
-                                  <>
-                                    {" "}
-                                    <a href={attr.social} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{attr.social}</a>
-                                  </>
-                                )}
-                              </li>
-                            ))}
-                          </ul>
-                        )}
+                        {period.attractions &&
+                          period.attractions.length > 0 && (
+                            <ul className="ml-4 text-xs text-gray-500 list-disc">
+                              {period.attractions.map((attr, aIdx) => (
+                                <li key={aIdx}>
+                                  {attr.name}
+                                  {attr.social && (
+                                    <>
+                                      {" "}
+                                      <a
+                                        href={attr.social}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-600 underline"
+                                      >
+                                        {attr.social}
+                                      </a>
+                                    </>
+                                  )}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
                       </li>
                     ))
                   ) : (
@@ -547,13 +563,27 @@ export default function MyEvents() {
                           Ingressos Vendidos
                         </h4>
                         <p className="text-sm text-gray-600">
-                          {batch.tickets.reduce((acc, ticket) => acc + ticket.soldQuantity, 0)} / {batch.tickets.reduce((acc, ticket) => acc + ticket.quantity, 0)}
+                          {batch.tickets.reduce(
+                            (acc, ticket) => acc + ticket.soldQuantity,
+                            0
+                          )}{" "}
+                          /{" "}
+                          {batch.tickets.reduce(
+                            (acc, ticket) => acc + ticket.quantity,
+                            0
+                          )}
                         </p>
                       </div>
                       <div>
                         <h4 className="text-sm font-medium">Receita</h4>
                         <p className="text-sm text-gray-600">
-                          {formatCurrency(batch.tickets.reduce((acc, ticket) => acc + ticket.soldQuantity * ticket.price, 0))}
+                          {formatCurrency(
+                            batch.tickets.reduce(
+                              (acc, ticket) =>
+                                acc + ticket.soldQuantity * ticket.price,
+                              0
+                            )
+                          )}
                         </p>
                       </div>
                     </div>
@@ -654,13 +684,6 @@ export default function MyEvents() {
             </div>
           </div>
         </GenericModal>
-
-        <EditEventModal
-          event={selectedEvent}
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          onSave={handleSaveEvent}
-        />
 
         <div className="max-w-6xl mx-auto mt-12">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
@@ -789,8 +812,6 @@ export default function MyEvents() {
                     </Tab>
                   ))}
                 </div>
-
-
               </div>
 
               {filteredEvents.length === 0 ? (
@@ -810,12 +831,16 @@ export default function MyEvents() {
                   {filteredEvents.map((event) => {
                     const isFree = event.isFree;
                     const startDate = event.dates[0]?.startDate
-                      ? new Date(event.dates[0].startDate).toLocaleDateString("pt-BR", {
-                          day: "2-digit",
-                          month: "short",
-                        })
+                      ? new Date(event.dates[0].startDate).toLocaleDateString(
+                          "pt-BR",
+                          {
+                            day: "2-digit",
+                            month: "short",
+                          }
+                        )
                       : "-";
-                    const startTime = event.dates[0]?.startTime?.slice(0, 5) || "-";
+                    const startTime =
+                      event.dates[0]?.startTime?.slice(0, 5) || "-";
 
                     return (
                       <div
@@ -892,15 +917,18 @@ export default function MyEvents() {
                                 <Eye className="h-4 w-4" />
                               </Button>
                               {event.status !== "finished" && (
-                                <Button
-                                  onClick={() => handleEdit(event._id)}
-                                  variant="outline"
-                                  size="icon"
-                                  className="h-10 w-10 cursor-pointer"
-                                  title="Editar evento"
+                                <Link
+                                  to={`http://localhost:5173/editar-evento/${event._id}`}
                                 >
-                                  <Pencil className="h-4 w-4" />
-                                </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-10 w-10 cursor-pointer"
+                                    title="Editar evento"
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                </Link>
                               )}
                             </div>
                             {event.status !== "finished" && (
