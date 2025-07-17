@@ -52,7 +52,7 @@ const AdminDashboard: React.FC = () => {
   const [carouselSlides, setCarouselSlides] = useState<
     CarouselSlideWithTempKey[]
   >([]);
-  console.log(carouselSlides);
+  
 
   useEffect(() => {
     const fetchCarouselSlides = async () => {
@@ -66,8 +66,7 @@ const AdminDashboard: React.FC = () => {
               Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
             },
           }
-        );
-        console.log(response);
+        );        
 
         if (response.data.carrossels) {
           setCarouselSlides(response.data.carrossels);
@@ -107,8 +106,7 @@ const AdminDashboard: React.FC = () => {
                 Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
               },
             }
-          );
-          console.log(response);
+          );          
 
           // Ajuste conforme a resposta do backend
           if (response.data.banners) {
