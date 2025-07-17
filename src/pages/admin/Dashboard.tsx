@@ -5,7 +5,7 @@ import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import logoToIngresso from "../../../public/logos/TOingresso_logo_512x512.png"
+import logoToIngresso from "../../../public/logos/TOingresso_logo_512x512.png";
 import {
   Card,
   CardContent,
@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import CarrosselInterface from "@/interfaces/CarrosselInterface";
 import BannerInterface from "@/interfaces/BannerInterface";
+import AdBanner from "@/components/AdBanner";
 
 // Adiciona tipo auxiliar para slides com tempKey
 
@@ -55,7 +56,7 @@ const AdminDashboard: React.FC = () => {
 
   useEffect(() => {
     const fetchCarouselSlides = async () => {
-      try {                
+      try {
         const response = await axios.get(
           `${import.meta.env.VITE_API_BASE_URL}${
             import.meta.env.VITE_CARROSSEL_GET_ADMIN
@@ -67,7 +68,7 @@ const AdminDashboard: React.FC = () => {
           }
         );
         console.log(response);
-        
+
         if (response.data.carrossels) {
           setCarouselSlides(response.data.carrossels);
         }
@@ -98,7 +99,9 @@ const AdminDashboard: React.FC = () => {
       const fetchBanner = async () => {
         try {
           const response = await axios.get(
-            `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_BANNER_GET_ADMIN}`,
+            `${import.meta.env.VITE_API_BASE_URL}${
+              import.meta.env.VITE_BANNER_GET_ADMIN
+            }`,
             {
               headers: {
                 Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
@@ -106,11 +109,14 @@ const AdminDashboard: React.FC = () => {
             }
           );
           console.log(response);
-          
+
           // Ajuste conforme a resposta do backend
           if (response.data.banners) {
             setBannerData(response.data.banners[0]);
-          } else if (response.data.banners && response.data.banners.length > 0) {
+          } else if (
+            response.data.banners &&
+            response.data.banners.length > 0
+          ) {
             setBannerData(response.data.banners[0]);
           }
         } catch (error) {
@@ -223,7 +229,7 @@ const AdminDashboard: React.FC = () => {
   // Atualiza o mapeamento de arquivos no handleSave
   const handleSave = async () => {
     try {
-      setLoading(true);            
+      setLoading(true);
       const slidesWithFileField = carouselSlides.map((slide, idx) => {
         const key = slide._id || slide.tempKey || "";
         // Remove urlImage do slide
@@ -256,7 +262,7 @@ const AdminDashboard: React.FC = () => {
       if (bannerFile) {
         formData.append("bannerFile_0", bannerFile);
       }
-
+      
       const response = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}${
           import.meta.env.VITE_ADMIN_UPDATE_CONTENT
@@ -634,12 +640,12 @@ const AdminDashboard: React.FC = () => {
                 <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6 pt-0">
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Preview</Label>
-                    <div className="w-full h-32 sm:h-48 bg-gray-100 rounded-lg overflow-hidden border">
+                    <div className="w-full h-full bg-gray-100 rounded-lg overflow-hidden border">
                       {bannerData.urlImage ? (
-                        <img
-                          src={bannerData.urlImage || "/placeholder.svg"}
-                          alt="Banner Preview"
-                          className="w-full h-full object-cover"
+                        <AdBanner
+                          externalBannerTitle={bannerData.title}
+                          externalRedirectUrl={bannerData.redirectUrl}
+                          externalUrlImage={bannerData.urlImage}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-400">
