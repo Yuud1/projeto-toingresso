@@ -42,6 +42,7 @@ import { FaFootballBall, FaQuestionCircle } from "react-icons/fa";
 import axios from "axios";
 import Footer from "@/components/Footer";
 import { useParams } from "react-router-dom";
+import { formatDateTimeForInput } from "@/utils/formatUtils";
 
 const estadosMunicipios = {
   AC: { nome: "Acre" },
@@ -134,7 +135,7 @@ export default function EditEvent() {
     batches: [],
     isFree: false,
     customFields: [],
-    acceptedTerms: false,
+    acceptedTerms: false, // garantir que só exista uma vez
     token: null,
     status: "active",
     searchAddress: "",
@@ -156,8 +157,8 @@ export default function EditEvent() {
           }
         );
         if (response) {
-          setIsOwner(response.data.isOwner);
-          setFormData(response.data.event);
+          setIsOwner(response.data.isOwner);          
+          setFormData((prev) => ({...prev,...response.data.event,acceptedTerms: false}));
         }
       } catch (error: any) {
         console.log("ERror", error);
@@ -184,6 +185,12 @@ export default function EditEvent() {
       console.error("Erro ao buscar municípios:", err);
     }
   };
+
+  useEffect(() => {
+    if (formData.state.length > 1) {
+      buscarMunicipios(formData.state);
+    }
+  }, [formData.state]);
 
   const buscarCoordenadasPorCEP = async (cep: string) => {
     if (!cep || cep.length < 8) return;
@@ -416,20 +423,17 @@ export default function EditEvent() {
         };
 
         const { image, ...rest } = formDataToSend;
-        data.append("formData", JSON.stringify(rest));
+        data.append("editedEvent", JSON.stringify(rest));
 
-        console.log(formData);
         if (formData.isFree && formData.customFields.length == 0) {
-          console.log("naoo cadastrei o evento");
           throw new Error(
             "Nenhum campo de formulário adicionado para eventos gratuitos."
           );
         }
 
-        console.log("cadastrei o evento");
-        const response = await axios.post(
+        const response = await axios.put(
           `${import.meta.env.VITE_API_BASE_URL}${
-            import.meta.env.VITE_CREATE_EVENT
+            import.meta.env.VITE_EVENT_UPDATEID
           }`,
           data,
           {
@@ -440,11 +444,11 @@ export default function EditEvent() {
           }
         );
 
-        if (response.data.saved) {
+        if (response.data.edited) {
           setCreated(true);
         }
       } catch (error) {
-        console.error("Erro ao criar Evento", error);
+        console.error("Erro ao Editar evento", error);
       } finally {
         setLoading(false);
       }
@@ -571,7 +575,7 @@ export default function EditEvent() {
           ) : (
             <>
               <CheckCircle className="w-4 h-4" />
-              <span>Publicar Evento</span>
+              <span>Editar Evento</span>
             </>
           )}
         </Button>
@@ -804,8 +808,8 @@ export default function EditEvent() {
                           Data de Início
                         </label>
                         <Input
-                          type="date"
-                          value={dateObj.startDate}
+                          type="datetime-local"
+                          value={formatDateTimeForInput(dateObj.startDate)}
                           onChange={(e) => {
                             const newDates = [...formData.dates];
                             newDates[idx].startDate = e.target.value;
@@ -840,8 +844,8 @@ export default function EditEvent() {
                           Data de Término
                         </label>
                         <Input
-                          type="date"
-                          value={dateObj.endDate}
+                          type="datetime-local"
+                          value={formatDateTimeForInput(dateObj.endDate)}
                           onChange={(e) => {
                             const newDates = [...formData.dates];
                             newDates[idx].endDate = e.target.value;
@@ -1247,7 +1251,6 @@ export default function EditEvent() {
                             state: sigla,
                             city: "",
                           }));
-                          await buscarMunicipios(sigla);
                         }}
                         value={formData.state}
                       >
@@ -1554,7 +1557,7 @@ export default function EditEvent() {
                               </label>
                               <Input
                                 type="datetime-local"
-                                value={batch.saleStart}
+                                value={formatDateTimeForInput(batch.saleStart)}
                                 onChange={(e) => {
                                   const newBatches = [...formData.batches];
                                   newBatches[batchIdx].saleStart =
@@ -1572,7 +1575,7 @@ export default function EditEvent() {
                               </label>
                               <Input
                                 type="datetime-local"
-                                value={batch.saleEnd}
+                                value={formatDateTimeForInput(batch.saleEnd)}
                                 onChange={(e) => {
                                   const newBatches = [...formData.batches];
                                   newBatches[batchIdx].saleEnd = e.target.value;
@@ -1881,7 +1884,7 @@ export default function EditEvent() {
     }
   };
 
-  if (!isOwner) {
+  if (!isOwner && !loading) {
     return (
       <div>
         <h1>Você não é o proprietário deste evento</h1>

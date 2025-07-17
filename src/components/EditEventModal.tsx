@@ -24,6 +24,7 @@ import TicketInterface from "@/interfaces/TicketInterface";
 import { Batch } from "@/interfaces/FormDataInterface";
 import axios from "axios";
 import FormBuilder from "./FormBuilder";
+import { formatDateTimeForInput } from "@/utils/formatUtils";
 
 interface EditEventModalProps {
   event: EventInterface | null;
@@ -74,28 +75,6 @@ const formatCEP = (cep: string) => {
 const formatNumber = (number: string) => {
   if (!number) return "";
   return number.replace(/\D/g, "");
-};
-
-// Função para formatar data para datetime-local
-const formatDateTimeForInput = (dateString: string) => {
-  if (!dateString) return "";
-  
-  try {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return "";
-    
-    // Formatar para YYYY-MM-DDTHH:mm (formato do datetime-local)
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  } catch (error) {
-    console.error("Erro ao formatar data:", error);
-    return "";
-  }
 };
 
 // Função para formatar data para input type="date"
