@@ -169,3 +169,20 @@
 .scroll-container::-webkit-scrollbar-thumb:hover {
   background: #1e40af;
 }
+
+/* Customização do botão do Google */
+.google-login-container {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.google-login-container > div {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.google-login-container iframe {
+  width: 100% !important;
+  max-width: 100% !important;
+}

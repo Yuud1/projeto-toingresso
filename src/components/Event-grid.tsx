@@ -35,10 +35,10 @@ const EventGrid = () => {
 
   // Limitar a exibição a 8 eventos na home
   const displayedEvents = events.slice(0, 8);
-  const hasMoreEvents = events.length > 8;
+  const hasMoreEvents = events.length > 1;
 
   return (
-    <section id="event-grid" className="max-w-7xl mx-auto py-10  w-full h-fit">
+    <section id="event-grid" className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 w-full h-fit">
       <div className="flex items-center justify-between w-full">
         <h1 className="text-black text-2xl font-bold mb-8 pt-8">
           Próximos Eventos
@@ -51,8 +51,7 @@ const EventGrid = () => {
               onClick={() => (window.location.href = "/todos-eventos")}
               className="bg-[#02488C] hover:bg-[#023a70] text-white px-5 py-4 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 cursor-pointer"
             >
-              Todos os Eventos
-              <ArrowRight className="w-4 h-4" />
+              Todos os Eventos 
             </Button>
           </div>
         )}

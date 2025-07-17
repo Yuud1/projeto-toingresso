@@ -31,7 +31,7 @@ const AdBanner: React.FC<AdBanner> = ({
   if (!banner) return null;
 
   return (
-    <div className="w-full">
+    <div className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 w-full">
       <a
         href={externalRedirectUrl ? externalRedirectUrl : banner.redirectUrl}
         target="_blank"
@@ -48,7 +48,6 @@ const AdBanner: React.FC<AdBanner> = ({
             alt="Banner promocional"
             className="w-full h-[200px] sm:h-[250px] md:h-[300px] object-cover group-hover:scale-105 transition-transform duration-500"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <div className="text-center text-white">
               <h3 className="text-2xl font-bold mb-2">{externalBannerTitle ? externalBannerTitle : banner.title}</h3>

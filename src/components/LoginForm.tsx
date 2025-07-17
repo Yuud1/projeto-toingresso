@@ -146,13 +146,19 @@ export function LoginForm({
             Ou continue com
           </span>
         </div>
-        <div className="grid grid-cols-1 gap-4">
-          <div className="w-full">
+        <div className="w-full">
+          <div className="w-full flex justify-center google-login-container">
             <GoogleLogin
               onSuccess={handleGoogleLoginSuccess}
               onError={() => {
                 console.log("Erro ao logar com Google");
               }}
+              useOneTap
+              theme="outline"
+              size="large"
+              text="continue_with"
+              shape="rectangular"
+              width="100%"
             />
           </div>
         </div>

@@ -15,14 +15,14 @@ export default function Home() {
         </div>
         <div className="max-w-full">
           <section className="h-full w-full">
-            <div className=" max-w-full mx-auto w-full flex flex-col items-center justify-center gap-25">
-              <div className="w-full bg-[#FEC800] ">
+            <div className="max-w-full mx-auto w-full flex flex-col items-center justify-center gap-25">
+              <div className="w-full bg-[#FEC800]">
                 <EventGrid />
               </div>
-              <div className=" w-3/4">
+              <div className="w-full">
                 <AdBanner />
               </div>
-              <div className="w-full bg-[#014A8E] mb-30">
+              <div className="w-full bg-[#014A8E]">
                 <Category />
               </div>
             </div>

@@ -70,15 +70,15 @@ const Category: React.FC = () => {
     : eventsCategory.length > 5;
 
   return (
-    <div className="max-w-7xl mx-auto py-10  w-full h-fit">
-      <div className="w-full flex flex-row justify-center items-center">
-        <h1 className="text-white text-2xl font-bold mb-15 pt-8">
+    <div className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 w-full h-fit">
+      <div className="w-full flex flex-row justify-center items-center mb-8">
+        <h1 className="text-white text-2xl font-bold pt-8">
           Explore Momentos
         </h1>
       </div>
 
       <div
-        className=" grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8 place-items-center mb-10"
+        className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4 sm:gap-5 lg:gap-6 mb-10 justify-items-center items-center"
         id="filter-grid"
       >
         {categories.map((cat) => {
@@ -94,7 +94,7 @@ const Category: React.FC = () => {
                   setActiveCategory(cat.label);
                 }
               }}
-              className={`flex flex-col items-center justify-center w-full aspect-square max-w-[150px] rounded-md shadow-sm cursor-pointer transition-all duration-150 ease-in-out
+              className={`flex flex-col items-center justify-center w-full aspect-square max-w-[140px] sm:max-w-[120px] lg:max-w-none rounded-md shadow-sm cursor-pointer transition-all duration-150 ease-in-out
                 ${
                   isActive
                     ? "bg-[#02488C] text-white shadow-md scale-105"
@@ -103,13 +103,13 @@ const Category: React.FC = () => {
               `}
             >
               <div
-                className={`transition-transform duration-150 ${
+                className={`transition-transform duration-150 w-7 h-7 sm:w-6 sm:h-6 lg:w-5 lg:h-5 ${
                   isActive ? "scale-110 text-white" : "text-[#02488C]"
                 }`}
               >
                 {cat.icon}
               </div>
-              <span className="mt-2 text-center text-sm">{cat.label}</span>
+              <span className="mt-1 text-center text-xs sm:text-sm lg:text-sm font-medium">{cat.label}</span>
             </div>
           );
         })}
@@ -120,7 +120,7 @@ const Category: React.FC = () => {
           <>
             <Swiper
               slidesPerView={1.6}
-              spaceBetween={20}
+              spaceBetween={16}
               loop={true}
               centeredSlides={true}
               navigation={{
@@ -130,9 +130,9 @@ const Category: React.FC = () => {
               modules={[Navigation]}
               className="pb-10"
               breakpoints={{
-                640: { slidesPerView: 1.5 },
-                768: { slidesPerView: 2.5 },
-                1024: { slidesPerView: 3.5 },
+                640: { slidesPerView: 1.5, spaceBetween: 20 },
+                768: { slidesPerView: 2.5, spaceBetween: 24 },
+                1024: { slidesPerView: 3.5, spaceBetween: 32 },
               }}
             >
               {eventsCategory.map((event) => (
@@ -155,11 +155,11 @@ const Category: React.FC = () => {
                 </SwiperSlide>
               ))}
             </Swiper>
-            <button className="swiper-button-prev absolute top-1/2 -left-4 transform -translate-y-1/2 z-10">
-              <ChevronLeft className="w-6 h-6" />
+            <button className="swiper-button-prev absolute top-1/2 -left-2 sm:-left-4 transform -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-1 shadow-md">
+              <ChevronLeft className="w-4 h-4 sm:w-6 sm:h-6" />
             </button>
-            <button className="swiper-button-next absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
-              <ChevronRight className="w-6 h-6" />
+            <button className="swiper-button-next absolute top-1/2 -right-2 sm:-right-4 transform -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-1 shadow-md">
+              <ChevronRight className="w-4 h-4 sm:w-6 sm:h-6" />
             </button>
           </>
         ) : (
