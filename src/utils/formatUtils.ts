@@ -20,6 +20,29 @@ export const formatCPF = (numbers: string): string => {
   }
 };
 
+export const formatDateTimeForInput = (dateString: string) => {
+  console.log(dateString);
+  
+  if (!dateString) return "";
+
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+
+    // Formatar para YYYY-MM-DDTHH:mm (formato do datetime-local)
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    console.log(`${year}-${month}-${day}T${hours}:${minutes}`)
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  } catch (error) {
+    console.error("Erro ao formatar data:", error);
+    return "";
+  }
+};
+
 export const formatCNPJ = (numbers: string): string => {
   const limitedNumbers: string = numbers.slice(0, 14);
 
@@ -150,36 +173,47 @@ export const applyMask = (
   }
 };
 
-export const truncateTextByScreenSize = (text: string, maxLength: number = 50): string => {
-  if (typeof window === 'undefined') return text;
-  
+export const truncateTextByScreenSize = (
+  text: string,
+  maxLength: number = 50
+): string => {
+  if (typeof window === "undefined") return text;
+
   const screenWidth = window.innerWidth;
-  
+
   // Ajusta o limite baseado no tamanho da tela
-  if (screenWidth < 640) { // mobile
-    return text.length > 30 ? text.slice(0, 30) + '...' : text;
-  } else if (screenWidth < 768) { // tablet
-    return text.length > 40 ? text.slice(0, 40) + '...' : text;
-  } else if (screenWidth < 1024) { // small desktop
-    return text.length > 50 ? text.slice(0, 50) + '...' : text;
-  } else { // large desktop
-    return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
+  if (screenWidth < 640) {
+    // mobile
+    return text.length > 30 ? text.slice(0, 30) + "..." : text;
+  } else if (screenWidth < 768) {
+    // tablet
+    return text.length > 40 ? text.slice(0, 40) + "..." : text;
+  } else if (screenWidth < 1024) {
+    // small desktop
+    return text.length > 50 ? text.slice(0, 50) + "..." : text;
+  } else {
+    // large desktop
+    return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
   }
 };
 
 export const truncateTextResponsive = (text: string): string => {
-  if (typeof window === 'undefined') return text;
-  
+  if (typeof window === "undefined") return text;
+
   const screenWidth = window.innerWidth;
-  
+
   // Limites aumentados para mobile
-  if (screenWidth < 480) { // mobile pequeno
-    return text.length > 40 ? text.slice(0, 40) + '...' : text;
-  } else if (screenWidth < 640) { // mobile
-    return text.length > 50 ? text.slice(0, 50) + '...' : text;
-  } else if (screenWidth < 768) { // tablet
-    return text.length > 45 ? text.slice(0, 45) + '...' : text;
-  } else { // desktop
-    return text.length > 60 ? text.slice(0, 60) + '...' : text;
+  if (screenWidth < 480) {
+    // mobile pequeno
+    return text.length > 40 ? text.slice(0, 40) + "..." : text;
+  } else if (screenWidth < 640) {
+    // mobile
+    return text.length > 50 ? text.slice(0, 50) + "..." : text;
+  } else if (screenWidth < 768) {
+    // tablet
+    return text.length > 45 ? text.slice(0, 45) + "..." : text;
+  } else {
+    // desktop
+    return text.length > 60 ? text.slice(0, 60) + "..." : text;
   }
 };
