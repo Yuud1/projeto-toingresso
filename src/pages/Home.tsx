@@ -6,6 +6,7 @@ import AdBanner from "../components/AdBanner";
 import Footer from "../components/Footer";
 
 export default function Home() {
+
   return (
     <>
       <Header />

@@ -21,86 +21,95 @@ interface ImagesCarrossel {
 }
 
 export default function CarrosselMain() {
-  const [swiperReady, setSwiperReady] = useState(false);
   const swiperRef = useRef<SwiperCore | null>(null);
-  const [images, setImages] = useState<ImagesCarrossel[]>([
-    // { urlImage: "/background-login.png", _id: "1", redirectUrl: "/evento/1" },
-    // { urlImage: "/background-login.png", _id: "2", redirectUrl: "/evento/2" },
-    // { urlImage: "/background-login.png", _id: "3", redirectUrl: "/evento/3" },
-    // { urlImage: "/background-login.png", _id: "4", redirectUrl: "/evento/4" },
-    // { urlImage: "/background-login.png", _id: "5", redirectUrl: "/evento/5" },
-    // { urlImage: "/background-login.png", _id: "6", redirectUrl: "/evento/6" },
-    // { urlImage: "/background-login.png", _id: "7", redirectUrl: "/evento/7" },
-    // { urlImage: "/background-login.png", _id: "8", redirectUrl: "/evento/8" },
-  ]);
-  
+  const [images, setImages] = useState<ImagesCarrossel[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     async function getCarrossel() {
-      const response = await axios
-        .get(
+      try {
+        const response = await axios.get(
           `${import.meta.env.VITE_API_BASE_URL}${
             import.meta.env.VITE_CARROSSEL_GET
           }`
-        )        
-        
+        );
+
         if (response.data.carrossels) {
-          response.data.carrossels.forEach((element: any) => {
-            setImages((prev) => [...prev, {urlImage: element.urlImage, _id: element._id, redirectUrl: element.redirectUrl}]);
-          });          
+          const carrosselImages = response.data.carrossels.map((element: any) => ({
+            urlImage: element.urlImage,
+            _id: element._id,
+            redirectUrl: element.redirectUrl,
+          }));
+          setImages(carrosselImages);
         }
+      } catch (error) {
+        console.error("Erro ao carregar carrossel:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
     getCarrossel();
   }, []);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setSwiperReady(true);
-      if (swiperRef.current?.autoplay) {
-        swiperRef.current.autoplay.start();
-      }
+  const handleSwiperInit = (swiper: SwiperCore) => {
+    swiperRef.current = swiper;
+    // Força a atualização do Swiper após a inicialização
+    setTimeout(() => {
+      swiper.update();
+      swiper.autoplay?.start();
     }, 100);
-    return () => clearTimeout(timer);
-  }, []);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="w-full flex justify-center py-10">
+        <div className="max-w-[100%] h-[300px] sm:h-[400px] md:h-[500px] flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full flex justify-center py-10">
-      {swiperReady && (
-        <Swiper
-          onSwiper={(swiper) => (swiperRef.current = swiper)}
-          effect="coverflow"
-          grabCursor
-          centeredSlides
-          slidesPerView={1.64}
-          loop
-          autoplay={{
-            delay: 2500,
-            disableOnInteraction: false,
-          }}
-          coverflowEffect={{
-            rotate: 1,
-            stretch: 0,
-            depth: 200,
-            modifier: 5.5,
-            slideShadows: false,
-          }}
-          pagination={{ clickable: true }}
-          navigation
-          modules={[EffectCoverflow, Pagination, Navigation, Autoplay]}
-          className="max-w-[100%] h-[300px] sm:h-[400px] md:h-[500px]"
-        >
-          {images.map((image, idx) => (
-            <SwiperSlide key={idx} className="swiper-slide-custom">
-              <Link to={`${image.redirectUrl}`}>
-                <img
-                  src={image.urlImage}
-                  alt={`slide-${idx}`}
-                  className="carousel-img w-full h-full object-cover rounded-2xl shadow-lg"
-                />
-              </Link>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      )}
+      <Swiper
+        onSwiper={handleSwiperInit}
+        effect="coverflow"
+        grabCursor
+        centeredSlides
+        slidesPerView={1.64}
+        loop
+        autoplay={{
+          delay: 2500,
+          disableOnInteraction: false,
+        }}
+        coverflowEffect={{
+          rotate: 1,
+          stretch: 0,
+          depth: 200,
+          modifier: 5.5,
+          slideShadows: false,
+        }}
+        pagination={{ clickable: true }}
+        navigation
+        modules={[EffectCoverflow, Pagination, Navigation, Autoplay]}
+        className="max-w-[100%] h-[300px] sm:h-[400px] md:h-[500px]"
+        watchSlidesProgress={true}
+        observer={true}
+        observeParents={true}
+      >
+        {images.map((image, idx) => (
+          <SwiperSlide key={idx} className="swiper-slide-custom">
+            <Link to={`${image.redirectUrl}`}>
+              <img
+                src={image.urlImage}
+                alt={`slide-${idx}`}
+                className="carousel-img w-full h-full object-cover rounded-2xl shadow-lg"
+              />
+            </Link>
+          </SwiperSlide>
+        ))}
+      </Swiper>
       <style>{`
         /* Navegação */
         .swiper-button-next,
