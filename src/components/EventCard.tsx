@@ -20,9 +20,9 @@ const EventCard: React.FC<EventCardProps> = ({ event, className = "" }) => {
 
   return (
     <a href={`/evento/${event._id}`}>
-      <div className={`w-full h-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer mb-10 ${className}`}>
+      <div className={`w-full bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer mb-10 h-[420px] flex flex-col ${className}`}>
         {/* Imagem */}
-        <div className="relative">
+        <div className="relative flex-shrink-0">
           <img
             src={event.image || "/placeholder.svg"}
             alt={event.title}
@@ -40,13 +40,13 @@ const EventCard: React.FC<EventCardProps> = ({ event, className = "" }) => {
         </div>
 
         {/* Conteúdo */}
-        <div className="p-4 sm:p-5">
-          <h3 className="font-bold text-lg text-gray-900 truncate">
+        <div className="p-4 sm:p-5 flex-1 flex flex-col">
+          <h3 className="font-bold text-lg text-gray-900 truncate mb-3">
             {truncateTextResponsive(event.title)}
           </h3>
 
           {/* Localização */}
-          <div className="flex items-start gap-2 mb-3">
+          <div className="flex items-start gap-2 mb-3 min-h-[3rem]">
             <div className="text-sm text-gray-600">
               <p className="font-medium">
                 {truncateTextResponsive(`${event.venueName} | ${event.state}`)}
@@ -73,7 +73,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, className = "" }) => {
           </div>
 
           {/* Organizador */}
-          <div className="pt-3 border-t border-gray-100 flex">
+          <div className="pt-3 border-t border-gray-100 flex mt-auto">
             <div className="text-xs text-gray-500 flex items-center justify-center">
               {event.organizer ? (
                 <span className="font-medium text-gray-700 flex justify-center items-center gap-3">

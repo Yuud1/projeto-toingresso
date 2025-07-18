@@ -232,13 +232,51 @@ export default function CreateEvent() {
   const selecionarSugestao = async (sugestao: any) => {
     try {
       const location = sugestao.geometry.location;
+      const addressComponents = sugestao.address_components;
+
+      // Extrair informações dos componentes do endereço
+      let cep = "";
+      let estado = "";
+      let cidade = "";
+      let rua = "";
+      let bairro = "";
+      let numero = "";
+
+      addressComponents.forEach((component: any) => {
+        const types = component.types;
+        
+        if (types.includes("postal_code")) {
+          cep = component.long_name;
+        } else if (types.includes("administrative_area_level_1")) {
+          estado = component.short_name; // Sigla do estado (SP, RJ, etc.)
+        } else if (types.includes("locality") || types.includes("administrative_area_level_2")) {
+          cidade = component.long_name;
+        } else if (types.includes("route")) {
+          rua = component.long_name;
+        } else if (types.includes("sublocality") || types.includes("sublocality_level_1")) {
+          bairro = component.long_name;
+        } else if (types.includes("street_number")) {
+          numero = component.long_name;
+        }
+      });
+
+      // Buscar municípios do estado se o estado foi encontrado
+      if (estado) {
+        await buscarMunicipios(estado);
+      }
 
       setFormData((prev) => ({
         ...prev,
         latitude: location.lat.toString(),
         longitude: location.lng.toString(),
-        venueName: sugestao.structured_formatting.main_text || prev.venueName,
+        venueName: sugestao.structured_formatting?.main_text || prev.venueName,
         searchAddress: sugestao.formatted_address,
+        zipCode: cep || prev.zipCode,
+        state: estado || prev.state,
+        city: cidade || prev.city,
+        street: rua || prev.street,
+        neighborhood: bairro || prev.neighborhood,
+        number: numero || prev.number,
       }));
 
       setCoordenadasEncontradas(true);

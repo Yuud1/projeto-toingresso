@@ -97,7 +97,7 @@ const Category: React.FC = () => {
               className={`flex flex-col items-center justify-center w-full aspect-square max-w-[140px] sm:max-w-[120px] lg:max-w-none rounded-md shadow-sm cursor-pointer transition-all duration-150 ease-in-out
                 ${
                   isActive
-                    ? "bg-[#02488C] text-white shadow-md scale-105"
+                    ? "bg-[#afaca2] text-white shadow-md scale-105"
                     : "bg-white text-gray-700 hover:shadow-md hover:scale-105 active:scale-95"
                 }
               `}

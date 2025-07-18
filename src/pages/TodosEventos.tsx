@@ -62,7 +62,7 @@ const TodosEventos = () => {
   return (
     <>
       <Header />
-      <main className="pt-[60px] sm:pt-[230px]">
+      <main className="pt-[60px] sm:pt-[230px] bg-[#fafafa]">
         {/* Lista de Eventos */}
         <div className="max-w-7xl mx-auto py-10 px-8">
           {filteredEvents.length === 0 ? (

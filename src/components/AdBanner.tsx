@@ -31,7 +31,13 @@ const AdBanner: React.FC<AdBanner> = ({
   if (!banner) return null;
 
   return (
-    <div className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 w-full">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <div className="w-full mb-8">
+        <h1 className="text-black text-2xl font-bold text-center sm:text-left">
+          Recomendações Semanais
+        </h1>
+      </div>
+      
       <a
         href={externalRedirectUrl ? externalRedirectUrl : banner.redirectUrl}
         target="_blank"

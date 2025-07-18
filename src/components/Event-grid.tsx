@@ -38,28 +38,29 @@ const EventGrid = () => {
 
   return (
     <section id="event-grid" className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 w-full h-fit">
-      <div className="flex items-center justify-between w-full">
-        <h1 className="text-black text-2xl font-bold mb-8 pt-8">
+      <div className="w-full">
+        <h1 className="text-black text-2xl font-bold mb-8 pt-8 text-center sm:text-left">
           Próximos Eventos
         </h1>
-
-        {/* Botão "Ver Todos os Eventos" */}
-        {hasMoreEvents && (
-          <div className="flex justify-end">
-            <Button
-              onClick={() => (window.location.href = "/todos-eventos")}
-              className="bg-[#02488C] hover:bg-[#023a70] text-white px-5 py-4 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 cursor-pointer"
-            >
-              Todos os Eventos 
-            </Button>
-          </div>
-        )}
       </div>
+      
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {displayedEvents.map((event) => (
           <EventCard key={event._id} event={event} />
         ))}
       </div>
+
+      {/* Botão "Ver Todos os Eventos" */}
+      {hasMoreEvents && (
+        <div className="flex justify-center mt-8">
+          <Button
+            onClick={() => (window.location.href = "/todos-eventos")}
+            className="bg-[#02488C] hover:bg-[#023a70] text-white px-5 py-4 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 cursor-pointer"
+          >
+            Todos os Eventos 
+          </Button>
+        </div>
+      )}
     </section>
   );
 };
