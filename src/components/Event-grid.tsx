@@ -1,7 +1,6 @@
 import EventInterface from "@/interfaces/EventInterface";
 import axios from "axios";
 import React from "react";
-import { ArrowRight } from "lucide-react";
 import { Button } from "./ui/button";
 import EventCard from "./EventCard";
 
