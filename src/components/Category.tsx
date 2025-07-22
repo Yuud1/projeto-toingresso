@@ -20,11 +20,22 @@ const categories = [
   "Teatro", 
   "Esportes",
   "Festas",
-  "Comédia",
+  "Comedia",
   "Gospel",
-  "Diversões",
-  "Público"
+  "Diversoes",
+  "Publico"
 ];
+
+const categoryDisplayNames = {
+  "Shows": "Shows",
+  "Teatro": "Teatro",
+  "Esportes": "Esportes",
+  "Festas": "Festas",
+  "Comedia": "Comédia",
+  "Gospel": "Gospel",
+  "Diversoes": "Diversões",
+  "Publico": "Público"
+};
 
 const Category: React.FC = () => {
   const [eventsByCategory, setEventsByCategory] = useState<Record<string, EventInterface[]>>({});
@@ -79,7 +90,7 @@ const Category: React.FC = () => {
           <div key={category} className="mb-12">
             <div className="w-full flex flex-row justify-between items-center mb-8">
               <h1 className="text-white text-2xl font-bold">
-                {category}
+                {categoryDisplayNames[category as keyof typeof categoryDisplayNames] || category}
               </h1>
               <button
                 onClick={() => handleVerTodos(category)}
