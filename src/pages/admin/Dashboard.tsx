@@ -33,7 +33,6 @@ import {
 } from "lucide-react";
 import CarrosselInterface from "@/interfaces/CarrosselInterface";
 import BannerInterface from "@/interfaces/BannerInterface";
-import AdBanner from "@/components/AdBanner";
 
 // Adiciona tipo auxiliar para slides com tempKey
 type CarouselSlideWithTempKey = CarrosselInterface & { tempKey?: string };

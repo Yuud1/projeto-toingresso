@@ -47,14 +47,14 @@ const EventCard: React.FC<EventCardProps> = ({ event, className = "" }) => {
 
           {/* Descrição - limitada a 1 linha */}
           <p className="text-sm text-gray-600 truncate mb-2">
-            {event.description ? truncateTextResponsive(event.description, 60) : "Sem descrição"}
+            {event.description ? truncateTextResponsive(event.description) : "Sem descrição"}
           </p>
 
           {/* Localização */}
           <div className="flex items-start gap-1 mb-2">
             <div className="text-xs text-gray-600">
               <p className="font-medium truncate">
-                {truncateTextResponsive(`${event.venueName} | ${event.state}`, 40)}
+                {truncateTextResponsive(`${event.venueName} | ${event.state}`)}
               </p>
             </div>
           </div>
@@ -72,7 +72,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, className = "" }) => {
             <div className="flex items-center gap-1 text-gray-600 min-w-0 flex-1">
               <MapPin className="w-3 h-3 flex-shrink-0" />
               <p className="text-xs truncate">
-                {truncateTextResponsive(`${event.neighborhood}, ${event.city}`, 30)}
+                {truncateTextResponsive(`${event.neighborhood}, ${event.city}`)}
               </p>
             </div>
           </div>
@@ -86,7 +86,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, className = "" }) => {
                     <AvatarImage src={event.organizer.avatar} alt={event.organizer.name} />
                     <AvatarFallback className="text-xs">{getInitials(event.organizer.name)}</AvatarFallback>
                   </Avatar>
-                  <span className="truncate">{truncateTextResponsive(event.organizer.name, 20)}</span>
+                  <span className="truncate">{truncateTextResponsive(event.organizer.name)}</span>
                 </span>
               ) : (
                 <span className="italic text-gray-400 text-xs">

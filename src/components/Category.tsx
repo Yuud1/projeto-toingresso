@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
-  ArrowRight,
 } from "lucide-react";
 
 import { Swiper, SwiperSlide } from "swiper/react";
