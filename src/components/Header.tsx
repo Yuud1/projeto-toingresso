@@ -12,7 +12,6 @@ import {
   User,
   HelpCircle,
   LogOut,
-  LogIn,
   Menu,
   X,
 } from "lucide-react";
@@ -370,14 +369,20 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
             {user ? (
               <ProfileMenu isMobile={true} />
             ) : (
-              <Button
-                variant="outline"
-                className="flex items-center gap-2 cursor-pointer"
-                onClick={() => navigate("/login")}
-              >
-                <LogIn size={16} />
-                <span>Login</span>
-              </Button>
+              <>
+                <button
+                  className="text-black font-semibold px-3 py-2 rounded-md focus:outline-none"
+                  onClick={() => navigate("/login")}
+                >
+                  Entrar
+                </button>
+                <button
+                  className="ml-2 px-4 py-2 rounded-md bg-gradient-to-r from-[#FEC800] to-[#FF8C00] text-black font-semibold focus:outline-none"
+                  onClick={() => navigate("/register")}
+                >
+                  Cadastrar
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -396,14 +401,20 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
             {user ? (
               <ProfileMenu isMobile={true} />
             ) : (
-              <Button
-                variant="outline"
-                className="flex items-center gap-2 cursor-pointer"
-                onClick={() => navigate("/login")}
-              >
-                <LogIn size={16} />
-                <span>Login</span>
-              </Button>
+              <>
+                <button
+                  className="text-black font-semibold px-3 py-2 rounded-md focus:outline-none"
+                  onClick={() => navigate("/login")}
+                >
+                  Entrar
+                </button>
+                <button
+                  className="ml-2 px-4 py-2 rounded-md bg-gradient-to-r from-[#FEC800] to-[#FF8C00] text-black font-semibold focus:outline-none"
+                  onClick={() => navigate("/register")}
+                >
+                  Cadastrar
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -466,14 +477,20 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                   <ProfileMenu />
                 </>
               ) : (
-                <Button
-                  variant="outline"
-                  className="flex items-center gap-2 cursor-pointer"
-                  onClick={() => navigate("/login")}
-                >
-                  <LogIn size={16} />
-                  <span>Entrar</span>
-                </Button>
+                <>
+                  <button
+                    className="text-black font-semibold px-3 py-2 rounded-md focus:outline-none"
+                    onClick={() => navigate("/login")}
+                  >
+                    Entrar
+                  </button>
+                  <button
+                    className="ml-2 px-4 py-2 rounded-md bg-gradient-to-r from-[#FEC800] to-[#FF8C00] text-black font-semibold focus:outline-none"
+                    onClick={() => navigate("/register")}
+                  >
+                    Cadastrar
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -570,14 +587,20 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                   <ProfileMenu />
                 </>
               ) : (
-                <Button
-                  variant="outline"
-                  className="flex items-center gap-2 cursor-pointer"
-                  onClick={() => navigate("/login")}
-                >
-                  <LogIn size={16} />
-                  <span>Entrar</span>
-                </Button>
+                <>
+                  <button
+                    className="text-black font-semibold px-3 py-2 rounded-md focus:outline-none"
+                    onClick={() => navigate("/login")}
+                  >
+                    Entrar
+                  </button>
+                  <button
+                    className="ml-2 px-4 py-2 rounded-md bg-gradient-to-r from-[#FEC800] to-[#FF8C00] text-black font-semibold focus:outline-none"
+                    onClick={() => navigate("/register")}
+                  >
+                    Cadastrar
+                  </button>
+                </>
               )}
             </div>
           )}

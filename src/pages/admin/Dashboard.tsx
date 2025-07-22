@@ -36,8 +36,8 @@ import BannerInterface from "@/interfaces/BannerInterface";
 import AdBanner from "@/components/AdBanner";
 
 // Adiciona tipo auxiliar para slides com tempKey
-
 type CarouselSlideWithTempKey = CarrosselInterface & { tempKey?: string };
+type BannerWithTempKey = BannerInterface & { tempKey?: string };
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -53,6 +53,7 @@ const AdminDashboard: React.FC = () => {
     CarouselSlideWithTempKey[]
   >([]);
   
+  const [banners, setBanners] = useState<BannerWithTempKey[]>([]);
 
   useEffect(() => {
     const fetchCarouselSlides = async () => {
@@ -79,51 +80,35 @@ const AdminDashboard: React.FC = () => {
     fetchCarouselSlides();
   }, []);
 
-  const [bannerData, setBannerData] = useState<BannerInterface>({
-    _id: "", // vazio para indicar novo
-    redirectUrl: "",
-    urlImage: "",
-    active: true,
-    title: "",
-  });
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}${
+            import.meta.env.VITE_BANNER_GET_ADMIN
+          }`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+            },
+          }
+        );        
+
+        if (response.data.banners) {
+          setBanners(response.data.banners);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar banners:", error);
+      }
+    };
+
+    fetchBanners();
+  }, []);
 
   const [hasChanges, setHasChanges] = useState(false);
   const [loading, setLoading] = useState(false);
   const [carouselFiles, setCarouselFiles] = useState<Record<string, File>>({});
-  const [bannerFile, setBannerFile] = useState<File | null>(null);
-
-  useEffect(() => {
-    // Buscar banner do endpoint admin ao carregar o Dashboard
-    if (!bannerData._id) {
-      const fetchBanner = async () => {
-        try {
-          const response = await axios.get(
-            `${import.meta.env.VITE_API_BASE_URL}${
-              import.meta.env.VITE_BANNER_GET_ADMIN
-            }`,
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-              },
-            }
-          );          
-
-          // Ajuste conforme a resposta do backend
-          if (response.data.banners) {
-            setBannerData(response.data.banners[0]);
-          } else if (
-            response.data.banners &&
-            response.data.banners.length > 0
-          ) {
-            setBannerData(response.data.banners[0]);
-          }
-        } catch (error) {
-          console.error("Erro ao buscar banner:", error);
-        }
-      };
-      fetchBanner();
-    }
-  }, [bannerData._id]);
+  const [bannerFiles, setBannerFiles] = useState<Record<string, File>>({});
 
   // Adiciona tempKey para slides novos
   const addSlide = () => {
@@ -136,6 +121,20 @@ const AdminDashboard: React.FC = () => {
       title: "",
     };
     setCarouselSlides([...carouselSlides, newSlide]);
+    setHasChanges(true);
+  };
+
+  // Adiciona tempKey para banners novos
+  const addBanner = () => {
+    const newBanner: BannerWithTempKey = {
+      _id: "", // vazio para indicar novo
+      tempKey: Date.now().toString(), // chave temporária única
+      redirectUrl: "",
+      urlImage: "",
+      active: true,
+      title: "",
+    };
+    setBanners([...banners, newBanner]);
     setHasChanges(true);
   };
 
@@ -162,6 +161,29 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  // Função para deletar banner do backend e do estado local
+  const handleDeleteBanner = async (id: string) => {
+    try {
+      await axios.delete(
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_BANNER_GET
+        }${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          },
+        }
+      );
+      setBanners((prev) =>
+        prev.filter((banner) => banner._id !== id && banner.tempKey !== id)
+      );
+      setHasChanges(true);
+    } catch (error) {
+      console.error("Erro ao deletar banner:", error);
+      alert("Erro ao deletar banner!");
+    }
+  };
+
   const updateSlide = (
     id: string,
     field: keyof CarouselSlideWithTempKey,
@@ -177,21 +199,39 @@ const AdminDashboard: React.FC = () => {
     setHasChanges(true);
   };
 
+  const updateBanner = (
+    id: string,
+    field: keyof BannerWithTempKey,
+    value: any
+  ) => {
+    setBanners(
+      banners.map((banner) =>
+        banner._id === id || banner.tempKey === id
+          ? { ...banner, [field]: value }
+          : banner
+      )
+    );
+    setHasChanges(true);
+  };
+
   const toggleSlideActive = (id: string) => {
     updateSlide(
       id,
       "active",
-      !carouselSlides.find((s) => s._id === id)?.active
+      !carouselSlides.find((s) => s._id === id || s.tempKey === id)?.active
     );
   };
 
-  const updateBanner = (field: keyof BannerInterface, value: any) => {
-    setBannerData({ ...bannerData, [field]: value });
-    setHasChanges(true);
+  const toggleBannerActive = (id: string) => {
+    updateBanner(
+      id,
+      "active",
+      !banners.find((b) => b._id === id || b.tempKey === id)?.active
+    );
   };
 
   // Atualiza handleImageUpload para garantir que salva o arquivo corretamente
-  const handleImageUpload = (slideIdOrTempKey?: string) => {
+  const handleImageUpload = (slideIdOrTempKey?: string, isBanner: boolean = false) => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
@@ -202,11 +242,13 @@ const AdminDashboard: React.FC = () => {
         reader.onload = (e) => {
           const imageUrl = e.target?.result as string;
           if (slideIdOrTempKey) {
-            updateSlide(slideIdOrTempKey, "urlImage", imageUrl);
-            setCarouselFiles((prev) => ({ ...prev, [slideIdOrTempKey]: file }));
-          } else {
-            updateBanner("urlImage", imageUrl);
-            setBannerFile(file);
+            if (isBanner) {
+              updateBanner(slideIdOrTempKey, "urlImage", imageUrl);
+              setBannerFiles((prev) => ({ ...prev, [slideIdOrTempKey]: file }));
+            } else {
+              updateSlide(slideIdOrTempKey, "urlImage", imageUrl);
+              setCarouselFiles((prev) => ({ ...prev, [slideIdOrTempKey]: file }));
+            }
           }
         };
         reader.readAsDataURL(file);
@@ -228,37 +270,97 @@ const AdminDashboard: React.FC = () => {
   const handleSave = async () => {
     try {
       setLoading(true);
-      const slidesWithFileField = carouselSlides.map((slide, idx) => {
-        const key = slide._id || slide.tempKey || "";
-        // Remove urlImage do slide
-        const { urlImage, ...slideWithoutUrlImage } = slide;
-        return {
-          ...slideWithoutUrlImage,
-          fileField: carouselFiles[key] ? `carouselFile_${idx}` : null,
-        };
-      });
+      
+      // Verifica se há banners sem título
+      const bannersWithoutTitle = banners.filter(banner => !banner.title || banner.title.trim() === "");
+      if (bannersWithoutTitle.length > 0) {
+        alert("Existem banners sem título. Por favor, adicione um título para todos os banners antes de salvar.");
+        setLoading(false);
+        return;
+      }
+
+      // Verifica se há banners com _id vazio mas sem tempKey
+      const bannersWithoutId = banners.filter(banner => !banner._id && !banner.tempKey);
+      if (bannersWithoutId.length > 0) {
+        alert("Existem banners inválidos. Por favor, recarregue a página e tente novamente.");
+        setLoading(false);
+        return;
+      }
+
+      // Verifica se há slides sem título
+      const slidesWithoutTitle = carouselSlides.filter(slide => !slide.title || slide.title.trim() === "");
+      if (slidesWithoutTitle.length > 0) {
+        alert("Existem slides sem título. Por favor, adicione um título para todos os slides antes de salvar.");
+        setLoading(false);
+        return;
+      }
+
+      // Verifica se há slides com _id vazio mas sem tempKey
+      const slidesWithoutId = carouselSlides.filter(slide => !slide._id && !slide.tempKey);
+      if (slidesWithoutId.length > 0) {
+        alert("Existem slides inválidos. Por favor, recarregue a página e tente novamente.");
+        setLoading(false);
+        return;
+      }
+      
+      // Processa slides do carrossel
+      const slidesWithFileField = carouselSlides
+        .filter(slide => slide.title && slide.title.trim() !== "") // Remove slides sem título
+        .map((slide, idx) => {
+          const key = slide._id || slide.tempKey || "";
+          const { urlImage, ...slideWithoutUrlImage } = slide;
+          return {
+            ...slideWithoutUrlImage,
+            _id: slide._id || slide.tempKey || "", // Garante que _id não seja vazio
+            fileField: carouselFiles[key] ? `carouselFile_${idx}` : null,
+          };
+        });
+
+      // Processa banners
+      const bannersWithFileField = banners
+        .filter(banner => banner.title && banner.title.trim() !== "") // Remove banners sem título
+        .map((banner, idx) => {
+          const key = banner._id || banner.tempKey || "";
+          const { urlImage, ...bannerWithoutUrlImage } = banner;
+          return {
+            ...bannerWithoutUrlImage,
+            _id: banner._id || banner.tempKey || "", // Garante que _id não seja vazio
+            fileField: bannerFiles[key] ? `bannerFile_${idx}` : null,
+          };
+        });
+
+      // Debug logs
+      console.log("Slides to send:", slidesWithFileField);
+      console.log("Banners to send:", bannersWithFileField);
+      console.log("Carousel files:", Object.keys(carouselFiles));
+      console.log("Banner files:", Object.keys(bannerFiles));
 
       const formData = new FormData();
       formData.append("carouselSlides", JSON.stringify(slidesWithFileField));
+      formData.append("banners", JSON.stringify(bannersWithFileField));
 
-      // Adiciona arquivos do carrossel usando o índice
+      // Adiciona arquivos do carrossel
       carouselSlides.forEach((slide, idx) => {
         const key = slide._id || slide.tempKey || "";
         if (carouselFiles[key]) {
           formData.append(`carouselFile_${idx}`, carouselFiles[key]);
+          console.log(`Added carouselFile_${idx}`);
         }
       });
 
-      // Lógica para o banner igual ao carrossel
-      const bannerFileField = bannerFile ? "bannerFile_0" : null;
-      const { urlImage, ...bannerDataToSend } = bannerData;
-      const bannerDataWithFileField = {
-        ...bannerDataToSend,
-        fileField: bannerFileField,
-      };
-      formData.append("bannerData", JSON.stringify(bannerDataWithFileField));
-      if (bannerFile) {
-        formData.append("bannerFile_0", bannerFile);
+      // Adiciona arquivos dos banners
+      banners.forEach((banner, idx) => {
+        const key = banner._id || banner.tempKey || "";
+        if (bannerFiles[key]) {
+          formData.append(`bannerFile_${idx}`, bannerFiles[key]);
+          console.log(`Added bannerFile_${idx}`);
+        }
+      });
+
+      // Debug: log FormData contents
+      console.log("FormData entries:");
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
       }
       
       const response = await axios.post(
@@ -277,11 +379,13 @@ const AdminDashboard: React.FC = () => {
       if (response.data.saved) {
         setHasChanges(false);
         setCarouselFiles({});
-        setBannerFile(null);
+        setBannerFiles({});
         alert("Alterações salvas com sucesso!");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao salvar:", error);
+      console.error("Response data:", error.response?.data);
+      console.error("Response status:", error.response?.status);
       alert("Erro ao salvar alterações!");
     } finally {
       setLoading(false);
@@ -607,125 +711,177 @@ const AdminDashboard: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="banner" className="space-y-4 sm:space-y-6">
-              <div>
-                <h2 className="text-lg sm:text-xl font-semibold">
-                  Gerenciar Banner
-                </h2>
-                <p className="text-gray-600 text-sm sm:text-base">
-                  Configure o banner de propaganda principal
-                </p>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h2 className="text-lg sm:text-xl font-semibold">
+                    Gerenciar Banners
+                  </h2>
+                  <p className="text-gray-600 text-sm sm:text-base">
+                    Configure os banners de propaganda
+                  </p>
+                </div>
+                <Button
+                  onClick={addBanner}
+                  className="gap-2 w-full sm:w-auto cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  Adicionar Banner
+                </Button>
               </div>
 
-              <Card>
-                <CardHeader className="p-4 sm:p-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="min-w-0">
-                      <CardTitle className="text-base sm:text-lg">
-                        Banner Principal
-                      </CardTitle>
-                      <CardDescription className="text-sm">
-                        Banner exibido na página inicial
-                      </CardDescription>
-                    </div>
-                    <Badge
-                      variant={bannerData.active ? "default" : "secondary"}
-                      className="text-xs w-fit"
-                    >
-                      {bannerData.active ? "Ativo" : "Inativo"}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6 pt-0">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Preview</Label>
-                    <div className="w-full h-full bg-gray-100 rounded-lg overflow-hidden border">
-                      {bannerData.urlImage ? (
-                        <AdBanner
-                          externalBannerTitle={bannerData.title}
-                          externalRedirectUrl={bannerData.redirectUrl}
-                          externalUrlImage={bannerData.urlImage}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                          <ImageIcon className="w-8 h-8 sm:w-12 sm:h-12" />
+              <div className="space-y-4 sm:space-y-6">
+                {banners.map((banner, index) => (
+                  <Card
+                    key={banner._id || banner.tempKey}
+                    className={`${!banner.active ? "opacity-60" : ""}`}
+                  >
+                    <CardHeader className="pb-3 p-4 sm:p-6">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <GripVertical className="w-4 h-4 text-gray-400 hidden sm:block" />
+                          <div className="min-w-0 flex-1">
+                            <CardTitle className="text-base sm:text-lg truncate">
+                              Banner {index + 1}
+                            </CardTitle>
+                            <CardDescription className="text-sm truncate">
+                              {banner.title || "Sem título"}
+                            </CardDescription>
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">
-                          Título do Banner
-                        </Label>
-                        <Input
-                          value={bannerData.title || ""}
-                          onChange={(e) =>
-                            updateBanner("title", e.target.value)
-                          }
-                          placeholder="Digite o título do banner"
-                          className="text-sm"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        {/* <Label className="text-sm font-medium">
-                          URL da Imagem
-                        </Label> */}
-                        <div className="flex flex-col sm:flex-row gap-2">
-                          {/* <Input
-                            value={bannerData.image}
-                            onChange={(e) =>
-                              updateBanner("image", e.target.value)
-                            }
-                            placeholder="https://exemplo.com/banner.jpg"
-                            className="flex-1 text-sm"
-                          /> */}
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="gap-2 w-full sm:w-auto"
-                            onClick={() => handleImageUpload()}
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant={banner.active ? "default" : "secondary"}
+                            className="text-xs"
                           >
-                            <Upload className="w-4 h-4" />
-                            Upload
-                          </Button>
+                            {banner.active ? "Ativo" : "Inativo"}
+                          </Badge>
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                toggleBannerActive(
+                                  banner._id || banner.tempKey || ""
+                                )
+                              }
+                            >
+                              {banner.active ? (
+                                <Eye className="w-4 h-4 cursor-pointer" />
+                              ) : (
+                                <EyeOff className="w-4 h-4" />
+                              )}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                handleDeleteBanner(
+                                  banner._id || banner.tempKey || ""
+                                )
+                              }
+                              className="text-red-600 hover:text-red-700 cursor-pointer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6 pt-0">
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div className="space-y-2 lg:col-span-1">
+                          <Label className="text-sm font-medium">Preview</Label>
+                          <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden border w-full max-w-sm mx-auto lg:max-w-none lg:mx-0">
+                            {banner.urlImage ? (
+                              <img
+                                src={banner.urlImage || "/placeholder.svg"}
+                                alt={`Banner ${index + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                <ImageIcon className="w-6 h-6 sm:w-8 sm:h-8" />
+                              </div>
+                            )}
+                          </div>
+                        </div>
 
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">
-                          Link de Redirecionamento
-                        </Label>
-                        <div className="flex gap-2">
-                          <LinkIcon className="w-4 h-4 mt-3 text-gray-400 flex-shrink-0" />
-                          <Input
-                            value={bannerData.redirectUrl}
-                            onChange={(e) =>
-                              updateBanner("redirectUrl", e.target.value)
-                            }
-                            placeholder="https://exemplo.com/promocao"
-                            className="text-sm"
-                          />
+                        <div className="space-y-4 lg:col-span-2">
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">
+                              Título do Banner
+                            </Label>
+                            <Input
+                              value={banner.title || ""}
+                              onChange={(e) =>
+                                updateBanner(
+                                  banner._id || banner.tempKey || "",
+                                  "title",
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Digite o título do banner"
+                              className="text-sm"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="flex flex-col sm:flex-row gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="gap-2 w-full sm:w-auto cursor-pointer"
+                                onClick={() =>
+                                  handleImageUpload(
+                                    banner._id || banner.tempKey || "",
+                                    true
+                                  )
+                                }
+                              >
+                                <Upload className="w-4 h-4" />
+                                Upload
+                              </Button>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">
+                              Link de Redirecionamento
+                            </Label>
+                            <div className="flex gap-2">
+                              <LinkIcon className="w-4 h-4 mt-3 text-gray-400 flex-shrink-0" />
+                              <Input
+                                value={banner.redirectUrl}
+                                onChange={(e) =>
+                                  updateBanner(
+                                    banner._id || banner.tempKey || "",
+                                    "redirectUrl",
+                                    e.target.value
+                                  )
+                                }
+                                placeholder="/evento/123 ou https://exemplo.com"
+                                className="text-sm"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="flex items-center space-x-2 pt-2">
+                            <Switch
+                              checked={banner.active}
+                              onCheckedChange={() =>
+                                toggleBannerActive(
+                                  banner._id || banner.tempKey || ""
+                                )
+                              }
+                            />
+                            <Label className="text-sm">Banner ativo</Label>
+                          </div>
                         </div>
                       </div>
-
-                      <div className="flex items-center space-x-2 pt-2">
-                        <Switch
-                          checked={bannerData.active}
-                          onCheckedChange={(checked) =>
-                            updateBanner("active", checked)
-                          }
-                        />
-                        <Label className="text-sm">Banner ativo</Label>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </TabsContent>
           </Tabs>
 
