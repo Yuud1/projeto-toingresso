@@ -18,7 +18,8 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [results, setResults] = useState<EventInterface[]>([]);
-
+  console.log(results);
+  
   const [isLoading, setIsLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -223,7 +224,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
                       <span className="text-xs text-gray-500 capitalize">
                         {event.category}
                       </span>
-                      {event.batches ? (
+                      {event.batches.length > 0 ? (
                         <div className="flex items-center gap-1 text-xs text-gray-500">
                           <Users size={12} />
                           <span>

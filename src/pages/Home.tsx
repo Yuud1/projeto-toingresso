@@ -5,32 +5,57 @@ import EventGrid from "../components/Event-grid";
 import AdBanner from "../components/AdBanner";
 import Footer from "../components/Footer";
 import CreateEventCTA from "../components/CreateEventCTA";
+import { ArrowDown } from "lucide-react";
 
 export default function Home() {
-
   return (
     <>
       <Header />
-      <main className="pt-[60px] sm:pt-[230px]">
-        <div className="w-full flex justify-center mt-12 mb-8 sm:mt-0">
+      <main className="pt-[60px] sm:pt-[10em]">
+        {/* Hero Carousel Section */}
+        <div className="w-full flex justify-center mt-12 sm:mt-0">
           <CarrosselMain />
         </div>
+
+        {/* Transition Section */}
+        <div className="w-full flex flex-col justify-center items-center gap-4 py-8 bg-gradient-to-b from-white to-gray-50">
+          <div className="text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">
+              Descubra mais Eventos
+            </h2>
+            <div className="w-24 h-1 bg-[#FDC901] rounded-full mx-auto"></div>
+          </div>
+          <div className="animate-bounce mt-3">
+            <ArrowDown className="w-8 h-8 text-black" />
+          </div>
+        </div>
+
+        {/* Main Content */}
         <div className="max-w-full">
           <section className="h-full w-full">
-            <div className="max-w-full mx-auto w-full flex flex-col items-center justify-center gap-25">
-              <div className="w-full">
+            <div className="max-w-full mx-auto w-full flex flex-col items-center justify-center">
+              {/* Featured Event Grid */}
+              <div className="w-full fade-in-40 transition-all">
                 <EventGrid />
               </div>
-              <div className="w-full">
+              
+              {/* Ad Banner Section */}
+              <div className="w-full bg-gradient-to-b from-gray-50 to-white">
                 <AdBanner />
               </div>
-              <div className="w-full bg-[#02488C]">
+
+              {/* Categories Section */}
+              <div className="w-full">
                 <Category />
               </div>
             </div>
           </section>
         </div>
+
+        {/* CTA Section */}
         <CreateEventCTA />
+
+        {/* Footer */}
         <Footer />
       </main>
     </>

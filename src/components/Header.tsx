@@ -1,4 +1,7 @@
-import React, { useEffect, useState, useRef } from "react";
+"use client";
+
+import type React from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -65,23 +68,12 @@ interface estadosMunicipios {
 }
 
 const CidadeDropdown = () => {
-  // const [selectedCity, setSelectedCity] = useState<estadosMunicipios>(() => {
-  //   const saved = localStorage.getItem("selectedCity");
-  //   return saved ? JSON.parse(saved) : { nome: "Selecione", sigla: "" };
-  // });
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen} modal={false}>
       <DropdownMenuTrigger asChild>
-        {/* <Button
-          variant="outline"
-          className="flex items-center gap-1 bg-[#e2f0ff] text-[#02488C] border-none cursor-pointer hover:!bg-[#e2f0ff] hover:!text-[#02488C]"
-        >
-          <MapPin size={16} />
-          {isMobile ? selectedCity?.sigla : selectedCity?.nome}
-          <ChevronDown size={16} />
-        </Button> */}
+        {/* Dropdown trigger content here */}
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="center"
@@ -94,8 +86,6 @@ const CidadeDropdown = () => {
             <DropdownMenuItem
               key={cidade.nome}
               onClick={() => {
-                // setSelectedCity(cidade);
-                // localStorage.setItem("selectedCity", JSON.stringify(cidade));
                 setIsOpen(false);
               }}
             >
@@ -120,7 +110,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
   useEffect(() => {
     if (isScrolledProp === undefined) {
       const handleScroll = () => {
-        setIsScrolledInternal(window.scrollY > 50);
+        setIsScrolledInternal(window.scrollY > 10);
       };
 
       window.addEventListener("scroll", handleScroll);
@@ -140,7 +130,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
   const isScrolled = isScrolledProp ?? isScrolledInternal;
 
   const baseButtonClass =
-    "cursor-pointer hover:bg-transparent hover:text-inherit";
+    "cursor-pointer hover:bg-[#00498D]/10 hover:text-black transition-all duration-200";
 
   const ProfileMenu = ({ isMobile = false }: { isMobile?: boolean }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -176,7 +166,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
       <div className="relative" ref={dropdownRef}>
         <div
           onClick={() => setIsOpen(!isOpen)}
-          className="outline-none flex items-center gap-2 border-2 border-gray-300 rounded-full px-2 py-1 cursor-pointer hover:bg-white/30"
+          className="outline-none flex items-center gap-2 border-2 border-black/20 rounded-full px-3 py-2 cursor-pointer hover:bg-gray/100"
           role="button"
           tabIndex={0}
           onKeyDown={(e) => {
@@ -185,34 +175,39 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
             }
           }}
         >
-          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium">
+          <div className="w-8 h-8 rounded-full  flex items-center justify-center text-sm font-medium text-white">
             {user?.avatar ? (
-              <Avatar className="w-9 h-9">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+              <Avatar className="w-8 h-8">
+                <AvatarImage
+                  src={user.avatar || "/placeholder.svg"}
+                  alt={user.name}
+                />
+                <AvatarFallback className=" text-white">
+                  {getInitials(user.name)}
+                </AvatarFallback>
               </Avatar>
             ) : (
               getInitials(user.name)
             )}
           </div>
-          <div className="p-1">
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
+          <div className="p-1 text-black">
+            {isOpen ? <X size={20} /> : <Menu size={20} />}
           </div>
         </div>
 
         {isOpen && (
           <div
             className={cn(
-              "absolute bg-white rounded-lg shadow-lg border border-gray-200 z-50 mt-4 ",
+              "absolute bg-white rounded-xl shadow-2xl border border-gray-100 z-50 mt-3 overflow-hidden",
               isMobile
-                ? "fixed inset-x-0 top-[56px] w-full rounded-none border-t border-gray-200"
-                : "right-0 mt-2 w-56"
+                ? "fixed inset-x-4 top-[70px] w-auto rounded-2xl"
+                : "right-0 w-64"
             )}
           >
-            {/* Conteúdo para mobile */}
+            {/* Mobile content */}
             {isMobile && (
               <>
-                <div className="p-2">
+                <div className="p-4 ">
                   <SearchDropdown isScrolled={false} />
                 </div>
 
@@ -221,10 +216,10 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                     navigate("/criar-evento");
                     setIsOpen(false);
                   }}
-                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                  className="w-full flex items-center px-4 py-3 text-sm text-black cursor-pointer transition-colors"
                 >
-                  <CalendarPlus className="mr-2 h-4 w-4" />
-                  <span>Criar evento</span>
+                  <CalendarPlus className="mr-3 h-5 w-5 text-black" />
+                  <span className="font-medium">Criar evento</span>
                 </div>
 
                 <div
@@ -232,10 +227,10 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                     navigate("/meus-eventos");
                     setIsOpen(false);
                   }}
-                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                  className="w-full flex items-center px-4 py-3 text-sm text-black cursor-pointer transition-colors"
                 >
-                  <ClipboardList className="mr-2 h-4 w-4" />
-                  <span>Meus eventos</span>
+                  <ClipboardList className="mr-3 h-5 w-5 text-black" />
+                  <span className="font-medium">Meus eventos</span>
                 </div>
 
                 <div
@@ -243,23 +238,23 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                     navigate("/meus-ingressos");
                     setIsOpen(false);
                   }}
-                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                  className="w-full flex items-center px-4 py-3 text-sm text-black cursor-pointer transition-colors"
                 >
-                  <Ticket className="mr-2 h-4 w-4" />
-                  <span>Meus ingressos</span>
+                  <Ticket className="mr-3 h-5 w-5 text-black" />
+                  <span className="font-medium">Meus ingressos</span>
                 </div>
 
-                <div className="h-px bg-gray-200 my-1" />
+                <div className="h-px bg-gray-200 mx-4" />
 
                 <div
                   onClick={() => {
                     navigate("/perfil");
                     setIsOpen(false);
                   }}
-                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                  className="w-full flex items-center px-4 py-3 text-sm text-black cursor-pointer transition-colors"
                 >
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Minha conta</span>
+                  <User className="mr-3 h-5 w-5 text-black" />
+                  <span className="font-medium">Minha conta</span>
                 </div>
 
                 <div
@@ -267,10 +262,10 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                     navigate("/favoritos");
                     setIsOpen(false);
                   }}
-                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                  className="w-full flex items-center px-4 py-3 text-sm text-black cursor-pointer transition-colors"
                 >
-                  <Heart className="mr-2 h-4 w-4" />
-                  <span>Favoritos</span>
+                  <Heart className="mr-3 h-5 w-5 text-black" />
+                  <span className="font-medium">Favoritos</span>
                 </div>
 
                 <div
@@ -278,26 +273,26 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                     navigate("/question-help");
                     setIsOpen(false);
                   }}
-                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                  className="w-full flex items-center px-4 py-3 text-sm text-black cursor-pointer transition-colors"
                 >
-                  <HelpCircle className="mr-2 h-4 w-4" />
-                  <span>Central de Ajuda</span>
+                  <HelpCircle className="mr-3 h-5 w-5 text-black" />
+                  <span className="font-medium">Central de Ajuda</span>
                 </div>
 
-                <div className="h-px bg-gray-200 my-1" />
+                <div className="h-px bg-gray-200 mx-4" />
 
                 <div
                   onClick={handleSair}
-                  className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
+                  className="w-full flex items-center px-4 py-3 text-sm text-red-600 hover:bg-red-50 cursor-pointer transition-colors"
                 >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Sair</span>
+                  <LogOut className="mr-3 h-5 w-5" />
+                  <span className="font-medium">Sair</span>
                 </div>
                 <div className="pb-2"></div>
               </>
             )}
 
-            {/* Conteúdo para desktop */}
+            {/* Desktop content */}
             {!isMobile && (
               <>
                 <div
@@ -305,10 +300,10 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                     navigate("/perfil");
                     setIsOpen(false);
                   }}
-                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                  className="w-full flex items-center px-4 py-3 text-sm text-black cursor-pointer transition-colors"
                 >
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Minha conta</span>
+                  <User className="mr-3 h-5 w-5 text-black" />
+                  <span className="font-medium">Minha conta</span>
                 </div>
 
                 <div
@@ -316,10 +311,10 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                     navigate("/favoritos");
                     setIsOpen(false);
                   }}
-                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                  className="w-full flex items-center px-4 py-3 text-sm text-black cursor-pointer transition-colors"
                 >
-                  <Heart className="mr-2 h-4 w-4" />
-                  <span>Favoritos</span>
+                  <Heart className="mr-3 h-5 w-5 text-black" />
+                  <span className="font-medium">Favoritos</span>
                 </div>
 
                 <div
@@ -327,20 +322,20 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                     navigate("/question-help");
                     setIsOpen(false);
                   }}
-                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                  className="w-full flex items-center px-4 py-3 text-sm text-black cursor-pointer transition-colors"
                 >
-                  <HelpCircle className="mr-2 h-4 w-4" />
-                  <span>Central de Ajuda</span>
+                  <HelpCircle className="mr-3 h-5 w-5 text-black" />
+                  <span className="font-medium">Central de Ajuda</span>
                 </div>
 
-                <div className="h-px bg-gray-200 my-1" />
+                <div className="h-px bg-gray-200 mx-4" />
 
                 <div
                   onClick={handleSair}
-                  className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
+                  className="w-full flex items-center px-4 py-3 text-sm text-red-600 hover:bg-red-50 cursor-pointer transition-colors"
                 >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Sair</span>
+                  <LogOut className="mr-3 h-5 w-5" />
+                  <span className="font-medium">Sair</span>
                 </div>
                 <div className="pb-2"></div>
               </>
@@ -354,14 +349,14 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 w-full z-50 bg-white/90 backdrop-blur-sm p-5",
-        isScrolled ? "shadow-md py-2" : "py-4"
+        "fixed top-0 left-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-gray-100/50 transition-all duration-300",
+        isScrolled ? "shadow-lg py-3" : "py-5"
       )}
     >
       <div className="container mx-auto px-4 flex flex-col gap-4">
-        {/* TOPO MOBILE */}
+        {/* MOBILE TOP */}
         <div className="flex items-center justify-between sm:hidden py-2">
-          <a href="/">
+          <a href="/" className="transition-transform hover:scale-105">
             <img className="w-10" src="/icon.png" alt="Logo" />
           </a>
           <div className="flex items-center gap-3">
@@ -371,13 +366,13 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
             ) : (
               <>
                 <button
-                  className="text-black font-semibold px-3 py-2 rounded-md focus:outline-none"
+                  className="text-black font-semibold px-4 py-2 rounded-lg hover:bg-gray/100 transition-all duration-200"
                   onClick={() => navigate("/login")}
                 >
                   Entrar
                 </button>
                 <button
-                  className="ml-2 px-4 py-2 rounded-md bg-gradient-to-r from-[#FEC800] to-[#FF8C00] text-black font-semibold focus:outline-none"
+                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#FDC901] to-[#FFE066] text-black font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200"
                   onClick={() => navigate("/register")}
                 >
                   Cadastrar
@@ -387,14 +382,10 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
           </div>
         </div>
 
-        {/* TOPO TABLET */}
+        {/* TABLET TOP */}
         <div className="hidden sm:flex lg:hidden items-center justify-between py-2">
-          <a href="/">
-            <img 
-              className="w-10" 
-              src="/icon.png" 
-              alt="Logo" 
-            />
+          <a href="/" className="transition-transform hover:scale-105">
+            <img className="w-10" src="/icon.png" alt="Logo" />
           </a>
           <div className="flex items-center gap-3">
             <CidadeDropdown />
@@ -403,13 +394,13 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
             ) : (
               <>
                 <button
-                  className="text-black font-semibold px-3 py-2 rounded-md focus:outline-none"
+                  className="text-black font-semibold px-4 py-2 rounded-lg hover:bg-gray/100 transition-all duration-200"
                   onClick={() => navigate("/login")}
                 >
                   Entrar
                 </button>
                 <button
-                  className="ml-2 px-4 py-2 rounded-md bg-gradient-to-r from-[#FEC800] to-[#FF8C00] text-black font-semibold focus:outline-none"
+                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#FDC901] to-[#FFE066] text-black font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200"
                   onClick={() => navigate("/register")}
                 >
                   Cadastrar
@@ -419,59 +410,55 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
           </div>
         </div>
 
-        {/* TOPO DESKTOP */}
+        {/* DESKTOP TOP */}
         {!isScrolled && (
           <div className="hidden lg:flex items-center justify-between gap-4">
-            <a href="/">
+            <a href="/" className="transition-transform hover:scale-105">
               <img className="w-32" src="/logo-sf.png" alt="Logo" />
             </a>
-            <div
-              className={cn(
-                "flex items-center gap-4 text-sm text-muted-foreground whitespace-nowrap"
-              )}
-            >
+            <div className="flex items-center gap-6 text-sm whitespace-nowrap">
               {user ? (
                 <>
                   <Button
                     variant="ghost"
-                    className={`relative flex items-center gap-2 ${baseButtonClass}`}
+                    className={`relative flex items-center gap-2 ${baseButtonClass} font-medium`}
                     onClick={() => {
                       setActiveMenu("criar-evento");
                       navigate("/criar-evento");
                     }}
                   >
-                    <CalendarPlus size={16} />
+                    <CalendarPlus size={18} />
                     Criar evento
                     {activeMenu === "criar-evento" && (
-                      <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#02488C]" />
+                      <div className="absolute bottom-0 left-0 w-full  h-0.5 rounded-full" />
                     )}
                   </Button>
                   <Button
                     variant="ghost"
-                    className={`relative flex items-center gap-2 ${baseButtonClass}`}
+                    className={`relative flex items-center gap-2 ${baseButtonClass} font-medium`}
                     onClick={() => {
                       setActiveMenu("meus-eventos");
                       navigate("/meus-eventos");
                     }}
                   >
-                    <ClipboardList size={16} />
+                    <ClipboardList size={18} />
                     Meus eventos
                     {activeMenu === "meus-eventos" && (
-                      <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#02488C]" />
+                      <div className="absolute bottom-0 left-0 w-full  h-0.5 rounded-full" />
                     )}
                   </Button>
                   <Button
                     variant="ghost"
-                    className={`relative flex items-center gap-2 ${baseButtonClass}`}
+                    className={`relative flex items-center gap-2 ${baseButtonClass} font-medium`}
                     onClick={() => {
                       setActiveMenu("meus-ingressos");
                       navigate("/meus-ingressos");
                     }}
                   >
-                    <Ticket size={16} />
+                    <Ticket size={18} />
                     Meus ingressos
                     {activeMenu === "meus-ingressos" && (
-                      <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#02488C]" />
+                      <div className="absolute bottom-0 left-0 w-full  h-0.5 rounded-full" />
                     )}
                   </Button>
                   <ProfileMenu />
@@ -479,13 +466,13 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
               ) : (
                 <>
                   <button
-                    className="text-black font-semibold px-3 py-2 rounded-md focus:outline-none"
+                    className="text-black font-semibold px-4 py-2 rounded-lg hover:bg-gray/100 transition-all duration-200"
                     onClick={() => navigate("/login")}
                   >
                     Entrar
                   </button>
                   <button
-                    className="ml-2 px-4 py-2 rounded-md bg-gradient-to-r from-[#FEC800] to-[#FF8C00] text-black font-semibold focus:outline-none"
+                    className="px-6 py-2 rounded-lg bg-gradient-to-r from-[#FDC901] to-[#FFE066] text-black font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200"
                     onClick={() => navigate("/register")}
                   >
                     Cadastrar
@@ -496,9 +483,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
           </div>
         )}
 
-
-
-        {/* BARRA DE PESQUISA - DESKTOP */}
+        {/* SEARCH BAR - DESKTOP */}
         <div
           className={cn(
             "hidden lg:flex items-center gap-4 flex-wrap w-full",
@@ -507,7 +492,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
         >
           <div
             className={cn(
-              "flex items-center gap-2",
+              "flex items-center gap-3",
               isScrolled ? "flex-1 min-w-[300px]" : "w-full justify-center"
             )}
           >
@@ -534,17 +519,13 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
           </div>
 
           {isScrolled && (
-            <div
-              className={cn(
-                "flex items-center gap-4 text-sm text-muted-foreground whitespace-nowrap"
-              )}
-            >
+            <div className="flex items-center gap-6 text-sm whitespace-nowrap">
               <CidadeDropdown />
               {user ? (
                 <>
                   <Button
                     variant="ghost"
-                    className={`relative flex items-center gap-2 ${baseButtonClass}`}
+                    className={`relative flex items-center gap-2 ${baseButtonClass} font-medium`}
                     onClick={() => {
                       setActiveMenu("criar-evento");
                       navigate("/criar-evento");
@@ -553,12 +534,12 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                     <CalendarPlus size={16} />
                     Criar evento
                     {activeMenu === "criar-evento" && (
-                      <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#02488C]" />
+                      <div className="absolute bottom-0 left-0 w-full  h-0.5 rounded-full" />
                     )}
                   </Button>
                   <Button
                     variant="ghost"
-                    className={`relative flex items-center gap-2 ${baseButtonClass}`}
+                    className={`relative flex items-center gap-2 ${baseButtonClass} font-medium`}
                     onClick={() => {
                       setActiveMenu("meus-eventos");
                       navigate("/meus-eventos");
@@ -567,12 +548,12 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                     <ClipboardList size={16} />
                     Meus eventos
                     {activeMenu === "meus-eventos" && (
-                      <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#02488C]" />
+                      <div className="absolute bottom-0 left-0 w-full  h-0.5 rounded-full" />
                     )}
                   </Button>
                   <Button
                     variant="ghost"
-                    className={`relative flex items-center gap-2 ${baseButtonClass}`}
+                    className={`relative flex items-center gap-2 ${baseButtonClass} font-medium`}
                     onClick={() => {
                       setActiveMenu("meus-ingressos");
                       navigate("/meus-ingressos");
@@ -581,7 +562,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                     <Ticket size={16} />
                     Meus ingressos
                     {activeMenu === "meus-ingressos" && (
-                      <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#02488C]" />
+                      <div className="absolute bottom-0 left-0 w-full  h-0.5 rounded-full" />
                     )}
                   </Button>
                   <ProfileMenu />
@@ -589,13 +570,13 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
               ) : (
                 <>
                   <button
-                    className="text-black font-semibold px-3 py-2 rounded-md focus:outline-none"
+                    className="text-black font-semibold px-4 py-2 rounded-lg hover:bg-gray/100 transition-all duration-200"
                     onClick={() => navigate("/login")}
                   >
                     Entrar
                   </button>
                   <button
-                    className="ml-2 px-4 py-2 rounded-md bg-gradient-to-r from-[#FEC800] to-[#FF8C00] text-black font-semibold focus:outline-none"
+                    className="px-6 py-2 rounded-lg bg-gradient-to-r from-[#FDC901] to-[#FFE066] text-black font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200"
                     onClick={() => navigate("/register")}
                   >
                     Cadastrar
@@ -606,11 +587,9 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
           )}
         </div>
 
-
-
-        {/* FILTROS (DESKTOP) */}
+        {/* FILTERS (DESKTOP) */}
         {!isScrolled && (
-          <div className="hidden lg:flex justify-center flex-wrap gap-2">
+          <div className="hidden lg:flex justify-center flex-wrap gap-3">
             <CidadeDropdown />
 
             <Button
@@ -623,10 +602,10 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
               }}
               variant="secondary"
               className={cn(
-                "relative cursor-pointer px-4 py-2",
+                "relative cursor-pointer px-6 py-2.5 rounded-full font-medium transition-all duration-200 hover:scale-105",
                 activeFilter === "festas-shows"
-                  ? "!bg-[#02488C] !text-white"
-                  : "!bg-white !text-[#02488C]"
+                  ? "text-black shadow-lg border"
+                  : "bg-white text-black"
               )}
             >
               Festas & Shows
@@ -642,10 +621,10 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
               }}
               variant="secondary"
               className={cn(
-                "relative cursor-pointer px-4 py-2",
+                "relative cursor-pointer px-6 py-2.5 rounded-full font-medium transition-all duration-200 hover:scale-105",
                 activeFilter === "standup"
-                  ? "!bg-[#02488C] !text-white"
-                  : "!bg-white !text-[#02488C]"
+                  ? "text-black shadow-lg border"
+                  : "bg-white text-black"
               )}
             >
               Stand-up Comedy
@@ -661,10 +640,10 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
               }}
               variant="secondary"
               className={cn(
-                "relative cursor-pointer px-4 py-2",
+                "relative cursor-pointer px-6 py-2.5 rounded-full font-medium transition-all duration-200 hover:scale-105",
                 activeFilter === "esportes"
-                  ? "!bg-[#02488C] !text-white"
-                  : "!bg-white !text-[#02488C]"
+                  ? "text-black shadow-lg border"
+                  : "bg-white text-black"
               )}
             >
               Esportes
