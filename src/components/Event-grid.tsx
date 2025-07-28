@@ -92,7 +92,7 @@ const EventGrid = () => {
     <section id="event-grid" className="w-full h-fit p-0 m-0">
       <div className="w-full flex justify-center py-0">
 
-        <div className="relative p-15 w-full flex flex-col md:flex-row items-center justify-center min-h-[320px] sm:min-h-[400px] md:min-h-[500px] h-full bg-gradient-to-br from-[#02488C] via-[#023a70] to-[#18181b] shadow-xl overflow-hidden px-4 sm:px-8 md:px-16">
+        <div className="relative p-15 w-full flex flex-col md:flex-row items-center justify-center min-h-[320px] sm:min-h-[400px] md:min-h-[500px] h-full shadow-xl overflow-hidden px-4 sm:px-8 md:px-16">
           {/* Imagem e categoria */}
           <div className="relative w-full md:w-1/2 flex justify-center items-center md:order-2">
             <img
@@ -101,7 +101,7 @@ const EventGrid = () => {
               className="w-full md:w-full max-w-full h-[200px] sm:h-[260px] md:h-[340px] object-cover rounded-2xl shadow-2xl border-4 border-white/10"
             />
             {/* Categoria balão sobre a imagem */}
-            <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-gradient-to-r from-rose-500 to-orange-400 text-white px-3 py-1 rounded-full text-xs font-bold uppercase shadow-md select-none z-10">
+            <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-gradient-to-r from-rose-500 to-orange-400 text-black px-3 py-1 rounded-full text-xs font-bold uppercase shadow-md select-none z-10">
               {currentEvent.category?.slice(0, 32) || <span>&nbsp;</span>}
             </div>
           </div>
@@ -111,27 +111,27 @@ const EventGrid = () => {
             <div className="flex flex-col sm:flex-row w-full items-center gap-4">
               <div className="w-full sm:w-[140px] sm:min-w-[140px] sm:max-w-[140px] h-[80px] flex items-center justify-center gap-3 bg-white/10 backdrop-blur-sm px-2 py-2 rounded-lg border border-white/20 mt-1 flex-shrink-0">
                 <div className="flex flex-col items-center">
-                  <span className="text-xs font-semibold text-white uppercase">{dateInfo.weekday}</span>
-                  <span className="text-2xl font-extrabold text-white leading-none">{dateInfo.day}</span>
-                  <span className="text-xs font-semibold text-gray-200 uppercase tracking-wider">{dateInfo.month}</span>
+                  <span className="text-xs font-semibold text-black uppercase">{dateInfo.weekday}</span>
+                  <span className="text-2xl font-extrabold text-black leading-none">{dateInfo.day}</span>
+                  <span className="text-xs font-semibold text-black uppercase tracking-wider">{dateInfo.month}</span>
                 </div>
-                <span className="text-base font-bold text-indigo-400 pl-2 border-l border-white/20">{dateInfo.year}</span>
+                <span className="text-base font-bold text-black pl-2 border-l border-white/20">{dateInfo.year}</span>
               </div>
               <div className="w-full sm:flex-1 sm:min-w-0 sm:w-auto sm:max-w-full flex flex-col items-center text-center sm:items-start sm:text-left">
-                <h1 className="text-2xl md:text-3xl font-extrabold truncate overflow-hidden whitespace-nowrap text-white bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent mb-0 w-full max-w-full">
+                <h1 className="text-2xl md:text-3xl font-extrabold truncate overflow-hidden whitespace-nowrap text-black bg-clip-text mb-0 w-full max-w-full">
                   {currentEvent.title?.slice(0, 40) || <span>&nbsp;</span>}
                 </h1>
-                <h2 className="font-semibold text-[clamp(0.9rem,2vw,1.2rem)] text-gray-300 min-h-[1.4rem] max-h-[1.8rem] mb-0 truncate w-full max-w-full">
+                <h2 className="font-semibold text-[clamp(0.9rem,2vw,1.2rem)] text-black min-h-[1.4rem] max-h-[1.8rem] mb-0 truncate w-full max-w-full">
                   {currentEvent.dates[0]?.attractions?.map(a => a.name).join(", ").slice(0, 40) || <span>&nbsp;</span>}
                 </h2>
               </div>
             </div>
-            <p className="text-base text-gray-300 line-clamp-3 mt-1">
+            <p className="text-base text-black line-clamp-3 mt-1">
               {currentEvent.description?.slice(0, 120) || <span>&nbsp;</span>}
             </p>
             <div className="flex flex-row gap-2 w-full mt-2">
               <button
-                className="flex-1 min-w-[120px] py-3 px-2 rounded-lg border border-white/20 bg-white/10 text-white font-bold uppercase text-xs hover:bg-white/20 transition-all"
+                className="flex-1 min-w-[120px] py-3 px-2 rounded-lg border border-white/20 bg-white/10 text-black font-bold uppercase text-xs hover:bg-white/20 transition-all"
                 onClick={() => handleViewDetails(currentEvent._id)}
               >
                 VER DETALHES
@@ -147,7 +147,7 @@ const EventGrid = () => {
           {/* Navegação mobile/tablet: embaixo */}
           <div className="flex justify-center gap-4 mt-4 w-full md:hidden">
             <button
-              className="bg-white/10 hover:bg-white/20 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-md border border-white/20 transition-all"
+              className="bg-white/10 hover:bg-white/20 text-black rounded-full w-10 h-10 flex items-center justify-center shadow-md border border-white/20 transition-all"
               onClick={prevSlide}
               disabled={isTransitioning}
               aria-label="Anterior"
@@ -155,7 +155,7 @@ const EventGrid = () => {
               <ChevronLeft />
             </button>
             <button
-              className="bg-white/10 hover:bg-white/20 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-md border border-white/20 transition-all"
+              className="bg-white/10 hover:bg-white/20 text-black rounded-full w-10 h-10 flex items-center justify-center shadow-md border border-white/20 transition-all"
               onClick={nextSlide}
               disabled={isTransitioning}
               aria-label="Próximo"
@@ -165,7 +165,7 @@ const EventGrid = () => {
           </div>
           {/* Navegação desktop: laterais */}
           <button
-            className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/10 hover:bg-white/20 text-white rounded-full w-10 h-10 items-center justify-center shadow-md border border-white/20 transition-all"
+            className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/10 hover:bg-white/20 text-black rounded-full w-10 h-10 items-center justify-center shadow-md border border-white/20 transition-all"
             onClick={prevSlide}
             disabled={isTransitioning}
             aria-label="Anterior"
@@ -173,7 +173,7 @@ const EventGrid = () => {
             <ChevronLeft />
           </button>
           <button
-            className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/10 hover:bg-white/20 text-white rounded-full w-10 h-10 items-center justify-center shadow-md border border-white/20 transition-all"
+            className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/10 hover:bg-white/20 text-black rounded-full w-10 h-10 items-center justify-center shadow-md border border-white/20 transition-all"
             onClick={nextSlide}
             disabled={isTransitioning}
             aria-label="Próximo"
