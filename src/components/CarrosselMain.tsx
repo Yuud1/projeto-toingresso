@@ -63,9 +63,9 @@ export default function CarrosselMain() {
   }
 
   return (
-    <div className="w-full flex justify-center py-16 bg-gradient-to-br from-gray-50 to-white">
+    <div className="w-full flex justify-center py-16 bg-[#fafafa]">
       <div className="w-full max-w-full">
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 mt-8">
           <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">Eventos em Destaque</h2>
           <div className="w-24 h-1 bg-[#FDC901] rounded-full mx-auto"></div>
         </div>

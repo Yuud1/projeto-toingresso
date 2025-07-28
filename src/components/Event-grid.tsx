@@ -3,7 +3,8 @@
 import React from "react";
 import type EventInterface from "@/interfaces/EventInterface";
 import axios from "axios";
-import { ChevronLeft, ChevronRight, MapPin, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Clock, Users } from "lucide-react";
+import { truncateTextResponsive } from "@/utils/formatUtils";
 
 const EventGrid = () => {
   const [events, setEvents] = React.useState<EventInterface[]>([]);
@@ -36,6 +37,7 @@ const EventGrid = () => {
   const handleViewDetails = (eventId: string) => {
     window.location.href = `/evento/${eventId}`;
   };
+
   const handleBuyTicket = (eventId: string) => {
     window.location.href = `/evento/${eventId}?comprar=1`;
   };
@@ -55,199 +57,251 @@ const EventGrid = () => {
     if (isTransitioning) return;
     setIsTransitioning(true);
     setCurrentIndex((prev) => (prev + 1) % events.length);
-    setTimeout(() => setIsTransitioning(false), 500);
+    setTimeout(() => setIsTransitioning(false), 300);
   };
+
   const prevSlide = () => {
     if (isTransitioning) return;
     setIsTransitioning(true);
     setCurrentIndex((prev) => (prev - 1 + events.length) % events.length);
-    setTimeout(() => setIsTransitioning(false), 500);
+    setTimeout(() => setIsTransitioning(false), 300);
   };
+
   const goToSlide = (index: number) => {
     if (isTransitioning || index === currentIndex) return;
     setIsTransitioning(true);
     setCurrentIndex(index);
-    setTimeout(() => setIsTransitioning(false), 500);
+    setTimeout(() => setIsTransitioning(false), 300);
   };
 
   if (events.length === 0) {
     return (
-      <div className="w-full flex justify-center py-10">
-        <div className="max-w-full h-[300px] sm:h-[400px] md:h-[500px] flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00498D]"></div>
+      <div className="w-full min-h-[400px] flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#00498D] border-t-transparent"></div>
+          <p className="text-slate-600 font-medium">Carregando eventos...</p>
         </div>
       </div>
     );
   }
 
-  const currentEvent = events[currentIndex];
+  const currentEvent = events[currentIndex];  
+  
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return {
       day: date.getDate().toString().padStart(2, "0"),
-      month: date.toLocaleDateString("pt-BR", { month: "long" }).toUpperCase(),
+      month: date.toLocaleDateString("pt-BR", { month: "short" }).toUpperCase(),
       weekday: date
         .toLocaleDateString("pt-BR", { weekday: "short" })
         .replace(".", "")
         .toUpperCase(),
       year: date.getFullYear(),
+      fullMonth: date.toLocaleDateString("pt-BR", { month: "long" }),
     };
   };
+
+  console.log(currentEvent.dates);
   const dateInfo = formatDate(currentEvent.dates[0]?.startDate);
-
+  
   return (
-    <section
-      id="event-grid"
-      className="w-full h-fit p-0 m-0 bg-gradient-to-br from-gray-50 to-white"
-    >
-      <div className="w-full flex justify-center py-0">
-        <div className="relative w-full flex flex-col md:flex-row items-center justify-center min-h-[320px] sm:min-h-[400px] md:min-h-[500px] h-full shadow-2xl overflow-hidden px-4 sm:px-8 md:px-16 bg-gradient-to-br from-white via-gray-50 to-gray-100">
-          {/* Image and category */}
-          <div className="relative w-full md:w-1/2 flex justify-center items-center md:order-2">
-            <div className="relative group w-full">
-              <img
-                src={currentEvent.image || "/placeholder.svg"}
-                alt={currentEvent.title}
-                className="w-full md:w-full max-w-full h-[200px] sm:h-[260px] md:h-[340px] object-cover rounded-3xl shadow-2xl border-4 border-white group-hover:scale-105 transition-transform duration-500"
-              />
-              {/* Category badge */}
-              <div className="absolute top-4 left-4  text-white px-4 py-2 rounded-full text-sm font-bold uppercase shadow-lg z-10 bg-black">
-                {currentEvent.category?.slice(0, 32) || <span>&nbsp;</span>}
-              </div>
-              {/* Rating badge */}
-            </div>
-          </div>
+    <section className="w-full py-8 lg:py-12 bg-[#fafafa]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center mb-8 lg:mb-12">
+          <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4">
+            Eventos em Destaque
+          </h2>
+          <p className="text-slate-600 max-w-2xl mx-auto">
+            Descubra os melhores eventos da sua região
+          </p>
+        </div>
 
-          {/* Content */}
-          <div className="w-full md:w-1/2 flex flex-col justify-center md:justify-start h-full gap-3 md:gap-6 px-2 sm:px-6 md:px-10 py-4 md:py-0 md:order-1">
-            {/* Date and title section */}
-            <div className="flex flex-col sm:flex-row w-full items-center gap-6">
-              <div className="w-full sm:w-[160px] sm:min-w-[160px] sm:max-w-[160px] h-[90px] flex items-center justify-center gap-4 px-4 py-3 rounded-2xl shadow-xl flex-shrink-0">
-                <div className="flex flex-col items-center text-black">
-                  <span className="text-xs font-semibold uppercase tracking-wider">
-                    {dateInfo.weekday}
-                  </span>
-                  <span className="text-3xl font-extrabold leading-none">
-                    {dateInfo.day}
-                  </span>
-                  <span className="text-xs font-semibold uppercase tracking-wider">
-                    {dateInfo.month.slice(0, 3)}
+        {/* Main Event Card */}
+        <div className="m-10">
+          <div className="flex flex-col lg:flex-row">
+            {/* Image Section */}
+            <div className="relative lg:w-1/2">
+              <div className="aspect-[4/3] lg:aspect-square relative overflow-hidden">
+                <img
+                  src={
+                    currentEvent.image ||
+                    "/placeholder.svg?height=400&width=600"
+                  }
+                  alt={currentEvent.title}
+                  className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                />
+
+                {/* Category Badge */}
+                <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold">
+                  {currentEvent.category}
+                </div>
+
+                {/* Free/Paid Badge */}
+                <div className="absolute top-4 right-4">
+                  {currentEvent.isFree ? (
+                    <div className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                      GRATUITO
+                    </div>
+                  ) : (
+                    <div className="bg-[#FDC901] text-black px-3 py-1 rounded-full text-sm font-semibold">
+                      PAGO
+                    </div>
+                  )}
+                </div>
+
+                {/* Navigation Arrows - Desktop */}
+                <button
+                  onClick={prevSlide}
+                  disabled={isTransitioning}
+                  className="hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white text-slate-800 rounded-full items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 disabled:opacity-50"
+                  aria-label="Evento anterior"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+
+                <button
+                  onClick={nextSlide}
+                  disabled={isTransitioning}
+                  className="hidden lg:flex absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white text-slate-800 rounded-full items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 disabled:opacity-50"
+                  aria-label="Próximo evento"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            {/* Content Section */}
+            <div className="lg:w-1/2 p-6 lg:p-8 flex flex-col justify-center">
+              {/* Date and Title Section - Side by Side */}
+              <div className="flex flex-col sm:flex-row sm:items-start gap-6 mb-6">
+                {/* Title and Subtitle */}
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 mb-3 leading-tight">
+                    {currentEvent.title}
+                  </h1>
+                  {currentEvent.dates[0]?.attractions?.length > 0 && (
+                    <p className="text-lg text-slate-600 font-medium">
+                      {truncateTextResponsive(
+                        currentEvent.dates[0].attractions
+                          .map((a) => a.name)
+                          .join(", "),                        
+                      )}
+                    </p>
+                  )}
+                </div>
+
+                {/* Date Card */}
+                <div className="flex items-center gap-4 bg-slate-100 rounded-2xl p-4 sm:min-w-fit">
+                  <div className="flex flex-col items-center text-center min-w-[60px]">
+                    <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
+                      {dateInfo.weekday}
+                    </span>
+                    <span className="text-2xl font-bold text-slate-900">
+                      {dateInfo.day}
+                    </span>
+                    <span className="text-xs font-semibold text-slate-600 uppercase">
+                      {dateInfo.month}
+                    </span>
+                  </div>
+                  <div className="w-px h-12 bg-slate-300"></div>
+                  <div className="text-slate-700">
+                    <div className="font-semibold">{dateInfo.fullMonth}</div>
+                    <div className="text-sm text-slate-600">
+                      {dateInfo.year}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Event Info */}
+              <div className="flex flex-wrap gap-4 mb-6 text-sm text-slate-600">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-[#00498D]" />
+                  <span>
+                    {currentEvent.city}, {currentEvent.state}
                   </span>
                 </div>
-                <div className="w-px h-12 bg-white/30"></div>
-                <span className="text-lg font-bold text-black">
-                  {dateInfo.year}
-                </span>
-              </div>
-
-              <div className="w-full sm:flex-1 sm:min-w-0 flex flex-col items-center text-center sm:items-start sm:text-left">
-                <h1 className="text-2xl md:text-4xl font-extrabold text-black mb-2 leading-tight">
-                  {currentEvent.title?.slice(0, 70) || <span>&nbsp;</span>}
-                </h1>
-                <h2 className="font-semibold text-lg text-gray-600 mb-3">
-                  {currentEvent.dates[0]?.attractions
-                    ?.map((a) => a.name)
-                    .join(", ")
-                    .slice(0, 40) || <span>&nbsp;</span>}
-                </h2>
-
-                {/* Location and time info */}
-                <div className="flex flex-col sm:flex-row gap-3 text-sm text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-black" />
-                    <span>{currentEvent.city}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-black" />
-                    <span>19:00</span>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-[#00498D]" />
+                  <span>{currentEvent.dates[0]?.startTime || "19:00"}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-[#00498D]" />
+                  <span>
+                    {currentEvent.subscribers?.length || 0} inscritos
+                  </span>
                 </div>
               </div>
-            </div>
 
-            <p className="text-base text-gray-600 line-clamp-3 leading-relaxed">
-              {currentEvent.description?.slice(0, 120) || <span>&nbsp;</span>}
-            </p>
+              {/* Description */}
+              <p className="text-slate-600 leading-relaxed mb-8 line-clamp-3">
+                {truncateTextResponsive(currentEvent.description)}
+              </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 w-full mt-4">
-              <button
-                className="flex-1 min-w-[140px] py-4 px-4 rounded-xl border-2 border-[#00498D] bg-transparent text-[#00498D] font-bold uppercase text-sm hover:bg-[#00498D] hover:text-white transition-all duration-300 hover:scale-105"
-                onClick={() => handleViewDetails(currentEvent._id)}
-              >
-                Ver Detalhes
-              </button>
-              {currentEvent.isFree ? (
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button
-                  className="flex-1 min-w-[140px] py-4 px-4 rounded-xl bg-gradient-to-r from-[#FDC901] to-[#FFE066] text-black font-bold uppercase text-sm shadow-lg hover:shadow-xl hover:scale-105 hover:text-white transition-all duration-300"
-                  onClick={() => handleBuyTicket(currentEvent._id)}
+                  onClick={() => handleViewDetails(currentEvent._id)}
+                  className="flex-1 py-3 px-6 border-2 border-[#00498D] text-[#00498D] font-semibold rounded-xl hover:bg-[#00498D] hover:text-white transition-all duration-200 hover:scale-[1.02]"
                 >
-                  Increver-se
+                  Ver Detalhes
                 </button>
-              ) : (
+
                 <button
-                  className="flex-1 min-w-[140px] py-4 px-4 rounded-xl bg-gradient-to-r from-[#FDC901] to-[#FFE066] text-black font-bold uppercase text-sm shadow-lg hover:shadow-xl hover:scale-105 hover:text-white transition-all duration-300"
                   onClick={() => handleBuyTicket(currentEvent._id)}
+                  className="flex-1 py-3 px-6 bg-gradient-to-r from-[#FDC901] to-[#FFE066] text-black font-semibold rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-[1.02]"
                 >
-                  Comprar Ingresso
+                  {currentEvent.isFree ? "Inscrever-se" : "Comprar Ingresso"}
                 </button>
-              )}
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* Mobile/tablet navigation */}
-          <div className="flex justify-center gap-4 mt-6 w-full md:hidden">
-            <button
-              className="bg-white/90 hover:bg-white text-black rounded-full w-12 h-12 flex items-center justify-center shadow-lg border-2 border-[#00498D]/20 hover:border-[#00498D]/40 transition-all duration-300 hover:scale-110"
-              onClick={prevSlide}
-              disabled={isTransitioning}
-              aria-label="Anterior"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button
-              className="bg-white/90 hover:bg-white text-black rounded-full w-12 h-12 flex items-center justify-center shadow-lg border-2 border-[#00498D]/20 hover:border-[#00498D]/40 transition-all duration-300 hover:scale-110"
-              onClick={nextSlide}
-              disabled={isTransitioning}
-              aria-label="Próximo"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Desktop navigation */}
+        {/* Mobile Navigation */}
+        <div className="flex justify-center gap-4 mb-8 lg:hidden">
           <button
-            className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white text-black rounded-full w-12 h-12 items-center justify-center shadow-lg border-2 border-[#00498D]/20 hover:border-[#00498D]/40 transition-all duration-300 hover:scale-110"
             onClick={prevSlide}
             disabled={isTransitioning}
-            aria-label="Anterior"
+            className="w-12 h-12 bg-white text-slate-800 rounded-full flex items-center justify-center shadow-lg border border-slate-200 hover:bg-slate-50 transition-all duration-200 disabled:opacity-50"
+            aria-label="Evento anterior"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
+
           <button
-            className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white text-black rounded-full w-12 h-12 items-center justify-center shadow-lg border-2 border-[#00498D]/20 hover:border-[#00498D]/40 transition-all duration-300 hover:scale-110"
             onClick={nextSlide}
             disabled={isTransitioning}
-            aria-label="Próximo"
+            className="w-12 h-12 bg-white text-slate-800 rounded-full flex items-center justify-center shadow-lg border border-slate-200 hover:bg-slate-50 transition-all duration-200 disabled:opacity-50"
+            aria-label="Próximo evento"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
+        </div>
 
-          {/* Indicators */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 z-10">
-            {events.map((_, index) => (
-              <button
-                key={index}
-                className={`w-3 h-3 rounded-full border-none transition-all duration-300 ${
-                  index === currentIndex
-                    ? "bg-[#FDC901] scale-125 shadow-lg"
-                    : "bg-black/100"
-                }`}
-                onClick={() => goToSlide(index)}
-                disabled={isTransitioning}
-                aria-label={`Ir para o slide ${index + 1}`}
-              />
-            ))}
-          </div>
+        {/* Indicators */}
+        <div className="flex justify-center gap-2">
+          {events.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => goToSlide(index)}
+              disabled={isTransitioning}
+              className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                index === currentIndex
+                  ? "bg-[#FDC901] scale-125"
+                  : "bg-slate-300 hover:bg-slate-400"
+              }`}
+              aria-label={`Ir para evento ${index + 1}`}
+            />
+          ))}
+        </div>
+
+        {/* Event Counter */}
+        <div className="text-center mt-6">
+          <p className="text-sm text-slate-500">
+            {currentIndex + 1} de {events.length} eventos
+          </p>
         </div>
       </div>
     </section>

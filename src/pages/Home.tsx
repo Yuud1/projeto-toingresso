@@ -18,14 +18,14 @@ export default function Home() {
         </div>
 
         {/* Transition Section */}
-        <div className="w-full flex flex-col justify-center items-center gap-4 py-8 bg-gradient-to-b from-white to-gray-50">
+        <div className="w-full flex flex-col justify-center items-center gap-4 py-8 bg-[#fafafa]">
           <div className="text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">
               Descubra mais Eventos
             </h2>
             <div className="w-24 h-1 bg-[#FDC901] rounded-full mx-auto"></div>
           </div>
-          <div className="animate-bounce mt-3">
+          <div className="animate-bounce mt-10">
             <ArrowDown className="w-8 h-8 text-black" />
           </div>
         </div>
