@@ -37,16 +37,16 @@ const AdBanner: React.FC = () => {
       <div className="text-center mt-10 mb-16">
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-8">
+      <div className="flex flex-row w-full items-center justify-center">
         {bannersToShow.map((b, idx) => (
           <a
             key={b._id || idx}
             href={b.redirectUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="group relative bg-white rounded-none md:rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-105 w-full"
+            className="group relative bg-white rounded-none md:rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-105 md:w-10/12"
           >
-            <div className="relative overflow-hidden">
+            <div className="relative overflow-hidden ">
               <img
                 src={b.urlImage || "/placeholder.svg"}
                 alt={b.title || "Banner promocional"}
