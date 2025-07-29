@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 
 import { Clock, MapPin, Calendar } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { truncateTextResponsive } from "@/utils/formatUtils";
+import { truncateTextResponsive, truncateTextTo30Chars } from "@/utils/formatUtils";
 import axios from "axios";
 import EventInterface from "@/interfaces/EventInterface";
 import getInitials from "@/utils/getInitials";
@@ -75,11 +75,11 @@ export default function Favorites() {
                     <a href={`/evento/${event._id}`} key={event._id}>
                       <div className="w-full h-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer mb-10">
                         {/* Imagem */}
-                        <div className="relative">
+                        <div className="relative" style={{ aspectRatio: '16/9' }}>
                           <img
                             src={event.image || "/placeholder.svg"}
                             alt={event.title}
-                            className="w-full h-48 object-cover"
+                            className="absolute inset-0 w-full h-full object-cover object-center"
                           />
                           <div className="absolute top-3 right-3">
                             <span
@@ -97,7 +97,7 @@ export default function Favorites() {
                         {/* Conteúdo */}
                         <div className="p-4 sm:p-5">
                           <h3 className="font-bold text-lg text-gray-900 truncate">
-                            {truncateTextResponsive(event.title)}
+                            {truncateTextTo30Chars(event.title)}
                           </h3>
 
                           {/* Localização */}

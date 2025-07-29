@@ -217,3 +217,28 @@ export const truncateTextResponsive = (text: string): string => {
     return text.length > 60 ? text.slice(0, 60) + "..." : text;
   }
 };
+
+export const truncateTextTo30Chars = (text: string): string => {
+  return text.length > 30 ? text.slice(0, 30) + "..." : text;
+};
+
+export const truncateTextResponsiveForEventGrid = (text: string): string => {
+  if (typeof window === "undefined") return text;
+
+  const screenWidth = window.innerWidth;
+
+  // Limites reduzidos em 5 caracteres para o Event-grid
+  if (screenWidth < 480) {
+    // mobile pequeno
+    return text.length > 35 ? text.slice(0, 35) + "..." : text;
+  } else if (screenWidth < 640) {
+    // mobile
+    return text.length > 45 ? text.slice(0, 45) + "..." : text;
+  } else if (screenWidth < 768) {
+    // tablet
+    return text.length > 40 ? text.slice(0, 40) + "..." : text;
+  } else {
+    // desktop
+    return text.length > 55 ? text.slice(0, 55) + "..." : text;
+  }
+};

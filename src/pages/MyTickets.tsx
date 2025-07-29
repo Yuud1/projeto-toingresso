@@ -259,11 +259,11 @@ export default function MyTickets() {
                     onClick={() => clickedOnTicket(ticket._id)}
                   >
                     {/* Imagem */}
-                    <div className="relative">
+                    <div className="relative" style={{ aspectRatio: '16/9' }}>
                       <img
                         src={event?.image || "/placeholder.svg"}
                         alt={ticket.eventTitle}
-                        className="w-full h-48 object-cover"
+                        className="absolute inset-0 w-full h-full object-cover object-center"
                       />
                       <div className="absolute top-3 right-3">
                         <span

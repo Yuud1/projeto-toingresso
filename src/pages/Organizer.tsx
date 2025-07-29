@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import EventInterface from "@/interfaces/EventInterface";
 import OrganizerInterface from "@/interfaces/OrganizerInterface";
+import { truncateTextTo30Chars } from "@/utils/formatUtils";
 
 interface OrganizerData extends OrganizerInterface {
   description?: string;
@@ -60,7 +61,7 @@ const EventList = ({
             )}
           </div>
           <div className="p-4">
-            <h3 className="font-semibold text-lg mb-2">{event.title}</h3>
+            <h3 className="font-semibold text-lg mb-2">{truncateTextTo30Chars(event.title)}</h3>
             <div className="flex items-center gap-2 text-gray-600 text-sm">
               <Calendar size={14} />
               <span>{new Date(event.dates[0].startDate).toLocaleDateString()}</span>

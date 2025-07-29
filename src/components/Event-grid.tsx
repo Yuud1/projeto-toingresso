@@ -4,7 +4,7 @@ import React from "react";
 import type EventInterface from "@/interfaces/EventInterface";
 import axios from "axios";
 import { ChevronLeft, ChevronRight, MapPin, Clock, Users } from "lucide-react";
-import { truncateTextResponsive } from "@/utils/formatUtils";
+import { truncateTextTo30Chars, truncateTextResponsiveForEventGrid } from "@/utils/formatUtils";
 
 const EventGrid = () => {
   const [events, setEvents] = React.useState<EventInterface[]>([]);
@@ -105,31 +105,21 @@ const EventGrid = () => {
   const dateInfo = formatDate(currentEvent.dates[0]?.startDate);
   
   return (
-    <section className="w-full py-8 lg:py-12 bg-[#fafafa]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-8 lg:mb-12">
-          <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4">
-            Eventos em Destaque
-          </h2>
-          <p className="text-slate-600 max-w-2xl mx-auto">
-            Descubra os melhores eventos da sua região
-          </p>
-        </div>
-
+    <section className="w-full py-8 lg:py-12 bg-gradient-to-br from-slate-100 to-slate-200">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
         {/* Main Event Card */}
-        <div className="m-10">
-          <div className="flex flex-col lg:flex-row">
+        <div className="m-4 sm:m-6 lg:m-10">
+          <div className="flex flex-col lg:flex-row bg-white rounded-2xl shadow-2xl shadow-black/10">
             {/* Image Section */}
             <div className="relative lg:w-1/2">
-              <div className="aspect-[4/3] lg:aspect-square relative overflow-hidden">
+              <div className="relative overflow-hidden rounded-t-xl lg:rounded-l-2xl lg:rounded-t-none h-60 sm:h-80 lg:h-full">
                 <img
                   src={
                     currentEvent.image ||
                     "/placeholder.svg?height=400&width=600"
                   }
                   alt={currentEvent.title}
-                  className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                  className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105"
                 />
 
                 {/* Category Badge */}
@@ -154,7 +144,7 @@ const EventGrid = () => {
                 <button
                   onClick={prevSlide}
                   disabled={isTransitioning}
-                  className="hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white text-slate-800 rounded-full items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 disabled:opacity-50"
+                  className="hidden lg:flex absolute left-4 top-[45%] -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white text-slate-800 rounded-full items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 disabled:opacity-50"
                   aria-label="Evento anterior"
                 >
                   <ChevronLeft className="w-6 h-6" />
@@ -163,7 +153,7 @@ const EventGrid = () => {
                 <button
                   onClick={nextSlide}
                   disabled={isTransitioning}
-                  className="hidden lg:flex absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white text-slate-800 rounded-full items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 disabled:opacity-50"
+                  className="hidden lg:flex absolute right-4 top-[45%] -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white text-slate-800 rounded-full items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 disabled:opacity-50"
                   aria-label="Próximo evento"
                 >
                   <ChevronRight className="w-6 h-6" />
@@ -172,42 +162,46 @@ const EventGrid = () => {
             </div>
 
             {/* Content Section */}
-            <div className="lg:w-1/2 p-6 lg:p-8 flex flex-col justify-center">
+            <div className="lg:w-1/2 p-4 sm:p-6 lg:p-8 flex flex-col justify-center rounded-b-xl lg:rounded-r-2xl lg:rounded-b-none">
               {/* Date and Title Section - Side by Side */}
-              <div className="flex flex-col sm:flex-row sm:items-start gap-6 mb-6">
+              <div className="flex flex-row items-start gap-3 sm:gap-6 mb-6">
                 {/* Title and Subtitle */}
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 mb-3 leading-tight">
-                    {currentEvent.title}
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 mb-2 sm:mb-3 leading-tight line-clamp-1">
+                    {truncateTextTo30Chars(currentEvent.title)}
                   </h1>
-                  {currentEvent.dates[0]?.attractions?.length > 0 && (
-                    <p className="text-lg text-slate-600 font-medium">
-                      {truncateTextResponsive(
-                        currentEvent.dates[0].attractions
-                          .map((a) => a.name)
-                          .join(", "),                        
-                      )}
-                    </p>
-                  )}
+                  <div className="h-6 sm:h-7 flex items-center">
+                    {currentEvent.dates[0]?.attractions?.length > 0 ? (
+                      <p className="text-sm sm:text-lg text-slate-600 font-medium leading-none">
+                        {truncateTextTo30Chars(
+                          currentEvent.dates[0].attractions
+                            .map((a) => a.name)
+                            .join(", ")
+                        )}
+                      </p>
+                    ) : (
+                      <div className="h-6 sm:h-7"></div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Date Card */}
-                <div className="flex items-center gap-4 bg-slate-100 rounded-2xl p-4 sm:min-w-fit">
-                  <div className="flex flex-col items-center text-center min-w-[60px]">
+                <div className="flex items-center gap-2 sm:gap-4 bg-slate-100 rounded-xl sm:rounded-2xl p-2 sm:p-3 lg:p-4 w-fit flex-shrink-0">
+                  <div className="flex flex-col items-center text-center min-w-[40px] sm:min-w-[50px] lg:min-w-[60px]">
                     <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
                       {dateInfo.weekday}
                     </span>
-                    <span className="text-2xl font-bold text-slate-900">
+                    <span className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900">
                       {dateInfo.day}
                     </span>
                     <span className="text-xs font-semibold text-slate-600 uppercase">
                       {dateInfo.month}
                     </span>
                   </div>
-                  <div className="w-px h-12 bg-slate-300"></div>
+                  <div className="w-px h-8 sm:h-10 lg:h-12 bg-slate-300"></div>
                   <div className="text-slate-700">
-                    <div className="font-semibold">{dateInfo.fullMonth}</div>
-                    <div className="text-sm text-slate-600">
+                    <div className="font-semibold text-xs sm:text-sm lg:text-base">{dateInfo.fullMonth}</div>
+                    <div className="text-xs text-slate-600">
                       {dateInfo.year}
                     </div>
                   </div>
@@ -235,9 +229,11 @@ const EventGrid = () => {
               </div>
 
               {/* Description */}
-              <p className="text-slate-600 leading-relaxed mb-8 line-clamp-3">
-                {truncateTextResponsive(currentEvent.description)}
-              </p>
+              <div className="h-16">
+                <p className="text-slate-600 leading-relaxed line-clamp-3">
+                  {truncateTextResponsiveForEventGrid(currentEvent.description)}
+                </p>
+              </div>
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-3">

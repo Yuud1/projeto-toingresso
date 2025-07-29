@@ -105,7 +105,6 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
   const { user } = useUser();
 
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
-  const [activeFilter, setActiveFilter] = useState<string | null>(null);
 
   useEffect(() => {
     if (isScrolledProp === undefined) {
@@ -353,7 +352,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
         isScrolled ? "shadow-lg py-3" : "py-5"
       )}
     >
-      <div className="container mx-auto px-4 flex flex-col gap-4">
+      <div className="container mx-auto px-10 flex flex-col gap-4">
         {/* MOBILE TOP */}
         <div className="flex items-center justify-between sm:hidden py-2">
           <a href="/" className="transition-transform hover:scale-105">
@@ -594,57 +593,39 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
 
             <Button
               onClick={() => {
-                setActiveFilter("festas-shows");
                 const target = document.getElementById("filter-grid");
                 if (target) {
                   target.scrollIntoView({ behavior: "smooth" });
                 }
               }}
               variant="secondary"
-              className={cn(
-                "relative cursor-pointer px-6 py-2.5 rounded-full font-medium transition-all duration-200 hover:scale-105",
-                activeFilter === "festas-shows"
-                  ? "text-black shadow-lg border"
-                  : "bg-white text-black"
-              )}
+              className="cursor-pointer px-6 py-2.5 rounded-full font-medium transition-all duration-200 hover:scale-105 bg-white text-black"
             >
               Festas & Shows
             </Button>
 
             <Button
               onClick={() => {
-                setActiveFilter("standup");
                 const target = document.getElementById("filter-grid");
                 if (target) {
                   target.scrollIntoView({ behavior: "smooth" });
                 }
               }}
               variant="secondary"
-              className={cn(
-                "relative cursor-pointer px-6 py-2.5 rounded-full font-medium transition-all duration-200 hover:scale-105",
-                activeFilter === "standup"
-                  ? "text-black shadow-lg border"
-                  : "bg-white text-black"
-              )}
+              className="cursor-pointer px-6 py-2.5 rounded-full font-medium transition-all duration-200 hover:scale-105 bg-white text-black"
             >
               Stand-up Comedy
             </Button>
 
             <Button
               onClick={() => {
-                setActiveFilter("esportes");
                 const target = document.getElementById("filter-grid");
                 if (target) {
                   target.scrollIntoView({ behavior: "smooth" });
                 }
               }}
               variant="secondary"
-              className={cn(
-                "relative cursor-pointer px-6 py-2.5 rounded-full font-medium transition-all duration-200 hover:scale-105",
-                activeFilter === "esportes"
-                  ? "text-black shadow-lg border"
-                  : "bg-white text-black"
-              )}
+              className="cursor-pointer px-6 py-2.5 rounded-full font-medium transition-all duration-200 hover:scale-105 bg-white text-black"
             >
               Esportes
             </Button>

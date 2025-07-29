@@ -16,20 +16,17 @@ export default function Home() {
         <div className="w-full flex justify-center mt-12 sm:mt-0">
           <CarrosselMain />
         </div>
-
-        {/* Transition Section */}
-        <div className="w-full flex flex-col justify-center items-center gap-4 py-8 bg-[#fafafa]">
-          <div className="text-center">
+        <div className="max-w-full mx-auto w-full flex flex-col items-center justify-center">
+        <div className="text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">
               Descubra mais Eventos
             </h2>
             <div className="w-24 h-1 bg-[#FDC901] rounded-full mx-auto"></div>
           </div>
           <div className="animate-bounce mt-10">
-            <ArrowDown className="w-8 h-8 text-black" />
+            <ArrowDown className="w-8 h-8 text-black mb-5" />
           </div>
         </div>
-
         {/* Main Content */}
         <div className="max-w-full">
           <section className="h-full w-full">

@@ -46,7 +46,7 @@ import { useToast } from "@/hooks/use-toast";
 import CertificateTutorial from "./CertificateTutorial";
 import CertificateGenerator from "./CertificateGenerator";
 import EventScanner from "./EventScanner";
-import { truncateTextResponsive } from "@/utils/formatUtils";
+import { truncateTextResponsive, truncateTextTo30Chars } from "@/utils/formatUtils";
 import Dashboard from "@/components/Dashboard";
 import { Link } from "react-router-dom";
 
@@ -848,11 +848,11 @@ export default function MyEvents() {
                         className="w-full h-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 mb-10"
                       >
                         {/* Imagem */}
-                        <div className="relative">
+                        <div className="relative" style={{ aspectRatio: '16/9' }}>
                           <img
                             src={event.image || "/placeholder.svg"}
                             alt={event.title}
-                            className="w-full h-48 object-cover"
+                            className="absolute inset-0 w-full h-full object-cover object-center"
                           />
                           <div className="absolute top-3 right-3">
                             <span
@@ -870,7 +870,7 @@ export default function MyEvents() {
                         {/* Conteúdo */}
                         <div className="p-4 sm:p-5">
                           <h3 className="font-bold text-lg text-gray-900 line-clamp-2">
-                            {truncateTextResponsive(event.title)}
+                            {truncateTextTo30Chars(event.title)}
                           </h3>
 
                           {/* Localização */}

@@ -35,10 +35,6 @@ const AdBanner: React.FC = () => {
   return (
     <div className="w-full max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
       <div className="text-center mt-10 mb-16">
-        <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">
-          Recomendações Especiais
-        </h2>
-        <div className="w-24 h-1 bg-[#FDC901] rounded-full mx-auto"></div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

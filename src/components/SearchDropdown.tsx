@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import EventInterface from "@/interfaces/EventInterface";
 import axios from "axios";
+import { truncateTextTo30Chars } from "@/utils/formatUtils";
 
 interface SearchDropdownProps {
   isScrolled?: boolean;
@@ -202,7 +203,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
                   {/* Informações do evento */}
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-gray-900 text-sm mb-1 truncate">
-                      {event.title}
+                      {truncateTextTo30Chars(event.title)}
                     </h3>
 
                     <div className="flex items-center gap-4 text-xs text-gray-600 mb-2">

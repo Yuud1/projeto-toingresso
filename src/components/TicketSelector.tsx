@@ -14,6 +14,7 @@ import TicketInterface from "@/interfaces/TicketInterface";
 import axios from "axios";
 import EventInterface from "@/interfaces/EventInterface";
 import { formatDate } from "date-fns";
+import { truncateTextTo30Chars } from "@/utils/formatUtils";
 
 interface TicketSelectorProps {
   event: EventInterface
@@ -184,7 +185,7 @@ export function TicketSelector({
               className="h-28 sm:h-32 w-28 sm:w-32 object-cover border-r border-gray-200 flex-shrink-0"
             />
             <div className="flex-1 p-4 flex flex-col justify-center">
-              <div className="text-base font-bold text-gray-700 mb-1 truncate">{event.title}</div>
+              <div className="text-base font-bold text-gray-700 mb-1 truncate">{truncateTextTo30Chars(event.title)}</div>
               <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
                 <span>{event.neighborhood}</span>
                 <span>•</span>
@@ -212,7 +213,7 @@ export function TicketSelector({
             <DialogTitle>Confirmar Compra</DialogTitle>
             <DialogDescription>
               Você está prestes a adquirir {totalTickets} ingresso
-              {totalTickets > 1 ? "s" : ""} para <strong>{event.title}</strong>.
+              {totalTickets > 1 ? "s" : ""} para <strong>{truncateTextTo30Chars(event.title)}</strong>.
             </DialogDescription>
           </DialogHeader>
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { MapPin, Clock, Calendar } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
-import { truncateTextResponsive } from "@/utils/formatUtils";
+import { truncateTextResponsive, truncateTextTo30Chars } from "@/utils/formatUtils";
 import getInitials from "@/utils/getInitials";
 import EventInterface from "@/interfaces/EventInterface";
 
@@ -20,13 +20,13 @@ const EventCard: React.FC<EventCardProps> = ({ event, className = "" }) => {
 
   return (
     <a href={`/evento/${event._id}`}>
-      <div className={`w-full bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer mb-6 h-[320px] flex flex-col ${className}`}>
+      <div className={`w-full bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer mb-6 flex flex-col ${className}`}>
         {/* Imagem */}
-        <div className="relative flex-shrink-0">
+        <div className="relative flex-shrink-0" style={{ aspectRatio: '16/9' }}>
           <img
             src={event.image || "/placeholder.svg"}
             alt={event.title}
-            className="w-full h-40 object-cover"
+            className="absolute inset-0 w-full h-full object-cover object-center"
           />
           <div className="absolute top-2 right-2">
             <span
@@ -42,7 +42,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, className = "" }) => {
         {/* Conteúdo */}
         <div className="p-3 flex-1 flex flex-col">
           <h3 className="font-bold text-base text-gray-900 truncate mb-1">
-            {truncateTextResponsive(event.title)}
+            {truncateTextTo30Chars(event.title)}
           </h3>
 
           {/* Descrição - limitada a 1 linha */}
