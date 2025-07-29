@@ -30,7 +30,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, className = "" }) => {
           />
           <div className="absolute top-2 right-2">
             <span
-              className={`px-2 py-1 rounded-full text-xs font-semibold ${
+              className={`px-1.5 py-0.5 rounded-full text-xs font-semibold ${
                 isFree ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
               }`}
             >
@@ -40,13 +40,13 @@ const EventCard: React.FC<EventCardProps> = ({ event, className = "" }) => {
         </div>
 
         {/* Conteúdo */}
-        <div className="p-3 flex-1 flex flex-col">
-          <h3 className="font-bold text-base text-gray-900 truncate mb-1">
+        <div className="p-2 sm:p-3 flex-1 flex flex-col">
+          <h3 className="font-bold text-sm sm:text-base text-gray-900 truncate mb-1">
             {truncateTextTo30Chars(event.title)}
           </h3>
 
           {/* Descrição - limitada a 1 linha */}
-          <p className="text-sm text-gray-600 truncate mb-2">
+          <p className="text-xs sm:text-sm text-gray-600 truncate mb-2">
             {event.description ? truncateTextResponsive(event.description) : "Sem descrição"}
           </p>
 
@@ -82,7 +82,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, className = "" }) => {
             <div className="text-xs text-gray-500 flex items-center justify-center">
               {event.organizer ? (
                 <span className="font-medium text-gray-700 flex justify-center items-center gap-2">
-                  <Avatar className="w-6 h-6">
+                  <Avatar className="w-5 h-5">
                     <AvatarImage src={event.organizer.avatar} alt={event.organizer.name} />
                     <AvatarFallback className="text-xs">{getInitials(event.organizer.name)}</AvatarFallback>
                   </Avatar>

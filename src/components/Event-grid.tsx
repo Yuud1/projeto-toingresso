@@ -112,7 +112,7 @@ const EventGrid = () => {
           <div className="flex flex-col lg:flex-row bg-white rounded-2xl shadow-2xl shadow-black/10">
             {/* Image Section */}
             <div className="relative lg:w-1/2">
-              <div className="relative overflow-hidden rounded-t-xl lg:rounded-l-2xl lg:rounded-t-none h-60 sm:h-80 lg:h-full">
+              <div className="relative overflow-hidden rounded-t-xl lg:rounded-l-2xl lg:rounded-t-none h-48 sm:h-60 lg:h-full">
                 <img
                   src={
                     currentEvent.image ||
@@ -162,17 +162,17 @@ const EventGrid = () => {
             </div>
 
             {/* Content Section */}
-            <div className="lg:w-1/2 p-4 sm:p-6 lg:p-8 flex flex-col justify-center rounded-b-xl lg:rounded-r-2xl lg:rounded-b-none">
+            <div className="lg:w-1/2 p-3 sm:p-4 lg:p-6 flex flex-col justify-center rounded-b-xl lg:rounded-r-2xl lg:rounded-b-none">
               {/* Date and Title Section - Side by Side */}
-              <div className="flex flex-row items-start gap-3 sm:gap-6 mb-6">
+              <div className="flex flex-row items-start gap-2 sm:gap-4 mb-4">
                 {/* Title and Subtitle */}
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 mb-2 sm:mb-3 leading-tight line-clamp-1">
+                  <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900 mb-1 sm:mb-2 leading-tight line-clamp-1">
                     {truncateTextTo30Chars(currentEvent.title)}
                   </h1>
-                  <div className="h-6 sm:h-7 flex items-center">
+                  <div className="h-5 sm:h-6 flex items-center">
                     {currentEvent.dates[0]?.attractions?.length > 0 ? (
-                      <p className="text-sm sm:text-lg text-slate-600 font-medium leading-none">
+                      <p className="text-xs sm:text-sm text-slate-600 font-medium leading-none">
                         {truncateTextTo30Chars(
                           currentEvent.dates[0].attractions
                             .map((a) => a.name)
@@ -180,27 +180,27 @@ const EventGrid = () => {
                         )}
                       </p>
                     ) : (
-                      <div className="h-6 sm:h-7"></div>
+                      <div className="h-5 sm:h-6"></div>
                     )}
                   </div>
                 </div>
 
                 {/* Date Card */}
-                <div className="flex items-center gap-2 sm:gap-4 bg-slate-100 rounded-xl sm:rounded-2xl p-2 sm:p-3 lg:p-4 w-fit flex-shrink-0">
-                  <div className="flex flex-col items-center text-center min-w-[40px] sm:min-w-[50px] lg:min-w-[60px]">
+                <div className="flex items-center gap-1 sm:gap-2 bg-slate-100 rounded-lg sm:rounded-xl p-1.5 sm:p-2 lg:p-3 w-fit flex-shrink-0">
+                  <div className="flex flex-col items-center text-center min-w-[35px] sm:min-w-[40px] lg:min-w-[50px]">
                     <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
                       {dateInfo.weekday}
                     </span>
-                    <span className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900">
+                    <span className="text-base sm:text-lg lg:text-xl font-bold text-slate-900">
                       {dateInfo.day}
                     </span>
                     <span className="text-xs font-semibold text-slate-600 uppercase">
                       {dateInfo.month}
                     </span>
                   </div>
-                  <div className="w-px h-8 sm:h-10 lg:h-12 bg-slate-300"></div>
+                  <div className="w-px h-6 sm:h-8 lg:h-10 bg-slate-300"></div>
                   <div className="text-slate-700">
-                    <div className="font-semibold text-xs sm:text-sm lg:text-base">{dateInfo.fullMonth}</div>
+                    <div className="font-semibold text-xs sm:text-sm">{dateInfo.fullMonth}</div>
                     <div className="text-xs text-slate-600">
                       {dateInfo.year}
                     </div>
@@ -209,19 +209,19 @@ const EventGrid = () => {
               </div>
 
               {/* Event Info */}
-              <div className="flex flex-wrap gap-4 mb-6 text-sm text-slate-600">
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-[#00498D]" />
+              <div className="flex flex-wrap gap-3 mb-4 text-xs sm:text-sm text-slate-600">
+                <div className="flex items-center gap-1">
+                  <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-[#00498D]" />
                   <span>
                     {currentEvent.city}, {currentEvent.state}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-[#00498D]" />
+                <div className="flex items-center gap-1">
+                  <Clock className="w-3 h-3 sm:w-4 sm:h-4 text-[#00498D]" />
                   <span>{currentEvent.dates[0]?.startTime || "19:00"}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-[#00498D]" />
+                <div className="flex items-center gap-1">
+                  <Users className="w-3 h-3 sm:w-4 sm:h-4 text-[#00498D]" />
                   <span>
                     {currentEvent.subscribers?.length || 0} inscritos
                   </span>
@@ -229,24 +229,24 @@ const EventGrid = () => {
               </div>
 
               {/* Description */}
-              <div className="h-16">
-                <p className="text-slate-600 leading-relaxed line-clamp-3">
+              <div className="h-12 sm:h-14 mb-4">
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed line-clamp-3">
                   {truncateTextResponsiveForEventGrid(currentEvent.description)}
                 </p>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <button
                   onClick={() => handleViewDetails(currentEvent._id)}
-                  className="flex-1 py-3 px-6 border-2 border-[#00498D] text-[#00498D] font-semibold rounded-xl hover:bg-[#00498D] hover:text-white transition-all duration-200 hover:scale-[1.02]"
+                  className="flex-1 py-2 sm:py-2.5 px-4 sm:px-5 border-2 border-[#00498D] text-[#00498D] font-semibold rounded-lg sm:rounded-xl hover:bg-[#00498D] hover:text-white transition-all duration-200 hover:scale-[1.02] text-sm sm:text-base"
                 >
                   Ver Detalhes
                 </button>
 
                 <button
                   onClick={() => handleBuyTicket(currentEvent._id)}
-                  className="flex-1 py-3 px-6 bg-gradient-to-r from-[#FDC901] to-[#FFE066] text-black font-semibold rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-[1.02]"
+                  className="flex-1 py-2 sm:py-2.5 px-4 sm:px-5 bg-gradient-to-r from-[#FDC901] to-[#FFE066] text-black font-semibold rounded-lg sm:rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-[1.02] text-sm sm:text-base"
                 >
                   {currentEvent.isFree ? "Inscrever-se" : "Comprar Ingresso"}
                 </button>

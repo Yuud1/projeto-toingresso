@@ -31,12 +31,12 @@ import {
   LogOut,
   Home,
 } from "lucide-react";
-import CarrosselInterface from "@/interfaces/CarrosselInterface";
-import BannerInterface from "@/interfaces/BannerInterface";
+import AdInterface from "@/interfaces/AdInterface";
+
 
 // Adiciona tipo auxiliar para slides com tempKey
-type CarouselSlideWithTempKey = CarrosselInterface & { tempKey?: string };
-type BannerWithTempKey = BannerInterface & { tempKey?: string };
+type CarouselSlideWithTempKey = AdInterface & { tempKey?: string };
+type BannerWithTempKey = AdInterface & { tempKey?: string };
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -118,6 +118,7 @@ const AdminDashboard: React.FC = () => {
       urlImage: "",
       active: true,
       title: "",
+      type: "carousel",
     };
     setCarouselSlides([...carouselSlides, newSlide]);
     setHasChanges(true);
@@ -132,6 +133,7 @@ const AdminDashboard: React.FC = () => {
       urlImage: "",
       active: true,
       title: "",
+      type: "banner",
     };
     setBanners([...banners, newBanner]);
     setHasChanges(true);

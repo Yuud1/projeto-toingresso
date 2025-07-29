@@ -60,7 +60,18 @@ const Category: React.FC = () => {
     getEventsForAllCategories()
   }, [])
 
-  const showCarousel = () => {
+  const showCarousel = (events: EventInterface[]) => {
+    // Se não há eventos, não mostra carrossel
+    if (!events || events.length === 0) {
+      return false
+    }
+
+    // Se há 1 ou mais eventos, sempre mostra carrossel
+    if (events.length >= 1) {
+      return true
+    }
+
+    // Fallback: mostra carrossel por padrão
     return true
   }
 
@@ -77,7 +88,7 @@ const Category: React.FC = () => {
         <div className="absolute top-1/2 left-1/3 w-32 h-32 bg-white rounded-full blur-2xl"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 w-full h-fit relative z-10" id="filter-grid">
+      <div className="max-w-7xl mx-auto pt-10 px-4 sm:px-6 lg:px-8 w-full h-fit relative z-10" id="filter-grid">
         {categories.map((category) => {
           const events = eventsByCategory[category] || []
           if (events.length === 0) return null
@@ -100,8 +111,8 @@ const Category: React.FC = () => {
                 </button>
               </div>
 
-              <div className="relative min-h-[20em] ">
-                {showCarousel() ? (
+              <div className="relative min-h-[10em] ">
+                {showCarousel(events) ? (
                   <>
                     <Swiper
                       slidesPerView={2.2}
@@ -115,16 +126,16 @@ const Category: React.FC = () => {
                       modules={[Navigation]}
                       className="pb-10"
                       breakpoints={{
-                        320: { slidesPerView: 1.2, spaceBetween: 12 },
-                        640: { slidesPerView: 2.2, spaceBetween: 16 },
-                        768: { slidesPerView: 3.2, spaceBetween: 20 },
+                        320: { slidesPerView: 1.2, spaceBetween: 16 },
+                        640: { slidesPerView: 2.2, spaceBetween: 20 },
+                        768: { slidesPerView: 3.2, spaceBetween: 24 },
                         1024: { slidesPerView: 4.2, spaceBetween: 24 },
-                        1280: { slidesPerView: 5.2, spaceBetween: 28 },
+                        1280: { slidesPerView: 4.2, spaceBetween: 24 },
                       }}
                     >
                       {events.map((event) => (
-                        <SwiperSlide key={event._id}>
-                         <EventCard event={event}/>
+                        <SwiperSlide key={event._id} className="h-auto">
+                         <EventCard event={event} className="h-full" />
                         </SwiperSlide>
                       ))}
                     </Swiper>
@@ -140,9 +151,9 @@ const Category: React.FC = () => {
                     </button>
                   </>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                     {events.map((event) => (
-                      <EventCard key={event._id} event={event} />
+                      <EventCard key={event._id} event={event} className="h-full" />
                     ))}
                   </div>
                 )}
