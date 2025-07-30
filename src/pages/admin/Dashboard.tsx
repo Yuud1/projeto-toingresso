@@ -5,7 +5,7 @@ import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import logoToIngresso from "../../../public/logos/TOingresso_logo_512x512.png";
+import logoToIngresso from "../../../public/icons/windows11/SmallTile.scale-400.png";
 import {
   Card,
   CardContent,
