@@ -20,13 +20,13 @@ const EventCard: React.FC<EventCardProps> = ({ event, className = "" }) => {
 
   return (
     <a href={`/evento/${event._id}`}>
-      <div className={`w-full bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer mb-6 flex flex-col ${className}`}>
+      <div className={`w-full bg-white rounded-none md:rounded-md shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer mb-6 flex flex-col ${className}`}>
         {/* Imagem */}
-        <div className="relative flex-shrink-0" style={{ aspectRatio: '16/9' }}>
+        <div className="relative flex-shrink-0 rounded-none md:rounded-t-md" style={{ aspectRatio: '16/9' }}>
           <img
             src={event.image || "/placeholder.svg"}
             alt={event.title}
-            className="absolute inset-0 w-full h-full object-cover object-center"
+            className="absolute inset-0 w-full h-full object-cover object-center rounded-none md:rounded-t-md"
           />
           <div className="absolute top-2 right-2">
             <span
@@ -40,7 +40,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, className = "" }) => {
         </div>
 
         {/* Conteúdo */}
-        <div className="p-2 sm:p-3 flex-1 flex flex-col">
+        <div className="p-2 sm:p-3 flex-1 flex flex-col rounded-none md:rounded-b-md">
           <h3 className="font-bold text-sm sm:text-base text-gray-900 truncate mb-1">
             {truncateTextTo30Chars(event.title)}
           </h3>
