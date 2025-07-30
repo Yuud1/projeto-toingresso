@@ -22,21 +22,15 @@ export default defineConfig({
         short_name: "ToIngresso",
         description: "Compra segura e fácil com ToIngresso",
         theme_color: "#ffffff",
-        icons: [
+        icons: [        
           {
-            src: "/maskable/maskable_icon_x192.png",
-            sizes: "192x192",
-            type: "image/png",
-            purpose: "any"
-          },
-          {
-            src: "/maskable/maskable_icon_x512.png",
+            src: "/logos/ToIngresso_logo_SemNome.png",
             sizes: "512x512",
             type: "image/png",
             purpose: "any"
           },          
           {
-            src: "/maskable/maskable_icon_x192.png",
+            src: "/logos/ToIngresso_logo_SemNome.png",
             sizes: "512x512",
             type: "image/png",
             purpose: "maskable",

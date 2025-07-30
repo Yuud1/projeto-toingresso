@@ -1,13 +1,24 @@
 import { createRoot } from "react-dom/client";
+import App from "./App";
+import { UserProvider } from "./contexts/useContext";
 import "./index.css";
-import App from "./App.tsx";
-import { UserProvider } from "./contexts/useContext.tsx";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
+// Oculta o loader de vídeo quando React carregar
+const hideLoader = () => {
+  const loader = document.getElementById("loading");
+  if (loader) {
+    loader.classList.add("hidden");
+    setTimeout(() => loader.remove(), 300);
+  }
+};
+
 createRoot(document.getElementById("root")!).render(
-  <GoogleOAuthProvider clientId="234809663884-92s0o9ojdmt3ctdb8avf3vge70j8lo0p.apps.googleusercontent.com">
+   <GoogleOAuthProvider clientId="234809663884-92s0o9ojdmt3ctdb8avf3vge70j8lo0p.apps.googleusercontent.com">
     <UserProvider>
       <App />
     </UserProvider>
   </GoogleOAuthProvider>
 );
+
+hideLoader();
