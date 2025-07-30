@@ -140,7 +140,7 @@ export default function EditEvent() {
     status: "active",
     searchAddress: "",
   });
-  console.log(formData);
+  
 
   useEffect(() => {
     async function fetchEventDataToEdit() {
@@ -236,7 +236,6 @@ export default function EditEvent() {
         )}&key=${apiKey}&region=br&language=pt-BR`
       );
       const data = await response.json();
-      console.log(data);
 
       if (data.results && data.results.length > 0) {
         // Formatar resultados do geocoding

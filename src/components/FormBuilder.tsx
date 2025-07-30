@@ -103,7 +103,6 @@ interface InterfaceFormBuilder {
 
 export default function FormBuilder({ form, setForm }: InterfaceFormBuilder) {
   const [fields, setFields] = useState<FormField[]>(form.customFields ?? []);
-  console.log(fields);
 
   const [newFieldType, setNewFieldType] = useState<FieldType>("text");
   const [formTitle, setFormTitle] = useState<string>("Meu Formulário");
@@ -271,7 +270,6 @@ export default function FormBuilder({ form, setForm }: InterfaceFormBuilder) {
   // Função para obter municípios do estado selecionado
   const getMunicipiosDoEstado = (fieldId: string): string[] => {
     const estadoSelecionado = formValues[`${fieldId}_estado`] as string;
-    console.log("Estado selecionado:", estadoSelecionado);
 
     if (!estadoSelecionado) return [];
 

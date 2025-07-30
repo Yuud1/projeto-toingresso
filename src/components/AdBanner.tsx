@@ -19,8 +19,7 @@ const AdBanner: React.FC = () => {
       .get(
         `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_BANNER_GET}`
       )
-      .then((res) => {
-        console.log("BANNERS:", res.data.banners);
+      .then((res) => {        
         if (res.data.banners && res.data.banners.length > 0) {
           setBanner(res.data.banners);
         }

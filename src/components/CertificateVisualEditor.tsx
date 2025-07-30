@@ -1143,7 +1143,7 @@ export function CertificateVisualEditor({
           <div className="flex gap-2">
             <Button
               variant="outline"
-              onClick={() => console.log(generateHTML())}
+              onClick={() => generateHTML()}
               className="flex-1"
             >
               <Eye className="h-4 w-4 mr-2" />

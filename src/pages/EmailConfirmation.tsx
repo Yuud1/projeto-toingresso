@@ -11,8 +11,7 @@ export default function EmailConfirmationPage() {
     React.useState<boolean>(false);
 
   // Se quiser fazer um alert personalizado usa esse cara aqui. No ShadCn tem alert
-  const [errorMessage, setErrorMessage] = React.useState<string>();
-  console.log(errorMessage);
+  const [errorMessage, setErrorMessage] = React.useState<string>();  
   
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -42,7 +41,7 @@ export default function EmailConfirmationPage() {
         }`,
         { token: localStorage.getItem("token") }
       );
-      console.log(response);
+      
 
       if (response.data.sended) {
         setResendedCodeStatus(response.data.sended);
