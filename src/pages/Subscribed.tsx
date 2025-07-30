@@ -13,42 +13,42 @@ import axios from "axios";
 interface SubscribedProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  qrCode: string | null;  
-  ticketId?: string
+  qrCode: string | null;
+  ticketId?: string;
 }
 
 export default function Subscribed({
   open,
   onOpenChange,
-  qrCode,  
-  ticketId
+  qrCode,
+  ticketId,
 }: SubscribedProps) {
-  const handleDownload = () => {
-    if (!qrCode) return;
-    const link = document.createElement("a");
-    link.href = qrCode;
-    link.download = "ticket-qrcode.png";
-    link.click();
-  };
-
   const handleDownloadPdf = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_GET_TICKET_PDF}/${ticketId}`,
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_GET_TICKET_PDF
+        }/${ticketId}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-          responseType: "blob",
         }
       );
 
-      const blob = new Blob([response.data], { type: "application/pdf" });
-      const url = window.URL.createObjectURL(blob);
+      const { pdfBuffer, fileName } = response.data;
 
+      // Converter o objeto pdfBuffer em um array de bytes
+      const byteArray = new Uint8Array(Object.values(pdfBuffer));
+
+      // Criar o Blob a partir do array de bytes
+      const blob = new Blob([byteArray], { type: "application/pdf" });
+
+      // Criar a URL e iniciar o download
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", "ticket.pdf");
+      link.setAttribute("download", fileName || "ticket.pdf");
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -119,15 +119,6 @@ export default function Subscribed({
         </div>
 
         <DialogFooter className="px-6 pb-6 flex gap-3">
-          <Button
-            variant="outline"
-            onClick={handleDownload}
-            disabled={!qrCode}
-            className="flex-1 border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Baixar QR Code
-          </Button>
           <Button
             variant="outline"
             onClick={handleDownloadPdf}
