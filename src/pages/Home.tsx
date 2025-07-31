@@ -5,6 +5,7 @@ import EventGrid from "../components/Event-grid";
 import AdBanner from "../components/AdBanner";
 import Footer from "../components/Footer";
 import CreateEventCTA from "../components/CreateEventCTA";
+import { ArrowDown } from "lucide-react";
 
 export default function Home() {
   return (
