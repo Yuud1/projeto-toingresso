@@ -36,7 +36,7 @@ const AdminLogin: React.FC = () => {
         }
       );
       if (response.data.logged) {
-        localStorage.setItem("adminToken", response.data.token);
+        sessionStorage.setItem("adminToken", response.data.token);
         navigate("/admin/dashboard");
       } else {
         setError("Email ou senha incorretos");
