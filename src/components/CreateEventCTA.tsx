@@ -17,7 +17,7 @@ const CreateEventCTA: React.FC = () => {
             Plataforma Gratuita
           </div>
 
-          <h2 className="text-2xl sm:text-2xl md:text-3xl lg:text-5xl font-bold text-black mb-3 md:mb-5 leading-tight">
+          <h2 className="text-4xl sm:text-2xl md:text-3xl lg:text-5xl font-bold text-black mb-3 md:mb-5 leading-tight">
             Pronto para Criar seu
             <span className="block bg-gradient-to-r from-[#FDC901] to-[#FFE066] bg-clip-text text-transparent">
               Próximo Evento?
