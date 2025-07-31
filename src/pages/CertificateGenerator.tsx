@@ -29,7 +29,7 @@ interface CertificateGeneratorProps {
 export default function CertificateGenerator({
   events,
 }: CertificateGeneratorProps) {
-  const { toast } = useToast();
+  const { showSuccess, showError } = useToast();
   const {user} = useUser()
   const [selectedEvent, setSelectedEvent] = useState<string>("");
   const [pdfTemplate, setPdfTemplate] = useState<File | null>(null);
@@ -40,38 +40,22 @@ export default function CertificateGenerator({
       const file = e.target.files[0];
       if (file.type === "application/pdf") {
         setPdfTemplate(file);
-        toast({
-          title: "PDF Carregado",
-          description: `Arquivo "${file.name}" pronto para uso.`,
-        });
+        showSuccess("PDF Carregado", `Arquivo "${file.name}" pronto para uso.`);
       } else {
         setPdfTemplate(null);
         e.target.value = ""; // Reset file input
-        toast({
-          title: "Formato de arquivo inválido",
-          description: "Por favor, envie um arquivo no formato PDF.",
-          variant: "destructive",
-        });
+        showError("Formato de arquivo inválido", "Por favor, envie um arquivo no formato PDF.");
       }
     }
   };
 
   const handleGenerate = async () => {
     if (!selectedEvent) {
-      toast({
-        title: "Erro",
-        description: "Por favor, selecione um evento.",
-        variant: "destructive",
-      });
+      showError("Erro", "Por favor, selecione um evento.");
       return;
     }
     if (!pdfTemplate) {
-      toast({
-        title: "Erro",
-        description:
-          "Por favor, faça o upload do modelo de certificado em PDF.",
-        variant: "destructive",
-      });
+      showError("Erro", "Por favor, faça o upload do modelo de certificado em PDF.");
       return;
     }
     try {
@@ -105,20 +89,11 @@ export default function CertificateGenerator({
 
   const handleGenerateTeste = async () => {
     if (!selectedEvent) {
-      toast({
-        title: "Erro",
-        description: "Por favor, selecione um evento.",
-        variant: "destructive",
-      });
+      showError("Erro", "Por favor, selecione um evento.");
       return;
     }
     if (!pdfTemplate) {
-      toast({
-        title: "Erro",
-        description:
-          "Por favor, faça o upload do modelo de certificado em PDF.",
-        variant: "destructive",
-      });
+      showError("Erro", "Por favor, faça o upload do modelo de certificado em PDF.");
       return;
     }
     try {

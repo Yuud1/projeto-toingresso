@@ -21,11 +21,24 @@ const Toast: React.FC<ToastProps> = ({
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
+  const [progress, setProgress] = useState(100);
 
   useEffect(() => {
     // Animar entrada
     const timer = setTimeout(() => setIsVisible(true), 100);
     
+    // Progress bar animation
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev <= 0) {
+          clearInterval(progressInterval);
+          handleClose();
+          return 0;
+        }
+        return prev - (100 / (duration / 100));
+      });
+    }, 100);
+
     // Auto-close
     const autoCloseTimer = setTimeout(() => {
       handleClose();
@@ -34,6 +47,7 @@ const Toast: React.FC<ToastProps> = ({
     return () => {
       clearTimeout(timer);
       clearTimeout(autoCloseTimer);
+      clearInterval(progressInterval);
     };
   }, [duration]);
 
@@ -69,6 +83,20 @@ const Toast: React.FC<ToastProps> = ({
       case "info":
       default:
         return "bg-blue-50 border-blue-200";
+    }
+  };
+
+  const getProgressColor = () => {
+    switch (type) {
+      case "success":
+        return "bg-green-500";
+      case "error":
+        return "bg-red-500";
+      case "warning":
+        return "bg-yellow-500";
+      case "info":
+      default:
+        return "bg-blue-500";
     }
   };
 
@@ -115,25 +143,15 @@ const Toast: React.FC<ToastProps> = ({
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200 rounded-b-xl overflow-hidden">
           <div
             className={cn(
-              "h-full transition-all duration-300 ease-linear",
-              type === "success" && "bg-green-500",
-              type === "error" && "bg-red-500",
-              type === "warning" && "bg-yellow-500",
-              type === "info" && "bg-blue-500"
+              "h-full transition-all duration-100 ease-linear",
+              getProgressColor()
             )}
             style={{
-              animation: `shrink ${duration}ms linear forwards`,
+              width: `${progress}%`,
             }}
           />
         </div>
       </div>
-      
-      <style jsx>{`
-        @keyframes shrink {
-          from { width: 100%; }
-          to { width: 0%; }
-        }
-      `}</style>
     </div>
   );
 };

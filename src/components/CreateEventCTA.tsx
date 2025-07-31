@@ -8,59 +8,59 @@ const CreateEventCTA: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="w-full pt-5 pb-25 px-4 relative overflow-hidden">
+    <section className="w-full pt-4 pb-20 px-4 relative overflow-hidden">
       
-      <div className="max-w-6xl mx-auto relative z-10">
-        <div className="text-center mb-8 md:mb-12">
-          <div className="inline-flex items-center gap-2 bg-black text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-xs md:text-sm font-medium mb-4 md:mb-6">
+      <div className="max-w-5xl mx-auto relative z-10">
+        <div className="text-center mb-6 md:mb-10">
+          <div className="inline-flex items-center gap-2 bg-black text-white px-2.5 py-1 md:px-3 md:py-1.5 rounded-lg text-xs md:text-sm font-medium mb-3 md:mb-5">
             <Sparkles className="w-3 h-3 md:w-4 md:h-4" />
             Plataforma Gratuita
           </div>
 
-          <h2 className="text-3xl sm:text-3xl md:text-4xl lg:text-6xl font-bold text-black mb-4 md:mb-6 leading-tight">
+          <h2 className="text-2xl sm:text-2xl md:text-3xl lg:text-5xl font-bold text-black mb-3 md:mb-5 leading-tight">
             Pronto para Criar seu
             <span className="block bg-gradient-to-r from-[#FDC901] to-[#FFE066] bg-clip-text text-transparent">
               Próximo Evento?
             </span>
           </h2>
 
-          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-black/90 mb-6 md:mb-10 max-w-3xl mx-auto leading-relaxed px-2">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-black/90 mb-5 md:mb-8 max-w-2xl mx-auto leading-relaxed px-2">
             Junte-se a milhares de organizadores que confiam na nossa plataforma
             para criar eventos memoráveis e inesquecíveis.
           </p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mb-8 md:mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6 mb-6 md:mb-10">
           <div className="text-center">
-            <div className="w-12 h-12 md:w-16 md:h-16 bg-black rounded-lg flex items-center justify-center mx-auto mb-3 md:mb-4">
-              <Users className="w-6 h-6 md:w-8 md:h-8 text-white" />
+            <div className="w-10 h-10 md:w-14 md:h-14 bg-black rounded-lg flex items-center justify-center mx-auto mb-2 md:mb-3">
+              <Users className="w-5 h-5 md:w-7 md:h-7 text-white" />
             </div>
-            <div className="text-2xl md:text-3xl font-bold text-black mb-1 md:mb-2">10k+</div>
-            <div className="text-sm md:text-base text-black/80">Organizadores Ativos</div>
+            <div className="text-xl md:text-2xl font-bold text-black mb-1 md:mb-2">10k+</div>
+            <div className="text-xs md:text-sm text-black/80">Organizadores Ativos</div>
           </div>
 
           <div className="text-center">
-            <div className="w-12 h-12 md:w-16 md:h-16 bg-black rounded-lg flex items-center justify-center mx-auto mb-3 md:mb-4">
-              <Calendar className="w-6 h-6 md:w-8 md:h-8 text-white" />
+            <div className="w-10 h-10 md:w-14 md:h-14 bg-black rounded-lg flex items-center justify-center mx-auto mb-2 md:mb-3">
+              <Calendar className="w-5 h-5 md:w-7 md:h-7 text-white" />
             </div>
-            <div className="text-2xl md:text-3xl font-bold text-black mb-1 md:mb-2">50k+</div>
-            <div className="text-sm md:text-base text-black/80">Eventos Criados</div>
+            <div className="text-xl md:text-2xl font-bold text-black mb-1 md:mb-2">50k+</div>
+            <div className="text-xs md:text-sm text-black/80">Eventos Criados</div>
           </div>
 
           <div className="text-center col-span-2 md:col-span-1">
-            <div className="w-12 h-12 md:w-16 md:h-16 bg-black rounded-lg flex items-center justify-center mx-auto mb-3 md:mb-4">
-              <ShieldCheck className="w-6 h-6 md:w-8 md:h-8 text-white" />
+            <div className="w-10 h-10 md:w-14 md:h-14 bg-black rounded-lg flex items-center justify-center mx-auto mb-2 md:mb-3">
+              <ShieldCheck className="w-5 h-5 md:w-7 md:h-7 text-white" />
             </div>
-            <div className="text-2xl md:text-3xl font-bold text-black mb-1 md:mb-2">100%</div>
-            <div className="text-sm md:text-base text-black/80">Seguro e Confiável</div>
+            <div className="text-xl md:text-2xl font-bold text-black mb-1 md:mb-2">100%</div>
+            <div className="text-xs md:text-sm text-black/80">Seguro e Confiável</div>
           </div>
         </div>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
           <button
-            className="relative group flex items-center gap-2 md:gap-3 px-6 py-3 md:px-8 md:py-4 rounded-xl text-white bg-black font-bold text-base md:text-lg shadow-2xl min-w-[180px] md:min-w-[200px] cursor-pointer overflow-hidden"
+            className="relative group flex items-center gap-2 md:gap-3 px-5 py-2.5 md:px-7 md:py-3.5 rounded-xl text-white bg-black font-bold text-sm md:text-base shadow-2xl min-w-[160px] md:min-w-[180px] cursor-pointer overflow-hidden"
             onClick={() => navigate("/criar-evento")}
           >
             {/* Efeito de preenchimento no hover */}
@@ -68,32 +68,32 @@ const CreateEventCTA: React.FC = () => {
 
             {/* Conteúdo do botão por cima do span de fundo */}
             <span className="flex items-center gap-2 md:gap-3 relative z-10 text-white group-hover:text-black transition-colors duration-300">
-              <ShieldCheck className="w-5 h-5 md:w-6 md:h-6 group-hover:rotate-12 transition-transform duration-300" />
+              <ShieldCheck className="w-4 h-4 md:w-5 md:h-5 group-hover:rotate-12 transition-transform duration-300" />
               Criar Evento Grátis
             </span>
           </button>
         </div>
 
         {/* Trust indicators */}
-        <div className="mt-8 md:mt-12 text-center">
-          <p className="text-black/60 text-xs md:text-sm mb-3 md:mb-4">
+        <div className="mt-6 md:mt-10 text-center">
+          <p className="text-black/60 text-xs md:text-sm mb-2 md:mb-3">
             Recursos inclusos gratuitamente:
           </p>
-          <div className="flex flex-wrap justify-center gap-3 md:gap-6 text-black/80 text-xs md:text-sm px-2">
-            <span className="flex items-center gap-1.5 md:gap-2">
-              <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-[#FDC901] rounded-full"></div>
+          <div className="flex flex-wrap justify-center gap-2 md:gap-4 text-black/80 text-xs md:text-sm px-2">
+            <span className="flex items-center gap-1 md:gap-1.5">
+              <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-[#FDC901] rounded-full"></div>
               Gestão de ingressos
             </span>
-            <span className="flex items-center gap-1.5 md:gap-2">
-              <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-[#FDC901] rounded-full"></div>
+            <span className="flex items-center gap-1 md:gap-1.5">
+              <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-[#FDC901] rounded-full"></div>
               Pagamentos seguros
             </span>
-            <span className="flex items-center gap-1.5 md:gap-2">
-              <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-[#FDC901] rounded-full"></div>
+            <span className="flex items-center gap-1 md:gap-1.5">
+              <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-[#FDC901] rounded-full"></div>
               Relatórios detalhados
             </span>
-            <span className="flex items-center gap-1.5 md:gap-2">
-              <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-[#FDC901] rounded-full"></div>
+            <span className="flex items-center gap-1 md:gap-1.5">
+              <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-[#FDC901] rounded-full"></div>
               Suporte 24/7
             </span>
           </div>

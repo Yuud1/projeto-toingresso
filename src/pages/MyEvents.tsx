@@ -125,7 +125,7 @@ const months = [
 export default function MyEvents() {
   const token = localStorage.getItem("token");
   const { user } = useUser();
-  const { toast } = useToast();
+  const { showSuccess, showError } = useToast();
 
   const [events, setEvents] = useState<EventInterface[]>([]);
   const [mainTab, setMainTab] = useState<
@@ -326,19 +326,11 @@ export default function MyEvents() {
           setIsStopModalOpen(false);
           setSubTab("finished");
 
-          toast({
-            title: "Evento encerrado com sucesso!",
-            description:
-              "O evento foi movido para a lista de eventos finalizados e não poderá mais receber novos participantes.",
-          });
+          showSuccess("Evento encerrado com sucesso!", "O evento foi movido para a lista de eventos finalizados e não poderá mais receber novos participantes.");
         }
       } catch (error) {
         console.error("Erro ao encerrar evento:", error);
-        toast({
-          title: "Erro ao encerrar evento",
-          description: "Tente novamente em alguns instantes.",
-          variant: "destructive",
-        });
+        showError("Erro ao encerrar evento", "Tente novamente em alguns instantes.");
       }
     }
   };
@@ -391,16 +383,9 @@ export default function MyEvents() {
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      toast({
-        title: "Copiado!",
-        description: "O token foi copiado para a área de transferência.",
-      });
+      showSuccess("Copiado!", "O token foi copiado para a área de transferência.");
     } catch (err) {
-      toast({
-        title: "Erro ao copiar",
-        description: "Não foi possível copiar o token.",
-        variant: "destructive",
-      });
+      showError("Erro ao copiar", "Não foi possível copiar o token.");
       console.error("Falha ao copiar texto: ", err);
     }
   };

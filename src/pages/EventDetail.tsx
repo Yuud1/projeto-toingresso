@@ -863,7 +863,7 @@ const EventDetail = () => {
                         </p>
                         <Button
                           onClick={() => window.location.href = "/meus-ingressos"}
-                          className="bg-gradient-to-r from-yellow-500 to-blue-500 hover:from-yellow-600 hover:to-blue-600 text-white border-0 rounded-xl px-6 py-3"
+                          className="bg-black hover:bg-gray-800 text-white border-0 rounded-xl px-6 py-3"
                         >
                           Ver Meus Ingressos
                         </Button>
