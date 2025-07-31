@@ -1,62 +1,141 @@
-import * as React from "react"
-import { X } from 'lucide-react'
-import { cn } from "@/lib/utils"
-import type { ToastProps } from "@/hooks/use-toast"
+import React, { useEffect, useState } from "react";
+import { X, CheckCircle, AlertCircle, Info, XCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-interface ToastComponentProps extends ToastProps {
-  onDismiss?: (id: string) => void
+export interface ToastProps {
+  id: string;
+  type?: "success" | "error" | "warning" | "info";
+  title: string;
+  message?: string;
+  duration?: number;
+  onClose: (id: string) => void;
 }
 
-const Toast = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & ToastComponentProps>(
-  ({ className, title, description, variant = "default", id, onDismiss, ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all",
-          variant === "default" && "bg-white border-gray-200 text-gray-900",
-          variant === "destructive" && "bg-red-600 text-white border-red-600",
-          className,
-        )}
-        {...props}
-      >
-        <div className="flex flex-col gap-1">
-          {title && <div className="text-sm font-semibold">{title}</div>}
-          {description && <div className="text-sm opacity-90">{description}</div>}
-        </div>
-        <button
-          onClick={() => onDismiss?.(id)}
-          className={cn(
-            "absolute right-2 top-2 rounded-md p-1 opacity-70 hover:opacity-100 transition-opacity",
-            variant === "default" && "text-gray-500 hover:text-gray-900",
-            variant === "destructive" && "text-white hover:text-white/80",
-          )}
-        >
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </button>
-      </div>
-    )
-  },
-)
-Toast.displayName = "Toast"
+const Toast: React.FC<ToastProps> = ({
+  id,
+  type = "info",
+  title,
+  message,
+  duration = 5000,
+  onClose,
+}) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
 
-const ToastProvider = ({ children }: { children: React.ReactNode }) => {
-  return <>{children}</>
-}
+  useEffect(() => {
+    // Animar entrada
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    
+    // Auto-close
+    const autoCloseTimer = setTimeout(() => {
+      handleClose();
+    }, duration);
 
-const ToastViewport = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(autoCloseTimer);
+    };
+  }, [duration]);
+
+  const handleClose = () => {
+    setIsLeaving(true);
+    setTimeout(() => {
+      onClose(id);
+    }, 300);
+  };
+
+  const getIcon = () => {
+    switch (type) {
+      case "success":
+        return <CheckCircle className="w-5 h-5 text-green-500" />;
+      case "error":
+        return <XCircle className="w-5 h-5 text-red-500" />;
+      case "warning":
+        return <AlertCircle className="w-5 h-5 text-yellow-500" />;
+      case "info":
+      default:
+        return <Info className="w-5 h-5 text-blue-500" />;
+    }
+  };
+
+  const getBackgroundColor = () => {
+    switch (type) {
+      case "success":
+        return "bg-green-50 border-green-200";
+      case "error":
+        return "bg-red-50 border-red-200";
+      case "warning":
+        return "bg-yellow-50 border-yellow-200";
+      case "info":
+      default:
+        return "bg-blue-50 border-blue-200";
+    }
+  };
+
+  return (
     <div
-      ref={ref}
       className={cn(
-        "fixed bottom-0 right-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:max-w-[420px]",
-        className,
+        "fixed top-4 right-4 z-50 max-w-sm w-full transform transition-all duration-300 ease-in-out",
+        isVisible && !isLeaving
+          ? "translate-x-0 opacity-100 scale-100"
+          : "translate-x-full opacity-0 scale-95"
       )}
-      {...props}
-    />
-  ),
-)
-ToastViewport.displayName = "ToastViewport"
+    >
+      <div
+        className={cn(
+          "relative p-4 rounded-xl border shadow-lg backdrop-blur-sm",
+          getBackgroundColor()
+        )}
+      >
+        <div className="flex items-start gap-3">
+          <div className="flex-shrink-0 mt-0.5">
+            {getIcon()}
+          </div>
+          
+          <div className="flex-1 min-w-0">
+            <h4 className="text-sm font-semibold text-gray-900 mb-1">
+              {title}
+            </h4>
+            {message && (
+              <p className="text-sm text-gray-600 leading-relaxed">
+                {message}
+              </p>
+            )}
+          </div>
+          
+          <button
+            onClick={handleClose}
+            className="flex-shrink-0 ml-2 p-1 rounded-lg hover:bg-gray-200/50 transition-colors"
+          >
+            <X className="w-4 h-4 text-gray-500" />
+          </button>
+        </div>
+        
+        {/* Progress bar */}
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200 rounded-b-xl overflow-hidden">
+          <div
+            className={cn(
+              "h-full transition-all duration-300 ease-linear",
+              type === "success" && "bg-green-500",
+              type === "error" && "bg-red-500",
+              type === "warning" && "bg-yellow-500",
+              type === "info" && "bg-blue-500"
+            )}
+            style={{
+              animation: `shrink ${duration}ms linear forwards`,
+            }}
+          />
+        </div>
+      </div>
+      
+      <style jsx>{`
+        @keyframes shrink {
+          from { width: 100%; }
+          to { width: 0%; }
+        }
+      `}</style>
+    </div>
+  );
+};
 
-export { Toast, ToastProvider, ToastViewport }
+export default Toast;

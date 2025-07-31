@@ -1,97 +1,52 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useCallback } from "react";
+import { ToastProps } from "@/components/ui/toast";
 
-export const TOAST_REMOVE_DELAY = 1000
-export const TOAST_LIFETIME = 5000
+export const useToast = () => {
+  const [toasts, setToasts] = useState<ToastProps[]>([]);
 
-export interface ToastProps {
-  id: string
-  title?: string
-  description?: string
-  variant?: "default" | "destructive"
-  dismissed?: boolean
-}
+  const addToast = useCallback((toast: Omit<ToastProps, "id" | "onClose">) => {
+    const id = Math.random().toString(36).substr(2, 9);
+    const newToast: ToastProps = {
+      ...toast,
+      id,
+      onClose: (toastId: string) => {
+        setToasts((prev) => prev.filter((t) => t.id !== toastId));
+      },
+    };
 
-let count = 0
+    setToasts((prev) => [...prev, newToast]);
+  }, []);
 
-function generateId() {
-  return `toast-${count++}`
-}
+  const removeToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  }, []);
 
-export function useToast() {
-  const [toasts, setToasts] = useState<ToastProps[]>([])
+  const showSuccess = useCallback((title: string, message?: string, duration?: number) => {
+    addToast({ type: "success", title, message, duration });
+  }, [addToast]);
 
-  const dismiss = useCallback((toastId?: string) => {
-    setToasts((toasts) => {
-      if (toastId) {
-        return toasts.map((toast) =>
-          toast.id === toastId
-            ? {
-                ...toast,
-                dismissed: true,
-              }
-            : toast,
-        )
-      }
-      return toasts.map((toast) => ({
-        ...toast,
-        dismissed: true,
-      }))
-    })
-  }, [])
+  const showError = useCallback((title: string, message?: string, duration?: number) => {
+    addToast({ type: "error", title, message, duration });
+  }, [addToast]);
 
-  const remove = useCallback((toastId?: string) => {
-    setToasts((toasts) => {
-      if (toastId) {
-        return toasts.filter((toast) => toast.id !== toastId)
-      }
-      return []
-    })
-  }, [])
+  const showWarning = useCallback((title: string, message?: string, duration?: number) => {
+    addToast({ type: "warning", title, message, duration });
+  }, [addToast]);
 
-  const toast = useCallback(
-    ({ title, description, variant = "default" }: Omit<ToastProps, "id" | "dismissed">) => {
-      const id = generateId()
-
-      setToasts((toasts) => [...toasts, { id, title, description, variant }])
-
-      // Auto dismiss after TOAST_LIFETIME
-      setTimeout(() => {
-        dismiss(id)
-      }, TOAST_LIFETIME)
-
-      return {
-        id,
-        dismiss: () => dismiss(id),
-      }
-    },
-    [dismiss],
-  )
-
-  useEffect(() => {
-    const timeouts: ReturnType<typeof setTimeout>[] = []
-
-    toasts.forEach((toast) => {
-      if (toast.dismissed) {
-        const timeout = setTimeout(() => {
-          remove(toast.id)
-        }, TOAST_REMOVE_DELAY)
-
-        timeouts.push(timeout)
-      }
-    })
-
-    return () => {
-      timeouts.forEach((timeout) => clearTimeout(timeout))
-    }
-  }, [toasts, remove])
+  const showInfo = useCallback((title: string, message?: string, duration?: number) => {
+    addToast({ type: "info", title, message, duration });
+  }, [addToast]);
 
   return {
     toasts,
-    toast,
-    dismiss,
-    remove,
-  }
-}
+    addToast,
+    removeToast,
+    showSuccess,
+    showError,
+    showWarning,
+    showInfo,
+  };
+};
 
 export const useScreenSize = () => {
   const [screenSize, setScreenSize] = useState({

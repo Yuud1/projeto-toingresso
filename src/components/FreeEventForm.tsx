@@ -19,6 +19,7 @@ interface Props {
   customFields: CustomFieldInterface[];
   setSubscribed: React.Dispatch<React.SetStateAction<boolean>>;
   setQrCode: React.Dispatch<React.SetStateAction<null>>;
+  onAlreadySubscribed?: () => void;
 }
 
 const estadosMunicipios = {
@@ -56,6 +57,7 @@ const FreeEventForm = ({
   eventId,
   setSubscribed,
   setQrCode,
+  onAlreadySubscribed,
 }: Props) => {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(false);
@@ -103,8 +105,15 @@ const FreeEventForm = ({
         setSubscribed(true);
         setQrCode(response.data.ticket.qrCodeImage);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log("Erro ao se cadastrar", error);
+      
+      // Verificar se o erro é porque o usuário já está inscrito
+      if (error.response?.status === 409 || 
+          error.response?.data?.message?.includes("já inscrito") ||
+          error.response?.data?.message?.includes("already subscribed")) {
+        onAlreadySubscribed?.();
+      }
     } finally {
       setLoading(false);
     }

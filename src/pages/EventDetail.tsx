@@ -20,6 +20,7 @@ import {
   Globe,
   ArrowDown,
   ChevronRight,
+  CheckCircle,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -40,10 +41,13 @@ import Subscribed from "@/pages/Subscribed";
 import { useUser } from "@/contexts/useContext";
 import type EventInterface from "@/interfaces/EventInterface";
 import AttractionModal from "@/components/AttractionModal";
+import { useToast } from "@/hooks/use-toast";
+import ToastContainer from "@/components/ui/toast-container";
 
 const EventDetail = () => {
   const { id } = useParams();
   const { user } = useUser();
+  const { toasts, showWarning } = useToast();
 
   const [isFavorited, setIsFavorited] = useState<boolean>(false);
   const [event, setEvents] = useState<EventInterface | undefined>(undefined);
@@ -57,12 +61,45 @@ const EventDetail = () => {
   const [openDates, setOpenDates] = useState<{ [key: number]: boolean }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isUserSubscribed, setIsUserSubscribed] = useState(false);
 
   useEffect(() => {
     const condition =
       user?.likedEvents.some((e) => e.toString() == id) ?? false;
     setIsFavorited(condition);
   }, [user]);
+
+  // Verificar se o usuário já está inscrito no evento
+  useEffect(() => {
+    const checkUserSubscription = async () => {
+      if (!user || !id || !event?.isFree) return;
+
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/api/events/${id}/check-subscription`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        if (response.data.isSubscribed) {
+          setIsUserSubscribed(true);
+          showWarning(
+            "Você já está inscrito!",
+            "Você já se inscreveu neste evento gratuito. Verifique seus ingressos na seção 'Meus Ingressos'.",
+            8000
+          );
+        }
+      } catch (error) {
+        // Se a API não existir ainda, vamos verificar localmente
+        console.log("Verificação de inscrição não disponível:", error);
+      }
+    };
+
+    checkUserSubscription();
+  }, [user, id, event?.isFree, showWarning]);
 
   async function handleFavorite() {
     setIsFavorited(!isFavorited);
@@ -813,12 +850,40 @@ const EventDetail = () => {
               <CardContent>
                 {event?.isFree ? (
                   <div className="space-y-8 w-full">
-                    <FreeEventForm
-                      customFields={event?.customFields ?? []}
-                      eventId={event._id}
-                      setSubscribed={setSubscribed}
-                      setQrCode={setQrCode}
-                    />
+                    {isUserSubscribed ? (
+                      <div className="text-center py-8">
+                        <div className="w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-4">
+                          <CheckCircle className="h-8 w-8 text-yellow-600" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                          Você já está inscrito!
+                        </h3>
+                        <p className="text-gray-600 mb-4">
+                          Você já se inscreveu neste evento gratuito.
+                        </p>
+                        <Button
+                          onClick={() => window.location.href = "/meus-ingressos"}
+                          className="bg-gradient-to-r from-yellow-500 to-blue-500 hover:from-yellow-600 hover:to-blue-600 text-white border-0 rounded-xl px-6 py-3"
+                        >
+                          Ver Meus Ingressos
+                        </Button>
+                      </div>
+                    ) : (
+                      <FreeEventForm
+                        customFields={event?.customFields ?? []}
+                        eventId={event._id}
+                        setSubscribed={setSubscribed}
+                        setQrCode={setQrCode}
+                        onAlreadySubscribed={() => {
+                          setIsUserSubscribed(true);
+                          showWarning(
+                            "Você já está inscrito!",
+                            "Você já se inscreveu neste evento gratuito. Verifique seus ingressos na seção 'Meus Ingressos'.",
+                            8000
+                          );
+                        }}
+                      />
+                    )}
                   </div>
                 ) : (
                   <div>
@@ -874,6 +939,9 @@ const EventDetail = () => {
           attraction={selectedAttraction}
         />
       )}
+
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} />
     </div>
   );
 };
