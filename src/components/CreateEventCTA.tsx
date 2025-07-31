@@ -12,7 +12,7 @@ const CreateEventCTA: React.FC = () => {
       
       <div className="max-w-6xl mx-auto relative z-10">
         <div className="text-center mb-8 md:mb-12">
-          <div className="inline-flex items-center gap-2 bg-black text-white px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium mb-4 md:mb-6">
+          <div className="inline-flex items-center gap-2 bg-black text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-xs md:text-sm font-medium mb-4 md:mb-6">
             <Sparkles className="w-3 h-3 md:w-4 md:h-4" />
             Plataforma Gratuita
           </div>
@@ -33,7 +33,7 @@ const CreateEventCTA: React.FC = () => {
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mb-8 md:mb-12">
           <div className="text-center">
-            <div className="w-12 h-12 md:w-16 md:h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+            <div className="w-12 h-12 md:w-16 md:h-16 bg-black rounded-lg flex items-center justify-center mx-auto mb-3 md:mb-4">
               <Users className="w-6 h-6 md:w-8 md:h-8 text-white" />
             </div>
             <div className="text-2xl md:text-3xl font-bold text-black mb-1 md:mb-2">10k+</div>
@@ -41,7 +41,7 @@ const CreateEventCTA: React.FC = () => {
           </div>
 
           <div className="text-center">
-            <div className="w-12 h-12 md:w-16 md:h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+            <div className="w-12 h-12 md:w-16 md:h-16 bg-black rounded-lg flex items-center justify-center mx-auto mb-3 md:mb-4">
               <Calendar className="w-6 h-6 md:w-8 md:h-8 text-white" />
             </div>
             <div className="text-2xl md:text-3xl font-bold text-black mb-1 md:mb-2">50k+</div>
@@ -49,7 +49,7 @@ const CreateEventCTA: React.FC = () => {
           </div>
 
           <div className="text-center col-span-2 md:col-span-1">
-            <div className="w-12 h-12 md:w-16 md:h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+            <div className="w-12 h-12 md:w-16 md:h-16 bg-black rounded-lg flex items-center justify-center mx-auto mb-3 md:mb-4">
               <ShieldCheck className="w-6 h-6 md:w-8 md:h-8 text-white" />
             </div>
             <div className="text-2xl md:text-3xl font-bold text-black mb-1 md:mb-2">100%</div>

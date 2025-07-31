@@ -103,7 +103,7 @@ export default function CarrosselMain() {
           {images.map((image, idx) => (
             <SwiperSlide key={idx}>
               <Link to={`${image.redirectUrl}`} className="block h-full">
-                <div className="relative h-full group overflow-hidden rounded-3xl shadow-2xl">
+                <div className="relative h-full group overflow-hidden rounded-xl shadow-2xl">
                   <img
                     src={image.urlImage || "/placeholder.svg"}
                     alt={`slide-${idx}`}

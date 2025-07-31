@@ -33,27 +33,27 @@ const AdBanner: React.FC = () => {
   const hasOnlyOneBanner = bannersToShow.length === 1;
 
   return (
-    <div className="w-full relative overflow-hidden ">
+    <div className="w-full relative overflow-hidden">
       {/* Background decorative elements */}
-      <div className="max-w-7xl mx-auto pt-10 sm:px-6 lg:px-8 w-full h-fit relative z-10">
-        <div className="mb-10 p-10">
+      <div className="max-w-7xl mx-auto pt-10 px-0 sm:px-6 lg:px-8 w-full h-fit relative z-10">
+        <div className="mb-10 p-0 md:p-10">
           <div className="w-full flex flex-row justify-between items-center mb-10">
           </div>
 
-          <div className={`${hasOnlyOneBanner ? 'sm:m-6 lg:m-10' : 'grid grid-cols-1 md:grid-cols-2 gap-8'}`}>
+          <div className={`${hasOnlyOneBanner ? 'sm:m-6 lg:m-10' : 'grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4 md:gap-6 lg:gap-8'}`}>
             {bannersToShow.map((b, idx) => (
               <a
                 key={b._id || idx}
                 href={b.redirectUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative bg-white rounded-none md:rounded-md overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-105 w-full"
+                className="group relative bg-white rounded-none md:rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-105 w-full"
               >
-                <div className="relative overflow-hidden md:rounded-md">
+                <div className="relative overflow-hidden rounded-t-none md:rounded-t-lg">
                   <img
                     src={b.urlImage || "/placeholder.svg"}
                     alt={b.title || "Banner promocional"}
-                    className="w-full h-[250px] sm:h-[300px] md:h-[350px] object-cover group-hover:scale-110 transition-transform duration-700 md:rounded-md"
+                    className="w-full h-[250px] sm:h-[300px] md:h-[350px] object-cover group-hover:scale-110 transition-transform duration-700 rounded-t-none md:rounded-t-lg"
                   />
 
                   {/* Gradient overlay */}

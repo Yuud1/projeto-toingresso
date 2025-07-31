@@ -65,7 +65,7 @@ const Footer = () => {
             <div
               className={`transition-all duration-300 ease-in-out overflow-hidden ${
                 activeDropdown === "eventos"
-                  ? "max-h-40 opacity-100 mt-2"
+                  ? "max-h-60 opacity-100 mt-2"
                   : "max-h-0 opacity-0"
               }`}
             >
@@ -112,7 +112,7 @@ const Footer = () => {
             <div
               className={`transition-all duration-300 ease-in-out overflow-hidden ${
                 activeDropdown === "conta"
-                  ? "max-h-40 opacity-100 mt-2"
+                  ? "max-h-60 opacity-100 mt-2"
                   : "max-h-0 opacity-0"
               }`}
             >
@@ -157,7 +157,7 @@ const Footer = () => {
             <div
               className={`transition-all duration-300 ease-in-out overflow-hidden ${
                 activeDropdown === "contato"
-                  ? "max-h-40 opacity-100 mt-2"
+                  ? "max-h-60 opacity-100 mt-2"
                   : "max-h-0 opacity-0"
               }`}
             >
@@ -187,7 +187,7 @@ const Footer = () => {
             </button>
             <div
               className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                termsOpen ? "max-h-40 opacity-100 mt-2" : "max-h-0 opacity-0"
+                termsOpen ? "max-h-60 opacity-100 mt-2" : "max-h-0 opacity-0"
               }`}
             >
               <ul className="space-y-2 text-sm text-gray-300 pl-4">

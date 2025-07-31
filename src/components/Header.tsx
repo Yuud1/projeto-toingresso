@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useNavigate, useLocation } from "react-router-dom";
 import SearchDropdown from "./SearchDropdown";
-import Logo from "../../public/icons/windows11/SmallTile.scale-400.png";
+import Logo from "../../public/SmallTile.scale-400.png";
+import LogoComNome from "../../public/logo-sf.png";
 
 import {
   CalendarPlus,
@@ -349,7 +350,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
         {/* MOBILE TOP */}
         <div className="flex items-center justify-between sm:hidden py-2">
           <a href="/" className="transition-transform hover:scale-105">
-            <img className="w-10" src={Logo} alt="Logo" />
+            <img className="w-12" src={Logo} alt="Logo" />
           </a>
           <div className="flex items-center gap-3">
             <CidadeDropdown />
@@ -377,7 +378,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
         {/* TABLET TOP */}
         <div className="hidden sm:flex lg:hidden items-center justify-between py-2">
           <a href="/" className="transition-transform hover:scale-105">
-            <img className="w-10" src={Logo} alt="Logo" />
+            <img className="w-12" src={Logo} alt="Logo" />
           </a>
           <div className="flex items-center gap-3">
             <CidadeDropdown />
@@ -406,7 +407,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
         {!isScrolled && (
           <div className="hidden lg:flex items-center justify-between gap-4">
             <a href="/" className="transition-transform hover:scale-105">
-              <img className="w-14" src={Logo} alt="Logo" />
+              <img className="w-30" src={LogoComNome} alt="Logo" />
             </a>
             <div className="flex items-center gap-6 text-sm whitespace-nowrap">
               {user ? (
@@ -419,7 +420,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                       navigate("/criar-evento");
                     }}
                   >
-                    <CalendarPlus size={18} />
+                    <CalendarPlus size={16} />
                     Criar evento
                     {activeMenu === "criar-evento" && (
                       <div className="absolute bottom-0 left-0 w-full  h-0.5 rounded-full" />
@@ -433,7 +434,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                       navigate("/meus-eventos");
                     }}
                   >
-                    <ClipboardList size={18} />
+                    <ClipboardList size={16} />
                     Meus eventos
                     {activeMenu === "meus-eventos" && (
                       <div className="absolute bottom-0 left-0 w-full  h-0.5 rounded-full" />
@@ -447,7 +448,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                       navigate("/meus-ingressos");
                     }}
                   >
-                    <Ticket size={18} />
+                    <Ticket size={16} />
                     Meus ingressos
                     {activeMenu === "meus-ingressos" && (
                       <div className="absolute bottom-0 left-0 w-full  h-0.5 rounded-full" />
@@ -494,8 +495,8 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                 className="transition-all duration-300 ease-out transform hover:scale-105"
               >
                 <img
-                  className="w-11 animate-in fade-in slide-in-from-left-2 duration-300"
-                  src="/icon.png"
+                  className="w-22 animate-in fade-in slide-in-from-left-2 duration-300"
+                  src={LogoComNome}
                   alt="Logo"
                 />
               </a>
@@ -592,7 +593,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                 }
               }}
               variant="secondary"
-              className="cursor-pointer px-6 py-2.5 rounded-full font-medium transition-all duration-200 hover:scale-105 bg-white text-black"
+              className="cursor-pointer px-6 py-2.5 rounded-lg font-medium transition-all duration-200 hover:scale-105 bg-white text-black"
             >
               Festas & Shows
             </Button>
@@ -605,7 +606,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                 }
               }}
               variant="secondary"
-              className="cursor-pointer px-6 py-2.5 rounded-full font-medium transition-all duration-200 hover:scale-105 bg-white text-black"
+              className="cursor-pointer px-6 py-2.5 rounded-lg font-medium transition-all duration-200 hover:scale-105 bg-white text-black"
             >
               Stand-up Comedy
             </Button>
@@ -618,7 +619,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
                 }
               }}
               variant="secondary"
-              className="cursor-pointer px-6 py-2.5 rounded-full font-medium transition-all duration-200 hover:scale-105 bg-white text-black"
+              className="cursor-pointer px-6 py-2.5 rounded-lg font-medium transition-all duration-200 hover:scale-105 bg-white text-black"
             >
               Esportes
             </Button>
