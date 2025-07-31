@@ -160,7 +160,6 @@ export default function EventArrivalsPage() {
         );
         
         const data = response.data;
-        console.log("Dados recebidos:", data);
 
         if (data.participants) {
           // Normalizar os dados para o formato esperado
@@ -191,7 +190,7 @@ export default function EventArrivalsPage() {
       socket.emit("registerChekcout", id);
       
       socket.on("new_user_checked_in", (userData: any) => {
-        console.log("Dados recebidos do socket:", userData);
+        
         
         try {
           // Normalizar os dados recebidos do socket da mesma forma que a API
@@ -203,7 +202,7 @@ export default function EventArrivalsPage() {
             arrivalTime: userData.arrivedAt || userData.subscribedAt,
           };
           
-          console.log("Dados normalizados:", normalizedUserData);
+          
           setArrivals((prev) => [normalizedUserData, ...prev]);
         } catch (error) {
           console.error("Erro ao processar dados do socket:", error);

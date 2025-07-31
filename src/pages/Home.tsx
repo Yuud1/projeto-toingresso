@@ -37,7 +37,7 @@ export default function Home() {
               </div>
               
               {/* Ad Banner Section */}
-              <div className="w-full bg-gradient-to-b from-gray-50 to-white">
+              <div className="w-full bg-red-500 bg-gradient-to-b from-gray-50 to-white">
                 <AdBanner />
               </div>
 

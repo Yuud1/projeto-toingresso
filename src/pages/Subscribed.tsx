@@ -8,24 +8,54 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Download, Eye, Ticket } from "lucide-react";
+import axios from "axios";
 
 interface SubscribedProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   qrCode: string | null;
+  ticketId?: string;
 }
 
 export default function Subscribed({
   open,
   onOpenChange,
   qrCode,
+  ticketId,
 }: SubscribedProps) {
-  const handleDownload = () => {
-    if (!qrCode) return;
-    const link = document.createElement("a");
-    link.href = qrCode;
-    link.download = "ticket-qrcode.png";
-    link.click();
+  const handleDownloadPdf = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_GET_TICKET_PDF
+        }/${ticketId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      const { pdfBuffer, fileName } = response.data;
+
+      // Converter o objeto pdfBuffer em um array de bytes
+      const byteArray = new Uint8Array(Object.values(pdfBuffer));
+
+      // Criar o Blob a partir do array de bytes
+      const blob = new Blob([byteArray], { type: "application/pdf" });
+
+      // Criar a URL e iniciar o download
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", fileName || "ticket.pdf");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Erro ao baixar PDF", error);
+    }
   };
 
   return (
@@ -44,8 +74,12 @@ export default function Subscribed({
                 <Eye className="h-6 w-6 text-white" />
               </div>
               <div>
-                <DialogTitle className="text-2xl font-bold text-white">Visualizar Ticket</DialogTitle>
-                <DialogDescription className="text-blue-100 mt-1 font-medium">QR Code do seu ingresso</DialogDescription>
+                <DialogTitle className="text-2xl font-bold text-white">
+                  Visualizar Ticket
+                </DialogTitle>
+                <DialogDescription className="text-blue-100 mt-1 font-medium">
+                  QR Code do seu ingresso
+                </DialogDescription>
               </div>
             </div>
           </DialogHeader>
@@ -59,7 +93,9 @@ export default function Subscribed({
             </div>
             <div>
               <p className="font-semibold text-blue-900">Ticket Válido</p>
-              <p className="text-sm text-blue-800">Mostre este QR Code na entrada do evento para validar seu ticket</p>
+              <p className="text-sm text-blue-800">
+                Mostre este QR Code na entrada do evento para validar seu ticket
+              </p>
             </div>
           </div>
 
@@ -85,12 +121,12 @@ export default function Subscribed({
         <DialogFooter className="px-6 pb-6 flex gap-3">
           <Button
             variant="outline"
-            onClick={handleDownload}
+            onClick={handleDownloadPdf}
             disabled={!qrCode}
             className="flex-1 border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
           >
             <Download className="mr-2 h-4 w-4" />
-            Baixar QR Code
+            Baixar Pdf QR Code
           </Button>
           <Button
             onClick={() => onOpenChange(false)}

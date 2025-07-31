@@ -158,6 +158,10 @@ export default function MyTickets() {
               tickets.find((loopticket) => loopticket._id === ticketIdClicked)
                 ?.qrCode || null
             }
+            ticketId={
+              tickets.find((loopticket) => loopticket._id === ticketIdClicked)
+                ?._id
+            }
           />
         )}
         {openModalTransfer && tickets && (
@@ -243,7 +247,7 @@ export default function MyTickets() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {filteredTickets.map((ticket) => {
                 const event = ticket.Event;                
-                console.log(event);
+                
                 
                 const startDate = event?.dates[0]?.startDate ? new Date(event.dates[0].startDate).toLocaleDateString("pt-BR", {
                   day: "2-digit",

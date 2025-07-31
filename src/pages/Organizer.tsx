@@ -87,7 +87,7 @@ const Organizer = () => {
     "upcoming"
   );
   const [loading, setLoading] = useState(true);
-  console.log(organizer);
+  
 
   useEffect(() => {
     if (id) {

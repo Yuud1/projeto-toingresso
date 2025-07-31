@@ -5,7 +5,7 @@ import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import logoToIngresso from "../../../public/logos/TOingresso_logo_512x512.png";
+import logoToIngresso from "../../../public/icons/windows11/SmallTile.scale-400.png";
 import {
   Card,
   CardContent,
@@ -331,10 +331,7 @@ const AdminDashboard: React.FC = () => {
         });
 
       // Debug logs
-      console.log("Slides to send:", slidesWithFileField);
-      console.log("Banners to send:", bannersWithFileField);
-      console.log("Carousel files:", Object.keys(carouselFiles));
-      console.log("Banner files:", Object.keys(bannerFiles));
+      
 
       const formData = new FormData();
       formData.append("carouselSlides", JSON.stringify(slidesWithFileField));
@@ -345,7 +342,7 @@ const AdminDashboard: React.FC = () => {
         const key = slide._id || slide.tempKey || "";
         if (carouselFiles[key]) {
           formData.append(`carouselFile_${idx}`, carouselFiles[key]);
-          console.log(`Added carouselFile_${idx}`);
+          
         }
       });
 
@@ -354,15 +351,11 @@ const AdminDashboard: React.FC = () => {
         const key = banner._id || banner.tempKey || "";
         if (bannerFiles[key]) {
           formData.append(`bannerFile_${idx}`, bannerFiles[key]);
-          console.log(`Added bannerFile_${idx}`);
+          
         }
       });
 
-      // Debug: log FormData contents
-      console.log("FormData entries:");
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value);
-      }
+      // Debug: log FormData contents            
       
       const response = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}${

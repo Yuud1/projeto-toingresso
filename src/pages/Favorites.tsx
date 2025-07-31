@@ -12,7 +12,7 @@ import getInitials from "@/utils/getInitials";
 
 export default function Favorites() {
   const [likedEvents, setLikedEvents] = useState<EventInterface[]>([]);
-  console.log(likedEvents);
+  
 
   useEffect(() => {
     async function getLikedEvents() {

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useNavigate, useLocation } from "react-router-dom";
 import SearchDropdown from "./SearchDropdown";
+import Logo from "../../public/icons/windows11/SmallTile.scale-400.png";
 
 import {
   CalendarPlus,
@@ -165,7 +166,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
       <div className="relative" ref={dropdownRef}>
         <div
           onClick={() => setIsOpen(!isOpen)}
-          className="outline-none flex items-center gap-2 border-2 border-black/20 rounded-full px-3 py-2 cursor-pointer hover:bg-gray/100"
+          className="outline-none flex items-center gap-2 border-2 border-black/20 rounded-full px-3 py-1.5 cursor-pointer hover:bg-gray/100"
           role="button"
           tabIndex={0}
           onKeyDown={(e) => {
@@ -356,7 +357,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
         {/* MOBILE TOP */}
         <div className="flex items-center justify-between sm:hidden py-2">
           <a href="/" className="transition-transform hover:scale-105">
-            <img className="w-10" src="/icon.png" alt="Logo" />
+            <img className="w-10" src={Logo} alt="Logo" />
           </a>
           <div className="flex items-center gap-3">
             <CidadeDropdown />
@@ -384,7 +385,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
         {/* TABLET TOP */}
         <div className="hidden sm:flex lg:hidden items-center justify-between py-2">
           <a href="/" className="transition-transform hover:scale-105">
-            <img className="w-10" src="/icon.png" alt="Logo" />
+            <img className="w-10" src={Logo} alt="Logo" />
           </a>
           <div className="flex items-center gap-3">
             <CidadeDropdown />
@@ -413,7 +414,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
         {!isScrolled && (
           <div className="hidden lg:flex items-center justify-between gap-4">
             <a href="/" className="transition-transform hover:scale-105">
-              <img className="w-32" src="/logo-sf.png" alt="Logo" />
+              <img className="w-14" src={Logo} alt="Logo" />
             </a>
             <div className="flex items-center gap-6 text-sm whitespace-nowrap">
               {user ? (

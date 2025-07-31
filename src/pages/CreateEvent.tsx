@@ -136,7 +136,6 @@ export default function CreateEvent() {
     status: "active",
     searchAddress: "",
   });
-  console.log("Formdata", formData);
   const buscarMunicipios = async (sigla: string) => {
     if (municipiosPorUF[sigla]) return;
 
@@ -196,7 +195,6 @@ export default function CreateEvent() {
         )}&key=${apiKey}&region=br&language=pt-BR`
       );
       const data = await response.json();
-      console.log(data);
 
       if (data.results && data.results.length > 0) {
         // Formatar resultados do geocoding
@@ -244,16 +242,22 @@ export default function CreateEvent() {
 
       addressComponents.forEach((component: any) => {
         const types = component.types;
-        
+
         if (types.includes("postal_code")) {
           cep = component.long_name;
         } else if (types.includes("administrative_area_level_1")) {
           estado = component.short_name; // Sigla do estado (SP, RJ, etc.)
-        } else if (types.includes("locality") || types.includes("administrative_area_level_2")) {
+        } else if (
+          types.includes("locality") ||
+          types.includes("administrative_area_level_2")
+        ) {
           cidade = component.long_name;
         } else if (types.includes("route")) {
           rua = component.long_name;
-        } else if (types.includes("sublocality") || types.includes("sublocality_level_1")) {
+        } else if (
+          types.includes("sublocality") ||
+          types.includes("sublocality_level_1")
+        ) {
           bairro = component.long_name;
         } else if (types.includes("street_number")) {
           numero = component.long_name;
@@ -423,15 +427,12 @@ export default function CreateEvent() {
         const { image, ...rest } = formDataToSend;
         data.append("formData", JSON.stringify(rest));
 
-        console.log(formData);
         if (formData.isFree && formData.customFields.length == 0) {
-          console.log("naoo cadastrei o evento");
           throw new Error(
             "Nenhum campo de formulário adicionado para eventos gratuitos."
           );
         }
 
-        console.log("cadastrei o evento");
         const response = await axios.post(
           `${import.meta.env.VITE_API_BASE_URL}${
             import.meta.env.VITE_CREATE_EVENT
@@ -1898,7 +1899,7 @@ export default function CreateEvent() {
           </form>
         </div>
       </main>
-      <Footer/>
+      <Footer />
     </div>
   );
 }

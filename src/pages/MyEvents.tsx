@@ -378,7 +378,7 @@ export default function MyEvents() {
         }`,
         { eventId }
       );
-      console.log(response);
+      
 
       if (response.data.generated) {
         setTicketToken(response.data.token);

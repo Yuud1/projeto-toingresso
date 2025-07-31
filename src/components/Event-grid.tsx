@@ -100,8 +100,7 @@ const EventGrid = () => {
       fullMonth: date.toLocaleDateString("pt-BR", { month: "long" }),
     };
   };
-
-  console.log(currentEvent.dates);
+  
   const dateInfo = formatDate(currentEvent.dates[0]?.startDate);
   
   return (

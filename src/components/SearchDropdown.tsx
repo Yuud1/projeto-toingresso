@@ -19,7 +19,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [results, setResults] = useState<EventInterface[]>([]);
-  console.log(results);
+
   
   const [isLoading, setIsLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
