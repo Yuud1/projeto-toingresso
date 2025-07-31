@@ -903,7 +903,7 @@ export default function MyEvents() {
                               </Button>
                               {event.status !== "finished" && (
                                 <Link
-                                  to={`http://localhost:5173/editar-evento/${event._id}`}
+                                  to={`/editar-evento/${event._id}`}
                                 >
                                   <Button
                                     variant="outline"
