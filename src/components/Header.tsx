@@ -177,13 +177,13 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
           }}
         >          
           <div className="w-8 h-8 rounded-full  flex items-center justify-center text-sm font-medium text-black">
-            <Avatar className="w-10 h-10">
+            <Avatar className="w-9 h-9">
               <AvatarImage src={user.avatar || "/placeholder.svg"} />
               <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
             </Avatar>
           </div>
           <div className="p-1 text-black">
-            {isOpen ? <X size={20} /> : <Menu size={20} />}
+            {isOpen ? <X size={20} /> : <Menu size={18} />}
           </div>
         </div>
 

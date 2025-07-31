@@ -36,11 +36,10 @@ const AdBanner: React.FC = () => {
     <div className="w-full relative overflow-hidden ">
       {/* Background decorative elements */}
       <div className="max-w-7xl mx-auto pt-10 sm:px-6 lg:px-8 w-full h-fit relative z-10">
-        <div className="mb-16">
+        <div className="mb-10 p-10">
           <div className="w-full flex flex-row justify-between items-center mb-10">
           </div>
 
-<<<<<<< HEAD
           <div className={`${hasOnlyOneBanner ? 'sm:m-6 lg:m-10' : 'grid grid-cols-1 md:grid-cols-2 gap-8'}`}>
             {bannersToShow.map((b, idx) => (
               <a
@@ -50,29 +49,12 @@ const AdBanner: React.FC = () => {
                 rel="noopener noreferrer"
                 className="group relative bg-white rounded-none md:rounded-md overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-105 w-full"
               >
-                <div className="relative overflow-hidden rounded-none md:rounded-md">
+                <div className="relative overflow-hidden md:rounded-md">
                   <img
                     src={b.urlImage || "/placeholder.svg"}
                     alt={b.title || "Banner promocional"}
-                    className="w-full h-[250px] sm:h-[300px] md:h-[350px] object-cover group-hover:scale-110 transition-transform duration-700 rounded-none md:rounded-md"
+                    className="w-full h-[250px] sm:h-[300px] md:h-[350px] object-cover group-hover:scale-110 transition-transform duration-700 md:rounded-md"
                   />
-=======
-      <div className="flex flex-row w-full items-center justify-center">
-        {bannersToShow.map((b, idx) => (
-          <a
-            key={b._id || idx}
-            href={b.redirectUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group relative bg-white rounded-none md:rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-105 md:w-10/12"
-          >
-            <div className="relative overflow-hidden ">
-              <img
-                src={b.urlImage || "/placeholder.svg"}
-                alt={b.title || "Banner promocional"}
-                className="w-full h-[250px] sm:h-[300px] md:h-[350px] object-cover group-hover:scale-110 transition-transform duration-700"
-              />
->>>>>>> 76a31c0528ba8613fda71a7f9e28107c07df0ffc
 
                   {/* Gradient overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
