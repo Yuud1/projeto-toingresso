@@ -55,6 +55,8 @@ const EventDetail = () => {
   );
   const [modalOpen, setModalOpen] = useState(false);
   const [openDates, setOpenDates] = useState<{ [key: number]: boolean }>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const condition =
@@ -103,8 +105,17 @@ const EventDetail = () => {
   };
 
   useEffect(() => {
-    try {
-      async function getEvento() {
+    async function getEvento() {
+      if (!id) {
+        setError("ID do evento não fornecido");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+        
         const response = await axios.get(
           `${import.meta.env.VITE_API_BASE_URL}${
             import.meta.env.VITE_EVENT_GETID
@@ -125,17 +136,50 @@ const EventDetail = () => {
           ) {
             setOpenDates({ 0: true });
           }
+        } else {
+          setError("Evento não encontrado");
         }
+      } catch (error) {
+        console.error("Erro ao buscar evento:", error);
+        setError("Erro ao carregar o evento. Tente novamente.");
+      } finally {
+        setLoading(false);
       }
-
-      getEvento();
-    } catch (error) {
-      console.log("Erro ao buscar evento", error);
     }
+
+    getEvento();
   }, [id]);
 
-  if (!event || !id) {
-    return null;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#02488C] mx-auto mb-4"></div>
+          <h1 className="text-xl font-semibold text-gray-700">Carregando evento...</h1>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !event || !id) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-700 mb-2">
+            {error || "Evento não encontrado"}
+          </h1>
+          <p className="text-gray-500 mb-4">
+            O evento que você está procurando não existe ou foi removido.
+          </p>
+          <button
+            onClick={() => window.history.back()}
+            className="px-4 py-2 bg-[#02488C] text-white rounded-lg hover:bg-[#023a6b] transition-colors"
+          >
+            Voltar
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
