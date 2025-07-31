@@ -42,7 +42,7 @@ const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const isAdminLoggedIn = localStorage.getItem("adminToken");
+    const isAdminLoggedIn = sessionStorage.getItem("adminToken");
     if (!isAdminLoggedIn) {
       navigate("/admin/login");
     }
@@ -63,7 +63,7 @@ const AdminDashboard: React.FC = () => {
           }`,
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+              Authorization: `Bearer ${sessionStorage.getItem("adminToken")}`,
             },
           }
         );        
@@ -88,7 +88,7 @@ const AdminDashboard: React.FC = () => {
           }`,
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+              Authorization: `Bearer ${sessionStorage.getItem("adminToken")}`,
             },
           }
         );        
@@ -148,7 +148,7 @@ const AdminDashboard: React.FC = () => {
         }${id}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+            Authorization: `Bearer ${sessionStorage.getItem("adminToken")}`,
           },
         }
       );
@@ -171,7 +171,7 @@ const AdminDashboard: React.FC = () => {
         }${id}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+            Authorization: `Bearer ${sessionStorage.getItem("adminToken")}`,
           },
         }
       );
@@ -259,7 +259,7 @@ const AdminDashboard: React.FC = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("adminToken");
+    sessionStorage.removeItem("adminToken");
     navigate("/admin/login");
   };
 
@@ -364,7 +364,7 @@ const AdminDashboard: React.FC = () => {
         formData,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+            Authorization: `Bearer ${sessionStorage.getItem("adminToken")}`,
             "Content-Type": "multipart/form-data",
           },
         }

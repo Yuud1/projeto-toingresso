@@ -17,7 +17,7 @@ import {
   HelpCircle,
   LogOut,
   Menu,
-  X,
+  X,  
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -164,6 +164,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
 
     return (
       <div className="relative" ref={dropdownRef}>
+        
         <div
           onClick={() => setIsOpen(!isOpen)}
           className="outline-none flex items-center gap-2 border-2 border-black/20 rounded-full px-3 py-1.5 cursor-pointer hover:bg-gray/100"
@@ -174,21 +175,12 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
               setIsOpen(!isOpen);
             }
           }}
-        >
-          <div className="w-8 h-8 rounded-full  flex items-center justify-center text-sm font-medium text-white">
-            {user?.avatar ? (
-              <Avatar className="w-8 h-8">
-                <AvatarImage
-                  src={user.avatar || "/placeholder.svg"}
-                  alt={user.name}
-                />
-                <AvatarFallback className=" text-white">
-                  {getInitials(user.name)}
-                </AvatarFallback>
-              </Avatar>
-            ) : (
-              getInitials(user.name)
-            )}
+        >          
+          <div className="w-8 h-8 rounded-full  flex items-center justify-center text-sm font-medium text-black">
+            <Avatar className="w-10 h-10">
+              <AvatarImage src={user.avatar || "/placeholder.svg"} />
+              <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+            </Avatar>
           </div>
           <div className="p-1 text-black">
             {isOpen ? <X size={20} /> : <Menu size={20} />}
@@ -366,13 +358,13 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
             ) : (
               <>
                 <button
-                  className="text-black font-semibold px-4 py-2 rounded-lg hover:bg-gray/100 transition-all duration-200"
+                  className="text-black font-semibold px-4 py-2 rounded-lg hover:bg-gray/100 transition-all duration-200 cursor-pointer"
                   onClick={() => navigate("/login")}
                 >
                   Entrar
                 </button>
                 <button
-                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#FDC901] to-[#FFE066] text-black font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200"
+                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#FDC901] to-[#FFE066] text-black font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer"
                   onClick={() => navigate("/register")}
                 >
                   Cadastrar
@@ -394,13 +386,13 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
             ) : (
               <>
                 <button
-                  className="text-black font-semibold px-4 py-2 rounded-lg hover:bg-gray/100 transition-all duration-200"
+                  className="text-black font-semibold px-4 py-2 rounded-lg hover:bg-gray/100 transition-all duration-200 cursor-pointer"
                   onClick={() => navigate("/login")}
                 >
                   Entrar
                 </button>
                 <button
-                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#FDC901] to-[#FFE066] text-black font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200"
+                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#FDC901] to-[#FFE066] text-black font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer"
                   onClick={() => navigate("/register")}
                 >
                   Cadastrar
@@ -466,13 +458,13 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
               ) : (
                 <>
                   <button
-                    className="text-black font-semibold px-4 py-2 rounded-lg hover:bg-gray/100 transition-all duration-200"
+                    className="text-black font-semibold px-4 py-2 rounded-lg hover:bg-gray/100 transition-all duration-200 cursor-pointer"
                     onClick={() => navigate("/login")}
                   >
                     Entrar
                   </button>
                   <button
-                    className="px-6 py-2 rounded-lg bg-gradient-to-r from-[#FDC901] to-[#FFE066] text-black font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200"
+                    className="px-6 py-2 rounded-lg bg-gradient-to-r from-[#FDC901] to-[#FFE066] text-black font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer"
                     onClick={() => navigate("/register")}
                   >
                     Cadastrar
@@ -570,13 +562,13 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
               ) : (
                 <>
                   <button
-                    className="text-black font-semibold px-4 py-2 rounded-lg hover:bg-gray/100 transition-all duration-200"
+                    className="text-black font-semibold px-4 py-2 rounded-lg hover:bg-gray/100 transition-all duration-200 cursor-pointer"
                     onClick={() => navigate("/login")}
                   >
                     Entrar
                   </button>
                   <button
-                    className="px-6 py-2 rounded-lg bg-gradient-to-r from-[#FDC901] to-[#FFE066] text-black font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200"
+                    className="px-6 py-2 rounded-lg bg-gradient-to-r from-[#FDC901] to-[#FFE066] text-black font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer"
                     onClick={() => navigate("/register")}
                   >
                     Cadastrar

@@ -43,7 +43,9 @@ export function RegisterForm({
     try {
       setLoading(true);
       const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_AUTH_REGISTER}`,
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_AUTH_REGISTER
+        }`,
         formData
       );
 
@@ -64,7 +66,9 @@ export function RegisterForm({
 
     axios
       .post(
-        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_AUTH_GOOGLE}`,
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_AUTH_GOOGLE
+        }`,
         {
           credential,
         }
@@ -195,7 +199,11 @@ export function RegisterForm({
           </div>
         </div>
 
-        <Button type="submit" className="w-full cursor-pointer" disabled={loading}>
+        <Button
+          type="submit"
+          className="w-full cursor-pointer"
+          disabled={loading}
+        >
           {loading ? "Registrando..." : "Registrar"}
         </Button>
 

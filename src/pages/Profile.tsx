@@ -84,7 +84,7 @@ export default function Profile() {
       ...user,
     });
   }, [user]);
-  
+
   const [statusSaving, setStatusSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
@@ -206,7 +206,7 @@ export default function Profile() {
 
       const response = await axios.delete(
         `${import.meta.env.VITE_API_BASE_URL}${
-          import.meta.env.VITE_DELETE_USER
+        import.meta.env.VITE_
         }`,
         {
           headers: {
@@ -214,6 +214,8 @@ export default function Profile() {
           },
         }
       );
+
+      console.log(response.data);
 
       if (response.data.deleted) {
         localStorage.clear();
@@ -540,7 +542,7 @@ export default function Profile() {
             )}
 
             {activeTab === "avancada" && (
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} method="PUT">
                 <div className="space-y-6">
                   <div className="bg-white p-6 rounded-lg border">
                     <h3 className="text-lg font-semibold mb-4">
@@ -584,36 +586,36 @@ export default function Profile() {
                           </Button>
                         </div>
                       </div>
-
-                      <div className="border-t pt-6">
-                        <h4 className="font-medium mb-2 text-red-600">
-                          Ação irreversível
-                        </h4>
-                        <p className="text-sm text-gray-500 mb-4">
-                          Ações irreversíveis que afetarão permanentemente sua
-                          conta
-                        </p>
-                        <div className="space-y-4">
-                          <Button
-                            variant="outline"
-                            className="border-red-500 text-destructive hover:bg-red-500 hover:text-white cursor-pointer"
-                            disabled={loading}
-                            onClick={handleDelete}
-                          >
-                            Excluir minha conta
-                          </Button>
-                          <p className="text-xs text-gray-500">
-                            Ao excluir sua conta, todos os seus dados serão
-                            permanentemente removidos e não poderão ser
-                            recuperados.
-                          </p>
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </div>
               </form>
             )}
+            <div className="border-t pt-6 flex flex-col max-[370]:flex-row gap-4">
+              <div>
+                <h4 className="font-medium mb-2 text-red-600">
+                  Ação irreversível
+                </h4>
+                <p className="text-sm text-gray-500 mb-4">
+                  Ações irreversíveis que afetarão permanentemente sua conta
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <Button
+                  variant="outline"
+                  className="border-red-500 text-destructive hover:bg-red-500 hover:text-white cursor-pointer"
+                  disabled={loading}
+                  onClick={handleDelete}
+                >
+                  Excluir minha conta
+                </Button>
+                <p className="text-xs text-gray-500">
+                  Ao excluir sua conta, todos os seus dados serão
+                  permanentemente removidos e não poderão ser recuperados.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </main>
