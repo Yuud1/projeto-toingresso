@@ -177,7 +177,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
           }}
         >          
           <div className="w-8 h-8 rounded-full  flex items-center justify-center text-sm font-medium text-black">
-            <Avatar className="w-9 h-9">
+            <Avatar className="w-10 h-10">
               <AvatarImage src={user.avatar || "/placeholder.svg"} />
               <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
             </Avatar>
@@ -190,7 +190,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
         {isOpen && (
           <div
             className={cn(
-              "absolute bg-white rounded-xl shadow-2xl border border-gray-100 z-50 mt-3 overflow-hidden",
+              "absolute bg-white rounded-xl shadow-xl border border-gray-100 z-50 mt-4 overflow-hidden",
               isMobile
                 ? "fixed inset-x-4 top-[70px] w-auto rounded-2xl"
                 : "right-0 w-64"
