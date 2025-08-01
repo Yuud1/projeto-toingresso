@@ -23,7 +23,6 @@ export const useToast = () => {
 
   const showSuccess = useCallback((title: string, message: string, duration = 5000) => {
     addToast({
-      id: Date.now().toString(),
       type: "success",
       title,
       message,
@@ -33,7 +32,6 @@ export const useToast = () => {
 
   const showError = useCallback((title: string, message: string, duration = 5000) => {
     addToast({
-      id: Date.now().toString(),
       type: "error",
       title,
       message,
@@ -43,7 +41,6 @@ export const useToast = () => {
 
   const showWarning = useCallback((title: string, message: string, duration = 5000) => {
     addToast({
-      id: Date.now().toString(),
       type: "warning",
       title,
       message,
@@ -53,7 +50,6 @@ export const useToast = () => {
 
   const showInfo = useCallback((title: string, message: string, duration = 5000) => {
     addToast({
-      id: Date.now().toString(),
       type: "info",
       title,
       message,

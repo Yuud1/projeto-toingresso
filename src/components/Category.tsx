@@ -46,7 +46,7 @@ const categoryDisplayNames = {
 
 const Category: React.FC = () => {
   const [eventsByCategory, setEventsByCategory] = useState<Record<string, EventInterface[]>>({})
-  const [loading, setLoading] = useState(true)
+  const [, setLoading] = useState(true)
   const [loadedCategories, setLoadedCategories] = useState<Set<string>>(new Set())
 
   // Injetar estilos de animação
@@ -98,7 +98,7 @@ const Category: React.FC = () => {
   }, [])
 
   // Componente de skeleton para o carrossel de eventos
-  const EventCarouselSkeleton = ({ category }: { category: string }) => (
+  const EventCarouselSkeleton = () => (
     <div className="mb-4">
       <div className="w-full flex flex-row justify-between items-center mb-10">
         <div>
@@ -164,7 +164,7 @@ const Category: React.FC = () => {
           
           // Se a categoria ainda não foi carregada, mostra skeleton
           if (!isCategoryLoaded) {
-            return <EventCarouselSkeleton key={category} category={category} />
+            return <EventCarouselSkeleton key={category} />
           }
           
           // Se a categoria foi carregada mas não tem eventos, não mostra nada

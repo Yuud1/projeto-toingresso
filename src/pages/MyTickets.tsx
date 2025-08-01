@@ -146,7 +146,7 @@ export default function MyTickets() {
     clickedOnTicket(ticketId);
   };
 
-  const handleCancelSubscription = async (ticketId: string, event: React.MouseEvent) => {
+  const handleCancelSubscription = async (_ticketId: string, event: React.MouseEvent) => {
     event.stopPropagation();
     
     if (!confirm("Tem certeza que deseja cancelar sua inscrição neste evento?")) {

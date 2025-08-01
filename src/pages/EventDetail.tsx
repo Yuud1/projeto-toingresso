@@ -83,27 +83,17 @@ const EventDetail = () => {
     const checkUserSubscription = async () => {
       if (!user || !id || !event?.isFree) return;
 
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/api/events/${id}/check-subscription`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
+      // Verificar se o usuário tem tickets para este evento
+      const userTickets = user.tickets || [];
+      const hasTicketForThisEvent = userTickets.some(ticket => ticket.Event._id === id);
+      
+      if (hasTicketForThisEvent) {
+        setIsUserSubscribed(true);
+        showWarning(
+          "Você já está inscrito!",
+          "Você já se inscreveu neste evento gratuito. Verifique seus ingressos na seção 'Meus Ingressos'.",
+          8000
         );
-
-        if (response.data.isSubscribed) {
-          setIsUserSubscribed(true);
-          showWarning(
-            "Você já está inscrito!",
-            "Você já se inscreveu neste evento gratuito. Verifique seus ingressos na seção 'Meus Ingressos'.",
-            8000
-          );
-        }
-      } catch (error) {
-        // Se a API não existir ainda, vamos verificar localmente
-        console.log("Verificação de inscrição não disponível:", error);
       }
     };
 
