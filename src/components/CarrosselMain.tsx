@@ -86,7 +86,7 @@ export default function CarrosselMain() {
             stretch: 0,
             depth: 300,
             modifier: 4,
-            slideShadows: false,
+            slideShadows: true,
           }}
           pagination={{
             clickable: true,
@@ -103,13 +103,13 @@ export default function CarrosselMain() {
           {images.map((image, idx) => (
             <SwiperSlide key={idx}>
               <Link to={`${image.redirectUrl}`} className="block h-full">
-                <div className="relative h-full group overflow-hidden rounded-xl shadow-2xl">
+                <div className="relative h-full overflow-hidden rounded-xl">
                   <img
                     src={image.urlImage || "/placeholder.svg"}
                     alt={`slide-${idx}`}
                     className="carousel-img w-full h-full object-cover transition-all duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="absolute inset-0"></div>
                 </div>
               </Link>
             </SwiperSlide>
@@ -163,21 +163,6 @@ export default function CarrosselMain() {
           background: linear-gradient(45deg, #00498D, #FDC901) !important;
           transform: scale(1.3) !important;
           box-shadow: 0 4px 15px rgba(0, 73, 141, 0.3) !important;
-        }
-
-        /* Image effects */
-        .carousel-img {
-          filter: blur(3px) brightness(0.7);
-          transition: all 0.7s ease-in-out;
-        }
-
-        .swiper-slide-prev .carousel-img,
-        .swiper-slide-next .carousel-img {
-          filter: blur(1px) brightness(0.85);
-        }
-
-        .swiper-slide-active .carousel-img {
-          filter: blur(0px) brightness(1);
         }
 
         /* Slide sizing */
