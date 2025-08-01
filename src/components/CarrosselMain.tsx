@@ -86,7 +86,7 @@ export default function CarrosselMain() {
             stretch: 0,
             depth: 300,
             modifier: 4,
-            slideShadows: true,
+            slideShadows: false,
           }}
           pagination={{
             clickable: true,
