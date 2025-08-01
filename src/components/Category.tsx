@@ -14,6 +14,23 @@ import type EventInterface from "@/interfaces/EventInterface"
 import axios from "axios"
 import EventCard from "./EventCard"
 
+// Estilos para animações
+const fadeInAnimation = `
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out;
+  }
+`
+
 const categories = ["Shows", "Teatro", "Esportes", "Festas", "Comedia", "Gospel", "Diversoes", "Publico"]
 
 const categoryDisplayNames = {
@@ -29,9 +46,24 @@ const categoryDisplayNames = {
 
 const Category: React.FC = () => {
   const [eventsByCategory, setEventsByCategory] = useState<Record<string, EventInterface[]>>({})
+  const [loading, setLoading] = useState(true)
+  const [loadedCategories, setLoadedCategories] = useState<Set<string>>(new Set())
+
+  // Injetar estilos de animação
+  useEffect(() => {
+    const styleElement = document.createElement("style")
+    styleElement.innerHTML = fadeInAnimation
+    document.head.appendChild(styleElement)
+
+    return () => {
+      document.head.removeChild(styleElement)
+    }
+  }, [])
 
   useEffect(() => {
     async function getEventsForAllCategories() {
+      setLoading(true)
+      setLoadedCategories(new Set())
       const eventsData: Record<string, EventInterface[]> = {}
 
       for (const category of categories) {
@@ -48,17 +80,54 @@ const Category: React.FC = () => {
           } else {
             eventsData[category] = []
           }
+          
+          // Marca a categoria como carregada
+          setLoadedCategories(prev => new Set([...prev, category]))
         } catch (error) {
           console.error(`Erro ao buscar eventos da categoria ${category}:`, error)
           eventsData[category] = []
+          setLoadedCategories(prev => new Set([...prev, category]))
         }
       }
 
       setEventsByCategory(eventsData)
+      setLoading(false)
     }
 
     getEventsForAllCategories()
   }, [])
+
+  // Componente de skeleton para o carrossel de eventos
+  const EventCarouselSkeleton = ({ category }: { category: string }) => (
+    <div className="mb-4">
+      <div className="w-full flex flex-row justify-between items-center mb-10">
+        <div>
+          <div className="w-48 h-8 bg-gray-200 rounded animate-pulse mb-2"></div>
+          <div className="w-20 h-1 bg-gradient-to-r from-[#FDC901] to-[#FFE066] rounded-full"></div>
+        </div>
+        <div className="w-24 h-10 bg-gray-200 rounded-lg animate-pulse"></div>
+      </div>
+
+      <div className="relative min-h-[10em]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          {[...Array(4)].map((_, index) => (
+            <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden animate-pulse">
+              <div className="w-full h-48 bg-gray-200"></div>
+              <div className="p-4 space-y-3">
+                <div className="w-3/4 h-4 bg-gray-200 rounded"></div>
+                <div className="w-1/2 h-3 bg-gray-200 rounded"></div>
+                <div className="w-full h-3 bg-gray-200 rounded"></div>
+                <div className="flex justify-between items-center">
+                  <div className="w-16 h-6 bg-gray-200 rounded"></div>
+                  <div className="w-20 h-8 bg-gray-200 rounded"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
 
   const showCarousel = (events: EventInterface[]) => {
     // Se não há eventos, não mostra carrossel
@@ -91,13 +160,21 @@ const Category: React.FC = () => {
       <div className="max-w-7xl mx-auto pt-10 px-4 sm:px-6 lg:px-8 w-full h-fit relative z-10" id="filter-grid">
         {categories.map((category) => {
           const events = eventsByCategory[category] || []
+          const isCategoryLoaded = loadedCategories.has(category)
+          
+          // Se a categoria ainda não foi carregada, mostra skeleton
+          if (!isCategoryLoaded) {
+            return <EventCarouselSkeleton key={category} category={category} />
+          }
+          
+          // Se a categoria foi carregada mas não tem eventos, não mostra nada
           if (events.length === 0) return null
 
           return (
-            <div key={category} className="mb-16">
+            <div key={category} className="mb-4 animate-fade-in">
               <div className="w-full flex flex-row justify-between items-center mb-10">
                 <div>
-                  <h1 className="text-black text-3xl md:text-4xl font-bold mb-2">
+                  <h1 className="text-black text-3xl md:text-3xl font-bold mb-2">
                     {categoryDisplayNames[category as keyof typeof categoryDisplayNames] || category}
                   </h1>
                   <div className="w-20 h-1 bg-gradient-to-r from-[#FDC901] to-[#FFE066] rounded-full"></div>

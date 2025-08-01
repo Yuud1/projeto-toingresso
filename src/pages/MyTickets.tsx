@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { Search, ArrowRightLeft, Eye, Calendar, Clock, MapPin } from "lucide-react";
+import { Search, ArrowRightLeft, Eye, Calendar, Clock, MapPin, X } from "lucide-react";
 import { useUser } from "@/contexts/useContext";
 import type UserTicketsInterface from "@/interfaces/UserTicketsInterface";
 import Subscribed from "./Subscribed";
@@ -144,6 +144,41 @@ export default function MyTickets() {
   const handleViewTicket = (ticketId: string, event: React.MouseEvent) => {
     event.stopPropagation();
     clickedOnTicket(ticketId);
+  };
+
+  const handleCancelSubscription = async (ticketId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    
+    if (!confirm("Tem certeza que deseja cancelar sua inscrição neste evento?")) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Token não encontrado. Faça login novamente.");
+        return;
+      }
+
+      // Aqui você faria a chamada para a API para cancelar a inscrição
+      // Por enquanto, vou apenas mostrar um alerta
+      alert("Funcionalidade de cancelamento será implementada em breve!");
+      
+      // Exemplo de como seria a chamada da API:
+      // await axios.delete(
+      //   `${import.meta.env.VITE_API_BASE_URL}/api/tickets/${ticketId}`,
+      //   {
+      //     headers: { Authorization: `Bearer ${token}` },
+      //   }
+      // );
+
+      // Atualizar a lista de tickets removendo o ticket cancelado
+      // setTickets(prevTickets => prevTickets?.filter(ticket => ticket._id !== ticketId));
+      
+    } catch (error) {
+      console.error("Erro ao cancelar inscrição:", error);
+      alert("Erro ao cancelar inscrição. Tente novamente.");
+    }
   };
 
   return (
@@ -347,6 +382,18 @@ export default function MyTickets() {
                           >
                             <ArrowRightLeft size={16} className="mr-2" />
                             Transferir
+                          </Button>
+                        )}
+
+                        {/* Botão de Cancelar Inscrição - apenas para eventos gratuitos */}
+                        {event?.isFree && ticket.status === "ativo" && !ticket.used && (
+                          <Button
+                            onClick={(e) => handleCancelSubscription(ticket._id, e)}
+                            variant="outline"
+                            className="flex-1 text-white border-red-500 bg-red-500 hover:bg-red-600 hover:border-red-600 hover:text-white transition-colors cursor-pointer"
+                          >
+                            <X size={16} className="mr-2" />
+                            Cancelar
                           </Button>
                         )}
                       </div>

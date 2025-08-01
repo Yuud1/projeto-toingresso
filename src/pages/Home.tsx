@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import Header from "@/components/Header";
 import CarrosselMain from "../components/CarrosselMain";
 import Category from "../components/Category";
@@ -5,9 +6,56 @@ import EventGrid from "../components/Event-grid";
 import AdBanner from "../components/AdBanner";
 import Footer from "../components/Footer";
 import CreateEventCTA from "../components/CreateEventCTA";
+import ToastContainer from "@/components/ui/toast-container";
 import { ArrowDown } from "lucide-react";
+import { useUser } from "@/contexts/useContext";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Home() {
+  const { user, isLoading } = useUser();
+  const { toasts, showSuccess } = useToast();
+
+  useEffect(() => {
+    // Verifica se o usuário está logado, não está carregando e se é a primeira vez na sessão
+    if (user && !isLoading && !sessionStorage.getItem("welcomeShown")) {
+      // Pequeno delay para garantir que a página carregou completamente
+      const timer = setTimeout(() => {
+        const currentHour = new Date().getHours();
+        let greeting = "Bem-vindo";
+        
+        if (currentHour < 12) {
+          greeting = "Bom dia";
+        } else if (currentHour < 18) {
+          greeting = "Boa tarde";
+        } else {
+          greeting = "Boa noite";
+        }
+
+        // Personaliza a mensagem baseada no perfil do usuário
+        let message = "Que tal descobrir alguns eventos incríveis hoje?";
+        
+        if (user.likedEvents && user.likedEvents.length > 0) {
+          message = `Você tem ${user.likedEvents.length} evento${user.likedEvents.length > 1 ? 's' : ''} favorito${user.likedEvents.length > 1 ? 's' : ''}! Que tal dar uma olhada?`;
+        } else if (user.tickets && user.tickets.length > 0) {
+          message = `Você tem ${user.tickets.length} ingresso${user.tickets.length > 1 ? 's' : ''}! Que tal verificar seus eventos?`;
+        }
+
+        showSuccess(
+          `${greeting}, ${user.name}! 👋`,
+          message,
+          5000
+        );
+
+        // Marca que o toast de boas-vindas já foi mostrado nesta sessão
+        sessionStorage.setItem("welcomeShown", "true");
+      }, 1000); // 1 segundo de delay
+
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+  }, [user, isLoading, showSuccess]);
+
   return (
     <>
       <div>
@@ -55,7 +103,10 @@ export default function Home() {
 
           {/* Footer */}
           <Footer />
-        </main>        
+        </main>
+        
+        {/* Toast Container */}
+        <ToastContainer toasts={toasts} />
       </div>
     </>
   );

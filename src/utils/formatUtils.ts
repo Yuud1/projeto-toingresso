@@ -241,3 +241,7 @@ export const truncateTextResponsiveForEventGrid = (text: string): string => {
     return text.length > 55 ? text.slice(0, 55) + "..." : text;
   }
 };
+
+export const truncateTextTo39Chars = (text: string): string => {
+  return text.length > 39 ? text.slice(0, 39) + "..." : text;
+};

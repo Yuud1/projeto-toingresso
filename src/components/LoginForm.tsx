@@ -1,13 +1,22 @@
 import axios from "axios";
 import React from "react";
-
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { AlertCircle, Eye, EyeOff } from "lucide-react";
-import { GoogleLogin } from "@react-oauth/google";
+import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
+
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+      emailVerified?: boolean;
+      token?: string;
+    };
+  };
+  }
 
 export function LoginForm({
   className,
@@ -17,9 +26,9 @@ export function LoginForm({
   const [password, setPassword] = React.useState<string>("");
   const [showPassword, setShowPassword] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
-  const [errorMessage, setErrorMessage] = React.useState<String>();
+  const [errorMessage, setErrorMessage] = React.useState<string>();
 
-  function handleGoogleLoginSuccess(credentialResponse: any) {
+  function handleGoogleLoginSuccess(credentialResponse: CredentialResponse) {
     const { credential } = credentialResponse;
 
     axios
@@ -33,6 +42,7 @@ export function LoginForm({
       )
       .then((response) => {
         localStorage.setItem("token", response.data.token);
+        window.dispatchEvent(new Event("tokenChanged"));
         window.location.href = "/";
       })
       .catch((error) => {
@@ -42,6 +52,7 @@ export function LoginForm({
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    
     try {
       setLoading(true);
       const response = await axios.post(
@@ -56,17 +67,19 @@ export function LoginForm({
 
       if (response.data.logged) {
         localStorage.setItem("token", response.data.token);
+        window.dispatchEvent(new Event("tokenChanged"));
         window.location.href = "/";
       }
-    } catch (error: any) {
-      console.log("Error", error);
+         } catch (error: unknown) {
+       const apiError = error as ApiError;
+       if (apiError.response?.data?.emailVerified === false) {
+         localStorage.setItem("token", apiError.response.data.token || "");
+         window.dispatchEvent(new Event("tokenChanged"));
+         window.location.href = "/confirm-email";
+       }
 
-      if (error.response.data.emailVerified === false) {
-        localStorage.setItem("token", error.response.data.token);
-        window.location.href = "/confirm-email";
-      }
-
-      setErrorMessage(error.response.data.message);
+       // Mensagem genérica para não revelar qual campo está incorreto
+       setErrorMessage("Email ou senha incorretos");
     } finally {
       setLoading(false);
     }

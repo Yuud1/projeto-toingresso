@@ -17,6 +17,31 @@ import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
 import axios from "axios";
 import { Badge } from "@/components/ui/badge";
 
+// Interfaces para resolver problemas de any
+interface ValidationResponse {
+  validated: boolean;
+  validationToken?: string;
+}
+
+interface ScanResponse {
+  message: string;
+  user?: {
+    _id: string;
+  };
+  ticket?: {
+    eventId: string;
+  };
+}
+
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+  message?: string;
+}
+
 const socket = io(`${import.meta.env.VITE_API_BASE_URL}`);
 
 export default function EventScanner() {
@@ -143,16 +168,18 @@ export default function EventScanner() {
         }
       );
 
-      if (response.data.validated) {
+      const data: ValidationResponse = response.data;
+      if (data.validated) {
         setIsAuthenticated(true);
         setScannerError("");
         sessionStorage.setItem(
           "validationToken",
-          response.data.validationToken
+          data.validationToken || ""
         );
       }
-    } catch (err: any) {
-      setScannerError(err.response?.data?.message || "Erro ao validar token");
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      setScannerError(apiError.response?.data?.message || "Erro ao validar token");
     } finally {
       setIsLoading(false);
     }
@@ -188,22 +215,24 @@ export default function EventScanner() {
             { dispositiveToken: sessionStorage.getItem("validationToken") },
             { headers: { Authorization: `Bearer ${scanResult}` } }
           );
-          if (response.data.message) {
-            console.log(response.data);
+          const data: ScanResponse = response.data;
+          if (data.message) {
+            console.log(data);
 
-            setScanResult(response.data.message);
+            setScanResult(data.message);
             socket.emit("sendCheckout", {
-              userId: response.data.user._id,
-              eventId: response.data.ticket.eventId,
+              userId: data.user?._id || "",
+              eventId: data.ticket?.eventId || "",
             });
           }
-        } catch (error: any) {
-          if (error.response?.data?.message) {
-            setScanResult(error.response.data.message);
+        } catch (error: unknown) {
+          const apiError = error as ApiError;
+          if (apiError.response?.data?.message) {
+            setScanResult(apiError.response.data.message);
           } else {
             setScanResult("Ocorreu um erro ao validar o ticket.");
           }
-          console.log("Erro ao enviar requisição qr", error);
+          console.log("Erro ao enviar requisição qr", apiError);
         } finally {
           setScanned(false);
         }

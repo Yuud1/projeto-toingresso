@@ -50,6 +50,22 @@ import { truncateTextResponsive, truncateTextTo30Chars } from "@/utils/formatUti
 import Dashboard from "@/components/Dashboard";
 import { Link } from "react-router-dom";
 
+// Tipos para resolver problemas de any
+interface ApiError {
+  response?: {
+    data?: {
+      logged?: boolean;
+      message?: string;
+    };
+  };
+  message?: string;
+}
+
+interface RevenueData {
+  name: string;
+  revenue: number;
+}
+
 interface TabProps {
   isActive: boolean;
   children: React.ReactNode;
@@ -171,7 +187,7 @@ export default function MyEvents() {
     return events.filter((event) => event._id === selectedDashboardEvent);
   };
 
-  const revenueData = months.map((month, idx) => {
+  const revenueData: RevenueData[] = months.map((month, idx) => {
     const filteredEvents = getFilteredEventsForDashboard();
     const monthRevenue = filteredEvents
       .filter(
@@ -214,8 +230,9 @@ export default function MyEvents() {
         if (response.data.events) {
           setEvents([...response.data.events]);
         }
-      } catch (error: any) {
-        if (error.response?.data?.logged === false) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
+        if (apiError.response?.data?.logged === false) {
           window.location.href = "/login";
         }
       }
@@ -241,6 +258,7 @@ export default function MyEvents() {
     certificateCount: getFilteredEventsForDashboard().reduce((total, event) => {
       // Apenas para passar no build
       if (total) {
+        // Bloco intencionalmente vazio para evitar warning de variável não utilizada
       }
       return event.certificateCount;
     }, 0),
@@ -292,6 +310,7 @@ export default function MyEvents() {
     checkinsCount: getFilteredEventsForDashboard().reduce((total, event) => {
       // Apenas para passar no build
       if (total) {
+        // Bloco intencionalmente vazio para evitar warning de variável não utilizada
       }
       // Retorna o array de subscribers
       return event.participants.length;

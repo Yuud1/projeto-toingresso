@@ -180,7 +180,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
           <div className="w-8 h-8 rounded-full  flex items-center justify-center text-sm font-medium text-black">
             <Avatar className="w-10 h-10">
               <AvatarImage src={user.avatar || "/placeholder.svg"} />
-              <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+              <AvatarFallback>{user?.name ? getInitials(user.name) : '?'}</AvatarFallback>
             </Avatar>
           </div>
           <div className="p-1 text-black">

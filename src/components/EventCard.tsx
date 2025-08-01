@@ -1,7 +1,7 @@
 import React from "react";
 import { MapPin, Clock, Calendar } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
-import { truncateTextResponsive, truncateTextTo30Chars } from "@/utils/formatUtils";
+import { truncateTextResponsive, truncateTextTo30Chars, truncateTextTo39Chars } from "@/utils/formatUtils";
 import getInitials from "@/utils/getInitials";
 import EventInterface from "@/interfaces/EventInterface";
 
@@ -54,7 +54,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, className = "" }) => {
           <div className="flex items-start gap-1 mb-2">
             <div className="text-xs text-gray-600">
               <p className="font-medium truncate">
-                {truncateTextResponsive(`${event.venueName} | ${event.state}`)}
+                {truncateTextTo39Chars(`${event.venueName} | ${event.state}`)}
               </p>
             </div>
           </div>
@@ -84,7 +84,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, className = "" }) => {
                 <span className="font-medium text-gray-700 flex justify-center items-center gap-2">
                   <Avatar className="w-5 h-5">
                     <AvatarImage src={event.organizer.avatar} alt={event.organizer.name} />
-                    <AvatarFallback className="text-xs">{getInitials(event.organizer.name)}</AvatarFallback>
+                    <AvatarFallback className="text-xs">{getInitials(event.organizer?.name)}</AvatarFallback>
                   </Avatar>
                   <span className="truncate">{truncateTextResponsive(event.organizer.name)}</span>
                 </span>

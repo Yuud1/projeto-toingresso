@@ -44,6 +44,64 @@ import Footer from "@/components/Footer";
 import { useParams } from "react-router-dom";
 import { formatDateTimeForInput } from "@/utils/formatUtils";
 
+// Interfaces para resolver problemas de tipo 'any'
+interface AddressComponent {
+  long_name: string;
+  short_name: string;
+  types: string[];
+}
+
+interface GeometryLocation {
+  lat: number;
+  lng: number;
+}
+
+interface Geometry {
+  location: GeometryLocation;
+}
+
+interface StructuredFormatting {
+  main_text: string;
+  secondary_text: string;
+}
+
+interface AddressSuggestion {
+  place_id: string | null;
+  description: string;
+  structured_formatting: StructuredFormatting;
+  formatted_address: string;
+  address_components: AddressComponent[];
+  geometry: Geometry;
+}
+
+interface Municipality {
+  nome: string;
+}
+
+interface CepData {
+  cep: string;
+  logradouro: string;
+  complemento: string;
+  bairro: string;
+  localidade: string;
+  uf: string;
+  ibge: string;
+  gia: string;
+  ddd: string;
+  siafi: string;
+  erro?: boolean;
+}
+
+interface ApiError {
+  response?: {
+    data?: {
+      owner?: boolean;
+      message?: string;
+    };
+  };
+  message?: string;
+}
+
 const estadosMunicipios = {
   AC: { nome: "Acre" },
   AL: { nome: "Alagoas" },
@@ -96,7 +154,7 @@ export default function EditEvent() {
   const [buscandoCoordenadas, setBuscandoCoordenadas] = useState(false);
   const [coordenadasEncontradas, setCoordenadasEncontradas] = useState(false);
   const [buscandoSugestoes, setBuscandoSugestoes] = useState(false);
-  const [sugestoesEndereco, setSugestoesEndereco] = useState<any[]>([]);
+  const [sugestoesEndereco, setSugestoesEndereco] = useState<AddressSuggestion[]>([]);
   const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(
     null
   );
@@ -160,9 +218,10 @@ export default function EditEvent() {
           setIsOwner(response.data.isOwner);          
           setFormData((prev) => ({...prev,...response.data.event,acceptedTerms: false}));
         }
-      } catch (error: any) {
-        console.log("ERror", error);
-        setIsOwner(error.response.data.owner);
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
+        console.log("ERror", apiError);
+        setIsOwner(apiError.response?.data?.owner || false);
       }
     }
 
@@ -179,7 +238,7 @@ export default function EditEvent() {
         `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${sigla}/municipios`
       );
       const data = await res.json();
-      const nomes = data.map((m: any) => m.nome);
+      const nomes = data.map((m: Municipality) => m.nome);
       setMunicipiosPorUF((prev) => ({ ...prev, [sigla]: nomes }));
     } catch (err) {
       console.error("Erro ao buscar municípios:", err);
@@ -198,7 +257,7 @@ export default function EditEvent() {
     setBuscandoCoordenadas(true);
     try {
       const cepResponse = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-      const cepData = await cepResponse.json();
+      const cepData: CepData = await cepResponse.json();
 
       if (!cepData.erro) {
         // const endereco = `${cepData.logradouro}, ${formData.number}, ${cepData.bairro}, ${cepData.localidade}, ${cepData.uf}, ${cep}`
@@ -241,7 +300,7 @@ export default function EditEvent() {
         // Formatar resultados do geocoding
         const formattedResults = data.results
           .slice(0, 5)
-          .map((result: any) => ({
+          .map((result: AddressSuggestion) => ({
             place_id: null,
             description: result.formatted_address,
             structured_formatting: {
@@ -268,7 +327,7 @@ export default function EditEvent() {
     }
   };
 
-  const selecionarSugestao = async (sugestao: any) => {
+  const selecionarSugestao = async (sugestao: AddressSuggestion) => {
     try {
       const location = sugestao.geometry.location;
 
@@ -421,6 +480,7 @@ export default function EditEvent() {
           mapUrl: mapUrl,
         };
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { image, ...rest } = formDataToSend;
         data.append("editedEvent", JSON.stringify(rest));
 

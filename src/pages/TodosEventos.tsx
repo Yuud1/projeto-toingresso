@@ -177,7 +177,7 @@ const TodosEventos = () => {
                                       alt={event.organizer.name}
                                     />
                                     <AvatarFallback>
-                                      {getInitials(event.organizer.name)}
+                                      {getInitials(event.organizer?.name)}
                                     </AvatarFallback>
                                   </Avatar>
                                   {truncateTextResponsive(event.organizer.name)}

@@ -44,6 +44,15 @@ import AttractionModal from "@/components/AttractionModal";
 import { useToast } from "@/hooks/use-toast";
 import ToastContainer from "@/components/ui/toast-container";
 
+// Tipos para resolver problemas de any
+interface Attraction {
+  name: string;
+  social?: string;
+  description?: string;
+  startTime?: string;
+  endTime?: string;
+}
+
 const EventDetail = () => {
   const { id } = useParams();
   const { user } = useUser();
@@ -54,7 +63,7 @@ const EventDetail = () => {
   const [subscribed, setSubscribed] = useState(false);
   const [qrCode, setQrCode] = useState(null);
   const [showFull, setShowFull] = useState(false);
-  const [selectedAttraction, setSelectedAttraction] = useState<any | null>(
+  const [selectedAttraction, setSelectedAttraction] = useState<Attraction | null>(
     null
   );
   const [modalOpen, setModalOpen] = useState(false);
@@ -461,8 +470,8 @@ const EventDetail = () => {
                         <div className="space-y-4">
                           {(event.dates[0].attractions
                             ? [...event.dates[0].attractions].sort((a, b) => {
-                                const aStart = (a as any).startTime || "";
-                                const bStart = (b as any).startTime || "";
+                                const aStart = (a as Attraction).startTime || "";
+                                const bStart = (b as Attraction).startTime || "";
                                 if (!aStart) return -1;
                                 if (!bStart) return 1;
                                 return aStart.localeCompare(bStart);
@@ -571,9 +580,9 @@ const EventDetail = () => {
                                   {(date.attractions
                                     ? [...date.attractions].sort((a, b) => {
                                         const aStart =
-                                          (a as any).startTime || "";
+                                          (a as Attraction).startTime || "";
                                         const bStart =
-                                          (b as any).startTime || "";
+                                          (b as Attraction).startTime || "";
                                         if (!aStart) return -1;
                                         if (!bStart) return 1;
                                         return aStart.localeCompare(bStart);
@@ -689,9 +698,9 @@ const EventDetail = () => {
                                     {(date.attractions
                                       ? [...date.attractions].sort((a, b) => {
                                           const aStart =
-                                            (a as any).startTime || "";
+                                            (a as Attraction).startTime || "";
                                           const bStart =
-                                            (b as any).startTime || "";
+                                            (b as Attraction).startTime || "";
                                           if (!aStart) return -1;
                                           if (!bStart) return 1;
                                           return aStart.localeCompare(bStart);

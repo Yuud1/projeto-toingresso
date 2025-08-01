@@ -77,6 +77,35 @@ interface ArrivalInterface {
   };
 }
 
+// Novas interfaces para resolver problemas de any
+interface ParticipantData {
+  user?: {
+    _id: string;
+    name: string;
+    email: string;
+    avatar?: string;
+  };
+  fields?: Record<string, string>;
+  arrivedAt?: string;
+  subscribedAt?: string;
+}
+
+interface ApiResponse {
+  participants?: ParticipantData[];
+}
+
+interface SocketUserData {
+  user?: {
+    _id: string;
+    name: string;
+    email: string;
+    avatar?: string;
+  };
+  fields?: Record<string, string>;
+  arrivedAt?: string;
+  subscribedAt?: string;
+}
+
 const socket = io(`${import.meta.env.VITE_API_BASE_URL}`);
 
 export default function EventArrivalsPage() {
@@ -159,19 +188,19 @@ export default function EventArrivalsPage() {
           }
         );
         
-        const data = response.data;
+        const data: ApiResponse = response.data;
 
         if (data.participants) {
           // Normalizar os dados para o formato esperado
           // A API pode retornar participantes com ou sem campos personalizados
           // - Com fields: { user: {...}, fields: {...}, arrivedAt: "..." }
           // - Sem fields: { user: {...}, arrivedAt: "..." }
-          const normalizedArrivals = data.participants.map((participant: any) => ({
+          const normalizedArrivals = data.participants.map((participant: ParticipantData) => ({
             userId: participant.user?._id,
             user: participant.user,
             fields: participant.fields || {}, // Se não tiver fields, usar objeto vazio
-            subscribedAt: participant.arrivedAt || participant.subscribedAt,
-            arrivalTime: participant.arrivedAt || participant.subscribedAt,
+            subscribedAt: participant.arrivedAt || participant.subscribedAt || new Date().toISOString(),
+            arrivalTime: participant.arrivedAt || participant.subscribedAt || new Date().toISOString(),
           }));
           
           setArrivals(normalizedArrivals);
@@ -189,7 +218,7 @@ export default function EventArrivalsPage() {
     if (!isConfigMode && isLive) {
       socket.emit("registerChekcout", id);
       
-      socket.on("new_user_checked_in", (userData: any) => {
+      socket.on("new_user_checked_in", (userData: SocketUserData) => {
         
         
         try {
@@ -198,8 +227,8 @@ export default function EventArrivalsPage() {
             userId: userData.user?._id,
             user: userData.user,
             fields: userData.fields || {}, // Se não tiver fields, usar objeto vazio
-            subscribedAt: userData.arrivedAt || userData.subscribedAt,
-            arrivalTime: userData.arrivedAt || userData.subscribedAt,
+            subscribedAt: userData.arrivedAt || userData.subscribedAt || new Date().toISOString(),
+            arrivalTime: userData.arrivedAt || userData.subscribedAt || new Date().toISOString(),
           };
           
           

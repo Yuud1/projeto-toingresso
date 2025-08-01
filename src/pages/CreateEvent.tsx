@@ -42,6 +42,48 @@ import { FaFootballBall, FaQuestionCircle } from "react-icons/fa";
 import axios from "axios";
 import Footer from "@/components/Footer";
 
+// Tipos para resolver problemas de any
+interface AddressComponent {
+  long_name: string;
+  short_name: string;
+  types: string[];
+}
+
+interface GeometryLocation {
+  lat: number;
+  lng: number;
+}
+
+interface Geometry {
+  location: GeometryLocation;
+}
+
+interface StructuredFormatting {
+  main_text: string;
+  secondary_text: string;
+}
+
+interface AddressSuggestion {
+  place_id: string | null;
+  description: string;
+  structured_formatting: StructuredFormatting;
+  formatted_address: string;
+  address_components: AddressComponent[];
+  geometry: Geometry;
+}
+
+interface Municipality {
+  nome: string;
+}
+
+interface CepData {
+  erro?: boolean;
+  logradouro?: string;
+  bairro?: string;
+  localidade?: string;
+  uf?: string;
+}
+
 const estadosMunicipios = {
   AC: { nome: "Acre" },
   AL: { nome: "Alagoas" },
@@ -92,7 +134,7 @@ export default function CreateEvent() {
   const [buscandoCoordenadas, setBuscandoCoordenadas] = useState(false);
   const [coordenadasEncontradas, setCoordenadasEncontradas] = useState(false);
   const [buscandoSugestoes, setBuscandoSugestoes] = useState(false);
-  const [sugestoesEndereco, setSugestoesEndereco] = useState<any[]>([]);
+  const [sugestoesEndereco, setSugestoesEndereco] = useState<AddressSuggestion[]>([]);
   const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(
     null
   );
@@ -144,7 +186,7 @@ export default function CreateEvent() {
         `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${sigla}/municipios`
       );
       const data = await res.json();
-      const nomes = data.map((m: any) => m.nome);
+      const nomes = data.map((m: Municipality) => m.nome);
       setMunicipiosPorUF((prev) => ({ ...prev, [sigla]: nomes }));
     } catch (err) {
       console.error("Erro ao buscar municípios:", err);
@@ -157,7 +199,7 @@ export default function CreateEvent() {
     setBuscandoCoordenadas(true);
     try {
       const cepResponse = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-      const cepData = await cepResponse.json();
+      const cepData: CepData = await cepResponse.json();
 
       if (!cepData.erro) {
         // const endereco = `${cepData.logradouro}, ${formData.number}, ${cepData.bairro}, ${cepData.localidade}, ${cepData.uf}, ${cep}`
@@ -200,7 +242,7 @@ export default function CreateEvent() {
         // Formatar resultados do geocoding
         const formattedResults = data.results
           .slice(0, 5)
-          .map((result: any) => ({
+          .map((result: AddressSuggestion) => ({
             place_id: null,
             description: result.formatted_address,
             structured_formatting: {
@@ -227,7 +269,7 @@ export default function CreateEvent() {
     }
   };
 
-  const selecionarSugestao = async (sugestao: any) => {
+  const selecionarSugestao = async (sugestao: AddressSuggestion) => {
     try {
       const location = sugestao.geometry.location;
       const addressComponents = sugestao.address_components;
@@ -240,7 +282,7 @@ export default function CreateEvent() {
       let bairro = "";
       let numero = "";
 
-      addressComponents.forEach((component: any) => {
+      addressComponents.forEach((component: AddressComponent) => {
         const types = component.types;
 
         if (types.includes("postal_code")) {
@@ -424,6 +466,7 @@ export default function CreateEvent() {
           mapUrl: mapUrl,
         };
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { image, ...rest } = formDataToSend;
         data.append("formData", JSON.stringify(rest));
 
