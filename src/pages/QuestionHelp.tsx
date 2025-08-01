@@ -111,7 +111,7 @@ export default function QuestionHelp() {
       views: number;
       helpfulResponses: number;
     }>
-  >([]);
+  >(faqs);
 
   // Atualizar estatísticas quando o componente montar
   useEffect(() => {
