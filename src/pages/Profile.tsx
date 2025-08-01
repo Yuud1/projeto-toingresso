@@ -85,6 +85,8 @@ export default function Profile() {
     });
   }, [user]);
 
+  console.log(formData);
+
   const [statusSaving, setStatusSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
@@ -92,15 +94,18 @@ export default function Profile() {
   const token = localStorage.getItem("token");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    const name = e.target.name;
+    const { name, type, value, checked } = e.target;
 
-    const onlyNumbers = value.replace(/\D/g, ""); // remove tudo que não é número
+    const newValue =
+      type === "checkbox"
+        ? checked
+        : name === "cpf"
+        ? formatCPF(value.replace(/\D/g, ""))
+        : value;
 
-    const maskedValue = name === "cpf" ? formatCPF(onlyNumbers) : value;
     setFormData((prev) => ({
       ...prev,
-      [name]: maskedValue,
+      [name]: newValue,
     }));
   };
 
@@ -205,9 +210,7 @@ export default function Profile() {
       setStatusSaving(false);
 
       const response = await axios.delete(
-        `${import.meta.env.VITE_API_BASE_URL}${
-        import.meta.env.VITE_
-        }`,
+        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -442,15 +445,6 @@ export default function Profile() {
                   </div>
                 </div>
 
-                <div className="flex justify-end">
-                  <Button
-                    className="bg-[#02488C] text-white hover:bg-[#023a6f] cursor-pointer "
-                    onClick={handleSubmit}
-                    disabled={loading}
-                  >
-                    {loading ? "Salvando..." : "Salvar alterações"}
-                  </Button>
-                </div>
                 {statusSaving && (
                   <div className="text-green-600 text-sm text-right">
                     Alterações salvas com sucesso!
@@ -483,7 +477,7 @@ export default function Profile() {
                           type="checkbox"
                           className="sr-only peer"
                           name="isPublic"
-                          defaultChecked={user?.isPublic}
+                          checked={formData.isPublic ?? false}
                           onChange={handleChange}
                         />
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#02488C]"></div>
@@ -591,31 +585,45 @@ export default function Profile() {
                 </div>
               </form>
             )}
-            <div className="border-t pt-6 flex flex-col max-[370]:flex-row gap-4">
+            {activeTab == "avancada" ? null : (
               <div>
-                <h4 className="font-medium mb-2 text-red-600">
-                  Ação irreversível
-                </h4>
-                <p className="text-sm text-gray-500 mb-4">
-                  Ações irreversíveis que afetarão permanentemente sua conta
-                </p>
-              </div>
+                <div className="flex justify-start mt-6 mb-6">
+                  <Button
+                    className="bg-[#02488C] text-white hover:bg-[#023a6f] cursor-pointer "
+                    onClick={handleSubmit}
+                    disabled={loading}
+                  >
+                    {loading ? "Salvando..." : "Salvar alterações"}
+                  </Button>
+                </div>
 
-              <div className="space-y-4">
-                <Button
-                  variant="outline"
-                  className="border-red-500 text-destructive hover:bg-red-500 hover:text-white cursor-pointer"
-                  disabled={loading}
-                  onClick={handleDelete}
-                >
-                  Excluir minha conta
-                </Button>
-                <p className="text-xs text-gray-500">
-                  Ao excluir sua conta, todos os seus dados serão
-                  permanentemente removidos e não poderão ser recuperados.
-                </p>
+                <div className="flex flex-col max-[370]:flex-row gap-4">
+                  <div>
+                    <h4 className="font-medium mb-2 text-red-600">
+                      Ação irreversível
+                    </h4>
+                    <p className="text-sm text-gray-500 mb-4">
+                      Ações irreversíveis que afetarão permanentemente sua conta
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <Button
+                      variant="outline"
+                      className="border-red-500 text-destructive hover:bg-red-500 hover:text-white cursor-pointer"
+                      disabled={loading}
+                      onClick={handleDelete}
+                    >
+                      Excluir minha conta
+                    </Button>
+                    <p className="text-xs text-gray-500">
+                      Ao excluir sua conta, todos os seus dados serão
+                      permanentemente removidos e não poderão ser recuperados.
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </main>
