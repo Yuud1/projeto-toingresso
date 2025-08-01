@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import type CustomFieldInterface from "@/interfaces/CustomFieldInterface";
 import { applyMask } from "@/utils/formatUtils";
 import axios from "axios";
+import { Textarea } from "./ui/textarea";
 
 interface Props {
   eventId: string;
@@ -107,11 +108,13 @@ const FreeEventForm = ({
       }
     } catch (error: any) {
       console.log("Erro ao se cadastrar", error);
-      
+
       // Verificar se o erro é porque o usuário já está inscrito
-      if (error.response?.status === 409 || 
-          error.response?.data?.message?.includes("já inscrito") ||
-          error.response?.data?.message?.includes("already subscribed")) {
+      if (
+        error.response?.status === 409 ||
+        error.response?.data?.message?.includes("já está inscrito") ||
+        error.response?.data?.message?.includes("already subscribed")
+      ) {
         onAlreadySubscribed?.();
       }
     } finally {
@@ -196,10 +199,52 @@ const FreeEventForm = ({
                   <Input
                     type="date"
                     required={field.required}
+                    onChange={(e) => {
+                      const rawValue = e.target.value;
+                      const maskedValue = applyMask(
+                        rawValue,
+                        field.maskType,
+                        field.mask
+                      );
+                      handleChange(field.label, maskedValue);
+                    }}
+                    value={formData[field.label] || ""}
+                    className="w-full"
+                  />
+                )}
+
+                {field.type === "textarea" && (
+                  <Textarea
+                    required={field.required}
                     onChange={(e) => handleChange(field.label, e.target.value)}
                     value={formData[field.label] || ""}
                     className="w-full"
                   />
+                )}
+
+                {field.type === "radio" && (
+                  <div className="space-y-2">
+                    <p className="font-medium">{field.label}</p>
+                    {field.options?.map((option: string) => (
+                      <label
+                        key={option}
+                        className="flex items-center space-x-2"
+                      >
+                        <input
+                          type="radio"
+                          name={field.label}
+                          value={option}
+                          required={field.required}
+                          checked={formData[field.label] === option}
+                          onChange={(e) =>
+                            handleChange(field.label, e.target.value)
+                          }
+                          className="accent-blue-500"
+                        />
+                        <span>{option}</span>
+                      </label>
+                    ))}
+                  </div>
                 )}
 
                 {field.type === "checkbox" && (

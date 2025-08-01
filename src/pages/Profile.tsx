@@ -99,6 +99,8 @@ export default function Profile() {
     });
   }, [user]);
 
+  console.log(formData);
+
   const [statusSaving, setStatusSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
@@ -106,15 +108,18 @@ export default function Profile() {
   const token = localStorage.getItem("token");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    const name = e.target.name;
+    const { name, type, value, checked } = e.target;
 
-    const onlyNumbers = value.replace(/\D/g, ""); // remove tudo que não é número
+    const newValue =
+      type === "checkbox"
+        ? checked
+        : name === "cpf"
+        ? formatCPF(value.replace(/\D/g, ""))
+        : value;
 
-    const maskedValue = name === "cpf" ? formatCPF(onlyNumbers) : value;
     setFormData((prev) => ({
       ...prev,
-      [name]: maskedValue,
+      [name]: newValue,
     }));
   };
 
@@ -432,15 +437,6 @@ export default function Profile() {
                   </div>
                 </div>
 
-                <div className="flex justify-end">
-                  <Button
-                    className="bg-[#02488C] text-white hover:bg-[#023a6f] cursor-pointer "
-                    onClick={handleSubmit}
-                    disabled={loading}
-                  >
-                    {loading ? "Salvando..." : "Salvar alterações"}
-                  </Button>
-                </div>
                 {statusSaving && (
                   <div className="text-green-600 text-sm text-right">
                     Alterações salvas com sucesso!
@@ -473,7 +469,7 @@ export default function Profile() {
                           type="checkbox"
                           className="sr-only peer"
                           name="isPublic"
-                          defaultChecked={user?.isPublic}
+                          checked={formData.isPublic ?? false}
                           onChange={handleChange}
                         />
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#02488C]"></div>
