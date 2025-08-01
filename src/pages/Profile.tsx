@@ -19,20 +19,6 @@ import axios from "axios";
 import { formatCPF } from "@/utils/formatUtils";
 import UserInterface from "@/interfaces/UserInterface";
 
-// Tipos para resolver problemas de any
-interface FormDataRecord {
-  [key: string]: string | boolean | undefined;
-}
-
-interface ApiError {
-  response?: {
-    data?: {
-      message?: string;
-    };
-  };
-  message?: string;
-}
-
 interface TabProps {
   isActive: boolean;
   children: React.ReactNode;
@@ -99,8 +85,6 @@ export default function Profile() {
     });
   }, [user]);
 
-  console.log(formData);
-
   const [statusSaving, setStatusSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
@@ -108,18 +92,15 @@ export default function Profile() {
   const token = localStorage.getItem("token");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, type, value, checked } = e.target;
+    const value = e.target.value;
+    const name = e.target.name;
 
-    const newValue =
-      type === "checkbox"
-        ? checked
-        : name === "cpf"
-        ? formatCPF(value.replace(/\D/g, ""))
-        : value;
+    const onlyNumbers = value.replace(/\D/g, ""); // remove tudo que não é número
 
+    const maskedValue = name === "cpf" ? formatCPF(onlyNumbers) : value;
     setFormData((prev) => ({
       ...prev,
-      [name]: newValue,
+      [name]: maskedValue,
     }));
   };
 
@@ -157,11 +138,10 @@ export default function Profile() {
         "avatar",
         "isPublic",
       ];
-      const filteredData: FormDataRecord = {};
+      const filteredData: Record<string, any> = {};
       allowedFields.forEach((field) => {
-        const value = (formData as unknown as FormDataRecord)[field];
-        if (value !== undefined) {
-          filteredData[field] = value;
+        if ((formData as Record<string, any>)[field] !== undefined) {
+          filteredData[field] = (formData as Record<string, any>)[field];
         }
       });
 
@@ -210,18 +190,44 @@ export default function Profile() {
         setStatusSaving(true);
         window.location.href = "/perfil";
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.log(error);
-      const apiError = error as ApiError;
       setErrorMessage(
-        apiError.response?.data?.message || "Erro ao atualizar perfil"
+        error.response?.data?.message || "Erro ao atualizar perfil"
       );
     } finally {
       setLoading(false);
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      setStatusSaving(false);
 
+      const response = await axios.delete(
+        `${import.meta.env.VITE_API_BASE_URL}${
+        import.meta.env.VITE_
+        }`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log(response.data);
+
+      if (response.data.deleted) {
+        localStorage.clear();
+        window.location.href = "/login";
+      }
+    } catch (error) {
+      setErrorMessage("Erro ao excluir conta");
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -437,6 +443,15 @@ export default function Profile() {
                   </div>
                 </div>
 
+                <div className="flex justify-end">
+                  <Button
+                    className="bg-[#02488C] text-white hover:bg-[#023a6f] cursor-pointer "
+                    onClick={handleSubmit}
+                    disabled={loading}
+                  >
+                    {loading ? "Salvando..." : "Salvar alterações"}
+                  </Button>
+                </div>
                 {statusSaving && (
                   <div className="text-green-600 text-sm text-right">
                     Alterações salvas com sucesso!
@@ -469,7 +484,7 @@ export default function Profile() {
                           type="checkbox"
                           className="sr-only peer"
                           name="isPublic"
-                          checked={formData.isPublic ?? false}
+                          defaultChecked={user?.isPublic}
                           onChange={handleChange}
                         />
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#02488C]"></div>
@@ -577,6 +592,31 @@ export default function Profile() {
                 </div>
               </form>
             )}
+            <div className="border-t pt-6 flex flex-col max-[370]:flex-row gap-4">
+              <div>
+                <h4 className="font-medium mb-2 text-red-600">
+                  Ação irreversível
+                </h4>
+                <p className="text-sm text-gray-500 mb-4">
+                  Ações irreversíveis que afetarão permanentemente sua conta
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <Button
+                  variant="outline"
+                  className="border-red-500 text-destructive hover:bg-red-500 hover:text-white cursor-pointer"
+                  disabled={loading}
+                  onClick={handleDelete}
+                >
+                  Excluir minha conta
+                </Button>
+                <p className="text-xs text-gray-500">
+                  Ao excluir sua conta, todos os seus dados serão
+                  permanentemente removidos e não poderão ser recuperados.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </main>
