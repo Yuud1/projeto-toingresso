@@ -112,7 +112,7 @@ const FreeEventForm = ({
       // Verificar se o erro é porque o usuário já está inscrito
       if (
         error.response?.status === 409 ||
-        error.response?.data?.message?.includes("já inscrito") ||
+        error.response?.data?.message?.includes("já está inscrito") ||
         error.response?.data?.message?.includes("already subscribed")
       ) {
         onAlreadySubscribed?.();

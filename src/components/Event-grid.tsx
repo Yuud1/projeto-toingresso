@@ -118,7 +118,8 @@ const EventGrid = () => {
                     "/placeholder.svg?height=400&width=600"
                   }
                   alt={currentEvent.title}
-                  className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105"
+                  className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105 cursor-pointer"
+                  onClick={() => {window.location.href = `/evento/${currentEvent._id}`}}
                 />
 
                 {/* Category Badge */}
@@ -238,14 +239,14 @@ const EventGrid = () => {
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <button
                   onClick={() => handleViewDetails(currentEvent._id)}
-                  className="flex-1 py-2 sm:py-2.5 px-4 sm:px-5 border-2 border-[#00498D] text-[#00498D] font-semibold rounded-lg hover:bg-[#00498D] hover:text-white transition-all duration-200 hover:scale-[1.02] text-sm sm:text-base"
+                  className="flex-1 py-2 sm:py-2.5 px-4 sm:px-5 border-2 border-[#00498D] text-[#00498D] font-semibold rounded-lg hover:bg-[#00498D] hover:text-white transition-all duration-200 hover:scale-[1.02] text-sm sm:text-base cursor-pointer"
                 >
                   Ver Detalhes
                 </button>
 
                 <button
                   onClick={() => handleBuyTicket(currentEvent._id)}
-                  className="flex-1 py-2 sm:py-2.5 px-4 sm:px-5 bg-gradient-to-r from-[#FDC901] to-[#FFE066] text-black font-semibold rounded-lg hover:shadow-lg transition-all duration-200 hover:scale-[1.02] text-sm sm:text-base"
+                  className="flex-1 py-2 sm:py-2.5 px-4 sm:px-5 bg-gradient-to-r from-[#FDC901] to-[#FFE066] text-black font-semibold rounded-lg hover:shadow-lg transition-all duration-200 hover:scale-[1.02] text-sm sm:text-base cursor-pointer"
                 >
                   {currentEvent.isFree ? "Inscrever-se" : "Comprar Ingresso"}
                 </button>
