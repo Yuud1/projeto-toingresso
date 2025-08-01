@@ -76,7 +76,9 @@ export default function MyTickets() {
   );
   const [ticketIdClicked, setTicketIdClicked] = useState<string | undefined>(
     undefined
-  );  
+  );
+
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     async function fetchUserTickets() {
@@ -169,6 +171,8 @@ export default function MyTickets() {
     }
 
     try {
+      setDeleteLoading(true);
+
       const response = await axios.delete(
         `${import.meta.env.VITE_API_BASE_URL}${
           import.meta.env.VITE_DELETE_TICKET
@@ -192,6 +196,8 @@ export default function MyTickets() {
     } catch (error) {
       console.error("Erro ao cancelar inscrição:", error);
       alert("Erro ao cancelar inscrição. Tente novamente.");
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -297,7 +303,7 @@ export default function MyTickets() {
               {filteredTickets.map((ticket) => {
                 const event = ticket.Event;
                 console.log(event);
-                
+
                 const startDate = event?.dates[0]?.startDate
                   ? new Date(event.dates[0].startDate).toLocaleDateString(
                       "pt-BR",
@@ -397,7 +403,7 @@ export default function MyTickets() {
                         >
                           <Eye size={16} className="mr-2" />
                           Visualizar
-                        </Button>                        
+                        </Button>
 
                         {ticket.status === "ativo" && (
                           <Button
@@ -426,9 +432,38 @@ export default function MyTickets() {
                               }
                               variant="outline"
                               className="flex-1 text-white border-red-500 bg-red-500 hover:bg-red-600 hover:border-red-600 hover:text-white transition-colors cursor-pointer"
+                              disabled={deleteLoading}
                             >
-                              <X size={16} className="mr-2" />
-                              Cancelar
+                              {deleteLoading ? (
+                                <span className="flex items-center gap-2">
+                                  <svg
+                                    className="animate-spin h-4 w-4 text-white"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <circle
+                                      className="opacity-25"
+                                      cx="12"
+                                      cy="12"
+                                      r="10"
+                                      stroke="currentColor"
+                                      strokeWidth="4"
+                                    ></circle>
+                                    <path
+                                      className="opacity-75"
+                                      fill="currentColor"
+                                      d="M4 12a8 8 0 018-8v8H4z"
+                                    ></path>
+                                  </svg>
+                                  Cancelando...
+                                </span>
+                              ) : (
+                                <>
+                                  <X size={16} className="mr-2" />
+                                  Cancelar
+                                </>
+                              )}
                             </Button>
                           )}
                       </div>
