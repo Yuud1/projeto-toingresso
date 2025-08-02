@@ -31,7 +31,7 @@ const fadeInAnimation = `
   }
 `
 
-const categories = ["Shows", "Teatro", "Esportes", "Festas", "Comedia", "Gospel", "Diversoes", "Publico"]
+const categories = ["Shows", "Teatro", "Esportes", "Festas", "Comedia", "Gospel", "Diversões", "Publico"]
 
 const categoryDisplayNames = {
   Shows: "Shows",
@@ -40,7 +40,7 @@ const categoryDisplayNames = {
   Festas: "Festas",
   Comedia: "Comédia",
   Gospel: "Gospel",
-  Diversoes: "Diversões",
+  Diversões: "Diversões",
   Publico: "Público",
 }
 

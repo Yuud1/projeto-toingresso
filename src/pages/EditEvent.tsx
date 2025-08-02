@@ -174,6 +174,7 @@ export default function EditEvent() {
         startTime: "",
         endDate: "",
         endTime: "",
+        periodName: "",
         attractions: [],
       },
     ],
@@ -822,6 +823,7 @@ export default function EditEvent() {
                             startTime: "",
                             endDate: "",
                             endTime: "",
+                            periodName: "",
                             attractions: [],
                           },
                         ],
@@ -836,30 +838,70 @@ export default function EditEvent() {
               <CardContent className="space-y-6">
                 {formData.dates.map((dateObj, idx) => (
                   <div key={idx} className="border rounded-lg p-6 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-lg">
-                        Período {idx + 1}
-                      </h3>
-                      {formData.dates.length > 1 && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            const newDates = formData.dates.filter(
-                              (_, i) => i !== idx
-                            );
-                            setFormData((prev) => ({
-                              ...prev,
-                              dates: newDates,
-                            }));
-                          }}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
+                                          <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <h3 className="font-semibold text-lg">
+                            {dateObj.periodName || `Período ${idx + 1}`}
+                          </h3>
+                          <Input
+                            type="text"
+                            value={dateObj.periodName || ""}
+                            onChange={(e) => {
+                              const newDates = [...formData.dates];
+                              newDates[idx].periodName = e.target.value;
+                              setFormData((prev) => ({
+                                ...prev,
+                                dates: newDates,
+                              }));
+                            }}
+                            placeholder={`Nome do período ${idx + 1}`}
+                            className="w-48 text-sm"
+                          />
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          {idx > 0 && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                const previousPeriod = formData.dates[idx - 1];
+                                const newDates = [...formData.dates];
+                                newDates[idx] = {
+                                  ...previousPeriod,
+                                  periodName: `${previousPeriod.periodName || `Período ${idx}`} (Cópia)`,
+                                };
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  dates: newDates,
+                                }));
+                              }}
+                              className="text-blue-600 hover:text-blue-700"
+                            >
+                              <span className="text-xs">Copiar Anterior</span>
+                            </Button>
+                          )}
+                          {formData.dates.length > 1 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                const newDates = formData.dates.filter(
+                                  (_, i) => i !== idx
+                                );
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  dates: newDates,
+                                }));
+                              }}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       <div>
@@ -1463,6 +1505,18 @@ export default function EditEvent() {
               <p className="text-gray-600">
                 Configure os ingressos ou formulário de inscrição
               </p>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+                <h3 className="font-medium text-blue-900 mb-2">💡 Dica sobre Ativação de Ingressos</h3>
+                <p className="text-sm text-blue-800">
+                  <strong>Data de Ativação:</strong> Define quando o ingresso pode ser usado.
+                  Se você definir uma data, o ingresso só poderá ser ativado a partir desse momento.
+                  Deixe vazio para permitir ativação a qualquer momento durante o evento.
+                </p>
+                <div className="mt-2 text-xs text-blue-700">
+                  <p><strong>Exemplo 1:</strong> Ingresso para "Dia 1" → Ativação no primeiro dia do evento</p>
+                  <p><strong>Exemplo 2:</strong> Ingresso para "Todos os dias" → Deixe vazio para ativação livre</p>
+                </div>
+              </div>
             </div>
 
             <Card>
@@ -1568,48 +1622,69 @@ export default function EditEvent() {
                           className="border rounded-lg p-6 space-y-4"
                         >
                           <div className="flex items-center justify-between">
-                            <h3 className="font-semibold text-lg">
-                              Lote {batchIdx + 1}
-                            </h3>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                const newBatches = formData.batches.filter(
-                                  (_, i) => i !== batchIdx
-                                );
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  batches: newBatches,
-                                }));
-                              }}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Nome do Lote
-                              </label>
+                            <div className="flex items-center space-x-3">
+                              <h3 className="font-semibold text-lg">
+                                {batch.batchName || `Lote ${batchIdx + 1}`}
+                              </h3>
                               <Input
                                 type="text"
-                                value={batch.batchName}
+                                value={batch.batchName || ""}
                                 onChange={(e) => {
                                   const newBatches = [...formData.batches];
-                                  newBatches[batchIdx].batchName =
-                                    e.target.value;
+                                  newBatches[batchIdx].batchName = e.target.value;
                                   setFormData((prev) => ({
                                     ...prev,
                                     batches: newBatches,
                                   }));
                                 }}
-                                placeholder="Ex: 1º Lote, 2º Lote, Virada"
+                                placeholder={`Nome do lote ${batchIdx + 1}`}
+                                className="w-48 text-sm"
                               />
                             </div>
+                            <div className="flex items-center space-x-2">
+                              {batchIdx > 0 && (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    const previousBatch = formData.batches[batchIdx - 1];
+                                    const newBatches = [...formData.batches];
+                                    newBatches[batchIdx] = {
+                                      ...previousBatch,
+                                      batchName: `${previousBatch.batchName || `Lote ${batchIdx}`} (Cópia)`,
+                                    };
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      batches: newBatches,
+                                    }));
+                                  }}
+                                  className="text-blue-600 hover:text-blue-700"
+                                >
+                                  <span className="text-xs">Copiar Anterior</span>
+                                </Button>
+                              )}
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  const newBatches = formData.batches.filter(
+                                    (_, i) => i !== batchIdx
+                                  );
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    batches: newBatches,
+                                  }));
+                                }}
+                                className="text-red-600 hover:text-red-700"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Início das vendas
@@ -1665,6 +1740,7 @@ export default function EditEvent() {
                                     description: "",
                                     type: "regular",
                                     soldQuantity: 0,
+                                    activateAt: "",
                                   });
                                   setFormData((prev) => ({
                                     ...prev,
@@ -1688,7 +1764,7 @@ export default function EditEvent() {
                                     key={ticketIdx}
                                     className="bg-gray-50 p-4 rounded-lg"
                                   >
-                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                                       <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
                                           Nome do Ingresso
@@ -1774,6 +1850,30 @@ export default function EditEvent() {
                                           placeholder="0"
                                           min="0"
                                         />
+                                      </div>
+                                      <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                          Data de Ativação
+                                        </label>
+                                        <Input
+                                          type="datetime-local"
+                                          value={ticket.activateAt || ""}
+                                          onChange={(e) => {
+                                            const newBatches = [
+                                              ...formData.batches,
+                                            ];
+                                            newBatches[batchIdx].tickets[
+                                              ticketIdx
+                                            ].activateAt = e.target.value;
+                                            setFormData((prev) => ({
+                                              ...prev,
+                                              batches: newBatches,
+                                            }));
+                                          }}
+                                        />
+                                        <p className="text-xs text-gray-600 mt-1">
+                                          Deixe vazio para ativar a qualquer momento
+                                        </p>
                                       </div>
                                       <div className="flex items-end">
                                         <Button

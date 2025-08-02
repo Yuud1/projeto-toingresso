@@ -10,4 +10,9 @@ export default interface UserTicketsInterface {
   qrCode: string;
   used: boolean;
   status: "ativo" | "encerrado";
+  ticketType?: {
+    name: string;
+    activateAt?: string; // Data de ativação do tipo de ingresso
+  };
+  activatedAt?: string; // Data em que o ingresso foi ativado
 }

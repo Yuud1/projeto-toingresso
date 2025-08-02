@@ -60,6 +60,7 @@ const EventDetail = () => {
 
   const [isFavorited, setIsFavorited] = useState<boolean>(false);
   const [event, setEvents] = useState<EventInterface | undefined>(undefined);
+  console.log(event);
   const [subscribed, setSubscribed] = useState(false);
   const [qrCode, setQrCode] = useState(null);
   const [showFull, setShowFull] = useState(false);
@@ -71,12 +72,33 @@ const EventDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUserSubscribed, setIsUserSubscribed] = useState(false);
+  const [selectedBatchIndex, setSelectedBatchIndex] = useState(0); // NOVO: Para selecionar o batch
 
   useEffect(() => {
     const condition =
       user?.likedEvents.some((e) => e.toString() == id) ?? false;
     setIsFavorited(condition);
   }, [user]);
+
+  // NOVO: Define automaticamente o batch ativo quando o evento carrega
+  useEffect(() => {
+    if (event?.batches && event.batches.length > 0) {
+      const now = new Date();
+      const activeBatchIndex = event.batches.findIndex(batch => {
+        const saleStart = new Date(batch.saleStart);
+        const saleEnd = new Date(batch.saleEnd);
+        const isAvailable = now >= saleStart && now <= saleEnd;
+        const hasAvailableTickets = batch.tickets.some(
+          ticket => ticket.soldQuantity < ticket.quantity
+        );
+        return isAvailable && hasAvailableTickets;
+      });
+      
+      if (activeBatchIndex !== -1) {
+        setSelectedBatchIndex(activeBatchIndex);
+      }
+    }
+  }, [event]);
 
   // Verificar se o usuário já está inscrito no evento
   useEffect(() => {
@@ -843,7 +865,7 @@ const EventDetail = () => {
                 <CardTitle className="text-2xl font-bold flex justify-center gap-4 text-gray-800">
                   {event?.isFree
                     ? event.formTitle || "Formulário de Inscrição"
-                    : `Ingressos ${event.batches[0]?.batchName || ""}`}
+                    : `Ingressos ${event.batches[selectedBatchIndex]?.batchName || ""}`}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -898,27 +920,108 @@ const EventDetail = () => {
                           Este evento não está disponível no momento.
                         </p>
                       </div>
-                    ) : event.currentTickets &&
-                      event.currentTickets.length > 0 ? (
-                      <TicketSelector
-                        event={event}
-                        tickets={event.currentTickets}
-                      />
                     ) : (
-                      <div className="text-center py-16">
-                        <div className="w-24 h-24 rounded-3xl bg-gradient-to-r from-yellow-400 to-blue-500 flex items-center justify-center mx-auto mb-6">
-                          <Clock className="h-12 w-12 text-white" />
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-800 mb-3">
-                          Em Breve
-                        </h3>
-                        <p className="text-gray-600 mb-6">
-                          Os ingressos serão disponibilizados em breve.
-                        </p>
-                        <Button className="bg-gradient-to-r from-yellow-500 to-blue-500 hover:from-yellow-600 hover:to-blue-600 text-white border-0 rounded-xl px-6 py-3">
-                          Notificar-me
-                        </Button>
-                      </div>
+                      <>
+                        {/* Seletor de Batches - Mostra quando há múltiplos batches */}
+                        {event.batches && event.batches.length > 1 && (
+                          <div className="mb-6">
+                            <label className="block text-sm font-medium text-gray-700 mb-3">
+                              Selecione o Lote:
+                            </label>
+                            <div className="grid grid-cols-1 gap-2">
+                              {event.batches.map((batch, index) => {
+                                const now = new Date();
+                                const saleStart = new Date(batch.saleStart);
+                                const saleEnd = new Date(batch.saleEnd);
+                                const isAvailable = now >= saleStart && now <= saleEnd;
+                                const hasAvailableTickets = batch.tickets.some(
+                                  ticket => ticket.soldQuantity < ticket.quantity
+                                );
+                                const isActive = isAvailable && hasAvailableTickets;
+                                
+                                return (
+                                  <button
+                                    key={index}
+                                    onClick={() => setSelectedBatchIndex(index)}
+                                    className={`p-3 rounded-lg border-2 transition-all duration-200 text-left ${
+                                      selectedBatchIndex === index
+                                        ? "border-yellow-500 bg-yellow-50"
+                                        : "border-gray-200 hover:border-gray-300"
+                                    } ${
+                                      !isActive ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                                    }`}
+                                    disabled={!isActive}
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <div>
+                                        <h4 className="font-semibold text-gray-800">
+                                          {batch.batchName || `Lote ${index + 1}`}
+                                        </h4>
+                                        <p className="text-sm text-gray-600">
+                                          {new Date(batch.saleStart).toLocaleDateString("pt-BR")} - {new Date(batch.saleEnd).toLocaleDateString("pt-BR")}
+                                        </p>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        {isActive ? (
+                                          <Badge className="bg-green-100 text-green-800">
+                                            Disponível
+                                          </Badge>
+                                        ) : (
+                                          <Badge variant="secondary">
+                                            {now < saleStart ? "Em breve" : "Encerrado"}
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Verifica se o batch selecionado tem tickets disponíveis */}
+                        {(() => {
+                          const selectedBatch = event.batches[selectedBatchIndex];
+                          const now = new Date();
+                          const saleStart = new Date(selectedBatch.saleStart);
+                          const saleEnd = new Date(selectedBatch.saleEnd);
+                          const isAvailable = now >= saleStart && now <= saleEnd;
+                          const hasAvailableTickets = selectedBatch.tickets.some(
+                            ticket => ticket.soldQuantity < ticket.quantity
+                          );
+                          const isActive = isAvailable && hasAvailableTickets;
+
+                          if (!isActive) {
+                            return (
+                              <div className="text-center py-16">
+                                <div className="w-24 h-24 rounded-3xl bg-gradient-to-r from-yellow-400 to-blue-500 flex items-center justify-center mx-auto mb-6">
+                                  <Clock className="h-12 w-12 text-white" />
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-800 mb-3">
+                                  {now < saleStart ? "Em Breve" : "Vendas Encerradas"}
+                                </h3>
+                                <p className="text-gray-600 mb-6">
+                                  {now < saleStart 
+                                    ? `As vendas começam em ${saleStart.toLocaleDateString("pt-BR")}`
+                                    : "As vendas para este lote foram encerradas."
+                                  }
+                                </p>
+                                <Button className="bg-gradient-to-r from-yellow-500 to-blue-500 hover:from-yellow-600 hover:to-blue-600 text-white border-0 rounded-xl px-6 py-3">
+                                  Notificar-me
+                                </Button>
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <TicketSelector
+                              event={event}
+                              tickets={selectedBatch.tickets}
+                            />
+                          );
+                        })()}
+                      </>
                     )}
                   </div>
                 )}

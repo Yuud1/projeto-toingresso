@@ -18,7 +18,7 @@ import {
   HelpCircle,
   LogOut,
   Menu,
-  X,  
+  X,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -104,7 +104,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
   const [isScrolledInternal, setIsScrolledInternal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useUser();
+  const { user, isLoading } = useUser();
 
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
@@ -165,7 +165,6 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
 
     return (
       <div className="relative" ref={dropdownRef}>
-        
         <div
           onClick={() => setIsOpen(!isOpen)}
           className="outline-none flex items-center gap-2 border-2 border-black/20 rounded-full px-3 py-1.5 cursor-pointer hover:bg-gray/100"
@@ -176,11 +175,13 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
               setIsOpen(!isOpen);
             }
           }}
-        >          
+        >
           <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium text-black">
             <Avatar className="w-10 h-10 mr-2.5">
               <AvatarImage src={user.avatar || "/placeholder.svg"} />
-              <AvatarFallback>{user?.name ? getInitials(user.name) : '?'}</AvatarFallback>
+              <AvatarFallback>
+                {user?.name ? getInitials(user.name) : "?"}
+              </AvatarFallback>
             </Avatar>
           </div>
           <div className="p-1 text-black">
@@ -410,7 +411,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
               <img className="w-30" src={LogoComNome} alt="Logo" />
             </a>
             <div className="flex items-center gap-6 text-sm whitespace-nowrap">
-              {user ? (
+              {isLoading ? null : user ? (
                 <>
                   <Button
                     variant="ghost"
