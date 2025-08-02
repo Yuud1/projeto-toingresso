@@ -69,7 +69,7 @@ const Category: React.FC = () => {
       for (const category of categories) {
         try {
           const response = await axios.get(
-            `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_GET_FILTERED_EVENTS}`,
+            `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_GET_FILTERED_EVENTS_CATEGORIES}`,
             {
               params: { querySearch: category },
             },

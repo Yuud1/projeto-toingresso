@@ -38,7 +38,7 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}${
-          import.meta.env.VITE_GET_FILTERED_EVENTS
+          import.meta.env.VITE_GET_FILTERED_EVENTS_SEARCH
         }`,
         {
           params: { querySearch: searchQuery },
