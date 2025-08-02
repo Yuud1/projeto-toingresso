@@ -85,8 +85,6 @@ export default function Profile() {
     });
   }, [user]);
 
-  console.log(formData);
-
   const [statusSaving, setStatusSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
@@ -125,7 +123,8 @@ export default function Profile() {
     fileInputRef.current?.click();
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     try {
       setLoading(true);
       setStatusSaving(false);
@@ -142,6 +141,8 @@ export default function Profile() {
         "cpf",
         "avatar",
         "isPublic",
+        "confirmNewPassword",
+        "newPassword",
       ];
       const filteredData: Record<string, any> = {};
       allowedFields.forEach((field) => {
@@ -278,212 +279,212 @@ export default function Profile() {
           </div>
 
           <div className="min-h-[calc(100vh-300px)]">
-            {activeTab === "dados" && (
-              <div className="space-y-6">
-                <div className="flex items-center gap-6">
-                  <div className="relative">
-                    <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden cursor-pointer">
-                      {previewImage ? (
-                        <img
-                          src={previewImage || "/placeholder.svg"}
-                          alt="Preview"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : user?.avatar ? (
-                        <img
-                          src={user.avatar || "/placeholder.svg"}
-                          alt="Profile"
-                          className="w-full h-full object-cover "
-                        />
-                      ) : (
-                        <User size={40} className="text-gray-400" />
-                      )}
-                    </div>
-                    <button
-                      onClick={triggerFileInput}
-                      className="absolute bottom-0 cursor-pointer right-0 bg-[#02488C] text-white p-2 rounded-full hover:bg-[#023a6f] transition-colors"
-                    >
-                      <Camera size={16} />
-                    </button>
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      onChange={handleImageChange}
-                      accept="image/*"
-                      className="hidden"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg">Foto de perfil</h3>
-                    <p className="text-sm text-gray-500">
-                      JPG, GIF ou PNG. Máximo 2MB.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Nome completo
-                    </label>
-                    <Input
-                      type="text"
-                      placeholder="Seu nome completo"
-                      defaultValue={user?.name}
-                      name="name"
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      E-mail
-                    </label>
-                    <Input
-                      type="email"
-                      name="email"
-                      placeholder="seu@email.com"
-                      defaultValue={user?.email}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Telefone
-                    </label>
-                    <Input
-                      type="tel"
-                      name="phoneNumber"
-                      placeholder="(00) 00000-0000"
-                      defaultValue={user?.phoneNumber}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Data de nascimento
-                    </label>
-                    <Input
-                      type="date"
-                      name="birthdaydata"
-                      defaultValue={user?.birthdaydata}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Facebook
-                    </label>
+            <form onSubmit={handleSubmit} method="PUT">
+              {activeTab === "dados" && (
+                <div className="space-y-6">
+                  <div className="flex items-center gap-6">
                     <div className="relative">
-                      <Facebook
-                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                        size={16}
-                      />
-                      <Input
-                        type="text"
-                        placeholder="facebook.com/seu-usuario"
-                        className="pl-10"
-                        name="facebook"
-                        defaultValue={user?.facebook}
-                        onChange={handleChange}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      CPF
-                    </label>
-                    <div className="relative">
-                      <Input
-                        type="text"
-                        placeholder="000.000.000-00"
-                        className=""
-                        name="cpf"
-                        defaultValue={user?.cpf}
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        onChange={handleChange}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Instagram
-                    </label>
-                    <div className="relative">
-                      <Instagram
-                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                        size={16}
-                      />
-                      <Input
-                        type="text"
-                        placeholder="@seu-usuario"
-                        className="pl-10"
-                        name="instagram"
-                        defaultValue={user?.instagram}
-                        onChange={handleChange}
-                      />
-                    </div>
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Site
-                    </label>
-                    <div className="relative">
-                      <Globe
-                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                        size={16}
-                      />
-                      <Input
-                        type="url"
-                        placeholder="https://seu-site.com"
-                        className="pl-10"
-                        name="mysite"
-                        defaultValue={user?.mysite}
-                        onChange={handleChange}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {statusSaving && (
-                  <div className="text-green-600 text-sm text-right">
-                    Alterações salvas com sucesso!
-                  </div>
-                )}
-                {errorMessage && (
-                  <div className="text-red-600 text-sm text-right">
-                    {errorMessage}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === "privacidade" && (
-              <div className="space-y-6">
-                <div className="bg-white p-6 rounded-lg border">
-                  <h3 className="text-lg font-semibold mb-4">
-                    Configurações de privacidade
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-medium">Perfil público</h4>
-                        <p className="text-sm text-gray-500">
-                          Permitir que outros usuários vejam seu perfil
-                        </p>
+                      <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden cursor-pointer">
+                        {previewImage ? (
+                          <img
+                            src={previewImage || "/placeholder.svg"}
+                            alt="Preview"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : user?.avatar ? (
+                          <img
+                            src={user.avatar || "/placeholder.svg"}
+                            alt="Profile"
+                            className="w-full h-full object-cover "
+                          />
+                        ) : (
+                          <User size={40} className="text-gray-400" />
+                        )}
                       </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          className="sr-only peer"
-                          name="isPublic"
-                          checked={formData.isPublic ?? false}
+                      <button
+                        onClick={triggerFileInput}
+                        className="absolute bottom-0 cursor-pointer right-0 bg-[#02488C] text-white p-2 rounded-full hover:bg-[#023a6f] transition-colors"
+                      >
+                        <Camera size={16} />
+                      </button>
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleImageChange}
+                        accept="image/*"
+                        className="hidden"
+                      />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg">Foto de perfil</h3>
+                      <p className="text-sm text-gray-500">
+                        JPG, GIF ou PNG. Máximo 2MB.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Nome completo
+                      </label>
+                      <Input
+                        type="text"
+                        placeholder="Seu nome completo"
+                        defaultValue={formData.name}
+                        name="name"
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        E-mail
+                      </label>
+                      <Input
+                        type="email"
+                        name="email"
+                        placeholder="seu@email.com"
+                        defaultValue={formData.email}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Telefone
+                      </label>
+                      <Input
+                        type="tel"
+                        name="phoneNumber"
+                        placeholder="(00) 00000-0000"
+                        defaultValue={formData.phoneNumber}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Data de nascimento
+                      </label>
+                      <Input
+                        type="date"
+                        name="birthdaydata"
+                        defaultValue={formData.birthdaydata}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Facebook
+                      </label>
+                      <div className="relative">
+                        <Facebook
+                          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                          size={16}
+                        />
+                        <Input
+                          type="text"
+                          placeholder="facebook.com/seu-usuario"
+                          className="pl-10"
+                          name="facebook"
+                          defaultValue={formData?.facebook}
                           onChange={handleChange}
                         />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#02488C]"></div>
-                      </label>
+                      </div>
                     </div>
-                    {/* <div className="flex items-center justify-between">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        CPF
+                      </label>
+                      <div className="relative">
+                        <Input
+                          type="text"
+                          placeholder="000.000.000-00"
+                          className=""
+                          name="cpf"
+                          value={formData?.cpf}
+                          inputMode="text"
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Instagram
+                      </label>
+                      <div className="relative">
+                        <Instagram
+                          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                          size={16}
+                        />
+                        <Input
+                          type="text"
+                          placeholder="@seu-usuario"
+                          className="pl-10"
+                          name="instagram"
+                          defaultValue={formData.instagram}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Site
+                      </label>
+                      <div className="relative">
+                        <Globe
+                          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                          size={16}
+                        />
+                        <Input
+                          type="url"
+                          placeholder="https://seu-site.com"
+                          className="pl-10"
+                          name="mysite"
+                          defaultValue={formData.mysite}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {statusSaving && (
+                    <div className="text-green-600 text-sm text-right">
+                      Alterações salvas com sucesso!
+                    </div>
+                  )}
+                  {errorMessage && (
+                    <div className="text-red-600 text-sm text-right">
+                      {errorMessage}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === "privacidade" && (
+                <div className="space-y-6">
+                  <div className="bg-white p-6 rounded-lg border">
+                    <h3 className="text-lg font-semibold mb-4">
+                      Configurações de privacidade
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium">Perfil público</h4>
+                          <p className="text-sm text-gray-500">
+                            Permitir que outros usuários vejam seu perfil
+                          </p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="sr-only peer"
+                            name="isPublic"
+                            checked={formData.isPublic ?? false}
+                            onChange={handleChange}
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#02488C]"></div>
+                        </label>
+                      </div>
+                      {/* <div className="flex items-center justify-between">
                       <div>
                         <h4 className="font-medium">
                           Compartilhar dados de uso
@@ -498,10 +499,10 @@ export default function Profile() {
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#02488C]"></div>
                       </label>
                     </div> */}
+                    </div>
                   </div>
-                </div>
 
-                {/* <div className="bg-white p-6 rounded-lg border">
+                  {/* <div className="bg-white p-6 rounded-lg border">
                   <h3 className="text-lg font-semibold mb-4">
                     Preferências de notificação
                   </h3>
@@ -532,11 +533,10 @@ export default function Profile() {
                     </div>
                   </div>
                 </div> */}
-              </div>
-            )}
+                </div>
+              )}
 
-            {activeTab === "avancada" && (
-              <form onSubmit={handleSubmit} method="PUT">
+              {activeTab === "avancada" && (
                 <div className="space-y-6">
                   <div className="bg-white p-6 rounded-lg border">
                     <h3 className="text-lg font-semibold mb-4">
@@ -546,13 +546,6 @@ export default function Profile() {
                       <div>
                         <h4 className="font-medium mb-2">Alterar senha</h4>
                         <div className="space-y-4">
-                          {/* <Input
-                            type="password"
-                            id="newPassword"
-                            placeholder="Senha atual"
-                            name="newPassword"
-                            onChange={handleChange}
-                          /> */}
                           <Input
                             type="password"
                             id="newPassword"
@@ -572,25 +565,18 @@ export default function Profile() {
                               {errorMessage}
                             </p>
                           </div>
-                          <Button
-                            className="bg-[#02488C] text-white hover:bg-[#023a6f] cursor-pointer"
-                            disabled={loading}
-                          >
-                            {loading ? "Atualizando..." : "Atualizar senha"}
-                          </Button>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </form>
-            )}
-            {activeTab == "avancada" ? null : (
+              )}
+
               <div>
                 <div className="flex justify-start mt-6 mb-6">
                   <Button
+                    type="submit"
                     className="bg-[#02488C] text-white hover:bg-[#023a6f] cursor-pointer "
-                    onClick={handleSubmit}
                     disabled={loading}
                   >
                     {loading ? "Salvando..." : "Salvar alterações"}
@@ -623,7 +609,7 @@ export default function Profile() {
                   </div>
                 </div>
               </div>
-            )}
+            </form>
           </div>
         </div>
       </main>
