@@ -165,10 +165,7 @@ export default function EventScanner() {
         setScannerError("");
         sessionStorage.setItem("validationToken", data.validationToken || "");
       }
-    } catch (error: any) {
-      console.log(error.response.data);
-      
-      console.log(error.response.data.error.message.includes("malformed"))
+    } catch (error: any) {      
       if (error.response.data.error.message) {
         if (error.response.data.error.message.includes("expired")) {
           setScannerError(
@@ -176,15 +173,13 @@ export default function EventScanner() {
           );
         }
         if (error.response.data.error.message.includes("malformed")) {
-          setScannerError(
-            "Insira um token válido para ativação dos ingressos"
-          );
+          setScannerError("Insira um token válido para ativação dos ingressos");
         }
       } else {
         setScannerError(
           "Ocorreu um erro ao validar o ticket." + error.response.data.message
         );
-      }      
+      }
     } finally {
       setIsLoading(false);
     }
@@ -221,8 +216,7 @@ export default function EventScanner() {
             { headers: { Authorization: `Bearer ${scanResult}` } }
           );
           const data: ScanResponse = response.data;
-          if (data.message) {
-            console.log(data);
+          if (data.message) {            
 
             setScanResult(data.message);
             socket.emit("sendCheckout", {
@@ -292,7 +286,7 @@ export default function EventScanner() {
                         type="password"
                         placeholder="Digite seu token"
                         value={scannerToken}
-                        onChange={(e) => setScannerToken(e.target.value)}                        
+                        onChange={(e) => setScannerToken(e.target.value)}
                       />
                     </div>
 
