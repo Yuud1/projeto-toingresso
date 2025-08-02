@@ -479,7 +479,7 @@ export default function MyEvents() {
               {/* Tabs para organizar o conteúdo */}
               <Tabs defaultValue="overview" className="w-full">
                 <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+                  <TabsTrigger value="overview">Geral</TabsTrigger>
                   <TabsTrigger value="dates">Datas</TabsTrigger>
                   <TabsTrigger value="tickets">Ingressos</TabsTrigger>
                   <TabsTrigger value="token">Token</TabsTrigger>
