@@ -33,15 +33,6 @@ interface ScanResponse {
   };
 }
 
-interface ApiError {
-  response?: {
-    data?: {
-      message?: string;
-    };
-  };
-  message?: string;
-}
-
 const socket = io(`${import.meta.env.VITE_API_BASE_URL}`);
 
 export default function EventScanner() {
@@ -172,14 +163,28 @@ export default function EventScanner() {
       if (data.validated) {
         setIsAuthenticated(true);
         setScannerError("");
-        sessionStorage.setItem(
-          "validationToken",
-          data.validationToken || ""
-        );
+        sessionStorage.setItem("validationToken", data.validationToken || "");
       }
-    } catch (error: unknown) {
-      const apiError = error as ApiError;
-      setScannerError(apiError.response?.data?.message || "Erro ao validar token");
+    } catch (error: any) {
+      console.log(error.response.data);
+      
+      console.log(error.response.data.error.message.includes("malformed"))
+      if (error.response.data.error.message) {
+        if (error.response.data.error.message.includes("expired")) {
+          setScannerError(
+            "Token Expirado. Para sua segurança gere outro token"
+          );
+        }
+        if (error.response.data.error.message.includes("malformed")) {
+          setScannerError(
+            "Insira um token válido para ativação dos ingressos"
+          );
+        }
+      } else {
+        setScannerError(
+          "Ocorreu um erro ao validar o ticket." + error.response.data.message
+        );
+      }      
     } finally {
       setIsLoading(false);
     }
@@ -225,14 +230,18 @@ export default function EventScanner() {
               eventId: data.ticket?.eventId || "",
             });
           }
-        } catch (error: unknown) {
-          const apiError = error as ApiError;
-          if (apiError.response?.data?.message) {
-            setScanResult(apiError.response.data.message);
+        } catch (error: any) {
+          if (error.response?.data?.error) {
+            if (error.response?.data?.error == "jwt-expired") {
+              setScanResult(error.response.data.error.message);
+            }
           } else {
-            setScanResult("Ocorreu um erro ao validar o ticket.");
+            setScanResult(
+              "Ocorreu um erro ao validar o ticket." +
+                error.response.data.message
+            );
           }
-          console.log("Erro ao enviar requisição qr", apiError);
+          console.log("Erro ao enviar requisição qr", error);
         } finally {
           setScanned(false);
         }
@@ -283,8 +292,7 @@ export default function EventScanner() {
                         type="password"
                         placeholder="Digite seu token"
                         value={scannerToken}
-                        onChange={(e) => setScannerToken(e.target.value)}
-                        // Remova o onKeyPress, pois o form já captura o Enter
+                        onChange={(e) => setScannerToken(e.target.value)}                        
                       />
                     </div>
 

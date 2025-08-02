@@ -160,6 +160,8 @@ export default function MyEvents() {
     null
   );
   const [ticketToken, setTicketToken] = useState<string | undefined>(undefined);
+  console.log(ticketToken);
+  
   const [copied, setCopied] = useState(false);
 
   // Estados para funcionalidades do dashboard
@@ -749,8 +751,8 @@ export default function MyEvents() {
                         <Input
                           type="text"
                           placeholder="Token será gerado aqui..."
-                          defaultValue={
-                            selectedEvent.ticketActivationToken || ticketToken
+                          value={
+                            ticketToken || selectedEvent.ticketActivationToken
                           }
                           readOnly
                           className="flex-1"
