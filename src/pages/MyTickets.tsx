@@ -28,7 +28,10 @@ import Subscribed from "./Subscribed";
 import TransferTicket from "./TransferTicket";
 import axios from "axios";
 import { truncateTextResponsive } from "@/utils/formatUtils";
-import { canActivateTicket, getActivationStatusMessage, formatActivationDate } from "@/utils/ticketValidation";
+import {
+  getActivationStatusMessage,
+  formatActivationDate,
+} from "@/utils/ticketValidation";
 
 interface TabProps {
   isActive: boolean;
@@ -402,10 +405,15 @@ export default function MyTickets() {
                             <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
                             <div className="text-sm">
                               <p className="font-medium text-blue-900 mb-1">
-                                Ativação: {formatActivationDate(ticket.ticketType.activateAt)}
+                                Ativação:{" "}
+                                {formatActivationDate(
+                                  ticket.ticketType.activateAt
+                                )}
                               </p>
                               <p className="text-blue-700 text-xs">
-                                {getActivationStatusMessage({ activateAt: ticket.ticketType.activateAt } as any)}
+                                {getActivationStatusMessage({
+                                  activateAt: ticket.ticketType.activateAt,
+                                } as any)}
                               </p>
                             </div>
                           </div>
