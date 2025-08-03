@@ -1,6 +1,6 @@
 import type React from "react";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -56,13 +56,9 @@ export default function Profile() {
   >("dados");
   const { user } = useUser();
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  console.log("INput reference", fileInputRef);
-
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  console.log("Foto selecionada: ", selectedFile);
 
   const [formData, setFormData] = useState<UserInterface>(() => ({
     isPublic: user?.isPublic || false,
@@ -112,9 +108,6 @@ export default function Profile() {
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("Chamadao");
-    console.log("Event", e);
-
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
@@ -221,8 +214,6 @@ export default function Profile() {
           },
         }
       );
-
-      console.log(response.data);
 
       if (response.data.deleted) {
         localStorage.clear();
