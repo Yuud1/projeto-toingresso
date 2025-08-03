@@ -57,8 +57,12 @@ export default function Profile() {
   const { user } = useUser();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  console.log("INput reference", fileInputRef);
+
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  console.log("Foto selecionada: ", selectedFile);
 
   const [formData, setFormData] = useState<UserInterface>(() => ({
     isPublic: user?.isPublic || false,
@@ -108,6 +112,9 @@ export default function Profile() {
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("Chamadao");
+    console.log("Event", e);
+
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
@@ -117,10 +124,6 @@ export default function Profile() {
       };
       reader.readAsDataURL(file);
     }
-  };
-
-  const triggerFileInput = () => {
-    fileInputRef.current?.click();
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -295,26 +298,29 @@ export default function Profile() {
                           <img
                             src={user.avatar || "/placeholder.svg"}
                             alt="Profile"
-                            className="w-full h-full object-cover "
+                            className="w-full h-full object-cover"
                           />
                         ) : (
                           <User size={40} className="text-gray-400" />
                         )}
                       </div>
-                      <button
-                        onClick={triggerFileInput}
-                        className="absolute bottom-0 cursor-pointer right-0 bg-[#02488C] text-white p-2 rounded-full hover:bg-[#023a6f] transition-colors"
+
+                      <label
+                        htmlFor="profileImageInput"
+                        className="absolute bottom-0 right-0 bg-[#02488C] text-white p-2 rounded-full cursor-pointer hover:bg-[#023a6f] transition-colors flex items-center justify-center"
                       >
                         <Camera size={16} />
-                      </button>
-                      <input
+                      </label>
+
+                      <Input
+                        id="profileImageInput"
                         type="file"
-                        ref={fileInputRef}
                         onChange={handleImageChange}
                         accept="image/*"
-                        className="hidden"
+                        hidden
                       />
                     </div>
+
                     <div>
                       <h3 className="font-semibold text-lg">Foto de perfil</h3>
                       <p className="text-sm text-gray-500">
