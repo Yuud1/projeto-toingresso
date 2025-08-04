@@ -154,7 +154,9 @@ export default function EditEvent() {
   const [buscandoCoordenadas, setBuscandoCoordenadas] = useState(false);
   const [coordenadasEncontradas, setCoordenadasEncontradas] = useState(false);
   const [buscandoSugestoes, setBuscandoSugestoes] = useState(false);
-  const [sugestoesEndereco, setSugestoesEndereco] = useState<AddressSuggestion[]>([]);
+  const [sugestoesEndereco, setSugestoesEndereco] = useState<
+    AddressSuggestion[]
+  >([]);
   const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(
     null
   );
@@ -199,8 +201,9 @@ export default function EditEvent() {
     status: "active",
     searchAddress: "",
   });
-  
 
+  console.log("Evento: ",formData);
+  
   useEffect(() => {
     async function fetchEventDataToEdit() {
       try {
@@ -216,8 +219,12 @@ export default function EditEvent() {
           }
         );
         if (response) {
-          setIsOwner(response.data.isOwner);          
-          setFormData((prev) => ({...prev,...response.data.event,acceptedTerms: false}));
+          setIsOwner(response.data.isOwner);
+          setFormData((prev) => ({
+            ...prev,
+            ...response.data.event,
+            acceptedTerms: false,
+          }));
         }
       } catch (error: unknown) {
         const apiError = error as ApiError;
@@ -838,70 +845,72 @@ export default function EditEvent() {
               <CardContent className="space-y-6">
                 {formData.dates.map((dateObj, idx) => (
                   <div key={idx} className="border rounded-lg p-6 space-y-4">
-                                          <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <h3 className="font-semibold text-lg">
-                            {dateObj.periodName || `Período ${idx + 1}`}
-                          </h3>
-                          <Input
-                            type="text"
-                            value={dateObj.periodName || ""}
-                            onChange={(e) => {
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <h3 className="font-semibold text-lg">
+                          {dateObj.periodName || `Período ${idx + 1}`}
+                        </h3>
+                        <Input
+                          type="text"
+                          value={dateObj.periodName || ""}
+                          onChange={(e) => {
+                            const newDates = [...formData.dates];
+                            newDates[idx].periodName = e.target.value;
+                            setFormData((prev) => ({
+                              ...prev,
+                              dates: newDates,
+                            }));
+                          }}
+                          placeholder={`Nome do período ${idx + 1}`}
+                          className="w-48 text-sm"
+                        />
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        {idx > 0 && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const previousPeriod = formData.dates[idx - 1];
                               const newDates = [...formData.dates];
-                              newDates[idx].periodName = e.target.value;
+                              newDates[idx] = {
+                                ...previousPeriod,
+                                periodName: `${
+                                  previousPeriod.periodName || `Período ${idx}`
+                                } (Cópia)`,
+                              };
                               setFormData((prev) => ({
                                 ...prev,
                                 dates: newDates,
                               }));
                             }}
-                            placeholder={`Nome do período ${idx + 1}`}
-                            className="w-48 text-sm"
-                          />
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          {idx > 0 && (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                const previousPeriod = formData.dates[idx - 1];
-                                const newDates = [...formData.dates];
-                                newDates[idx] = {
-                                  ...previousPeriod,
-                                  periodName: `${previousPeriod.periodName || `Período ${idx}`} (Cópia)`,
-                                };
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  dates: newDates,
-                                }));
-                              }}
-                              className="text-blue-600 hover:text-blue-700"
-                            >
-                              <span className="text-xs">Copiar Anterior</span>
-                            </Button>
-                          )}
-                          {formData.dates.length > 1 && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                const newDates = formData.dates.filter(
-                                  (_, i) => i !== idx
-                                );
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  dates: newDates,
-                                }));
-                              }}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          )}
-                        </div>
+                            className="text-blue-600 hover:text-blue-700"
+                          >
+                            <span className="text-xs">Copiar Anterior</span>
+                          </Button>
+                        )}
+                        {formData.dates.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const newDates = formData.dates.filter(
+                                (_, i) => i !== idx
+                              );
+                              setFormData((prev) => ({
+                                ...prev,
+                                dates: newDates,
+                              }));
+                            }}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
                       </div>
+                    </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       <div>
@@ -1506,15 +1515,32 @@ export default function EditEvent() {
                 Configure os ingressos ou formulário de inscrição
               </p>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
-                <h3 className="font-medium text-blue-900 mb-2">💡 Dica sobre Ativação de Ingressos</h3>
+                <h3 className="font-medium text-blue-900 mb-2">
+                  💡 Dica sobre Período de Ativação
+                </h3>
                 <p className="text-sm text-blue-800">
-                  <strong>Data de Ativação:</strong> Define quando o ingresso pode ser usado.
-                  Se você definir uma data, o ingresso só poderá ser ativado a partir desse momento.
-                  Deixe vazio para permitir ativação a qualquer momento durante o evento.
+                  <strong>Início da Ativação:</strong> Define quando o ingresso
+                  pode começar a ser ativado.
+                  <br />
+                  <strong>Limite para Ativar:</strong> Define até quando o
+                  ingresso pode ser ativado.
+                  <br />
+                  Deixe ambos vazios para permitir ativação a qualquer momento
+                  durante o evento.
                 </p>
                 <div className="mt-2 text-xs text-blue-700">
-                  <p><strong>Exemplo 1:</strong> Ingresso para "Dia 1" → Ativação no primeiro dia do evento</p>
-                  <p><strong>Exemplo 2:</strong> Ingresso para "Todos os dias" → Deixe vazio para ativação livre</p>
+                  <p>
+                    <strong>Exemplo 1:</strong> Ingresso para "Dia 1" → Início:
+                    01/08 08:00, Limite: 01/08 23:59
+                  </p>
+                  <p>
+                    <strong>Exemplo 2:</strong> Ingresso para "Todos os dias" →
+                    Deixe ambos vazios
+                  </p>
+                  <p>
+                    <strong>Exemplo 3:</strong> Ingresso VIP → Início: 25/07
+                    00:00, Limite: 31/07 23:59
+                  </p>
                 </div>
               </div>
             </div>
@@ -1631,7 +1657,8 @@ export default function EditEvent() {
                                 value={batch.batchName || ""}
                                 onChange={(e) => {
                                   const newBatches = [...formData.batches];
-                                  newBatches[batchIdx].batchName = e.target.value;
+                                  newBatches[batchIdx].batchName =
+                                    e.target.value;
                                   setFormData((prev) => ({
                                     ...prev,
                                     batches: newBatches,
@@ -1648,11 +1675,15 @@ export default function EditEvent() {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => {
-                                    const previousBatch = formData.batches[batchIdx - 1];
+                                    const previousBatch =
+                                      formData.batches[batchIdx - 1];
                                     const newBatches = [...formData.batches];
                                     newBatches[batchIdx] = {
                                       ...previousBatch,
-                                      batchName: `${previousBatch.batchName || `Lote ${batchIdx}`} (Cópia)`,
+                                      batchName: `${
+                                        previousBatch.batchName ||
+                                        `Lote ${batchIdx}`
+                                      } (Cópia)`,
                                     };
                                     setFormData((prev) => ({
                                       ...prev,
@@ -1661,7 +1692,9 @@ export default function EditEvent() {
                                   }}
                                   className="text-blue-600 hover:text-blue-700"
                                 >
-                                  <span className="text-xs">Copiar Anterior</span>
+                                  <span className="text-xs">
+                                    Copiar Anterior
+                                  </span>
                                 </Button>
                               )}
                               <Button
@@ -1741,6 +1774,7 @@ export default function EditEvent() {
                                     type: "regular",
                                     soldQuantity: 0,
                                     activateAt: "",
+                                    expireAt: "",
                                   });
                                   setFormData((prev) => ({
                                     ...prev,
@@ -1764,7 +1798,7 @@ export default function EditEvent() {
                                     key={ticketIdx}
                                     className="bg-gray-50 p-4 rounded-lg"
                                   >
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                                       <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
                                           Nome do Ingresso
@@ -1853,11 +1887,11 @@ export default function EditEvent() {
                                       </div>
                                       <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                                          Data de Ativação
+                                          Início da Ativação
                                         </label>
                                         <Input
                                           type="datetime-local"
-                                          value={ticket.activateAt || ""}
+                                          value={formatDateTimeForInput(ticket.activateAt ?? "")  || ""}
                                           onChange={(e) => {
                                             const newBatches = [
                                               ...formData.batches,
@@ -1872,7 +1906,31 @@ export default function EditEvent() {
                                           }}
                                         />
                                         <p className="text-xs text-gray-600 mt-1">
-                                          Deixe vazio para ativar a qualquer momento
+                                          Quando pode começar a ativar
+                                        </p>
+                                      </div>
+                                      <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                          Limite para Ativar
+                                        </label>
+                                        <Input
+                                          type="datetime-local"
+                                          value={formatDateTimeForInput(ticket.expireAt ?? "") || ""}
+                                          onChange={(e) => {
+                                            const newBatches = [
+                                              ...formData.batches,
+                                            ];
+                                            newBatches[batchIdx].tickets[
+                                              ticketIdx
+                                            ].expireAt = e.target.value;
+                                            setFormData((prev) => ({
+                                              ...prev,
+                                              batches: newBatches,
+                                            }));
+                                          }}
+                                        />
+                                        <p className="text-xs text-gray-600 mt-1">
+                                          Último momento para ativar
                                         </p>
                                       </div>
                                       <div className="flex items-end">
