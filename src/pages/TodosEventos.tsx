@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EventInterface from "@/interfaces/EventInterface";
 import axios from "axios";
-import { MapPin, Clock, Calendar, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Clock, Calendar, Search } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { truncateTextResponsive, truncateTextTo30Chars, truncateTextTo39Chars } from "@/utils/formatUtils";
 import getInitials from "@/utils/getInitials";
