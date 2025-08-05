@@ -157,7 +157,7 @@ const Category: React.FC = () => {
         <div className="absolute top-1/2 left-1/3 w-32 h-32 bg-white rounded-full blur-2xl"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto pt-10 px-4 sm:px-6 lg:px-8 w-full h-fit relative z-10" id="filter-grid">
+      <div className="max-w-6xl mx-auto pt-10 px-4 sm:px-6 lg:px-8 w-full h-fit relative z-10" id="filter-grid">
         {categories.map((category) => {
           const events = eventsByCategory[category] || []
           const isCategoryLoaded = loadedCategories.has(category)
@@ -192,7 +192,7 @@ const Category: React.FC = () => {
                 {showCarousel(events) ? (
                   <>
                     <Swiper
-                      slidesPerView={2.2}
+                      slidesPerView={1.5}
                       spaceBetween={20}
                       loop={false}
                       centeredSlides={false}
@@ -203,11 +203,11 @@ const Category: React.FC = () => {
                       modules={[Navigation]}
                       className="pb-10"
                       breakpoints={{
-                        320: { slidesPerView: 1.2, spaceBetween: 16 },
+                        320: { slidesPerView: 1.6, spaceBetween: 16 },
                         640: { slidesPerView: 2.2, spaceBetween: 20 },
-                        768: { slidesPerView: 3.2, spaceBetween: 24 },
-                        1024: { slidesPerView: 4.2, spaceBetween: 24 },
-                        1280: { slidesPerView: 4.2, spaceBetween: 24 },
+                        768: { slidesPerView: 2.3, spaceBetween: 24 },
+                        1024: { slidesPerView: 3.2, spaceBetween: 24 },
+                        1280: { slidesPerView: 3.2, spaceBetween: 24 },
                       }}
                     >
                       {events.map((event) => (

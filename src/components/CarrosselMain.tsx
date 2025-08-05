@@ -55,7 +55,7 @@ export default function CarrosselMain() {
   if (isLoading) {
     return (
       <div className="w-full flex justify-center py-16">
-        <div className="max-w-[100%] h-[300px] sm:h-[400px] md:h-[500px] flex items-center justify-center">
+        <div className="max-w-[100%] h-[350px] sm:h-[420px] md:h-[500px] flex items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#00498D] border-t-transparent"></div>
         </div>
       </div>
@@ -95,7 +95,7 @@ export default function CarrosselMain() {
           }}
           navigation
           modules={[EffectCoverflow, Pagination, Navigation, Autoplay]}
-          className="max-w-[100%] h-[300px] sm:h-[400px] md:h-[500px]"
+          className="max-w-[100%] h-[350px] sm:h-[420px] md:h-[500px]"
           watchSlidesProgress={true}
           observer={true}
           observeParents={true}
@@ -173,6 +173,22 @@ export default function CarrosselMain() {
         @media (max-width: 640px) {
           .swiper-slide-custom {
             width: 90vw;
+          }
+          
+          /* Aumentar tamanho dos bullets de paginação no mobile */
+          .swiper-pagination-bullet-custom {
+            width: 16px !important;
+            height: 16px !important;
+            margin: 0 6px !important;
+          }
+          
+          .swiper-pagination-bullet-active-custom {
+            transform: scale(1.4) !important;
+          }
+          
+          /* Melhorar espaçamento da paginação no mobile */
+          .swiper-pagination {
+            bottom: 20px !important;
           }
         }
       `}</style>

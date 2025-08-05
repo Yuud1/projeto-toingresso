@@ -8,7 +8,7 @@ const CreateEventCTA: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="w-full pt-4 pb-20 px-4 relative overflow-hidden">
+    <section className="w-full pt-4 pb-20 mt-10 px-4 relative overflow-hidden">
       
       <div className="max-w-5xl mx-auto relative z-10">
         <div className="text-center mb-6 md:mb-10">

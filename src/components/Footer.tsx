@@ -162,7 +162,7 @@ const Footer = () => {
               }`}
             >
               <ul className="space-y-2 text-sm text-gray-300 pl-4">
-                <li>Email: contato@dasilva.com</li>
+                <li>Email: sac@toingresso.com</li>
                 <li>Telefone: (11) 99999-9999</li>
                 <li>
                   <a
