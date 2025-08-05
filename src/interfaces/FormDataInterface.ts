@@ -17,6 +17,7 @@ export default interface FormDataInterface {
     startTime: string;
     endDate: string;
     endTime: string;
+    periodName?: string;
     attractions: { name: string; social?: string, description?: string, startTime?: string, endTime?: string }[];
   }[];
   description: string;

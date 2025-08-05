@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Download, Eye, Ticket } from "lucide-react";
 import axios from "axios";
+import { useState } from "react";
 
 interface SubscribedProps {
   open: boolean;
@@ -23,8 +24,11 @@ export default function Subscribed({
   qrCode,
   ticketId,
 }: SubscribedProps) {
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+
   const handleDownloadPdf = async () => {
     try {
+      setIsDownloadingPdf(true);
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}${
           import.meta.env.VITE_GET_TICKET_PDF
@@ -55,6 +59,8 @@ export default function Subscribed({
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Erro ao baixar PDF", error);
+    } finally {
+      setIsDownloadingPdf(false);
     }
   };
 
@@ -122,12 +128,13 @@ export default function Subscribed({
           <Button
             variant="outline"
             onClick={handleDownloadPdf}
-            disabled={!qrCode}
+            disabled={isDownloadingPdf}
             className="flex-1 border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
           >
             <Download className="mr-2 h-4 w-4" />
-            Baixar Pdf QR Code
+            {isDownloadingPdf ? "Baixando Pdf" : "Baixar Pdf QR Code"}
           </Button>
+
           <Button
             onClick={() => onOpenChange(false)}
             className="flex-1 bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200"

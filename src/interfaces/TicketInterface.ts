@@ -8,4 +8,6 @@ export default interface TicketInterface  {
   type: "regular" | "student" | "senior" | "free";
   maxInstallments?: number;
   fee?: number;
+  activateAt?: string
+  expireAt?: string; 
 };

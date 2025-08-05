@@ -218,8 +218,7 @@ export default function EventArrivalsPage() {
     if (!isConfigMode && isLive) {
       socket.emit("registerChekcout", id);
       
-      socket.on("new_user_checked_in", (userData: SocketUserData) => {
-        
+      socket.on("new_user_checked_in", (userData: SocketUserData) => {                
         
         try {
           // Normalizar os dados recebidos do socket da mesma forma que a API

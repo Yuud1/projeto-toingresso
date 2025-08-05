@@ -46,9 +46,13 @@ import { useToast } from "@/hooks/use-toast";
 import CertificateTutorial from "./CertificateTutorial";
 import CertificateGenerator from "./CertificateGenerator";
 import EventScanner from "./EventScanner";
-import { truncateTextResponsive, truncateTextTo30Chars } from "@/utils/formatUtils";
+import {
+  truncateTextResponsive,
+  truncateTextTo30Chars,
+} from "@/utils/formatUtils";
 import Dashboard from "@/components/Dashboard";
 import { Link } from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Tipos para resolver problemas de any
 interface ApiError {
@@ -156,6 +160,8 @@ export default function MyEvents() {
     null
   );
   const [ticketToken, setTicketToken] = useState<string | undefined>(undefined);
+  console.log(ticketToken);
+  
   const [copied, setCopied] = useState(false);
 
   // Estados para funcionalidades do dashboard
@@ -163,6 +169,7 @@ export default function MyEvents() {
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [isCheckoutMaximized, setIsCheckoutMaximized] = useState(false);
   const [checkouts] = useState<CheckoutData[]>([]);
+  const [isViewModalMaximized, setIsViewModalMaximized] = useState(false);
 
   // Estados para aba de certificados
   const [showCertificateTutorial, setShowCertificateTutorial] = useState(true);
@@ -345,11 +352,17 @@ export default function MyEvents() {
           setIsStopModalOpen(false);
           setSubTab("finished");
 
-          showSuccess("Evento encerrado com sucesso!", "O evento foi movido para a lista de eventos finalizados e não poderá mais receber novos participantes.");
+          showSuccess(
+            "Evento encerrado com sucesso!",
+            "O evento foi movido para a lista de eventos finalizados e não poderá mais receber novos participantes."
+          );
         }
       } catch (error) {
         console.error("Erro ao encerrar evento:", error);
-        showError("Erro ao encerrar evento", "Tente novamente em alguns instantes.");
+        showError(
+          "Erro ao encerrar evento",
+          "Tente novamente em alguns instantes."
+        );
       }
     }
   };
@@ -389,7 +402,6 @@ export default function MyEvents() {
         }`,
         { eventId }
       );
-      
 
       if (response.data.generated) {
         setTicketToken(response.data.token);
@@ -402,7 +414,10 @@ export default function MyEvents() {
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      showSuccess("Copiado!", "O token foi copiado para a área de transferência.");
+      showSuccess(
+        "Copiado!",
+        "O token foi copiado para a área de transferência."
+      );
     } catch (err) {
       showError("Erro ao copiar", "Não foi possível copiar o token.");
       console.error("Falha ao copiar texto: ", err);
@@ -442,157 +457,337 @@ export default function MyEvents() {
           onClose={() => setIsViewModalOpen(false)}
           title={selectedEvent?.title || "Detalhes do Evento"}
           showFooter={false}
+          className={
+            isViewModalMaximized ? "max-w-[95vw] max-h-[95vh]" : "max-w-4xl"
+          }
         >
           {selectedEvent && (
             <div className="space-y-4">
-              <div>
-                <h4 className="text-sm font-medium">Datas e Períodos</h4>
-                <ul className="text-sm text-gray-600 space-y-1">
-                  {selectedEvent.dates && selectedEvent.dates.length > 0 ? (
-                    selectedEvent.dates.map((period, idx) => (
-                      <li key={idx}>
-                        <span>
-                          {new Date(period.startDate).toLocaleDateString(
-                            "pt-BR",
-                            {
-                              day: "2-digit",
-                              month: "2-digit",
-                              year: "numeric",
-                            }
-                          )}{" "}
-                          {period.startTime} até{" "}
-                          {new Date(period.endDate).toLocaleDateString(
-                            "pt-BR",
-                            {
-                              day: "2-digit",
-                              month: "2-digit",
-                              year: "numeric",
-                            }
-                          )}{" "}
-                          {period.endTime}
-                        </span>
-                        {/* Se quiser, pode exibir atrações aqui também */}
-                        {period.attractions &&
-                          period.attractions.length > 0 && (
-                            <ul className="ml-4 text-xs text-gray-500 list-disc">
-                              {period.attractions.map((attr, aIdx) => (
-                                <li key={aIdx}>
-                                  {attr.name}
-                                  {attr.social && (
-                                    <>
-                                      {" "}
-                                      <a
-                                        href={attr.social}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-blue-600 underline"
-                                      >
-                                        {attr.social}
-                                      </a>
-                                    </>
-                                  )}
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                      </li>
-                    ))
+              {/* Botão para maximizar/minimizar */}
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsViewModalMaximized(!isViewModalMaximized)}
+                >
+                  {isViewModalMaximized ? (
+                    <Minimize2 className="h-4 w-4" />
                   ) : (
-                    <li>-</li>
+                    <Maximize2 className="h-4 w-4" />
                   )}
-                </ul>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium">Local</h4>
-                <p className="text-sm text-gray-600">
-                  {selectedEvent.neighborhood}
-                </p>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium">Descrição</h4>
-                <p className="text-sm text-gray-600">
-                  {selectedEvent.description}
-                </p>
+                </Button>
               </div>
 
-              <div className="flex flex-col gap-1">
-                <h4 className="text-sm font-medium">
-                  Gerar token de ativação de tickets
-                </h4>
-                <div className="flex flex-col gap-4">
-                  <div className="flex gap-2">
-                    <Input
-                      type="text"
-                      placeholder="token"
-                      defaultValue={
-                        selectedEvent.ticketActivationToken || ticketToken
-                      }
-                      readOnly
-                      className="flex-1"
-                    />
-                    <Button
-                      onClick={() =>
-                        handleCopy(
-                          selectedEvent.ticketActivationToken ||
-                            ticketToken ||
-                            ""
-                        )
-                      }
-                      variant="outline"
-                      disabled={
-                        !selectedEvent.ticketActivationToken && !ticketToken
-                      }
-                      className="cursor-pointer"
-                    >
-                      {copied ? "Copiado!" : <Copy className="h-4 w-4" />}
-                    </Button>
-                  </div>
-                  <Button
-                    onClick={() =>
-                      handleGenerateActivationTicketsToken(selectedEvent._id)
-                    }
-                    className="w-full sm:w-1/2 md:w-1/4 cursor-pointer"
-                  >
-                    Gerar Token
-                  </Button>
-                </div>
-              </div>
+              {/* Tabs para organizar o conteúdo */}
+              <Tabs defaultValue="overview" className="w-full">
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="overview">Geral</TabsTrigger>
+                  <TabsTrigger value="dates">Datas</TabsTrigger>
+                  <TabsTrigger value="tickets">Ingressos</TabsTrigger>
+                  <TabsTrigger value="token">Token</TabsTrigger>
+                </TabsList>
 
-              {selectedEvent.status !== "editing" &&
-                selectedEvent.batches.map((batch, index) => {
-                  return (
-                    <div key={index} className="grid grid-cols-2 gap-4">
-                      <div>
-                        <h4 className="text-sm font-medium">
-                          Ingressos Vendidos
-                        </h4>
-                        <p className="text-sm text-gray-600">
-                          {batch.tickets.reduce(
-                            (acc, ticket) => acc + ticket.soldQuantity,
-                            0
-                          )}{" "}
-                          /{" "}
-                          {batch.tickets.reduce(
-                            (acc, ticket) => acc + ticket.quantity,
-                            0
-                          )}
+                {/* Tab: Visão Geral */}
+                <TabsContent value="overview" className="space-y-4 mt-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">
+                        Informações Básicas
+                      </h4>
+                      <div className="space-y-2 text-sm text-gray-600">
+                        <p>
+                          <strong>Categoria:</strong> {selectedEvent.category}
                         </p>
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-medium">Receita</h4>
-                        <p className="text-sm text-gray-600">
-                          {formatCurrency(
-                            batch.tickets.reduce(
-                              (acc, ticket) =>
-                                acc + ticket.soldQuantity * ticket.price,
-                              0
-                            )
-                          )}
+                        <p>
+                          <strong>Status:</strong> {selectedEvent.status}
+                        </p>
+                        <p>
+                          <strong>Evento Gratuito:</strong>{" "}
+                          {selectedEvent.isFree ? "Sim" : "Não"}
                         </p>
                       </div>
                     </div>
-                  );
-                })}
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">Localização</h4>
+                      <div className="space-y-1 text-sm text-gray-600">
+                        <p>{selectedEvent.venueName}</p>
+                        <p>
+                          {selectedEvent.street}, {selectedEvent.number}
+                        </p>
+                        <p>
+                          {selectedEvent.neighborhood}, {selectedEvent.city} -{" "}
+                          {selectedEvent.state}
+                        </p>
+                        <p>CEP: {selectedEvent.zipCode}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">Descrição</h4>
+                    <div className="text-sm text-gray-600 max-h-32 overflow-y-auto p-3 bg-gray-50 rounded-lg">
+                      {selectedEvent.description}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">
+                      Política do Evento
+                    </h4>
+                    <div className="text-sm text-gray-600 max-h-32 overflow-y-auto p-3 bg-gray-50 rounded-lg">
+                      {selectedEvent.policy}
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* Tab: Datas e Atrações */}
+                <TabsContent value="dates" className="space-y-4 mt-4">
+                  <div className="max-h-96 overflow-y-auto">
+                    {selectedEvent.dates && selectedEvent.dates.length > 0 ? (
+                      <div className="space-y-4">
+                        {selectedEvent.dates.map((period, idx) => (
+                          <div key={idx} className="border rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <h4 className="font-medium">
+                                {period.periodName || `Período ${idx + 1}`}
+                              </h4>
+                              <Badge variant="outline">
+                                {new Date(period.startDate).toLocaleDateString(
+                                  "pt-BR"
+                                )}
+                              </Badge>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                              <div>
+                                <p className="text-sm text-gray-600">
+                                  <strong>Início:</strong>{" "}
+                                  {new Date(
+                                    period.startDate
+                                  ).toLocaleDateString("pt-BR")}{" "}
+                                  às {period.startTime}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-gray-600">
+                                  <strong>Fim:</strong>{" "}
+                                  {new Date(period.endDate).toLocaleDateString(
+                                    "pt-BR"
+                                  )}{" "}
+                                  às {period.endTime}
+                                </p>
+                              </div>
+                            </div>
+
+                            {period.attractions &&
+                              period.attractions.length > 0 && (
+                                <div>
+                                  <h5 className="text-sm font-medium mb-2">
+                                    Atrações ({period.attractions.length})
+                                  </h5>
+                                  <div className="space-y-2">
+                                    {period.attractions.map((attr, aIdx) => (
+                                      <div
+                                        key={aIdx}
+                                        className="bg-gray-50 p-3 rounded-lg"
+                                      >
+                                        <p className="font-medium text-sm">
+                                          {attr.name}
+                                        </p>
+                                        {attr.description && (
+                                          <p className="text-xs text-gray-600 mt-1">
+                                            {attr.description}
+                                          </p>
+                                        )}
+                                        {attr.startTime && attr.endTime && (
+                                          <p className="text-xs text-gray-500">
+                                            {attr.startTime} - {attr.endTime}
+                                          </p>
+                                        )}
+                                        {attr.social && (
+                                          <a
+                                            href={attr.social}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-xs text-blue-600 hover:underline"
+                                          >
+                                            Ver perfil
+                                          </a>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-center py-8">
+                        Nenhuma data cadastrada
+                      </p>
+                    )}
+                  </div>
+                </TabsContent>
+
+                {/* Tab: Ingressos e Receita */}
+                <TabsContent value="tickets" className="space-y-4 mt-4">
+                  <div className="max-h-96 overflow-y-auto">
+                    {selectedEvent.status !== "editing" &&
+                    selectedEvent.batches &&
+                    selectedEvent.batches.length > 0 ? (
+                      <div className="space-y-4">
+                        {selectedEvent.batches.map((batch, index) => (
+                          <div key={index} className="border rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <h4 className="font-medium">
+                                {batch.batchName || `Lote ${index + 1}`}
+                              </h4>
+                              <Badge variant="outline">
+                                {new Date(batch.saleStart).toLocaleDateString(
+                                  "pt-BR"
+                                )}{" "}
+                                -{" "}
+                                {new Date(batch.saleEnd).toLocaleDateString(
+                                  "pt-BR"
+                                )}
+                              </Badge>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                              <div className="text-center p-3 bg-blue-50 rounded-lg">
+                                <p className="text-2xl font-bold text-blue-600">
+                                  {batch.tickets.reduce(
+                                    (acc, ticket) => acc + ticket.soldQuantity,
+                                    0
+                                  )}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                  Vendidos
+                                </p>
+                              </div>
+                              <div className="text-center p-3 bg-green-50 rounded-lg">
+                                <p className="text-2xl font-bold text-green-600">
+                                  {formatCurrency(
+                                    batch.tickets.reduce(
+                                      (acc, ticket) =>
+                                        acc +
+                                        ticket.soldQuantity * ticket.price,
+                                      0
+                                    )
+                                  )}
+                                </p>
+                                <p className="text-sm text-gray-600">Receita</p>
+                              </div>
+                              <div className="text-center p-3 bg-gray-50 rounded-lg">
+                                <p className="text-2xl font-bold text-gray-600">
+                                  {batch.tickets.reduce(
+                                    (acc, ticket) => acc + ticket.quantity,
+                                    0
+                                  )}
+                                </p>
+                                <p className="text-sm text-gray-600">Total</p>
+                              </div>
+                            </div>
+
+                            <div>
+                              <h5 className="text-sm font-medium mb-2">
+                                Detalhes dos Ingressos
+                              </h5>
+                              <div className="space-y-2">
+                                {batch.tickets.map((ticket, tIdx) => (
+                                  <div
+                                    key={tIdx}
+                                    className="flex items-center justify-between p-2 bg-gray-50 rounded"
+                                  >
+                                    <div>
+                                      <p className="font-medium text-sm">
+                                        {ticket.name}
+                                      </p>
+                                      <p className="text-xs text-gray-600">
+                                        {ticket.type}
+                                      </p>
+                                    </div>
+                                    <div className="text-right">
+                                      <p className="text-sm font-medium">
+                                        {formatCurrency(ticket.price)}
+                                      </p>
+                                      <p className="text-xs text-gray-600">
+                                        {ticket.soldQuantity}/{ticket.quantity}
+                                      </p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-center py-8">
+                        {selectedEvent.status === "editing"
+                          ? "Evento em edição - dados de vendas indisponíveis"
+                          : "Nenhum lote de ingressos encontrado"}
+                      </p>
+                    )}
+                  </div>
+                </TabsContent>
+
+                {/* Tab: Token de Ativação */}
+                <TabsContent value="token" className="space-y-4 mt-4">
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">
+                        Token de Ativação de Tickets
+                      </h4>
+                      <p className="text-sm text-gray-600 mb-4">
+                        Use este token para ativar tickets no aplicativo de
+                        scanner.
+                      </p>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="flex gap-2">
+                        <Input
+                          type="text"
+                          placeholder="Token será gerado aqui..."
+                          value={
+                            ticketToken || selectedEvent.ticketActivationToken
+                          }
+                          readOnly
+                          className="flex-1"
+                        />
+                        <Button
+                          onClick={() =>
+                            handleCopy(
+                              selectedEvent.ticketActivationToken ||
+                                ticketToken ||
+                                ""
+                            )
+                          }
+                          variant="outline"
+                          disabled={
+                            !selectedEvent.ticketActivationToken && !ticketToken
+                          }
+                          className="cursor-pointer"
+                        >
+                          {copied ? "Copiado!" : <Copy className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                      <Button
+                        onClick={() =>
+                          handleGenerateActivationTicketsToken(
+                            selectedEvent._id
+                          )
+                        }
+                        className="w-full sm:w-auto cursor-pointer"
+                      >
+                        Gerar Novo Token
+                      </Button>
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
           )}
         </GenericModal>
@@ -854,7 +1049,10 @@ export default function MyEvents() {
                         className="w-full h-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 mb-10"
                       >
                         {/* Imagem */}
-                        <div className="relative" style={{ aspectRatio: '16/9' }}>
+                        <div
+                          className="relative"
+                          style={{ aspectRatio: "16/9" }}
+                        >
                           <img
                             src={event.image || "/placeholder.svg"}
                             alt={event.title}
@@ -923,9 +1121,7 @@ export default function MyEvents() {
                                 <Eye className="h-4 w-4" />
                               </Button>
                               {event.status !== "finished" && (
-                                <Link
-                                  to={`/editar-evento/${event._id}`}
-                                >
+                                <Link to={`/editar-evento/${event._id}`}>
                                   <Button
                                     variant="outline"
                                     size="icon"

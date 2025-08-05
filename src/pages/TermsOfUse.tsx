@@ -110,7 +110,7 @@ export default function TermsOfUse() {
                   <li>Os preços são exibidos em reais (BRL) e incluem taxas aplicáveis</li>
                   <li>A compra é confirmada após o processamento do pagamento</li>
                   <li>Você receberá um e-mail de confirmação com os detalhes do ingresso</li>
-                  <li>Os ingressos são enviados eletronicamente ou disponibilizados para retirada</li>
+                  <li>Os ingressos são enviados eletronicamente</li>
                 </ul>
 
                 <h4 className="font-semibold">3.2 Disponibilidade</h4>

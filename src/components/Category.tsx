@@ -31,7 +31,7 @@ const fadeInAnimation = `
   }
 `
 
-const categories = ["Shows", "Teatro", "Esportes", "Festas", "Comedia", "Gospel", "Diversoes", "Publico"]
+const categories = ["Shows", "Teatro", "Esportes", "Festas", "Comedia", "Gospel", "Diversões", "Publico"]
 
 const categoryDisplayNames = {
   Shows: "Shows",
@@ -40,7 +40,7 @@ const categoryDisplayNames = {
   Festas: "Festas",
   Comedia: "Comédia",
   Gospel: "Gospel",
-  Diversoes: "Diversões",
+  Diversões: "Diversões",
   Publico: "Público",
 }
 
@@ -69,7 +69,7 @@ const Category: React.FC = () => {
       for (const category of categories) {
         try {
           const response = await axios.get(
-            `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_GET_FILTERED_EVENTS}`,
+            `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_GET_FILTERED_EVENTS_CATEGORIES}`,
             {
               params: { querySearch: category },
             },

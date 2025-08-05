@@ -13,13 +13,25 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { Search, ArrowRightLeft, Eye, Calendar, Clock, MapPin, X } from "lucide-react";
+import {
+  Search,
+  ArrowRightLeft,
+  Eye,
+  Calendar,
+  Clock,
+  MapPin,
+  X,
+} from "lucide-react";
 import { useUser } from "@/contexts/useContext";
 import type UserTicketsInterface from "@/interfaces/UserTicketsInterface";
 import Subscribed from "./Subscribed";
 import TransferTicket from "./TransferTicket";
 import axios from "axios";
 import { truncateTextResponsive } from "@/utils/formatUtils";
+import {
+  getActivationStatusMessage,
+  formatActivationDate,
+} from "@/utils/ticketValidation";
 
 interface TabProps {
   isActive: boolean;
@@ -59,8 +71,8 @@ export default function MyTickets() {
   const [searchQuery, setSearchQuery] = useState("");
   const [tickets, setTickets] = useState<UserTicketsInterface[] | undefined>(
     user?.tickets
-  );  
-  
+  );
+
   const [openModalTicket, setOpenModalTicket] = useState(false);
   const [openModalTransfer, setOpenModalTransfer] = useState(false);
   const [transferTicketId, setTransferTicketId] = useState<string | undefined>(
@@ -70,6 +82,8 @@ export default function MyTickets() {
     undefined
   );
 
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
   useEffect(() => {
     async function fetchUserTickets() {
       try {
@@ -78,7 +92,9 @@ export default function MyTickets() {
 
         // Buscar dados do usuário com tickets populados
         const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_GET_USER_DATA}`,
+          `${import.meta.env.VITE_API_BASE_URL}${
+            import.meta.env.VITE_GET_USER_DATA
+          }`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -146,38 +162,46 @@ export default function MyTickets() {
     clickedOnTicket(ticketId);
   };
 
-  const handleCancelSubscription = async (_ticketId: string, event: React.MouseEvent) => {
+  const handleCancelSubscription = async (
+    _ticketId: string,
+    event: React.MouseEvent
+  ) => {
     event.stopPropagation();
-    
-    if (!confirm("Tem certeza que deseja cancelar sua inscrição neste evento?")) {
+
+    if (
+      !confirm("Tem certeza que deseja cancelar sua inscrição neste evento?")
+    ) {
       return;
     }
 
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("Token não encontrado. Faça login novamente.");
-        return;
+      setDeleteLoading(true);
+
+      const response = await axios.delete(
+        `${import.meta.env.VITE_API_BASE_URL}${
+          import.meta.env.VITE_DELETE_TICKET
+        }`,
+        {
+          data: {
+            id: _ticketId,
+          },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (response.data.deleted) {
+        // Atualizar a lista de tickets removendo o ticket cancelado
+        setTickets((prevTickets) =>
+          prevTickets?.filter((ticket) => ticket._id !== _ticketId)
+        );
       }
-
-      // Aqui você faria a chamada para a API para cancelar a inscrição
-      // Por enquanto, vou apenas mostrar um alerta
-      alert("Funcionalidade de cancelamento será implementada em breve!");
-      
-      // Exemplo de como seria a chamada da API:
-      // await axios.delete(
-      //   `${import.meta.env.VITE_API_BASE_URL}/api/tickets/${ticketId}`,
-      //   {
-      //     headers: { Authorization: `Bearer ${token}` },
-      //   }
-      // );
-
-      // Atualizar a lista de tickets removendo o ticket cancelado
-      // setTickets(prevTickets => prevTickets?.filter(ticket => ticket._id !== ticketId));
-      
     } catch (error) {
       console.error("Erro ao cancelar inscrição:", error);
       alert("Erro ao cancelar inscrição. Tente novamente.");
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -281,15 +305,22 @@ export default function MyTickets() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {filteredTickets.map((ticket) => {
-                const event = ticket.Event;                
-                
-                
-                const startDate = event?.dates[0]?.startDate ? new Date(event.dates[0].startDate).toLocaleDateString("pt-BR", {
-                  day: "2-digit",
-                  month: "short",
-                }) : "Data não informada";
-                
-                const startTime = event?.dates[0]?.startTime ? event.dates[0].startTime.slice(0, 5) : "Hora não informada";
+                const event = ticket.Event;
+                console.log(event);
+
+                const startDate = event?.dates[0]?.startDate
+                  ? new Date(event.dates[0].startDate).toLocaleDateString(
+                      "pt-BR",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                      }
+                    )
+                  : "Data não informada";
+
+                const startTime = event?.dates[0]?.startTime
+                  ? event.dates[0].startTime.slice(0, 5)
+                  : "Hora não informada";
 
                 return (
                   <div
@@ -298,7 +329,7 @@ export default function MyTickets() {
                     onClick={() => clickedOnTicket(ticket._id)}
                   >
                     {/* Imagem */}
-                    <div className="relative" style={{ aspectRatio: '16/9' }}>
+                    <div className="relative" style={{ aspectRatio: "16/9" }}>
                       <img
                         src={event?.image || "/placeholder.svg"}
                         alt={ticket.eventTitle}
@@ -307,7 +338,9 @@ export default function MyTickets() {
                       <div className="absolute top-3 right-3">
                         <span
                           className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            ticket.used ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
+                            ticket.used
+                              ? "bg-red-100 text-red-700"
+                              : "bg-green-100 text-green-700"
                           }`}
                         >
                           {ticket.used ? "Utilizado" : "Ativo"}
@@ -325,7 +358,11 @@ export default function MyTickets() {
                       <div className="flex items-start gap-2 mb-3">
                         <div className="text-sm text-gray-600">
                           <p className="font-medium">
-                            {truncateTextResponsive(`${event?.venueName || "Local não informado"} | ${event?.state || ""}`)}
+                            {truncateTextResponsive(
+                              `${event?.venueName || "Local não informado"} | ${
+                                event?.state || ""
+                              }`
+                            )}
                           </p>
                         </div>
                       </div>
@@ -343,7 +380,11 @@ export default function MyTickets() {
                         <div className="flex items-center gap-1 text-gray-600 min-w-0 flex-1">
                           <MapPin className="w-4 h-4 flex-shrink-0" />
                           <p className="text-sm truncate">
-                            {truncateTextResponsive(`${event?.neighborhood || ""}, ${event?.city || ""}`)}
+                            {truncateTextResponsive(
+                              `${event?.neighborhood || ""}, ${
+                                event?.city || ""
+                              }`
+                            )}
                           </p>
                         </div>
                       </div>
@@ -356,6 +397,28 @@ export default function MyTickets() {
                           </span>
                         </div>
                       </div>
+
+                      {/* Informação de Ativação */}
+                      {ticket.ticketType?.activateAt && (
+                        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                          <div className="flex items-start gap-2">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                            <div className="text-sm">
+                              <p className="font-medium text-blue-900 mb-1">
+                                Ativação:{" "}
+                                {formatActivationDate(
+                                  ticket.ticketType.activateAt
+                                )}
+                              </p>
+                              <p className="text-blue-700 text-xs">
+                                {getActivationStatusMessage({
+                                  activateAt: ticket.ticketType.activateAt,
+                                } as any)}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Botões de Ação */}
                       <div className="flex gap-2 mt-auto pt-4 border-t border-gray-100">
@@ -386,16 +449,49 @@ export default function MyTickets() {
                         )}
 
                         {/* Botão de Cancelar Inscrição - apenas para eventos gratuitos */}
-                        {event?.isFree && ticket.status === "ativo" && !ticket.used && (
-                          <Button
-                            onClick={(e) => handleCancelSubscription(ticket._id, e)}
-                            variant="outline"
-                            className="flex-1 text-white border-red-500 bg-red-500 hover:bg-red-600 hover:border-red-600 hover:text-white transition-colors cursor-pointer"
-                          >
-                            <X size={16} className="mr-2" />
-                            Cancelar
-                          </Button>
-                        )}
+                        {event?.isFree &&
+                          ticket.status === "ativo" &&
+                          !ticket.used && (
+                            <Button
+                              onClick={(e) =>
+                                handleCancelSubscription(ticket._id, e)
+                              }
+                              variant="outline"
+                              className="flex-1 text-white border-red-500 bg-red-500 hover:bg-red-600 hover:border-red-600 hover:text-white transition-colors cursor-pointer"
+                              disabled={deleteLoading}
+                            >
+                              {deleteLoading ? (
+                                <span className="flex items-center gap-2">
+                                  <svg
+                                    className="animate-spin h-4 w-4 text-white"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <circle
+                                      className="opacity-25"
+                                      cx="12"
+                                      cy="12"
+                                      r="10"
+                                      stroke="currentColor"
+                                      strokeWidth="4"
+                                    ></circle>
+                                    <path
+                                      className="opacity-75"
+                                      fill="currentColor"
+                                      d="M4 12a8 8 0 018-8v8H4z"
+                                    ></path>
+                                  </svg>
+                                  Cancelando...
+                                </span>
+                              ) : (
+                                <>
+                                  <X size={16} className="mr-2" />
+                                  Cancelar
+                                </>
+                              )}
+                            </Button>
+                          )}
                       </div>
                     </div>
                   </div>
