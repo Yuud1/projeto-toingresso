@@ -98,7 +98,7 @@ const Tab = ({ isActive, children, onClick, className }: TabProps) => {
     <button
       onClick={onClick}
       className={cn(
-        "px-4 py-2 text-sm font-medium transition-colors relative",
+        "px-4 py-2 text-sm font-medium transition-colors relative cursor-pointer",
         isActive ? "text-[#02488C]" : "text-gray-500 hover:text-gray-700",
         className
       )}
@@ -690,8 +690,24 @@ export default function MyEvents() {
         </GenericModal>
 
         <div className="max-w-6xl mx-auto mt-12">
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold mb-4">Meus Eventos</h1>
+            <div className="relative w-full max-w-md">
+              <Search
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={20}
+              />
+              <Input
+                type="text"
+                placeholder="Buscar eventos..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-            <h1 className="text-xl sm:text-2xl font-bold">Meus Eventos</h1>
             <div className="hidden lg:flex space-x-4">
               {mainTabOptions.map((option) => (
                 <Tab
@@ -761,48 +777,13 @@ export default function MyEvents() {
             </div>
           </div>
 
-          <div className="mb-6">
-            <div className="relative w-full max-w-md">
-              <Search
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                size={20}
-              />
-              <Input
-                type="text"
-                placeholder="Buscar eventos..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </div>
-
           {mainTab === "scan" && <EventScanner />}
 
           {mainTab === "inicio" && (
             <>
-              <div className="flex flex-col gap-4 mb-6">
-                <div className="md:hidden w-full mt-4">
-                  <Select
-                    value={subTab}
-                    onValueChange={(value) =>
-                      setSubTab(value as "active" | "finished")
-                    }
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder={getCurrentSubTabLabel()} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {subTabOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="hidden md:flex space-x-6">
+              {/* Desktop Tabs */}
+              <div className="hidden md:block border-b border-gray-200 mb-6">
+                <div className="flex space-x-6">
                   {subTabOptions.map((option) => (
                     <Tab
                       key={option.value}
@@ -816,6 +797,27 @@ export default function MyEvents() {
                     </Tab>
                   ))}
                 </div>
+              </div>
+
+              {/* Mobile Dropdown */}
+              <div className="md:hidden mb-6">
+                <Select
+                  value={subTab}
+                  onValueChange={(value) =>
+                    setSubTab(value as "active" | "finished")
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={getCurrentSubTabLabel()} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subTabOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               {filteredEvents.length === 0 ? (

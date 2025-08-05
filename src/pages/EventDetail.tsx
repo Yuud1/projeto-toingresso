@@ -91,8 +91,8 @@ const EventDetail = () => {
         setIsUserSubscribed(true);
         showWarning(
           "Você já está inscrito!",
-          "Você já se inscreveu neste evento gratuito. Verifique seus ingressos na seção 'Meus Ingressos'.",
-          8000
+          "Verifique seus ingressos em 'Meus Ingressos'.",
+          6000
         );
       }
     };
@@ -877,8 +877,8 @@ const EventDetail = () => {
                           setIsUserSubscribed(true);
                           showWarning(
                             "Você já está inscrito!",
-                            "Você já se inscreveu neste evento gratuito. Verifique seus ingressos na seção 'Meus Ingressos'.",
-                            8000
+                            "Verifique seus ingressos em 'Meus Ingressos'.",
+                            6000
                           );
                         }}
                       />

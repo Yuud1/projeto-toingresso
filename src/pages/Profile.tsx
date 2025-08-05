@@ -275,11 +275,11 @@ export default function Profile() {
             </Select>
           </div>
 
-          <div className="min-h-[calc(100vh-300px)]">
+          <div className="min-h-[calc(100vh-300px)] space-y-8">
             {activeTab === "dados" && (
               <div className="space-y-6">
-                <div className="flex items-center gap-6">
-                  <div className="relative">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                  <div className="relative flex-shrink-0">
                     <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden cursor-pointer">
                       {previewImage ? (
                         <img
@@ -311,7 +311,7 @@ export default function Profile() {
                       className="hidden"
                     />
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <h3 className="font-semibold text-lg">Foto de perfil</h3>
                     <p className="text-sm text-gray-500">
                       JPG, GIF ou PNG. Máximo 2MB.
@@ -443,25 +443,27 @@ export default function Profile() {
                   </div>
                 </div>
 
-                <div className="flex justify-end">
+                <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t">
+                  <div className="flex flex-col gap-2">
+                    {statusSaving && (
+                      <div className="text-green-600 text-sm">
+                        Alterações salvas com sucesso!
+                      </div>
+                    )}
+                    {errorMessage && (
+                      <div className="text-red-600 text-sm">
+                        {errorMessage}
+                      </div>
+                    )}
+                  </div>
                   <Button
-                    className="bg-[#02488C] text-white hover:bg-[#023a6f] cursor-pointer "
+                    className="bg-[#02488C] text-white hover:bg-[#023a6f] cursor-pointer w-full sm:w-auto"
                     onClick={handleSubmit}
                     disabled={loading}
                   >
                     {loading ? "Salvando..." : "Salvar alterações"}
                   </Button>
                 </div>
-                {statusSaving && (
-                  <div className="text-green-600 text-sm text-right">
-                    Alterações salvas com sucesso!
-                  </div>
-                )}
-                {errorMessage && (
-                  <div className="text-red-600 text-sm text-right">
-                    {errorMessage}
-                  </div>
-                )}
               </div>
             )}
 
@@ -580,7 +582,7 @@ export default function Profile() {
                             </p>
                           </div>
                           <Button
-                            className="bg-[#02488C] text-white hover:bg-[#023a6f] cursor-pointer"
+                            className="bg-[#02488C] text-white hover:bg-[#023a6f] cursor-pointer w-full sm:w-auto"
                             disabled={loading}
                           >
                             {loading ? "Atualizando..." : "Atualizar senha"}
@@ -592,29 +594,31 @@ export default function Profile() {
                 </div>
               </form>
             )}
-            <div className="border-t pt-6 flex flex-col max-[370]:flex-row gap-4">
-              <div>
-                <h4 className="font-medium mb-2 text-red-600">
-                  Ação irreversível
-                </h4>
-                <p className="text-sm text-gray-500 mb-4">
-                  Ações irreversíveis que afetarão permanentemente sua conta
-                </p>
-              </div>
+            <div className="border-t pt-8 mt-8">
+              <div className="flex flex-col sm:flex-row gap-6">
+                <div className="flex-1">
+                  <h4 className="font-medium mb-2 text-red-600">
+                    Ação irreversível
+                  </h4>
+                  <p className="text-sm text-gray-500 mb-4">
+                    Ações irreversíveis que afetarão permanentemente sua conta
+                  </p>
+                </div>
 
-              <div className="space-y-4">
-                <Button
-                  variant="outline"
-                  className="border-red-500 text-destructive hover:bg-red-500 hover:text-white cursor-pointer"
-                  disabled={loading}
-                  onClick={handleDelete}
-                >
-                  Excluir minha conta
-                </Button>
-                <p className="text-xs text-gray-500">
-                  Ao excluir sua conta, todos os seus dados serão
-                  permanentemente removidos e não poderão ser recuperados.
-                </p>
+                <div className="space-y-4 flex-shrink-0">
+                  <Button
+                    variant="outline"
+                    className="border-red-500 text-destructive hover:bg-red-500 hover:text-white cursor-pointer w-full sm:w-auto"
+                    disabled={loading}
+                    onClick={handleDelete}
+                  >
+                    Excluir minha conta
+                  </Button>
+                  <p className="text-xs text-gray-500 max-w-xs">
+                    Ao excluir sua conta, todos os seus dados serão
+                    permanentemente removidos e não poderão ser recuperados.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

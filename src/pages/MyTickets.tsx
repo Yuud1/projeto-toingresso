@@ -216,7 +216,7 @@ export default function MyTickets() {
               />
               <Input
                 type="text"
-                placeholder="Buscar por evento, email ou pedido"
+                placeholder="Buscar ingressos..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -225,8 +225,8 @@ export default function MyTickets() {
           </div>
 
           {/* Desktop Tabs */}
-          <div className="hidden sm:block border-b border-gray-200 mb-6">
-            <div className="flex space-x-8">
+          <div className="hidden md:block border-b border-gray-200 mb-6">
+                            <div className="flex space-x-6">
               {statusOptions.map((option) => (
                 <Tab
                   key={option.value}
@@ -240,7 +240,7 @@ export default function MyTickets() {
           </div>
 
           {/* Mobile Dropdown */}
-          <div className="sm:hidden mb-6">
+          <div className="md:hidden mb-6">
             <Select
               value={activeTab}
               onValueChange={(value: "ativo" | "encerrado") =>

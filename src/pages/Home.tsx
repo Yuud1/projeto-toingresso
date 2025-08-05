@@ -35,9 +35,9 @@ export default function Home() {
         let message = "Que tal descobrir alguns eventos incríveis hoje?";
         
         if (user.likedEvents && user.likedEvents.length > 0) {
-          message = `Você tem ${user.likedEvents.length} evento${user.likedEvents.length > 1 ? 's' : ''} favorito${user.likedEvents.length > 1 ? 's' : ''}! Que tal dar uma olhada?`;
+          message = `${user.likedEvents.length} evento${user.likedEvents.length > 1 ? 's' : ''} favorito${user.likedEvents.length > 1 ? 's' : ''}! Que tal dar uma olhada?`;
         } else if (user.tickets && user.tickets.length > 0) {
-          message = `Você tem ${user.tickets.length} ingresso${user.tickets.length > 1 ? 's' : ''}! Que tal verificar seus eventos?`;
+          message = `${user.tickets.length} ingresso${user.tickets.length > 1 ? 's' : ''}! Que tal verificar seus eventos?`;
         }
 
         showSuccess(
