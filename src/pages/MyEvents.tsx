@@ -884,92 +884,86 @@ export default function MyEvents() {
           </div>
         </GenericModal>
 
-        <div className="max-w-6xl mx-auto mt-12">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold mb-4">Meus Eventos</h1>
-            <div className="relative w-full max-w-md">
-              <Search
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                size={20}
-              />
-              <Input
-                type="text"
-                placeholder="Buscar eventos..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+<div className="max-w-6xl mx-auto mt-12">
+  {/* Container principal: colunas empilhadas no mobile, em linha a partir de lg */}
+  <div className="flex flex-col lg:flex-row items-start justify-between mb-8 gap-4">
+    {/* Coluna esquerda (H1 + Search) - ocupa 100% no mobile, tem max width no lg */}
+    <div className="w-full lg:w-auto lg:flex-1 lg:max-w-md">
+      <h1 className="text-2xl font-bold mb-4">Meus Eventos</h1>
+      <div className="relative w-full">
+        <Search
+          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+          size={20}
+        />
+        <Input
+          type="text"
+          placeholder="Buscar eventos..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10 w-full"
+        />
+      </div>
+    </div>
+
+    {/* Coluna direita (Tabs desktop) - escondida no mobile */}
+    <div className="hidden lg:flex items-center space-x-4 ml-0 lg:ml-8 whitespace-nowrap overflow-x-auto">
+      {mainTabOptions.map((option) => (
+        <Tab
+          key={option.value}
+          isActive={mainTab === option.value}
+          onClick={() => {
+            if (option.value === "certificados") setShowCertificateTutorial(true);
+            setMainTab(option.value as "inicio" | "dashboard" | "certificados" | "scan");
+          }}
+          className="cursor-pointer"
+        >
+          <div className="flex items-center">
+            <option.icon className="h-4 w-4 mr-2" />
+            {option.label}
           </div>
+        </Tab>
+      ))}
+    </div>
+
+    {/* Dropdown no mobile - aparece apenas quando < lg */}
+    <div className="lg:hidden w-full sm:w-auto">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            className="flex items-center justify-between gap-1 w-full sm:w-auto"
+          >
+            <div className="flex items-center">
+              {getCurrentMainTabIcon()}
+              {getCurrentMainTabLabel()}
+            </div>
+            <ChevronDown className="h-4 w-4 ml-1" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-full sm:w-56">
+          {mainTabOptions.map((option) => (
+            <DropdownMenuItem
+              key={option.value}
+              className={cn("cursor-pointer", mainTab === option.value && "bg-muted")}
+              onClick={() => {
+                if (option.value === "certificados") setShowCertificateTutorial(true);
+                setMainTab(option.value as "inicio" | "dashboard" | "certificados" | "scan");
+              }}
+            >
+              <div className="flex items-center">
+                <option.icon className="h-4 w-4 mr-2" />
+                {option.label}
+              </div>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+</div>
+
 
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-            <div className="hidden lg:flex space-x-4">
-              {mainTabOptions.map((option) => (
-                <Tab
-                  key={option.value}
-                  isActive={mainTab === option.value}
-                  onClick={() => {
-                    if (option.value === "certificados")
-                      setShowCertificateTutorial(true);
-                    setMainTab(
-                      option.value as
-                        | "inicio"
-                        | "dashboard"
-                        | "certificados"
-                        | "scan"
-                    );
-                  }}
-                  className="cursor-pointer"
-                >
-                  <div className="flex items-center">
-                    <option.icon className="h-4 w-4 mr-2" />
-                    {option.label}
-                  </div>
-                </Tab>
-              ))}
-            </div>
-
-            <div className="lg:hidden w-full sm:w-auto">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="flex items-center gap-1 w-full sm:w-auto"
-                  >
-                    {getCurrentMainTabIcon()}
-                    {getCurrentMainTabLabel()}
-                    <ChevronDown className="h-4 w-4 ml-1" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  {mainTabOptions.map((option) => (
-                    <DropdownMenuItem
-                      key={option.value}
-                      className={cn(
-                        "cursor-pointer",
-                        mainTab === option.value && "bg-muted"
-                      )}
-                      onClick={() => {
-                        if (option.value === "certificados")
-                          setShowCertificateTutorial(true);
-                        setMainTab(
-                          option.value as
-                            | "inicio"
-                            | "dashboard"
-                            | "certificados"
-                            | "scan"
-                        );
-                      }}
-                    >
-                      <div className="flex items-center">
-                        <option.icon className="h-4 w-4 mr-2" />
-                        {option.label}
-                      </div>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+        
           </div>
 
           {mainTab === "scan" && <EventScanner />}
