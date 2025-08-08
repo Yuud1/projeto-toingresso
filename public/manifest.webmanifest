@@ -10,7 +10,7 @@
   "theme_color": "#00498d",
   "orientation": "portrait",
   "lang": "pt-BR",
-  "dir": "ltr",  
+  "dir": "ltr",
   "shortcuts": [
     {
       "name": "Meus Ingressos",
@@ -18,7 +18,11 @@
       "description": "Veja seus ingressos rapidamente",
       "url": "/meus-ingressos",
       "icons": [
-        { "src": "/icons/ticket.png", "sizes": "96x96", "type": "image/png" }
+        {
+          "src": "icons/android/icons/android-launchericon-96-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
       ]
     },
     {
@@ -27,7 +31,11 @@
       "description": "Criar novo evento",
       "url": "/criar-evento",
       "icons": [
-        { "src": "/icons/event.png", "sizes": "96x96", "type": "image/png" }
+        {
+          "src": "icons/android/icons/android-launchericon-96-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
       ]
     }
   ],
@@ -41,7 +49,11 @@
         "application/pdf": [".pdf"]
       },
       "icons": [
-        { "src": "/icons/ticket.png", "sizes": "96x96", "type": "image/png" }
+        {
+          "src": "icons/android/icons/android-launchericon-96-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
       ]
     }
   ],
