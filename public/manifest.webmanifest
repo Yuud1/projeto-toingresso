@@ -10,22 +10,7 @@
   "theme_color": "#00498d",
   "orientation": "portrait",
   "lang": "pt-BR",
-  "dir": "ltr",
-  "screenshots": [
-    {
-      "src": "/screenshots/home.png",
-      "sizes": "540x720",
-      "type": "image/png",
-      "label": "Página inicial"
-    },
-    {
-      "src": "/screenshots/ticket.png",
-      "sizes": "540x720",
-      "type": "image/png",
-      "label": "Visualização do ingresso"
-    }
-  ],
-
+  "dir": "ltr",  
   "shortcuts": [
     {
       "name": "Meus Ingressos",
