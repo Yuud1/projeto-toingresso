@@ -4,8 +4,8 @@
   "description": "Aplicativo para cadastro, geração e envio de ingressos personalizados para eventos.",
   "start_url": "/",
   "scope": "/",
-  "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone", "browser"],
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone", "browser"],
   "background_color": "#ffffff",
   "theme_color": "#00498d",
   "orientation": "portrait",
@@ -19,7 +19,7 @@
       "url": "/meus-ingressos",
       "icons": [
         {
-          "src": "icons/android-launchericon-96-96.png",
+          "src": "icons/android/android-launchericon-96-96.png",
           "sizes": "96x96",
           "type": "image/png"
         }
@@ -32,7 +32,7 @@
       "url": "/criar-evento",
       "icons": [
         {
-          "src": "icons/android-launchericon-96-96.png",
+          "src": "icons/android/android-launchericon-96-96.png",
           "sizes": "96x96",
           "type": "image/png"
         }
@@ -50,7 +50,7 @@
       },
       "icons": [
         {
-          "src": "icons/android-launchericon-96-96.png",
+          "src": "icons/android/android-launchericon-96-96.png",
           "sizes": "96x96",
           "type": "image/png"
         }
@@ -427,27 +427,27 @@
       "sizes": "256x256"
     },
     {
-      "src": "icons/android-launchericon-512-512.png",
+      "src": "icons/android/android-launchericon-512-512.png",
       "sizes": "512x512"
     },
     {
-      "src": "icons/android-launchericon-192-192.png",
+      "src": "icons/android/android-launchericon-192-192.png",
       "sizes": "192x192"
     },
     {
-      "src": "icons/android-launchericon-144-144.png",
+      "src": "icons/android/android-launchericon-144-144.png",
       "sizes": "144x144"
     },
     {
-      "src": "icons/android-launchericon-96-96.png",
+      "src": "icons/android/android-launchericon-96-96.png",
       "sizes": "96x96"
     },
     {
-      "src": "icons/android-launchericon-72-72.png",
+      "src": "icons/android/android-launchericon-72-72.png",
       "sizes": "72x72"
     },
     {
-      "src": "icons/android-launchericon-48-48.png",
+      "src": "icons/android/android-launchericon-48-48.png",
       "sizes": "48x48"
     },
     {
