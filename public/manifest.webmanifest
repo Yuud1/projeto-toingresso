@@ -1,14 +1,113 @@
 {
-  "name": "TOingresso",
-  "short_name": "TOingresso",
-  "description": "Compre ingressos com facilidade e segurança usando o TOingresso.",
+  "name": "ToIngresso",
+  "short_name": "ToIngresso",
+  "description": "Aplicativo para cadastro, geração e envio de ingressos personalizados para eventos.",
   "start_url": "/",
-  "display": "fullscreen",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "browser"],
   "background_color": "#ffffff",
-  "theme_color": "#004494",
+  "theme_color": "#00498d",
   "orientation": "portrait",
   "lang": "pt-BR",
-  "scope": "/",
+  "dir": "ltr",
+  "screenshots": [
+    {
+      "src": "/screenshots/home.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "label": "Página inicial"
+    },
+    {
+      "src": "/screenshots/ticket.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "label": "Visualização do ingresso"
+    }
+  ],
+
+  "shortcuts": [
+    {
+      "name": "Meus Ingressos",
+      "short_name": "Ingressos",
+      "description": "Veja seus ingressos rapidamente",
+      "url": "/meus-ingressos",
+      "icons": [
+        { "src": "/icons/ticket.png", "sizes": "96x96", "type": "image/png" }
+      ]
+    },
+    {
+      "name": "Novo Evento",
+      "short_name": "Evento",
+      "description": "Criar novo evento",
+      "url": "/criar-evento",
+      "icons": [
+        { "src": "/icons/event.png", "sizes": "96x96", "type": "image/png" }
+      ]
+    }
+  ],
+
+  "categories": ["productivity", "event", "utilities"],
+
+  "file_handlers": [
+    {
+      "action": "/open-ticket",
+      "accept": {
+        "application/pdf": [".pdf"]
+      },
+      "icons": [
+        { "src": "/icons/ticket.png", "sizes": "96x96", "type": "image/png" }
+      ]
+    }
+  ],
+
+  "protocol_handlers": [
+    {
+      "protocol": "web+toingresso",
+      "url": "/protocol-handler?url=%s"
+    }
+  ],
+
+  "handle_links": {
+    "urls": ["https://toingresso.com/*"],
+    "exclude_paths": ["/api/*"]
+  },
+
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+
+  "edge_side_panel": {
+    "preferred_width": 300
+  },
+
+  "scope_extensions": [
+    {
+      "origin": "https://api.toingresso.com"
+    }
+  ],
+
+  "iarc_rating_id": "e12345678-90ab-cdef-ghij-klmnopqrstuv",
+
+  "prefer_related_applications": false,
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.toingresso.app",
+      "id": "com.toingresso.app"
+    }
+  ],
   "icons": [
     {
       "src": "icons/windows11/SmallTile.scale-100.png",
