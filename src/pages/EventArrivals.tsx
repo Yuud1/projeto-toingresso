@@ -29,6 +29,9 @@ import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import axios from "axios";
+import ArrivalInterface from "@/interfaces/ArrivalsInterface";
+import EventInterface from "@/interfaces/EventInterface";
+import UserInterface from "@/interfaces/UserInterface";
 
 // Adicione após as importações
 const previewUpdateAnimation = `
@@ -42,49 +45,11 @@ const previewUpdateAnimation = `
   }
 `;
 
-// Interfaces (mantendo as originais)
-interface EventInterface {
-  _id: string;
-  title: string;
-  image: string;
-  category: string;
-  startDate: string;
-  startTime: string;
-  endDate: string;
-  endTime: string;
-  description: string;
-  venueName: string;
-  city: string;
-  state: string;
-  isFree: boolean;
-  customFields: Array<{
-    _id: string;
-    label: string;
-    type: string;
-  }>;
-}
 
-interface ArrivalInterface {
-  userId?: string;
-  fields: Record<string, string>;
-  subscribedAt: string;
-  arrivalTime: string;
-  user?: {
-    _id: string;
-    name: string;
-    email: string;
-    avatar?: string;
-  };
-}
 
 // Novas interfaces para resolver problemas de any
 interface ParticipantData {
-  user?: {
-    _id: string;
-    name: string;
-    email: string;
-    avatar?: string;
-  };
+  user?: UserInterface;
   fields?: Record<string, string>;
   arrivedAt?: string;
   subscribedAt?: string;
@@ -95,12 +60,7 @@ interface ApiResponse {
 }
 
 interface SocketUserData {
-  user?: {
-    _id: string;
-    name: string;
-    email: string;
-    avatar?: string;
-  };
+  user?: UserInterface
   fields?: Record<string, string>;
   arrivedAt?: string;
   subscribedAt?: string;
@@ -114,8 +74,8 @@ export default function EventArrivalsPage() {
   // Estados principais
   const [arrivals, setArrivals] = useState<ArrivalInterface[]>([]);
   const [eventData, setEventData] = useState<EventInterface>();
-  const [loading, setLoading] = useState(true);  
-
+  const [loading, setLoading] = useState(true);    
+  
   // Estados de configuração
   const [isConfigMode, setIsConfigMode] = useState(true);
   const [selectedFields, setSelectedFields] = useState<string[]>([]);
@@ -200,7 +160,7 @@ export default function EventArrivalsPage() {
             user: participant.user,
             fields: participant.fields || {}, // Se não tiver fields, usar objeto vazio
             subscribedAt: participant.arrivedAt || participant.subscribedAt || new Date().toISOString(),
-            arrivalTime: participant.arrivedAt || participant.subscribedAt || new Date().toISOString(),
+            arrivalTime: participant.arrivedAt || participant.subscribedAt || new Date().toISOString(),          
           }));
           
           setArrivals(normalizedArrivals);
@@ -222,7 +182,7 @@ export default function EventArrivalsPage() {
         
         try {
           // Normalizar os dados recebidos do socket da mesma forma que a API
-          const normalizedUserData: ArrivalInterface = {
+          const normalizedUserData: ArrivalInterface = {          
             userId: userData.user?._id,
             user: userData.user,
             fields: userData.fields || {}, // Se não tiver fields, usar objeto vazio
@@ -454,10 +414,10 @@ export default function EventArrivalsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header aprimorado */}
-      <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-20 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+      <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-20 shadow-sm ">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex sm:flex-row flex-col">
+          <div className="sm:flex sm:flex-row flex flex-col sm:items-start justify-between gap-5">
+            <div className="flex justify-between gap-4">
               <div className="relative">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
                   <Users className="h-6 w-6 text-white" />
@@ -473,7 +433,7 @@ export default function EventArrivalsPage() {
                 <div className="flex items-center gap-4 text-sm text-slate-500">
                   <div className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
-                    <span>{formatDate(eventData?.startDate || "")}</span>
+                    <span>{formatDate(eventData?.dates[0].startDate || "")}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <MapPin className="h-4 w-4" />
@@ -742,9 +702,7 @@ export default function EventArrivalsPage() {
                                       {field.label}:
                                     </span>{" "}
                                     {field.type === "email"
-                                      ? "exemplo@email.com"
-                                      : field.type === "phone"
-                                      ? "(11) 98765-4321"
+                                      ? "exemplo@email.com"                                      
                                       : field.type === "number"
                                       ? "123"
                                       : "Valor de exemplo"}
@@ -791,9 +749,7 @@ export default function EventArrivalsPage() {
                                       {field.label}:
                                     </span>{" "}
                                     {field.type === "email"
-                                      ? "exemplo@email.com"
-                                      : field.type === "phone"
-                                      ? "(11) 98765-4321"
+                                      ? "exemplo@email.com"                                      
                                       : field.type === "number"
                                       ? "123"
                                       : "Valor de exemplo"}
