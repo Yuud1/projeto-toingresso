@@ -9,6 +9,7 @@ import {
   TrendingUp,
   UserCheck,
   Users,
+  UserPlus,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -115,6 +116,7 @@ export interface DashboardProps {
     totalRevenue: number;
     checkinsCount: number;
     certificateCount: number;
+    subscribersCount: number; // Novo campo para contar subscribers
   };
   revenueData: RevenuePoint[];
 }
@@ -619,7 +621,17 @@ export default function Dashboard({
     }
   };
 
+  const handleSubscribersClick = () => {
+    if (selectedDashboardEvent && selectedDashboardEvent !== "all") {
+      // No seu projeto você pode voltar a usar useNavigate.
+      window.location.assign(`/event-subscribers/${selectedDashboardEvent}`);
+    }
+  };
+
   const isCheckinsCardClickable =
+    selectedDashboardEvent && selectedDashboardEvent !== "all";
+
+  const isSubscribersCardClickable =
     selectedDashboardEvent && selectedDashboardEvent !== "all";
 
   return (
@@ -822,21 +834,35 @@ export default function Dashboard({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card
+          className={`transition-all duration-200 ${
+            isSubscribersCardClickable
+              ? "cursor-pointer hover:shadow-md hover:scale-[1.02]"
+              : "cursor-default opacity-60"
+          }`}
+          onClick={isSubscribersCardClickable ? handleSubscribersClick : undefined}
+          title={
+            isSubscribersCardClickable
+              ? "Clique para ver subscribers"
+              : "Selecione um evento específico para ver subscribers"
+          }
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Projeção Receita Futura
+              Subscribers do Evento
             </CardTitle>
-            <div className="h-8 w-8 rounded-md bg-violet-50 text-violet-700 grid place-items-center">
-              <TrendingUp className="h-4 w-4" />
+            <div className="h-8 w-8 rounded-md bg-blue-50 text-blue-700 grid place-items-center">
+              <UserPlus className="h-4 w-4" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mask(CURRENCY(projecaoReceitaFutura), hideValues)}
+              {mask(NUM(dashboardMetrics.subscribersCount || 0), hideValues)}
             </div>
             <p className="text-xs text-muted-foreground">
-              {mask(NUM(ingressosRestantes), hideValues)} ingressos restantes
+              {isSubscribersCardClickable
+                ? "Pessoas inscritas no evento"
+                : "Selecione um evento para ver subscribers"}
             </p>
           </CardContent>
         </Card>

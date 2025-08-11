@@ -22,6 +22,7 @@ const LegalObligations = lazy(() => import("@/pages/LegalObligations"));
 const HalfPriceRules = lazy(() => import("@/pages/HalfPriceRules"));
 const Checkout = lazy(() => import("@/pages/Checkout"));
 const EventArrivals = lazy(() => import("@/pages/EventArrivals"));
+const EventSubscribers = lazy(() => import("@/pages/EventSubscribers"));
 const Organizer = lazy(() => import("@/pages/Organizer"));
 const TodosEventos = lazy(() => import("@/pages/TodosEventos"));
 
@@ -50,6 +51,7 @@ function App() {
           <Route path="/favoritos" element={<Favorites />} />
           <Route path="/meus-eventos" element={<MyEvents />} />
           <Route path="/event-arrivals/:id" element={<EventArrivals />} />
+          <Route path="/event-subscribers/:id" element={<EventSubscribers />} />
           <Route path="/todos-eventos" element={<TodosEventos />} />
 
           <Route path="/checkouts" element={<Checkout />} />

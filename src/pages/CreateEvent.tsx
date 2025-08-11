@@ -41,6 +41,7 @@ import Header from "@/components/Header";
 import { FaFootballBall, FaQuestionCircle } from "react-icons/fa";
 import axios from "axios";
 import Footer from "@/components/Footer";
+import { useToast } from "@/hooks/use-toast";
 
 // Tipos para resolver problemas de any
 interface AddressComponent {
@@ -127,6 +128,7 @@ const CATEGORIES = [
 ];
 
 export default function CreateEvent() {
+  const { showError, showSuccess } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [created, setCreated] = useState(false);
@@ -397,8 +399,15 @@ export default function CreateEvent() {
     }
 
     setErrors(newErrors);
+    
+    // Mostrar toast com erros se houver
+    if (Object.keys(newErrors).length > 0) {
+      const errorMessages = Object.values(newErrors).join(", ");
+      showError("Campos obrigatórios não preenchidos", errorMessages);
+    }
+    
     return Object.keys(newErrors).length === 0;
-  }, [currentStep, formData]);
+  }, [currentStep, formData, showError]);
 
   const formatCEP = useCallback((cep: string) => {
     if (!cep) return "";
@@ -439,6 +448,7 @@ export default function CreateEvent() {
       e.preventDefault();
 
       if (!formData.acceptedTerms) {
+        showError("Termos não aceitos", "Você precisa aceitar os termos e condições para continuar.");
         return;
       }
 
@@ -491,15 +501,21 @@ export default function CreateEvent() {
         );
 
         if (response.data.saved) {
+          showSuccess("Evento criado com sucesso!", "Seu evento foi publicado e está disponível para o público.");
           setCreated(true);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Erro ao criar Evento", error);
+        
+        // Mostrar mensagem de erro específica
+        const errorMessage = error.response?.data?.message || error.message || "Erro ao criar evento. Tente novamente.";
+        
+        showError("Erro ao criar evento", errorMessage);
       } finally {
         setLoading(false);
       }
     },
-    [formData, validateCurrentStep]
+    [formData, validateCurrentStep, showError, showSuccess]
   );
 
   useEffect(() => {

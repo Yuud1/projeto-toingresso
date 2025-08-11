@@ -303,7 +303,7 @@ export default function MyTickets() {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 auto-rows-fr">
               {filteredTickets.map((ticket) => {
                 const event = ticket.Event;
                 console.log(event);
@@ -322,12 +322,12 @@ export default function MyTickets() {
                   ? event.dates[0].startTime.slice(0, 5)
                   : "Hora não informada";
 
-                return (
-                  <div
-                    key={ticket._id}
-                    className="w-full h-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer group mb-10"
-                    onClick={() => clickedOnTicket(ticket._id)}
-                  >
+                                 return (
+                   <div
+                     key={ticket._id}
+                     className="w-full h-full bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer group mb-10 flex flex-col"
+                     onClick={() => clickedOnTicket(ticket._id)}
+                   >
                     {/* Imagem */}
                     <div className="relative" style={{ aspectRatio: "16/9" }}>
                       <img
@@ -348,8 +348,8 @@ export default function MyTickets() {
                       </div>
                     </div>
 
-                    {/* Conteúdo */}
-                    <div className="p-4 sm:p-5">
+                                         {/* Conteúdo */}
+                     <div className="p-4 sm:p-5 flex flex-col flex-1">
                       <h3 className="font-bold text-lg text-gray-900 line-clamp-2 group-hover:text-[#02488C] transition-colors">
                         {truncateTextResponsive(ticket.eventTitle)}
                       </h3>
@@ -420,8 +420,8 @@ export default function MyTickets() {
                         </div>
                       )}
 
-                      {/* Botões de Ação */}
-                      <div className="flex gap-2 mt-auto pt-4 border-t border-gray-100">
+                                             {/* Botões de Ação */}
+                       <div className="flex gap-2 mt-auto pt-4 border-t border-gray-100 flex-shrink-0">
                         <Button
                           onClick={(e) => handleViewTicket(ticket._id, e)}
                           variant="outline"
@@ -431,7 +431,8 @@ export default function MyTickets() {
                           Visualizar
                         </Button>
 
-                        {ticket.status === "ativo" && (
+                        {/* Botão de Transferir - apenas para eventos pagos */}
+                        {!event?.isFree && ticket.status === "ativo" && (
                           <Button
                             onClick={(e) => handleTransferTicket(ticket._id, e)}
                             variant="outline"
