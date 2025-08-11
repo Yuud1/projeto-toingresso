@@ -176,7 +176,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled: isScrolledProp }) => {
         >
           <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium text-black">
             <Avatar className="w-10 h-10 mr-2.5">
-              <AvatarImage src={user.avatar || "/placeholder.svg"} />
+              <AvatarImage src={user.avatar || "/placeholder.svg"} className="object-cover" />
               <AvatarFallback>
                 {user?.name ? getInitials(user.name) : "?"}
               </AvatarFallback>
