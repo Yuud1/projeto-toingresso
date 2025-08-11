@@ -5,7 +5,6 @@ import { useParams } from "react-router-dom";
 import {
   Users,
   Search,
-  Filter,
   Download,
   RefreshCw,
   Calendar,
@@ -19,8 +18,6 @@ import {
   List,
   ArrowLeft,
   Printer,
-  Settings,
-  Check,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,7 +29,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import axios from "axios";
 import EventInterface from "@/interfaces/EventInterface";
-import UserInterface from "@/interfaces/UserInterface";
 import CustomFieldInterface from "@/interfaces/CustomFieldInterface";
 import getInitials from "@/utils/getInitials";
 import { formatDate } from "date-fns";
@@ -226,7 +222,6 @@ export default function EventSubscribersPage() {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
 
-    const subscriberName = subscriber.fields?.name || subscriber.userId?.name || "Sem nome";
     const eventTitle = event?.title || "Evento";
     const eventDate = event?.dates?.[0]?.startDate ? 
       formatDate(new Date(event.dates[0].startDate), "dd/MM/yyyy", { locale: ptBR }) : "";

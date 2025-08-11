@@ -617,8 +617,7 @@ export default function Dashboard({
     precoMedio,
   } = useKPIs(filtered);
   const proporcaoTipos = useProporcaoTiposIngresso(filtered);
-  const { lotesEsgotados, projecaoReceitaFutura, ingressosRestantes } =
-    useLotesEProjecao(filtered);
+  const { lotesEsgotados } = useLotesEProjecao(filtered);
   const comparativoLotes = useComparativoLotes(filtered);
   const analiseAtracoes = useAnaliseAtracoes(filtered);
   const ticketsBarData = React.useMemo(
@@ -642,12 +641,6 @@ export default function Dashboard({
       window.location.assign(`/event-subscribers/${selectedDashboardEvent}`);
     }
   };
-
-  const isCheckinsCardClickable =
-    selectedDashboardEvent && selectedDashboardEvent !== "all";
-
-  const isSubscribersCardClickable =
-    selectedDashboardEvent && selectedDashboardEvent !== "all";
 
   // Verifica se um evento específico está selecionado
   const isSpecificEventSelected = selectedDashboardEvent && selectedDashboardEvent !== "all";
