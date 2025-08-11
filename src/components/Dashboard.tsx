@@ -287,6 +287,18 @@ function useLotesEProjecao(events: EventInterface[]) {
   }, [events]);
 }
 
+// Função para verificar se um evento é gratuito
+function isEventFree(events: EventInterface[]): boolean {
+  if (!events.length) return false;
+  
+  // Se todos os tickets de todos os eventos têm preço 0, é gratuito
+  return events.every(event => 
+    event.batches.every(batch => 
+      batch.tickets.every(ticket => ticket.price === 0)
+    )
+  );
+}
+
 function useComparativoLotes(events: EventInterface[]) {
   return React.useMemo(() => {
     const lotes: Array<{
@@ -614,6 +626,9 @@ export default function Dashboard({
     [filtered]
   );
 
+  // Verifica se o evento selecionado é gratuito
+  const isFreeEvent = isEventFree(filtered);
+
   const handleCheckinsClick = () => {
     if (selectedDashboardEvent && selectedDashboardEvent !== "all") {
       // No seu projeto você pode voltar a usar useNavigate.
@@ -633,6 +648,9 @@ export default function Dashboard({
 
   const isSubscribersCardClickable =
     selectedDashboardEvent && selectedDashboardEvent !== "all";
+
+  // Verifica se um evento específico está selecionado
+  const isSpecificEventSelected = selectedDashboardEvent && selectedDashboardEvent !== "all";
 
   return (
     <div className="space-y-6">
@@ -686,6 +704,14 @@ export default function Dashboard({
                 : "1"
               : "-"}
           </span>
+          {isFreeEvent && (
+            <>
+              <Separator orientation="vertical" className="h-4" />
+              <Badge variant="outline" className="text-green-600 border-green-300">
+                Evento Gratuito
+              </Badge>
+            </>
+          )}
         </div>
       </div>
 
@@ -693,16 +719,17 @@ export default function Dashboard({
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <Card
           className={`${
-            selectedDashboardEvent === "all" ||
-            selectedDashboardEvent === undefined
-              ? ""
-              : "cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02]"
+            isSpecificEventSelected
+              ? "cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02]"
+              : ""
           }`}
-          title="Clique para ver relatório detalhado de ingressos"
+          title={isSpecificEventSelected ? "Clique para ver relatório detalhado de ingressos" : ""}
           onClick={() => {
-            const target = document.getElementById("details");
-            if (target) {
-              target.scrollIntoView({ behavior: "smooth" });
+            if (isSpecificEventSelected) {
+              const target = document.getElementById("details");
+              if (target) {
+                target.scrollIntoView({ behavior: "smooth" });
+              }
             }
           }}
         >
@@ -730,17 +757,20 @@ export default function Dashboard({
           accent="bg-amber-50 text-amber-700"
         />
 
-        <MetricCard
-          title="Receita Total"
-          icon={<TrendingUp className="h-4 w-4" />}
-          value={mask(CURRENCY(dashboardMetrics.totalRevenue), hideValues)}
-          hint={
-            selectedDashboardEvent && selectedDashboardEvent !== "all"
-              ? "Do evento selecionado"
-              : "De todos os eventos"
-          }
-          accent="bg-violet-50 text-violet-700"
-        />
+        {/* Receita Total - só mostra se não for evento gratuito */}
+        {!isFreeEvent && (
+          <MetricCard
+            title="Receita Total"
+            icon={<TrendingUp className="h-4 w-4" />}
+            value={mask(CURRENCY(dashboardMetrics.totalRevenue), hideValues)}
+            hint={
+              isSpecificEventSelected
+                ? "Do evento selecionado"
+                : "De todos os eventos"
+            }
+            accent="bg-violet-50 text-violet-700"
+          />
+        )}
 
         <MetricCard
           title="Certificados Gerados"
@@ -751,171 +781,157 @@ export default function Dashboard({
         />
       </div>
 
-      {/* KPIs secundários */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+      {/* KPIs secundários - só mostra se não for evento gratuito */}
+      {!isFreeEvent && (
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+          <Card>
+            <CardHeader className="flex items-start justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Taxa de Ocupação
+              </CardTitle>
+              <div className="h-8 w-8 rounded-md bg-emerald-50 text-emerald-700 grid place-items-center">
+                <TrendingUp className="h-4 w-4" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {mask(`${taxaOcupacao.toFixed(1)}%`, hideValues)}
+              </div>
+              <Progress value={taxaOcupacao} className="h-2 mt-2" />
+              <p className="text-xs text-muted-foreground mt-1">
+                {mask(NUM(totalVendidos), hideValues)} de {NUM(totalDisponiveis)}{" "}
+                vendidos
+              </p>
+            </CardContent>
+          </Card>
+
+          <MetricCard
+            title="Receita Bruta"
+            icon={<TrendingUp className="h-4 w-4" />}
+            value={mask(CURRENCY(receitaBruta), hideValues)}
+            hint="Total arrecadado"
+            accent="bg-slate-100 text-slate-700"
+          />
+
+          <MetricCard
+            title="Receita Líquida"
+            icon={<TrendingUp className="h-4 w-4" />}
+            value={mask(CURRENCY(receitaLiquida), hideValues)}
+            hint="Após taxa de 10%"
+            accent="bg-slate-100 text-slate-700"
+          />
+
+          <MetricCard
+            title="Preço Médio Vendido"
+            icon={<TrendingUp className="h-4 w-4" />}
+            value={mask(CURRENCY(Number(precoMedio.toFixed(2))), hideValues)}
+            hint="Média ponderada"
+            accent="bg-slate-100 text-slate-700"
+          />
+        </div>
+      )}
+
+      {/* Check-ins e Subscribers - apenas quando evento específico selecionado */}
+      {isSpecificEventSelected && (
+        <div className={`grid gap-4 ${isFreeEvent ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2'}`}>
+          <Card
+            className="cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02]"
+            onClick={handleCheckinsClick}
+            title="Clique para ver check-ins"
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Check-ins Realizados
+              </CardTitle>
+              <div className="h-8 w-8 rounded-md bg-emerald-50 text-emerald-700 grid place-items-center">
+                <UserCheck className="h-4 w-4" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {mask(NUM(dashboardMetrics.checkinsCount || 0), hideValues)}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Pessoas que validaram ingresso
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card
+            className="cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02]"
+            onClick={handleSubscribersClick}
+            title="Clique para ver subscribers"
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Subscribers do Evento
+              </CardTitle>
+              <div className="h-8 w-8 rounded-md bg-blue-50 text-blue-700 grid place-items-center">
+                <UserPlus className="h-4 w-4" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {mask(NUM(dashboardMetrics.subscribersCount || 0), hideValues)}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Pessoas inscritas no evento
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Overview (Receita por mês) - só mostra se não for evento gratuito */}
+      {!isFreeEvent && (
         <Card>
-          <CardHeader className="flex items-start justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Taxa de Ocupação
-            </CardTitle>
-            <div className="h-8 w-8 rounded-md bg-emerald-50 text-emerald-700 grid place-items-center">
-              <TrendingUp className="h-4 w-4" />
-            </div>
+          <CardHeader>
+            <CardTitle>Overview</CardTitle>
+            <CardDescription>
+              Receita por mês
+              {isSpecificEventSelected
+                ? ` - ${
+                    events.find((e) => e._id === selectedDashboardEvent)?.title ||
+                    ""
+                  }`
+                : ""}
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {mask(`${taxaOcupacao.toFixed(1)}%`, hideValues)}
+            <div className="h-[240px] sm:h-[300px] lg:h-[360px] w-full">
+              <ReResponsiveContainer width="100%" height="100%">
+                <ReBarChart data={revenueData} style={{ fontSize: 12 }}>
+                  <ReXAxis
+                    dataKey="name"
+                    tickLine={false}
+                    axisLine={false}
+                    dy={8}
+                    fontSize={10}
+                  />
+                  <ReYAxis
+                    tickLine={false}
+                    axisLine={false}
+                    width={70}
+                    fontSize={10}
+                    tickFormatter={(v) => (hideValues ? "***" : `R$${v}`)}
+                  />
+                  <ReTooltip
+                    formatter={(value: any) =>
+                      hideValues ? "***" : CURRENCY(Number(value))
+                    }
+                    labelClassName="text-xs"
+                    contentStyle={{
+                      borderRadius: 8,
+                      border: "1px solid hsl(0 0% 90%)",
+                    }}
+                  />
+                  <ReBar dataKey="revenue" fill="#334155" radius={[6, 6, 0, 0]} />
+                </ReBarChart>
+              </ReResponsiveContainer>
             </div>
-            <Progress value={taxaOcupacao} className="h-2 mt-2" />
-            <p className="text-xs text-muted-foreground mt-1">
-              {mask(NUM(totalVendidos), hideValues)} de {NUM(totalDisponiveis)}{" "}
-              vendidos
-            </p>
           </CardContent>
         </Card>
-
-        <MetricCard
-          title="Receita Bruta"
-          icon={<TrendingUp className="h-4 w-4" />}
-          value={mask(CURRENCY(receitaBruta), hideValues)}
-          hint="Total arrecadado"
-          accent="bg-slate-100 text-slate-700"
-        />
-
-        <MetricCard
-          title="Receita Líquida"
-          icon={<TrendingUp className="h-4 w-4" />}
-          value={mask(CURRENCY(receitaLiquida), hideValues)}
-          hint="Após taxa de 10%"
-          accent="bg-slate-100 text-slate-700"
-        />
-
-        <MetricCard
-          title="Preço Médio Vendido"
-          icon={<TrendingUp className="h-4 w-4" />}
-          value={mask(CURRENCY(Number(precoMedio.toFixed(2))), hideValues)}
-          hint="Média ponderada"
-          accent="bg-slate-100 text-slate-700"
-        />
-      </div>
-
-      {/* Check-ins e CTA */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-        <Card
-          className={`transition-all duration-200 ${
-            isCheckinsCardClickable
-              ? "cursor-pointer hover:shadow-md hover:scale-[1.02]"
-              : "cursor-default opacity-60"
-          }`}
-          onClick={isCheckinsCardClickable ? handleCheckinsClick : undefined}
-          title={
-            isCheckinsCardClickable
-              ? "Clique para ver check-ins"
-              : "Selecione um evento específico para ver check-ins"
-          }
-        >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Check-ins Realizados
-            </CardTitle>
-            <div className="h-8 w-8 rounded-md bg-emerald-50 text-emerald-700 grid place-items-center">
-              <UserCheck className="h-4 w-4" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {mask(NUM(dashboardMetrics.checkinsCount || 0), hideValues)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {isCheckinsCardClickable
-                ? "Pessoas que validaram ingresso"
-                : "Selecione um evento para ver check-ins"}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card
-          className={`transition-all duration-200 ${
-            isSubscribersCardClickable
-              ? "cursor-pointer hover:shadow-md hover:scale-[1.02]"
-              : "cursor-default opacity-60"
-          }`}
-          onClick={isSubscribersCardClickable ? handleSubscribersClick : undefined}
-          title={
-            isSubscribersCardClickable
-              ? "Clique para ver subscribers"
-              : "Selecione um evento específico para ver subscribers"
-          }
-        >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Subscribers do Evento
-            </CardTitle>
-            <div className="h-8 w-8 rounded-md bg-blue-50 text-blue-700 grid place-items-center">
-              <UserPlus className="h-4 w-4" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {mask(NUM(dashboardMetrics.subscribersCount || 0), hideValues)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {isSubscribersCardClickable
-                ? "Pessoas inscritas no evento"
-                : "Selecione um evento para ver subscribers"}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Overview (Receita por mês) */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Overview</CardTitle>
-          <CardDescription>
-            Receita por mês
-            {selectedDashboardEvent && selectedDashboardEvent !== "all"
-              ? ` - ${
-                  events.find((e) => e._id === selectedDashboardEvent)?.title ||
-                  ""
-                }`
-              : ""}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[240px] sm:h-[300px] lg:h-[360px] w-full">
-            <ReResponsiveContainer width="100%" height="100%">
-              <ReBarChart data={revenueData} style={{ fontSize: 12 }}>
-                <ReXAxis
-                  dataKey="name"
-                  tickLine={false}
-                  axisLine={false}
-                  dy={8}
-                  fontSize={10}
-                />
-                <ReYAxis
-                  tickLine={false}
-                  axisLine={false}
-                  width={70}
-                  fontSize={10}
-                  tickFormatter={(v) => (hideValues ? "***" : `R$${v}`)}
-                />
-                <ReTooltip
-                  formatter={(value: any) =>
-                    hideValues ? "***" : CURRENCY(Number(value))
-                  }
-                  labelClassName="text-xs"
-                  contentStyle={{
-                    borderRadius: 8,
-                    border: "1px solid hsl(0 0% 90%)",
-                  }}
-                />
-                <ReBar dataKey="revenue" fill="#334155" radius={[6, 6, 0, 0]} />
-              </ReBarChart>
-            </ReResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
+      )}
 
       {/* Alertas de lotes esgotados */}
       {lotesEsgotados.length > 0 && (
@@ -944,280 +960,290 @@ export default function Dashboard({
         </div>
       )}
 
-      {/* Pizza: Proporção de tipos de ingresso vendidos */}
-
-      {selectedDashboardEvent === "all" ||
-      selectedDashboardEvent === undefined ? null : (
+      {/* Detalhes específicos - apenas quando evento específico selecionado */}
+      {isSpecificEventSelected && (
         <div id="details">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">
-                Proporção de Tipos de Ingresso Vendidos
-              </CardTitle>
-              <CardDescription>Distribuição por tipo</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {proporcaoTipos.length ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="h-[280px]">
-                    <ReResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={proporcaoTipos}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          outerRadius={90}
-                          dataKey="value"
+          {/* Pizza: Proporção de tipos de ingresso vendidos - só mostra se não for evento gratuito */}
+          {!isFreeEvent && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">
+                  Proporção de Tipos de Ingresso Vendidos
+                </CardTitle>
+                <CardDescription>Distribuição por tipo</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {proporcaoTipos.length ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="h-[280px]">
+                      <ReResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={proporcaoTipos}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            outerRadius={90}
+                            dataKey="value"
+                          >
+                            {proporcaoTipos.map((entry, index) => (
+                              <Cell
+                                key={`${entry.name}-${index}`}
+                                fill={COLORS[index % COLORS.length]}
+                              />
+                            ))}
+                          </Pie>
+                          <Legend verticalAlign="bottom" height={24} />
+                        </PieChart>
+                      </ReResponsiveContainer>
+                    </div>
+                    <div className="space-y-2">
+                      {proporcaoTipos.map((p, i) => (
+                        <div
+                          key={p.name}
+                          className="flex items-center justify-between gap-2"
                         >
-                          {proporcaoTipos.map((entry, index) => (
-                            <Cell
-                              key={`${entry.name}-${index}`}
-                              fill={COLORS[index % COLORS.length]}
+                          <div className="flex items-center gap-2">
+                            <span
+                              className="h-3 w-3 rounded-sm"
+                              style={{
+                                backgroundColor: COLORS[i % COLORS.length],
+                              }}
                             />
-                          ))}
-                        </Pie>
-                        <Legend verticalAlign="bottom" height={24} />
-                      </PieChart>
-                    </ReResponsiveContainer>
-                  </div>
-                  <div className="space-y-2">
-                    {proporcaoTipos.map((p, i) => (
-                      <div
-                        key={p.name}
-                        className="flex items-center justify-between gap-2"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span
-                            className="h-3 w-3 rounded-sm"
-                            style={{
-                              backgroundColor: COLORS[i % COLORS.length],
-                            }}
-                          />
-                          <span className="text-sm">{p.name}</span>
+                            <span className="text-sm">{p.name}</span>
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {mask(`${p.percentage.toFixed(1)}%`, hideValues)}
+                            <span className="ml-2">
+                              ({mask(NUM(p.value), hideValues)})
+                            </span>
+                          </div>
                         </div>
-                        <div className="text-sm text-muted-foreground">
-                          {mask(`${p.percentage.toFixed(1)}%`, hideValues)}
-                          <span className="ml-2">
-                            ({mask(NUM(p.value), hideValues)})
-                          </span>
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
+                ) : (
+                  <p className="text-center text-muted-foreground py-6">
+                    Nenhum ingresso vendido ainda.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Ingressos Vendidos por Lote - só mostra se não for evento gratuito */}
+          {!isFreeEvent && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Ingressos Vendidos por Lote</CardTitle>
+                <CardDescription>
+                  Comparativo entre lotes do(s) evento(s) filtrado(s)
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[260px] w-full">
+                  <ReResponsiveContainer width="100%" height="100%">
+                    <ReBarChart data={ticketsBarData} style={{ fontSize: 12 }}>
+                      <ReXAxis
+                        dataKey="lote"
+                        tickLine={false}
+                        axisLine={false}
+                        fontSize={10}
+                      />
+                      <ReYAxis tickLine={false} axisLine={false} fontSize={10} />
+                      <ReTooltip
+                        formatter={(value: any, _name, payload: any) => [
+                          `${hideValues ? "***" : NUM(value as number)} vendidos`,
+                          payload?.payload?.evento,
+                        ]}
+                        labelFormatter={(label) => `Lote: ${label}`}
+                        contentStyle={{
+                          borderRadius: 8,
+                          border: "1px solid hsl(0 0% 90%)",
+                        }}
+                      />
+                      <ReBar
+                        dataKey="vendidos"
+                        fill="#10b981"
+                        radius={[6, 6, 0, 0]}
+                      />
+                    </ReBarChart>
+                  </ReResponsiveContainer>
                 </div>
-              ) : (
-                <p className="text-center text-muted-foreground py-6">
-                  Nenhum ingresso vendido ainda.
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Relatório detalhado - só mostra se não for evento gratuito */}
+          {!isFreeEvent && (
+            <div className="space-y-2">
+              <SectionTitle>Relatório de Ingressos Vendidos</SectionTitle>
+              <EventReport events={filtered} hideValues={hideValues} />
+            </div>
+          )}
+
+          {/* Comparativo de performance entre lotes - só mostra se não for evento gratuito */}
+          {!isFreeEvent && (
+            <div className="space-y-2">
+              <SectionTitle>Comparativo de Performance entre Lotes</SectionTitle>
+              <div className="rounded-md border overflow-hidden">
+                <ScrollArea className="w-full">
+                  <Table>
+                    <TableHeader className="sticky top-0 bg-accent/40">
+                      <TableRow>
+                        <TableHead>Evento</TableHead>
+                        <TableHead>Lote</TableHead>
+                        <TableHead className="text-right">Vendidos</TableHead>
+                        <TableHead className="text-right">Total</TableHead>
+                        <TableHead className="text-right">
+                          Taxa Ocupação
+                        </TableHead>
+                        <TableHead className="text-right">Receita</TableHead>
+                        <TableHead className="text-right">Dias Ativo</TableHead>
+                        <TableHead className="text-right">Velocidade</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {comparativoLotes.map((l, idx) => (
+                        <TableRow
+                          key={`${l.evento}-${l.lote}-${idx}`}
+                          className={idx === 0 ? "bg-amber-50/60" : ""}
+                        >
+                          <TableCell>{l.evento}</TableCell>
+                          <TableCell className="font-medium">{l.lote}</TableCell>
+                          <TableCell className="text-right">
+                            {mask(NUM(l.vendidos), hideValues)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {NUM(l.total)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {l.taxaOcupacao.toFixed(1)}%
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {mask(CURRENCY(l.receita), hideValues)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {l.diasAtivo ?? "-"}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {l.velocidadeVendas
+                              ? `${l.velocidadeVendas.toFixed(1)}/dia`
+                              : "-"}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </ScrollArea>
+              </div>
+              {!!comparativoLotes.length && (
+                <p className="text-xs text-muted-foreground mt-2">
+                  🏆 Linha destacada: maior receita | Velocidade = ingressos/dia
                 </p>
               )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Ingressos Vendidos por Lote</CardTitle>
-              <CardDescription>
-                Comparativo entre lotes do(s) evento(s) filtrado(s)
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[260px] w-full">
-                <ReResponsiveContainer width="100%" height="100%">
-                  <ReBarChart data={ticketsBarData} style={{ fontSize: 12 }}>
-                    <ReXAxis
-                      dataKey="lote"
-                      tickLine={false}
-                      axisLine={false}
-                      fontSize={10}
-                    />
-                    <ReYAxis tickLine={false} axisLine={false} fontSize={10} />
-                    <ReTooltip
-                      formatter={(value: any, _name, payload: any) => [
-                        `${hideValues ? "***" : NUM(value as number)} vendidos`,
-                        payload?.payload?.evento,
-                      ]}
-                      labelFormatter={(label) => `Lote: ${label}`}
-                      contentStyle={{
-                        borderRadius: 8,
-                        border: "1px solid hsl(0 0% 90%)",
-                      }}
-                    />
-                    <ReBar
-                      dataKey="vendidos"
-                      fill="#10b981"
-                      radius={[6, 6, 0, 0]}
-                    />
-                  </ReBarChart>
-                </ReResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Relatório detalhado - agora com shadcn Table, progress e totais */}
-          <div className="space-y-2">
-            <SectionTitle>Relatório de Ingressos Vendidos</SectionTitle>
-            <EventReport events={filtered} hideValues={hideValues} />
-          </div>
-
-          {/* Comparativo de performance entre lotes */}
-          <div className="space-y-2">
-            <SectionTitle>Comparativo de Performance entre Lotes</SectionTitle>
-            <div className="rounded-md border overflow-hidden">
-              <ScrollArea className="w-full">
-                <Table>
-                  <TableHeader className="sticky top-0 bg-accent/40">
-                    <TableRow>
-                      <TableHead>Evento</TableHead>
-                      <TableHead>Lote</TableHead>
-                      <TableHead className="text-right">Vendidos</TableHead>
-                      <TableHead className="text-right">Total</TableHead>
-                      <TableHead className="text-right">
-                        Taxa Ocupação
-                      </TableHead>
-                      <TableHead className="text-right">Receita</TableHead>
-                      <TableHead className="text-right">Dias Ativo</TableHead>
-                      <TableHead className="text-right">Velocidade</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {comparativoLotes.map((l, idx) => (
-                      <TableRow
-                        key={`${l.evento}-${l.lote}-${idx}`}
-                        className={idx === 0 ? "bg-amber-50/60" : ""}
-                      >
-                        <TableCell>{l.evento}</TableCell>
-                        <TableCell className="font-medium">{l.lote}</TableCell>
-                        <TableCell className="text-right">
-                          {mask(NUM(l.vendidos), hideValues)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {NUM(l.total)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {l.taxaOcupacao.toFixed(1)}%
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {mask(CURRENCY(l.receita), hideValues)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {l.diasAtivo ?? "-"}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {l.velocidadeVendas
-                            ? `${l.velocidadeVendas.toFixed(1)}/dia`
-                            : "-"}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </ScrollArea>
             </div>
-            {!!comparativoLotes.length && (
-              <p className="text-xs text-muted-foreground mt-2">
-                🏆 Linha destacada: maior receita | Velocidade = ingressos/dia
-              </p>
-            )}
-          </div>
+          )}
 
-          {/* Análise de atrações por período */}
-          <div className="space-y-2">
-            <SectionTitle>Análise de Atrações por Período</SectionTitle>
+          {/* Análise de atrações por período - só mostra se não for evento gratuito */}
+          {!isFreeEvent && (
+            <div className="space-y-2">
+              <SectionTitle>Análise de Atrações por Período</SectionTitle>
 
-            {/* Mobile: cards */}
-            <div className="grid grid-cols-1 gap-3 md:hidden">
-              {analiseAtracoes.map((p, i) => (
-                <Card key={`${p.evento}-${i}`} className="border">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm">{p.evento}</CardTitle>
-                    <CardDescription className="text-xs">
-                      {p.periodo}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <div className="text-xs">
-                      <span className="text-muted-foreground">Atrações: </span>
-                      {p.atracoes?.length
-                        ? p.atracoes.map((a) => a.name).join(", ")
-                        : "Sem atrações"}
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Vendidos (est.):</span>
-                      <span className="font-medium">
-                        {mask(NUM(p.vendidos), hideValues)}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Receita (est.):</span>
-                      <span className="font-medium">
-                        {mask(CURRENCY(p.receita), hideValues)}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {/* Desktop: tabela */}
-            <div className="hidden md:block rounded-md border overflow-hidden">
-              <ScrollArea className="w-full">
-                <Table>
-                  <TableHeader className="sticky top-0 bg-accent/40">
-                    <TableRow>
-                      <TableHead>Evento</TableHead>
-                      <TableHead>Período</TableHead>
-                      <TableHead>Atrações</TableHead>
-                      <TableHead className="text-right">
-                        Vendidos (est.)
-                      </TableHead>
-                      <TableHead className="text-right">
-                        Receita (est.)
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {analiseAtracoes.map((p, i) => (
-                      <TableRow key={`${p.evento}-${i}`}>
-                        <TableCell>{p.evento}</TableCell>
-                        <TableCell className="whitespace-nowrap">
-                          {p.periodo}
-                        </TableCell>
-                        <TableCell>
-                          {p.atracoes?.length ? (
-                            <div className="flex flex-wrap gap-1">
-                              {p.atracoes.map((a, idx) => (
-                                <Badge
-                                  key={`${a.name}-${idx}`}
-                                  variant="outline"
-                                >
-                                  {a.name}
-                                </Badge>
-                              ))}
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground text-xs">
-                              Sem atrações
-                            </span>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-right">
+              {/* Mobile: cards */}
+              <div className="grid grid-cols-1 gap-3 md:hidden">
+                {analiseAtracoes.map((p, i) => (
+                  <Card key={`${p.evento}-${i}`} className="border">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">{p.evento}</CardTitle>
+                      <CardDescription className="text-xs">
+                        {p.periodo}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="text-xs">
+                        <span className="text-muted-foreground">Atrações: </span>
+                        {p.atracoes?.length
+                          ? p.atracoes.map((a) => a.name).join(", ")
+                          : "Sem atrações"}
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span>Vendidos (est.):</span>
+                        <span className="font-medium">
                           {mask(NUM(p.vendidos), hideValues)}
-                        </TableCell>
-                        <TableCell className="text-right">
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span>Receita (est.):</span>
+                        <span className="font-medium">
                           {mask(CURRENCY(p.receita), hideValues)}
-                        </TableCell>
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Desktop: tabela */}
+              <div className="hidden md:block rounded-md border overflow-hidden">
+                <ScrollArea className="w-full">
+                  <Table>
+                    <TableHeader className="sticky top-0 bg-accent/40">
+                      <TableRow>
+                        <TableHead>Evento</TableHead>
+                        <TableHead>Período</TableHead>
+                        <TableHead>Atrações</TableHead>
+                        <TableHead className="text-right">
+                          Vendidos (est.)
+                        </TableHead>
+                        <TableHead className="text-right">
+                          Receita (est.)
+                        </TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </ScrollArea>
+                    </TableHeader>
+                    <TableBody>
+                      {analiseAtracoes.map((p, i) => (
+                        <TableRow key={`${p.evento}-${i}`}>
+                          <TableCell>{p.evento}</TableCell>
+                          <TableCell className="whitespace-nowrap">
+                            {p.periodo}
+                          </TableCell>
+                          <TableCell>
+                            {p.atracoes?.length ? (
+                              <div className="flex flex-wrap gap-1">
+                                {p.atracoes.map((a, idx) => (
+                                  <Badge
+                                    key={`${a.name}-${idx}`}
+                                    variant="outline"
+                                  >
+                                    {a.name}
+                                  </Badge>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground text-xs">
+                                Sem atrações
+                              </span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {mask(NUM(p.vendidos), hideValues)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {mask(CURRENCY(p.receita), hideValues)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </ScrollArea>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                📊 Estimativas baseadas na distribuição igual de vendas entre
+                períodos
+              </p>
             </div>
-            <p className="text-xs text-muted-foreground">
-              📊 Estimativas baseadas na distribuição igual de vendas entre
-              períodos
-            </p>
-          </div>
+          )}
         </div>
       )}
     </div>
