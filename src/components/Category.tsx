@@ -157,7 +157,7 @@ const Category: React.FC = () => {
         <div className="absolute top-1/2 left-1/3 w-32 h-32 bg-white rounded-full blur-2xl"></div>
       </div>
 
-      <div className="max-w-6xl mx-auto pt-10 px-4 sm:px-6 lg:px-8 w-full h-fit relative z-10" id="filter-grid">
+      <div className="max-w-7xl mx-auto pt-10 px-6 sm:px-4 lg:px-8 w-full h-fit relative z-10" id="filter-grid">
         {categories.map((category) => {
           const events = eventsByCategory[category] || []
           const isCategoryLoaded = loadedCategories.has(category)
