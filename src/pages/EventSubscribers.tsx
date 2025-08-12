@@ -48,7 +48,7 @@ interface SubscriberData {
 
 interface PrintConfig {
   selectedFields: string[];
-  paperSize: "A4" | "A5" | "A6" | "custom";
+  paperSize: "A4" | "A5" | "A6" | "thermal" | "custom";
   customWidth: number;
   customHeight: number;
   fontSize: "small" | "medium" | "large";
@@ -76,7 +76,7 @@ export default function EventSubscribersPage() {
   const [selectedSubscriber, setSelectedSubscriber] = useState<SubscriberData | null>(null);
   const [printConfig, setPrintConfig] = useState<PrintConfig>({
     selectedFields: ["Nome completo", "Email"],
-    paperSize: "A6",
+    paperSize: "thermal",
     customWidth: 105,
     customHeight: 148,
     fontSize: "medium",
@@ -227,22 +227,39 @@ export default function EventSubscribersPage() {
       formatDate(new Date(event.dates[0].startDate), "dd/MM/yyyy", { locale: ptBR }) : "";
     const eventVenue = event?.venueName || "";
 
-    // Verificar se é impressão térmica (apenas um campo selecionado)
-    const isThermalPrint = config.selectedFields.length === 1;
+    // Verificar se é impressão térmica (baseado no tipo selecionado, não na quantidade de campos)
+    const isThermalPrint = config.paperSize === "thermal";
 
     // Configurar tamanho do papel
     const getPaperSize = () => {
+      // Para impressão térmica, usar tamanho mais compatível
       if (isThermalPrint) {
-        return "80mm auto"; // Tamanho padrão para impressoras térmicas
+        // Usar o tamanho selecionado pelo usuário, mesmo para térmica
+        switch (config.paperSize) {
+          case "A4": return "210mm 297mm";
+          case "A5": return "148mm 210mm";
+          case "A6": return "105mm 148mm";
+          case "thermal": return "80mm 120mm";
+          case "custom": return `${config.customWidth}mm ${config.customHeight}mm`;
+          default: return "80mm 120mm"; // Tamanho padrão para térmica mais compatível
+        }
       }
+      
+      // Para credenciais completas
       switch (config.paperSize) {
         case "A4": return "210mm 297mm";
         case "A5": return "148mm 210mm";
         case "A6": return "105mm 148mm";
+        case "thermal": return "80mm 120mm";
         case "custom": return `${config.customWidth}mm ${config.customHeight}mm`;
         default: return "105mm 148mm";
       }
     };
+
+    const paperSize = getPaperSize();
+    console.log('Tamanho da página configurado:', paperSize);
+    console.log('É impressão térmica:', isThermalPrint);
+    console.log('Tamanho selecionado:', config.paperSize);
 
     // Configurar tamanho da fonte
     const getFontSize = () => {
@@ -261,26 +278,47 @@ export default function EventSubscribersPage() {
     let printContent = '';
 
     if (isThermalPrint) {
-      // Impressão térmica simples
-      const fieldLabel = config.selectedFields[0];
-      const fieldValue = getSubscriberFieldValue(subscriber, fieldLabel);
-      
+      // Impressão térmica simples - pode ter múltiplos campos
       printContent = `
         <!DOCTYPE html>
         <html lang="pt-BR">
         <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Impressão Térmica - ${fieldLabel}</title>
+          <title>Impressão Térmica</title>
           <style>
+            * {
+              box-sizing: border-box;
+            }
+            
             @page {
               size: ${getPaperSize()};
               margin: 5mm;
             }
             
             @media print {
-              body { margin: 0; }
+              html, body { 
+                margin: 0 !important; 
+                padding: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+              }
               .no-print { display: none !important; }
+              .thermal-content {
+                width: 100% !important;
+                height: 100% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+              }
+            }
+            
+            html, body {
+              margin: 0;
+              padding: 0;
+              width: 100%;
+              height: 100%;
             }
             
             body {
@@ -292,6 +330,11 @@ export default function EventSubscribersPage() {
               padding: 5mm;
               font-size: ${getFontSize()};
               text-align: center;
+              min-height: 100vh;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              overflow: hidden;
             }
             
             .thermal-content {
@@ -299,7 +342,26 @@ export default function EventSubscribersPage() {
               flex-direction: column;
               align-items: center;
               justify-content: center;
+              width: 100%;
+              height: 100%;
               min-height: 50mm;
+              gap: 8px;
+            }
+            
+            .field-group {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 2px;
+            }
+            
+            .field-label {
+              font-size: ${getFontSize()};
+              font-weight: bold;
+              color: #000;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+              line-height: 1.2;
             }
             
             .field-value {
@@ -309,6 +371,9 @@ export default function EventSubscribersPage() {
               word-break: break-word;
               text-transform: uppercase;
               letter-spacing: 1px;
+              line-height: 1.4;
+              max-width: 100%;
+              overflow-wrap: break-word;
             }
             
             .print-button {
@@ -324,6 +389,7 @@ export default function EventSubscribersPage() {
               font-size: 14px;
               font-weight: 500;
               box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+              z-index: 1000;
             }
             
             .print-button:hover {
@@ -341,7 +407,13 @@ export default function EventSubscribersPage() {
           </button>
           
           <div class="thermal-content">
-            <div class="field-value">${fieldValue}</div>
+            ${config.selectedFields.map(fieldLabel => {
+              const value = getSubscriberFieldValue(subscriber, fieldLabel);
+              if (!value) return '';
+              return `
+                <div class="field-value">${value}</div>
+              `;
+            }).join('')}
           </div>
         </body>
         </html>
@@ -356,14 +428,30 @@ export default function EventSubscribersPage() {
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Credenciamento - ${eventTitle}</title>
           <style>
+            * {
+              box-sizing: border-box;
+            }
+            
             @page {
               size: ${getPaperSize()};
               margin: 10mm;
             }
             
             @media print {
-              body { margin: 0; }
+              html, body { 
+                margin: 0; 
+                padding: 0;
+                width: 100%;
+                height: 100%;
+              }
               .no-print { display: none !important; }
+            }
+            
+            html, body {
+              margin: 0;
+              padding: 0;
+              width: 100%;
+              height: 100%;
             }
             
             body {
@@ -374,6 +462,10 @@ export default function EventSubscribersPage() {
               margin: 0;
               padding: 10mm;
               font-size: ${getFontSize()};
+              min-height: 100vh;
+              display: flex;
+              align-items: center;
+              justify-content: center;
             }
             
             .credential-card {
@@ -381,6 +473,8 @@ export default function EventSubscribersPage() {
               border-radius: 8px;
               padding: 15px;
               background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+              width: 100%;
+              max-width: 100%;
               min-height: 120mm;
               display: flex;
               flex-direction: column;
@@ -495,6 +589,7 @@ export default function EventSubscribersPage() {
               font-size: 14px;
               font-weight: 500;
               box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+              z-index: 1000;
             }
             
             .print-button:hover {
@@ -1044,10 +1139,40 @@ export default function EventSubscribersPage() {
               {/* Configurações de Papel */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
+                  <Label className="text-sm font-medium">Tipo de Impressão</Label>
+                  <Select
+                    value={printConfig.paperSize === "thermal" ? "thermal" : "credential"}
+                    onValueChange={(value: "thermal" | "credential") => {
+                      if (value === "thermal") {
+                        // Para impressão térmica, manter os campos selecionados mas mudar o tamanho
+                        setPrintConfig(prev => ({ 
+                          ...prev, 
+                          paperSize: "thermal" // Tamanho padrão para térmica
+                        }));
+                      } else {
+                        // Para credencial, manter os campos selecionados mas mudar o tamanho
+                        setPrintConfig(prev => ({ 
+                          ...prev, 
+                          paperSize: "A6" // Tamanho padrão para credencial
+                        }));
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="thermal">Impressão Térmica (1 campo)</SelectItem>
+                      <SelectItem value="credential">Credencial Completa</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
                   <Label className="text-sm font-medium">Tamanho do Papel</Label>
                   <Select
                     value={printConfig.paperSize}
-                    onValueChange={(value: "A4" | "A5" | "A6" | "custom") =>
+                    onValueChange={(value: "A4" | "A5" | "A6" | "thermal" | "custom") =>
                       setPrintConfig(prev => ({ ...prev, paperSize: value }))
                     }
                   >
@@ -1058,29 +1183,30 @@ export default function EventSubscribersPage() {
                       <SelectItem value="A4">A4 (210 x 297mm)</SelectItem>
                       <SelectItem value="A5">A5 (148 x 210mm)</SelectItem>
                       <SelectItem value="A6">A6 (105 x 148mm)</SelectItem>
+                      <SelectItem value="thermal">Térmica (80 x 120mm)</SelectItem>
                       <SelectItem value="custom">Personalizado</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
 
-                <div>
-                  <Label className="text-sm font-medium">Tamanho da Fonte</Label>
-                  <Select
-                    value={printConfig.fontSize}
-                    onValueChange={(value: "small" | "medium" | "large") =>
-                      setPrintConfig(prev => ({ ...prev, fontSize: value }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="small">Pequena</SelectItem>
-                      <SelectItem value="medium">Média</SelectItem>
-                      <SelectItem value="large">Grande</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div>
+                <Label className="text-sm font-medium">Tamanho da Fonte</Label>
+                <Select
+                  value={printConfig.fontSize}
+                  onValueChange={(value: "small" | "medium" | "large") =>
+                    setPrintConfig(prev => ({ ...prev, fontSize: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="small">Pequena</SelectItem>
+                    <SelectItem value="medium">Média</SelectItem>
+                    <SelectItem value="large">Grande</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Dimensões Personalizadas */}
@@ -1155,7 +1281,7 @@ export default function EventSubscribersPage() {
                >
                  <Printer className="h-4 w-4" />
                  <span>
-                   {printConfig.selectedFields.length === 1 
+                   {printConfig.paperSize === "thermal" 
                      ? "Imprimir Térmica" 
                      : "Imprimir Credencial"
                    }
