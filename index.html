@@ -2,16 +2,56 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="icon.png" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TOingresso</title>
-    <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/icon.png" />
+
+    <title>TOingresso - Sua plataforma de ingressos digitais</title>
+    <meta
+      name="description"
+      content="Descubra, compre e gerencie ingressos para os melhores eventos com o TOingresso. Plataforma simples, rápida e segura."
+    />
+
+    <!-- Favicon e ícones -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icon.png" />
     <link rel="apple-touch-icon" href="/icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#ffffff" />
-  </head>  
+
+    <!-- SEO Social: Open Graph -->
+    <meta
+      property="og:title"
+      content="TOingresso - Plataforma de ingressos digitais"
+    />
+    <meta
+      property="og:description"
+      content="Compre e gerencie ingressos para os melhores eventos. Simples, rápido e seguro."
+    />
+    <meta property="og:image" content="/banner-social.png" />
+    <meta property="og:url" content="https://toingresso.com.br" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="TOingresso - Plataforma de ingressos digitais"
+    />
+    <meta
+      name="twitter:description"
+      content="Compre e gerencie ingressos para os melhores eventos. Simples, rápido e seguro."
+    />
+    <meta name="twitter:image" content="/banner-social.png" />
+
+    <!-- Preload do JS principal para melhor performance -->
+    <link rel="preload" href="/src/main.tsx" as="script" />
+  </head>
   <body>
-    <div id="root"></div>    
+    <noscript>
+      Você precisa habilitar o JavaScript para rodar este aplicativo.
+    </noscript>
+
+    <div id="root" role="main"></div>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

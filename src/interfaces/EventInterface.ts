@@ -40,14 +40,12 @@ export default interface EventInterface {
   customFields: CustomFieldInterface[];
   ticketActivationToken: string;
   mapUrl: string;
-  subscribers: [
-    {
-      userId: string;
-      fields: Record<string, string>;
-      subscribedAt: Date;
-    }
-  ];
-  participants: [user: UserInterface];
+  subscribers: {
+    userId: string;
+    fields: Record<string, string>;
+    subscribedAt: Date;
+  }[];
+  participants: UserInterface[];
   certificateCount: number,
   batches: Batch[];
   // Novo campo para ingressos disponíveis no momento

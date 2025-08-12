@@ -42,7 +42,6 @@ export function LoginForm({
       )
       .then((response) => {
         localStorage.setItem("token", response.data.token);
-        window.dispatchEvent(new Event("tokenChanged"));
         window.location.href = "/";
       })
       .catch((error) => {

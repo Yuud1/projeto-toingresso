@@ -322,6 +322,10 @@ export default function MyEvents() {
       // Retorna o array de subscribers
       return event.participants.length;
     }, 0),
+    subscribersCount: getFilteredEventsForDashboard().reduce((total, event) => {
+      // Conta o total de subscribers do evento
+      return total + (event.subscribers?.length || 0);
+    }, 0),
   };
 
   const handleStopEvent = async (eventId: string) => {

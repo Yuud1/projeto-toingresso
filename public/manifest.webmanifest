@@ -1,14 +1,110 @@
 {
-  "name": "TOingresso",
-  "short_name": "TOingresso",
-  "description": "Compre ingressos com facilidade e segurança usando o TOingresso.",
+  "name": "ToIngresso",
+  "short_name": "ToIngresso",
+  "description": "Aplicativo para cadastro, geração e envio de ingressos personalizados para eventos.",
   "start_url": "/",
+  "scope": "/",
   "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone", "browser"],
   "background_color": "#ffffff",
-  "theme_color": "#004494",
+  "theme_color": "#00498d",
   "orientation": "portrait",
   "lang": "pt-BR",
-  "scope": "/",
+  "dir": "ltr",
+  "shortcuts": [
+    {
+      "name": "Meus Ingressos",
+      "short_name": "Ingressos",
+      "description": "Veja seus ingressos rapidamente",
+      "url": "/meus-ingressos",
+      "icons": [
+        {
+          "src": "icons/android/android-launchericon-96-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Novo Evento",
+      "short_name": "Evento",
+      "description": "Criar novo evento",
+      "url": "/criar-evento",
+      "icons": [
+        {
+          "src": "icons/android/android-launchericon-96-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+
+  "categories": ["productivity", "event", "utilities"],
+
+  "file_handlers": [
+    {
+      "action": "/open-ticket",
+      "accept": {
+        "application/pdf": [".pdf"]
+      },
+      "icons": [
+        {
+          "src": "icons/android/android-launchericon-96-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+
+  "protocol_handlers": [
+    {
+      "protocol": "web+toingresso",
+      "url": "/protocol-handler?url=%s"
+    }
+  ],
+
+  "handle_links": {
+    "urls": ["https://toingresso.com/*"],
+    "exclude_paths": ["/api/*"]
+  },
+
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+
+  "edge_side_panel": {
+    "preferred_width": 300
+  },
+
+  "scope_extensions": [
+    {
+      "origin": "https://api.toingresso.com"
+    }
+  ],
+
+  "iarc_rating_id": "e12345678-90ab-cdef-ghij-klmnopqrstuv",
+
+  "prefer_related_applications": false,
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.toingresso.app",
+      "id": "com.toingresso.app"
+    }
+  ],
   "icons": [
     {
       "src": "icons/windows11/SmallTile.scale-100.png",
@@ -331,27 +427,27 @@
       "sizes": "256x256"
     },
     {
-      "src": "icons/android/icons/android-launchericon-512-512.png",
+      "src": "icons/android/android-launchericon-512-512.png",
       "sizes": "512x512"
     },
     {
-      "src": "icons/android/icons/android-launchericon-192-192.png",
+      "src": "icons/android/android-launchericon-192-192.png",
       "sizes": "192x192"
     },
     {
-      "src": "icons/android/icons/android-launchericon-144-144.png",
+      "src": "icons/android/android-launchericon-144-144.png",
       "sizes": "144x144"
     },
     {
-      "src": "icons/android/icons/android-launchericon-96-96.png",
+      "src": "icons/android/android-launchericon-96-96.png",
       "sizes": "96x96"
     },
     {
-      "src": "icons/android/icons/android-launchericon-72-72.png",
+      "src": "icons/android/android-launchericon-72-72.png",
       "sizes": "72x72"
     },
     {
-      "src": "icons/android/icons/android-launchericon-48-48.png",
+      "src": "icons/android/android-launchericon-48-48.png",
       "sizes": "48x48"
     },
     {
