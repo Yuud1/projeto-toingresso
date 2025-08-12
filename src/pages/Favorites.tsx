@@ -133,10 +133,10 @@ export default function Favorites() {
 
                           {/* Organizador */}
                           <div className="pt-3 border-t border-gray-100 flex">
-                            <div className="text-xs text-gray-500 flex items-center justify-center">
+                            <div className="text-xs text-gray-500 flex items-center w-full min-w-0">
                               {event.organizer ? (
-                                <span className="font-medium text-gray-700 flex justify-center items-center gap-3">
-                                  <Avatar className="w-9 h-9">
+                                <span className="font-medium text-gray-700 flex items-center gap-3 w-full min-w-0">
+                                  <Avatar className="w-9 h-9 flex-shrink-0">
                                     <AvatarImage
                                       src={event.organizer.avatar}
                                       alt={event.organizer.name}
@@ -145,7 +145,7 @@ export default function Favorites() {
                                       {getInitials(event.organizer?.name)}
                                     </AvatarFallback>
                                   </Avatar>
-                                  {truncateTextResponsive(event.organizer.name)}
+                                  <span className="truncate text-sm flex-1">{truncateTextTo30Chars(event.organizer.name)}</span>
                                 </span>
                               ) : (
                                 <span className="italic text-gray-400">

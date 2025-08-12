@@ -79,14 +79,14 @@ const EventCard: React.FC<EventCardProps> = ({ event, className = "" }) => {
 
           {/* Organizador */}
           <div className="pt-2 border-t border-gray-100 flex mt-auto">
-            <div className="text-xs text-gray-500 flex items-center justify-center">
+            <div className="text-xs text-gray-500 flex items-center w-full min-w-0">
               {event.organizer ? (
-                <span className="font-medium text-gray-700 flex justify-center items-center gap-2">
-                  <Avatar className="w-5 h-5">
+                <span className="font-medium text-gray-700 flex items-center gap-2 w-full min-w-0">
+                  <Avatar className="w-5 h-5 flex-shrink-0">
                     <AvatarImage src={event.organizer.avatar} alt={event.organizer.name} />
                     <AvatarFallback className="text-xs">{getInitials(event.organizer?.name)}</AvatarFallback>
                   </Avatar>
-                  <span className="truncate">{truncateTextResponsive(event.organizer.name)}</span>
+                  <span className="truncate text-xs flex-1">{truncateTextTo30Chars(event.organizer.name)}</span>
                 </span>
               ) : (
                 <span className="italic text-gray-400 text-xs">

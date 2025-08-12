@@ -105,10 +105,10 @@ const EventGrid = () => {
   
   return (
     <section className="w-full py-8 lg:py-12 bg-gradient-to-br from-slate-100 to-slate-200">
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
-        {/* Main Event Card */}
-        <div className="m-4 sm:m-6 lg:m-10">
-          <div className="flex flex-col lg:flex-row bg-white rounded-xl shadow-2xl shadow-black/10">
+             <div className="max-w-7xl mx-auto px-6 sm:px-4 lg:px-8">
+                 {/* Main Event Card */}
+         <div className="mt-12">
+           <div className="flex flex-col lg:flex-row bg-white rounded-xl shadow-2xl shadow-black/10">
             {/* Image Section */}
             <div className="relative lg:w-1/2">
               <div className="relative overflow-hidden rounded-t-xl lg:rounded-l-xl lg:rounded-t-none h-48 sm:h-60 lg:h-full">
@@ -255,8 +255,8 @@ const EventGrid = () => {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
-        <div className="flex justify-center gap-4 mb-8 lg:hidden">
+                 {/* Mobile Navigation */}
+         <div className="flex justify-center gap-4 mb-8 mt-8 lg:hidden">
           <button
             onClick={prevSlide}
             disabled={isTransitioning}
@@ -277,7 +277,7 @@ const EventGrid = () => {
         </div>
 
         {/* Indicators */}
-        <div className="flex justify-center gap-2">
+        <div className="flex justify-center gap-2 mt-8">
           {events.map((_, index) => (
             <button
               key={index}

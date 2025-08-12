@@ -35,8 +35,8 @@ const AdBanner: React.FC = () => {
   return (
     <div className="w-full relative overflow-hidden">
       {/* Background decorative elements */}
-      <div className="max-w-7xl mx-auto pt-10 px-0 sm:px-6 lg:px-8 w-full h-fit relative z-10">
-        <div className="mb-10 p-0 md:p-10">
+      <div className="max-w-7xl mx-auto pt-10 px-0 sm:px-4 lg:px-8 w-full h-fit relative z-10">
+        <div className="mb-20">
           <div className="w-full flex flex-row justify-between items-center mb-10">
           </div>
 

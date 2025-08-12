@@ -42,7 +42,7 @@ const EventList = ({
         <a
           key={event._id}
           href={`/evento/${event._id}`}
-          className={`group block rounded-lg overflow-hidden border border-gray-200 hover:shadow-md transition-shadow ${
+          className={`group block rounded-lg overflow-hidden border border-gray-200 hover:shadow-md transition-shadow cursor-pointer ${
             isFinished ? "bg-gray-50" : ""
           }`}
         >
