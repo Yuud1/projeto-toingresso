@@ -96,14 +96,14 @@ export default function Favorites() {
 
                         {/* Conteúdo */}
                         <div className="p-4 sm:p-5">
-                          <h3 className="font-bold text-lg text-gray-900 truncate">
+                          <h3 className="font-bold text-lg text-gray-900 truncate min-w-0">
                             {truncateTextTo30Chars(event.title)}
                           </h3>
 
                           {/* Localização */}
                           <div className="flex items-start gap-2 mb-3">
-                            <div className="text-sm text-gray-600">
-                              <p className="font-medium">
+                            <div className="text-sm text-gray-600 w-full min-w-0">
+                              <p className="font-medium truncate">
                                 {truncateTextResponsive(
                                   `${event.venueName} | ${event.state}`
                                 )}
@@ -113,11 +113,11 @@ export default function Favorites() {
 
                           {/* Data e Hora */}
                           <div className="flex items-center mb-3 justify-between gap-2">
-                            <div className="flex items-center gap-1 text-gray-600">
+                            <div className="flex items-center gap-1 text-gray-600 flex-shrink-0">
                               <Calendar className="w-4 h-4" />
                               <span className="text-sm">{startDate}</span>
                             </div>
-                            <div className="flex items-center gap-1 text-gray-600">
+                            <div className="flex items-center gap-1 text-gray-600 flex-shrink-0">
                               <Clock className="w-4 h-4" />
                               <span className="text-sm">{startTime}</span>
                             </div>

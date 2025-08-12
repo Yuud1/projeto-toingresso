@@ -21,6 +21,7 @@ import {
   ArrowDown,
   ChevronRight,
   CheckCircle,
+  AlertTriangle,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -41,7 +42,7 @@ import Subscribed from "@/pages/Subscribed";
 import { useUser } from "@/contexts/useContext";
 import type EventInterface from "@/interfaces/EventInterface";
 import AttractionModal from "@/components/AttractionModal";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/contexts/ToastContext";
 import ToastContainer from "@/components/ui/toast-container";
 
 // Tipos para resolver problemas de any
@@ -343,6 +344,18 @@ const EventDetail = () => {
           >
             <Share2 className="h-6 w-6" />
           </Button>
+
+                     <Button
+             variant="ghost"
+             size="icon"
+             className="cursor-pointer rounded-xl h-14 w-14 bg-white/90 hover:bg-white border border-white/50 text-gray-700 hover:text-red-500 transition-all duration-300 hover:scale-110 shadow-lg"
+             onClick={() => {
+               // TODO: Implementar funcionalidade de denúncia
+               alert("Funcionalidade de denúncia será implementada em breve!");
+             }}
+           >
+             <AlertTriangle className="h-6 w-6" />
+           </Button>
         </div>
 
             {/* Organizer */}

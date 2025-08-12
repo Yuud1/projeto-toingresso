@@ -42,7 +42,7 @@ import {
 import DeleteModal from "@/components/DeleteModal";
 import GenericModal from "@/components/GenericModal";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/contexts/ToastContext";
 import CertificateTutorial from "./CertificateTutorial";
 import CertificateGenerator from "./CertificateGenerator";
 import EventScanner from "./EventScanner";
@@ -1072,14 +1072,14 @@ export default function MyEvents() {
 
                         {/* Conteúdo */}
                         <div className="p-4 sm:p-5">
-                          <h3 className="font-bold text-lg text-gray-900 line-clamp-2">
+                          <h3 className="font-bold text-lg text-gray-900 line-clamp-2 min-w-0">
                             {truncateTextTo30Chars(event.title)}
                           </h3>
 
                           {/* Localização */}
                           <div className="flex items-start gap-2 mb-3">
-                            <div className="text-sm text-gray-600">
-                              <p className="font-medium">
+                            <div className="text-sm text-gray-600 w-full min-w-0">
+                              <p className="font-medium truncate">
                                 {truncateTextResponsive(
                                   `${event.venueName} | ${event.state}`
                                 )}
@@ -1089,11 +1089,11 @@ export default function MyEvents() {
 
                           {/* Data e Hora */}
                           <div className="flex items-center mb-3 justify-between gap-2">
-                            <div className="flex items-center gap-1 text-gray-600">
+                            <div className="flex items-center gap-1 text-gray-600 flex-shrink-0">
                               <Calendar className="w-4 h-4" />
                               <span className="text-sm">{startDate}</span>
                             </div>
-                            <div className="flex items-center gap-1 text-gray-600">
+                            <div className="flex items-center gap-1 text-gray-600 flex-shrink-0">
                               <Clock className="w-4 h-4" />
                               <span className="text-sm">{startTime}</span>
                             </div>
@@ -1109,7 +1109,7 @@ export default function MyEvents() {
 
                           {/* Botões de Ação */}
                           <div className="flex justify-between items-center mt-auto pt-4 border-t border-gray-100">
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 flex-shrink-0">
                               <Button
                                 onClick={() => handleView(event._id)}
                                 variant="outline"
@@ -1136,7 +1136,7 @@ export default function MyEvents() {
                               <Button
                                 onClick={() => handleStopEvent(event._id)}
                                 variant="outline"
-                                className="text-white border-red-600 bg-red-600 hover:bg-red-700 hover:border-red-700 hover:text-white transition-colors cursor-pointer"
+                                className="text-white border-red-600 bg-red-600 hover:bg-red-700 hover:border-red-700 hover:text-white transition-colors cursor-pointer flex-shrink-0"
                               >
                                 <Trash2 size={16} className="mr-2" />
                                 Finalizar

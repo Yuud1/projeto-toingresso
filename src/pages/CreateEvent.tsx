@@ -41,7 +41,7 @@ import Header from "@/components/Header";
 import { FaFootballBall, FaQuestionCircle } from "react-icons/fa";
 import axios from "axios";
 import Footer from "@/components/Footer";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/contexts/ToastContext";
 
 // Tipos para resolver problemas de any
 interface AddressComponent {
@@ -352,6 +352,7 @@ export default function CreateEvent() {
         if (!formData.title.trim())
           newErrors.title = "Nome do evento é obrigatório";
         if (!formData.category) newErrors.category = "Categoria é obrigatória";
+        if (!formData.image) newErrors.image = "Imagem do evento é obrigatória";
         break;
       case 2:
         if (formData.dates.length === 0) {
@@ -366,6 +367,15 @@ export default function CreateEvent() {
               newErrors[`endDate-${index}`] = "Data de término é obrigatória";
             if (!date.endTime)
               newErrors[`endTime-${index}`] = "Hora de término é obrigatória";
+            
+            // Validar se a data de término não é menor que a data de início
+            if (date.startDate && date.endDate) {
+              const startDate = new Date(date.startDate);
+              const endDate = new Date(date.endDate);
+              if (endDate < startDate) {
+                newErrors[`endDate-${index}`] = "A data de término não pode ser menor que a data de início";
+              }
+            }
           });
         }
         break;
@@ -409,6 +419,74 @@ export default function CreateEvent() {
     return Object.keys(newErrors).length === 0;
   }, [currentStep, formData, showError]);
 
+  // Função para verificar se o botão deve estar desabilitado
+  const isNextButtonDisabled = useCallback(() => {
+    const newErrors: Record<string, string> = {};
+
+    switch (currentStep) {
+      case 1:
+        if (!formData.title.trim())
+          newErrors.title = "Nome do evento é obrigatório";
+        if (!formData.category) newErrors.category = "Categoria é obrigatória";
+        if (!formData.image) newErrors.image = "Imagem do evento é obrigatória";
+        break;
+      case 2:
+        if (formData.dates.length === 0) {
+          newErrors.dates = "Pelo menos um período é obrigatório";
+        } else {
+          formData.dates.forEach((date, index) => {
+            if (!date.startDate)
+              newErrors[`startDate-${index}`] = "Data de início é obrigatória";
+            if (!date.startTime)
+              newErrors[`startTime-${index}`] = "Hora de início é obrigatória";
+            if (!date.endDate)
+              newErrors[`endDate-${index}`] = "Data de término é obrigatória";
+            if (!date.endTime)
+              newErrors[`endTime-${index}`] = "Hora de término é obrigatória";
+            
+            // Validar se a data de término não é menor que a data de início
+            if (date.startDate && date.endDate) {
+              const startDate = new Date(date.startDate);
+              const endDate = new Date(date.endDate);
+              if (endDate < startDate) {
+                newErrors[`endDate-${index}`] = "A data de término não pode ser menor que a data de início";
+              }
+            }
+          });
+        }
+        break;
+      case 3:
+        if (!formData.description.trim())
+          newErrors.description = "Descrição é obrigatória";
+        if (!formData.policy.trim())
+          newErrors.policy = "Política do evento é obrigatória";
+        break;
+      case 4:
+        if (!formData.venueName.trim())
+          newErrors.venueName = "Nome do local é obrigatório";
+        if (!formData.zipCode || formData.zipCode.length < 8)
+          newErrors.zipCode = "CEP inválido";
+        if (!formData.street.trim()) newErrors.street = "Rua é obrigatória";
+        if (!formData.number.trim()) newErrors.number = "Número é obrigatório";
+        if (!formData.neighborhood.trim())
+          newErrors.neighborhood = "Bairro é obrigatório";
+        if (!formData.city.trim()) newErrors.city = "Cidade é obrigatória";
+        if (!formData.state) newErrors.state = "Estado é obrigatório";
+        break;
+      case 5:
+        if (formData.batches.length === 0 && formData.isFree === false) {
+          newErrors.batches = "Pelo menos um lote de ingresso é obrigatório";
+        }
+        if (formData.isFree && formData.customFields.length === 0) {
+          newErrors.customFields =
+            "Você deve adicionar pelo menos um campo de formulário para eventos gratuitos.";
+        }
+        break;
+    }
+    
+    return Object.keys(newErrors).length > 0;
+  }, [currentStep, formData]);
+
   const formatCEP = useCallback((cep: string) => {
     if (!cep) return "";
     cep = cep.replace(/\D/g, "");
@@ -433,19 +511,200 @@ export default function CreateEvent() {
   );
 
   const nextStep = useCallback(() => {
+    if (isNextButtonDisabled()) {
+      // Se o botão está desabilitado, mostrar toast com detalhes específicos
+      const newErrors: Record<string, string> = {};
+      
+      switch (currentStep) {
+        case 1:
+          if (!formData.title.trim())
+            newErrors.title = "Nome do evento é obrigatório";
+          if (!formData.category) newErrors.category = "Categoria é obrigatória";
+          if (!formData.image) newErrors.image = "Imagem do evento é obrigatória";
+          break;
+        case 2:
+          if (formData.dates.length === 0) {
+            newErrors.dates = "Pelo menos um período é obrigatório";
+          } else {
+            formData.dates.forEach((date, index) => {
+              if (!date.startDate)
+                newErrors[`startDate-${index}`] = "Data de início é obrigatória";
+              if (!date.startTime)
+                newErrors[`startTime-${index}`] = "Hora de início é obrigatória";
+              if (!date.endDate)
+                newErrors[`endDate-${index}`] = "Data de término é obrigatória";
+              if (!date.endTime)
+                newErrors[`endTime-${index}`] = "Hora de término é obrigatória";
+              
+              // Validar se a data de término não é menor que a data de início
+              if (date.startDate && date.endDate) {
+                const startDate = new Date(date.startDate);
+                const endDate = new Date(date.endDate);
+                if (endDate < startDate) {
+                  newErrors[`endDate-${index}`] = "A data de término não pode ser menor que a data de início";
+                }
+              }
+            });
+          }
+          break;
+        case 3:
+          if (!formData.description.trim())
+            newErrors.description = "Descrição é obrigatória";
+          if (!formData.policy.trim())
+            newErrors.policy = "Política do evento é obrigatória";
+          break;
+        case 4:
+          if (!formData.venueName.trim())
+            newErrors.venueName = "Nome do local é obrigatório";
+          if (!formData.zipCode || formData.zipCode.length < 8)
+            newErrors.zipCode = "CEP inválido";
+          if (!formData.street.trim()) newErrors.street = "Rua é obrigatória";
+          if (!formData.number.trim()) newErrors.number = "Número é obrigatório";
+          if (!formData.neighborhood.trim())
+            newErrors.neighborhood = "Bairro é obrigatório";
+          if (!formData.city.trim()) newErrors.city = "Cidade é obrigatória";
+          if (!formData.state) newErrors.state = "Estado é obrigatório";
+          break;
+        case 5:
+          if (formData.batches.length === 0 && formData.isFree === false) {
+            newErrors.batches = "Pelo menos um lote de ingresso é obrigatório";
+          }
+          if (formData.isFree && formData.customFields.length === 0) {
+            newErrors.customFields =
+              "Você deve adicionar pelo menos um campo de formulário para eventos gratuitos.";
+          }
+          break;
+      }
+      
+      const errorMessages = Object.values(newErrors).join(", ");
+      showError("Complete os campos obrigatórios", errorMessages);
+      return;
+    }
+    
     if (validateCurrentStep()) {
       setCurrentStep((prev) => Math.min(prev + 1, 6));
     }
-  }, [validateCurrentStep]);
+  }, [validateCurrentStep, isNextButtonDisabled, currentStep, formData, showError]);
 
   const prevStep = useCallback(() => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
     setFormData((prev) => ({ ...prev, acceptedTerms: false }));
   }, []);
 
+  // Função para verificar se um passo específico está válido
+  const isStepValid = useCallback((stepNumber: number) => {
+    switch (stepNumber) {
+      case 1:
+        return formData.title.trim() && formData.category && formData.image;
+      case 2:
+        if (formData.dates.length === 0) return false;
+        return formData.dates.every(date => {
+          const hasRequiredFields = date.startDate && date.startTime && date.endDate && date.endTime;
+          if (!hasRequiredFields) return false;
+          
+          // Validar se a data de término não é menor que a data de início
+          if (date.startDate && date.endDate) {
+            const startDate = new Date(date.startDate);
+            const endDate = new Date(date.endDate);
+            if (endDate < startDate) return false;
+          }
+          
+          return true;
+        });
+      case 3:
+        return formData.description.trim() && formData.policy.trim();
+      case 4:
+        return formData.venueName.trim() && 
+               formData.zipCode && formData.zipCode.length >= 8 &&
+               formData.street.trim() && formData.number.trim() &&
+               formData.neighborhood.trim() && formData.city.trim() && formData.state;
+      case 5:
+        if (formData.isFree) {
+          return formData.customFields.length > 0;
+        } else {
+          return formData.batches.length > 0;
+        }
+      default:
+        return true;
+    }
+  }, [formData]);
+
+  // Função para validar todos os passos
+  const validateAllSteps = useCallback(() => {
+    const allErrors: Record<string, string> = {};
+    
+    // Validar passo 1
+    if (!formData.title.trim())
+      allErrors.title = "Nome do evento é obrigatório";
+    if (!formData.category) allErrors.category = "Categoria é obrigatória";
+    if (!formData.image) allErrors.image = "Imagem do evento é obrigatória";
+    
+    // Validar passo 2
+    if (formData.dates.length === 0) {
+      allErrors.dates = "Pelo menos um período é obrigatório";
+    } else {
+      formData.dates.forEach((date, index) => {
+        if (!date.startDate)
+          allErrors[`startDate-${index}`] = "Data de início é obrigatória";
+        if (!date.startTime)
+          allErrors[`startTime-${index}`] = "Hora de início é obrigatória";
+        if (!date.endDate)
+          allErrors[`endDate-${index}`] = "Data de término é obrigatória";
+        if (!date.endTime)
+          allErrors[`endTime-${index}`] = "Hora de término é obrigatória";
+        
+        // Validar se a data de término não é menor que a data de início
+        if (date.startDate && date.endDate) {
+          const startDate = new Date(date.startDate);
+          const endDate = new Date(date.endDate);
+          if (endDate < startDate) {
+            allErrors[`endDate-${index}`] = "A data de término não pode ser menor que a data de início";
+          }
+        }
+      });
+    }
+    
+    // Validar passo 3
+    if (!formData.description.trim())
+      allErrors.description = "Descrição é obrigatória";
+    if (!formData.policy.trim())
+      allErrors.policy = "Política do evento é obrigatória";
+    
+    // Validar passo 4
+    if (!formData.venueName.trim())
+      allErrors.venueName = "Nome do local é obrigatório";
+    if (!formData.zipCode || formData.zipCode.length < 8)
+      allErrors.zipCode = "CEP inválido";
+    if (!formData.street.trim()) allErrors.street = "Rua é obrigatória";
+    if (!formData.number.trim()) allErrors.number = "Número é obrigatório";
+    if (!formData.neighborhood.trim())
+      allErrors.neighborhood = "Bairro é obrigatório";
+    if (!formData.city.trim()) allErrors.city = "Cidade é obrigatória";
+    if (!formData.state) allErrors.state = "Estado é obrigatório";
+    
+    // Validar passo 5
+    if (formData.batches.length === 0 && formData.isFree === false) {
+      allErrors.batches = "Pelo menos um lote de ingresso é obrigatório";
+    }
+    if (formData.isFree && formData.customFields.length === 0) {
+      allErrors.customFields =
+        "Você deve adicionar pelo menos um campo de formulário para eventos gratuitos.";
+    }
+    
+    return allErrors;
+  }, [formData]);
+
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
+
+      // Validar todos os campos antes de submeter
+      const allErrors = validateAllSteps();
+      if (Object.keys(allErrors).length > 0) {
+        const errorMessages = Object.values(allErrors).join(", ");
+        showError("Campos obrigatórios não preenchidos", errorMessages);
+        return;
+      }
 
       if (!formData.acceptedTerms) {
         showError("Termos não aceitos", "Você precisa aceitar os termos e condições para continuar.");
@@ -553,6 +812,8 @@ export default function CreateEvent() {
             const Icon = step.icon;
             const isActive = stepNumber === currentStep;
             const isCompleted = stepNumber < currentStep;
+            const isValid = isStepValid(stepNumber);
+            const hasError = !isValid && stepNumber <= currentStep;
 
             return (
               <div
@@ -565,28 +826,44 @@ export default function CreateEvent() {
                   w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300
                   ${
                     isActive
-                      ? "bg-gray-200 text-gray-500 shadow-lg scale-110"
+                      ? hasError
+                        ? "bg-red-500 text-white shadow-lg scale-110"
+                        : "bg-blue-500 text-white shadow-lg scale-110"
                       : isCompleted
-                      ? "bg-green-500 text-white"
+                      ? isValid
+                        ? "bg-green-500 text-white"
+                        : "bg-red-500 text-white"
+                      : hasError
+                      ? "bg-red-100 text-red-600 border-2 border-red-300"
                       : "bg-gray-200 text-gray-500"
                   }
                 `}
                 >
                   {isCompleted ? (
-                    <CheckCircle className="w-6 h-6" />
+                    isValid ? (
+                      <CheckCircle className="w-6 h-6" />
+                    ) : (
+                      <span className="text-white font-bold">!</span>
+                    )
                   ) : (
                     <Icon
                       className="w-6 h-6"
-                      color={isActive ? "white" : "white"}
+                      color={isActive ? "white" : hasError ? "#dc2626" : "white"}
                     />
                   )}
                 </div>
                 <span
                   className={`text-sm font-medium ${
                     isActive
-                      ? "text-gray-500"
+                      ? hasError
+                        ? "text-red-600"
+                        : "text-blue-600"
                       : isCompleted
-                      ? "text-green-500"
+                      ? isValid
+                        ? "text-green-500"
+                        : "text-red-500"
+                      : hasError
+                      ? "text-red-500"
                       : "text-gray-500"
                   }`}
                 >
@@ -619,9 +896,16 @@ export default function CreateEvent() {
         <Button
           type="button"
           onClick={nextStep}
-          className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+          disabled={isNextButtonDisabled()}
+          className={`flex items-center space-x-2 ${
+            isNextButtonDisabled()
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+          }`}
         >
-          <span>Próximo →</span>
+          <span>
+            {isNextButtonDisabled() ? "Complete os campos →" : "Próximo →"}
+          </span>
         </Button>
       ) : (
         <Button

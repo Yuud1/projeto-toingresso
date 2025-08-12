@@ -303,7 +303,7 @@ export default function MyTickets() {
               )}
             </div>
           ) : (
-                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 auto-rows-fr">
+                                                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {filteredTickets.map((ticket) => {
                 const event = ticket.Event;
                 console.log(event);
@@ -323,11 +323,11 @@ export default function MyTickets() {
                   : "Hora não informada";
 
                                  return (
-                   <div
-                     key={ticket._id}
-                     className="w-full h-full bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer group mb-10 flex flex-col"
-                     onClick={() => clickedOnTicket(ticket._id)}
-                   >
+                                       <div
+                      key={ticket._id}
+                      className="w-full h-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-pointer group mb-10"
+                      onClick={() => clickedOnTicket(ticket._id)}
+                    >
                     {/* Imagem */}
                     <div className="relative" style={{ aspectRatio: "16/9" }}>
                       <img
@@ -348,16 +348,16 @@ export default function MyTickets() {
                       </div>
                     </div>
 
-                                         {/* Conteúdo */}
-                     <div className="p-4 sm:p-5 flex flex-col flex-1">
-                      <h3 className="font-bold text-lg text-gray-900 line-clamp-2 group-hover:text-[#02488C] transition-colors">
+                                                               {/* Conteúdo */}
+                      <div className="p-4 sm:p-5">
+                      <h3 className="font-bold text-lg text-gray-900 truncate group-hover:text-[#02488C] transition-colors min-w-0">
                         {truncateTextResponsive(ticket.eventTitle)}
                       </h3>
 
                       {/* Localização */}
                       <div className="flex items-start gap-2 mb-3">
-                        <div className="text-sm text-gray-600">
-                          <p className="font-medium">
+                        <div className="text-sm text-gray-600 w-full min-w-0">
+                          <p className="font-medium truncate">
                             {truncateTextResponsive(
                               `${event?.venueName || "Local não informado"} | ${
                                 event?.state || ""
@@ -369,11 +369,11 @@ export default function MyTickets() {
 
                       {/* Data e Hora */}
                       <div className="flex items-center mb-3 justify-between gap-2">
-                        <div className="flex items-center gap-1 text-gray-600">
+                        <div className="flex items-center gap-1 text-gray-600 flex-shrink-0">
                           <Calendar className="w-4 h-4" />
                           <span className="text-sm">{startDate}</span>
                         </div>
-                        <div className="flex items-center gap-1 text-gray-600">
+                        <div className="flex items-center gap-1 text-gray-600 flex-shrink-0">
                           <Clock className="w-4 h-4" />
                           <span className="text-sm">{startTime}</span>
                         </div>
@@ -391,8 +391,8 @@ export default function MyTickets() {
 
                       {/* Email do proprietário */}
                       <div className="pt-3 border-t border-gray-100 flex mb-4">
-                        <div className="text-xs text-gray-500 flex items-center justify-center">
-                          <span className="font-medium text-gray-700">
+                        <div className="text-xs text-gray-500 flex items-center w-full min-w-0">
+                          <span className="font-medium text-gray-700 truncate flex-1">
                             {ticket.Owner.email}
                           </span>
                         </div>
@@ -421,11 +421,11 @@ export default function MyTickets() {
                       )}
 
                                              {/* Botões de Ação */}
-                       <div className="flex gap-2 mt-auto pt-4 border-t border-gray-100 flex-shrink-0">
+                       <div className="flex gap-2 mt-auto pt-4">
                         <Button
                           onClick={(e) => handleViewTicket(ticket._id, e)}
                           variant="outline"
-                          className="flex-1 text-white border-[#02488C] bg-[#02488C] hover:bg-[#02488C]/90 hover:border-[#02488C]/90 hover:text-white transition-colors cursor-pointer"
+                          className="flex-1 text-white border-[#02488C] bg-[#02488C] hover:bg-[#02488C]/90 hover:border-[#02488C]/90 hover:text-white transition-colors cursor-pointer flex-shrink-0"
                         >
                           <Eye size={16} className="mr-2" />
                           Visualizar
@@ -438,7 +438,7 @@ export default function MyTickets() {
                             variant="outline"
                             disabled={ticket.used}
                             className={cn(
-                              "flex-1 text-white border-[#FEC800] bg-[#FEC800] transition-colors",
+                              "flex-1 text-white border-[#FEC800] bg-[#FEC800] transition-colors flex-shrink-0",
                               ticket.used
                                 ? "opacity-50 cursor-not-allowed"
                                 : "hover:bg-[#e0b400] hover:border-[#e0b400] hover:text-white cursor-pointer"
@@ -458,7 +458,7 @@ export default function MyTickets() {
                                 handleCancelSubscription(ticket._id, e)
                               }
                               variant="outline"
-                              className="flex-1 text-white border-red-500 bg-red-500 hover:bg-red-600 hover:border-red-600 hover:text-white transition-colors cursor-pointer"
+                              className="flex-1 text-white border-red-500 bg-red-500 hover:bg-red-600 hover:border-red-600 hover:text-white transition-colors cursor-pointer flex-shrink-0"
                               disabled={deleteLoading}
                             >
                               {deleteLoading ? (

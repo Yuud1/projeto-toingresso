@@ -9,7 +9,7 @@ import CreateEventCTA from "../components/CreateEventCTA";
 import ToastContainer from "@/components/ui/toast-container";
 import { ArrowDown } from "lucide-react";
 import { useUser } from "@/contexts/useContext";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/contexts/ToastContext";
 
 export default function Home() {
   const { user, isLoading } = useUser();

@@ -17,7 +17,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/contexts/ToastContext";
 import { Loader2, Award, Upload, Calendar } from "lucide-react";
 import axios from "axios";
 import { useUser } from "@/contexts/useContext";

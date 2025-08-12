@@ -35,16 +35,16 @@ export default function CertificateTutorial({ onProceed }: CertificateTutorialPr
                 <li>Escolha um tamanho de papel adequado (geralmente A4)</li>
               </ol>
             </div>
-            <Card className="p-4 bg-gray-50">
-              <img
-                src="/placeholder.svg?height=200&width=300"
-                alt="Configuração da página"
-                className="w-full h-auto border border-gray-300"
-              />
-              <p className="text-sm text-center mt-2 text-gray-600">
-                Exemplo: Configuração da página em orientação paisagem
-              </p>
-            </Card>
+                         <Card className="p-4 bg-gray-50">
+               <img
+                 src="/configuração da pagina.png"
+                 alt="Configuração da página"
+                 className="w-3/4 h-auto border border-gray-300 mx-auto"
+               />
+               <p className="text-sm text-center mt-2 text-gray-600">
+                 Exemplo: Configuração da página em orientação paisagem
+               </p>
+             </Card>
           </div>
         </section>
 
@@ -114,13 +114,13 @@ export default function CertificateTutorial({ onProceed }: CertificateTutorialPr
                 </div>
                 <div className="grid grid-cols-1 gap-6">
                   <div className="space-y-2">
-                    <div className="h-16 border border-dashed border-gray-400 flex items-center justify-center">
-                      <img
-                        src="/placeholder.svg?height=50&width=120"
-                        alt="Exemplo de assinatura"
-                        className="h-10 opacity-70"
-                      />
-                    </div>
+                                         <div className="h-20 border border-dashed border-gray-400 flex items-center justify-center">
+                       <img
+                         src="/assinatura.png"
+                         alt="Exemplo de assinatura"
+                         className="h-16 opacity-70"
+                       />
+                     </div>
                     <div className="border-t border-gray-400 pt-1 text-center">
                       <p className="text-sm">Dr. João Silva</p>
                       <p className="text-xs text-gray-500">Diretor</p>
@@ -186,24 +186,14 @@ export default function CertificateTutorial({ onProceed }: CertificateTutorialPr
                 <li>Clique em "Salvar" ou "Exportar"</li>
               </ol>
             </div>
-            <Card className="p-4 bg-gray-50 flex flex-col justify-center">
-              <div className="border border-gray-300 p-3 rounded bg-white">
-                <div className="flex items-center border-b border-gray-200 pb-2 mb-2">
-                  <div className="w-4 h-4 rounded-full bg-red-500 mr-2"></div>
-                  <div className="w-4 h-4 rounded-full bg-yellow-500 mr-2"></div>
-                  <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                  <div className="ml-4 text-sm text-gray-600">Salvar como</div>
-                </div>
-                <div className="space-y-2 text-sm">
-                  <p>Nome: modelo_certificado</p>
-                  <p>Formato: PDF (.pdf)</p>
-                  <div className="flex justify-end mt-4">
-                    <div className="bg-blue-500 text-white px-3 py-1 rounded text-xs">Salvar</div>
-                  </div>
-                </div>
-              </div>
-              <p className="text-sm text-center mt-2 text-gray-600">Exemplo: Diálogo de salvar como PDF</p>
-            </Card>
+                         <Card className="p-4 bg-gray-50 flex flex-col justify-center">
+               <img
+                 src="/salvarPdf.png"
+                 alt="Diálogo de salvar como PDF"
+                 className="w-full h-auto border border-gray-300"
+               />
+               <p className="text-sm text-center mt-2 text-gray-600">Exemplo: Diálogo de salvar como PDF</p>
+             </Card>
           </div>
         </section>
 

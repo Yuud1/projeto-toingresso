@@ -1,6 +1,8 @@
 import { lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import EditEvent from "./pages/EditEvent";
+import { Toaster } from "@/components/ui/toaster";
+import { ToastProvider } from "@/contexts/ToastContext";
 
 const Login = lazy(() => import("@/pages/Login"));
 const Register = lazy(() => import("@/pages/Register"));
@@ -33,38 +35,41 @@ const AdminLogin = lazy(() => import("@/pages/admin/Login"));
 function App() {
   return (
     <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPasswordForm />} />
-          <Route path="/confirm-email" element={<EmailConfirmation />} />
-          <Route path="/email-confirmed" element={<EmailConfirmed />} />
-          <Route path="/evento/:id" element={<EventDetail />} />
-          <Route path="/question-help" element={<QuestionHelp />} />
+      <ToastProvider>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPasswordForm />} />
+            <Route path="/confirm-email" element={<EmailConfirmation />} />
+            <Route path="/email-confirmed" element={<EmailConfirmed />} />
+            <Route path="/evento/:id" element={<EventDetail />} />
+            <Route path="/question-help" element={<QuestionHelp />} />
 
-          <Route path="/" element={<Home />} />
-          <Route path="/perfil" element={<Profile />} />
-          <Route path="/organizer/:id" element={<Organizer />} />
-          <Route path="/criar-evento" element={<CreateEvent />} />
-          <Route path="/editar-evento/:id" element={<EditEvent />} />
-          <Route path="/meus-ingressos" element={<MyTickets />} />
-          <Route path="/favoritos" element={<Favorites />} />
-          <Route path="/meus-eventos" element={<MyEvents />} />
-          <Route path="/event-arrivals/:id" element={<EventArrivals />} />
-          <Route path="/event-subscribers/:id" element={<EventSubscribers />} />
-          <Route path="/todos-eventos" element={<TodosEventos />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/perfil" element={<Profile />} />
+            <Route path="/organizer/:id" element={<Organizer />} />
+            <Route path="/criar-evento" element={<CreateEvent />} />
+            <Route path="/editar-evento/:id" element={<EditEvent />} />
+            <Route path="/meus-ingressos" element={<MyTickets />} />
+            <Route path="/favoritos" element={<Favorites />} />
+            <Route path="/meus-eventos" element={<MyEvents />} />
+            <Route path="/event-arrivals/:id" element={<EventArrivals />} />
+            <Route path="/event-subscribers/:id" element={<EventSubscribers />} />
+            <Route path="/todos-eventos" element={<TodosEventos />} />
 
-          <Route path="/checkouts" element={<Checkout />} />
+            <Route path="/checkouts" element={<Checkout />} />
 
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
-          <Route path="/termos-de-uso" element={<TermsOfUse />} />
-          <Route path="/diretrizes-da-comunidade" element={<CommunityGuidelines />} />
-          <Route path="/politica-de-privacidade" element={<PrivacyPolicy />} />
-          <Route path="/obrigatoriedades-legais" element={<LegalObligations />} />
-          <Route path="/regra-da-meia-entrada" element={<HalfPriceRules />} />
-        </Routes>
+            <Route path="/termos-de-uso" element={<TermsOfUse />} />
+            <Route path="/diretrizes-da-comunidade" element={<CommunityGuidelines />} />
+            <Route path="/politica-de-privacidade" element={<PrivacyPolicy />} />
+            <Route path="/obrigatoriedades-legais" element={<LegalObligations />} />
+            <Route path="/regra-da-meia-entrada" element={<HalfPriceRules />} />
+          </Routes>
+          <Toaster />
+      </ToastProvider>
     </Router>
   );
 }
