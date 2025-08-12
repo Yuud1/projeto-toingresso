@@ -264,7 +264,7 @@ export default function EventSubscribersPage() {
     // Configurar tamanho da fonte
     const getFontSize = () => {
       if (isThermalPrint) {
-        return "16px"; // Fonte maior para impressoras térmicas
+        return "24px"; // Fonte maior para impressoras térmicas
       }
       switch (config.fontSize) {
         case "small": return "12px";
@@ -292,33 +292,40 @@ export default function EventSubscribersPage() {
             }
             
             @page {
-              size: ${getPaperSize()};
-              margin: 5mm;
+              size: 100mm 51mm landscape;
+              margin: 0;
             }
             
             @media print {
+              @page {
+                size: 100mm 51mm landscape !important;
+                margin: 0 !important;
+              }
               html, body { 
                 margin: 0 !important; 
                 padding: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
+                width: 100mm !important;
+                height: 51mm !important;
+                overflow: hidden !important;
               }
               .no-print { display: none !important; }
               .thermal-content {
-                width: 100% !important;
-                height: 100% !important;
+                width: 100mm !important;
+                height: 51mm !important;
                 display: flex !important;
                 flex-direction: column !important;
                 align-items: center !important;
                 justify-content: center !important;
+                padding: 3mm !important;
               }
             }
             
             html, body {
               margin: 0;
               padding: 0;
-              width: 100%;
-              height: 100%;
+              width: 100mm;
+              height: 51mm;
+              overflow: hidden;
             }
             
             body {
@@ -327,10 +334,11 @@ export default function EventSubscribersPage() {
               color: #000;
               background: white;
               margin: 0;
-              padding: 5mm;
+              padding: 3mm;
               font-size: ${getFontSize()};
               text-align: center;
-              min-height: 100vh;
+              width: 100mm;
+              height: 51mm;
               display: flex;
               align-items: center;
               justify-content: center;
@@ -342,26 +350,9 @@ export default function EventSubscribersPage() {
               flex-direction: column;
               align-items: center;
               justify-content: center;
-              width: 100%;
-              height: 100%;
-              min-height: 50mm;
-              gap: 8px;
-            }
-            
-            .field-group {
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              gap: 2px;
-            }
-            
-            .field-label {
-              font-size: ${getFontSize()};
-              font-weight: bold;
-              color: #000;
-              text-transform: uppercase;
-              letter-spacing: 1px;
-              line-height: 1.2;
+              width: 94mm;
+              height: 45mm;
+              gap: 6px;
             }
             
             .field-value {
@@ -372,8 +363,9 @@ export default function EventSubscribersPage() {
               text-transform: uppercase;
               letter-spacing: 1px;
               line-height: 1.4;
-              max-width: 100%;
+              max-width: 90mm;
               overflow-wrap: break-word;
+              text-align: center;
             }
             
             .print-button {
