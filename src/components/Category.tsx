@@ -149,7 +149,7 @@ const Category: React.FC = () => {
   }
 
   return (
-    <div className="w-full relative overflow-hidden">
+    <div className="w-full relative overflow-hidden bg-[#fafafa]">
       {/* Background decorative elements */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-20 left-10 w-40 h-40 bg-[#FDC901] rounded-full blur-3xl"></div>
