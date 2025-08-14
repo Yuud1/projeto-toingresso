@@ -5,7 +5,9 @@ import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import EventInterface from "@/interfaces/EventInterface";
 import axios from "axios";
-import { truncateTextTo30Chars } from "@/utils/formatUtils";
+import {    
+  truncateTextTo30Chars,  
+} from "@/utils/formatUtils";
 
 interface SearchDropdownProps {
   isScrolled?: boolean;
@@ -20,7 +22,6 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [results, setResults] = useState<EventInterface[]>([]);
 
-  
   const [isLoading, setIsLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -59,15 +60,16 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
 
       if (eventos.length > 0) {
         // Filtrar eventos válidos antes de exibir
-        const validEvents = eventos.filter((event: EventInterface) => 
-          event._id && 
-          typeof event._id === 'string' && 
-          event._id.trim() !== '' &&
-          event.title &&
-          event.dates &&
-          event.dates.length > 0
+        const validEvents = eventos.filter(
+          (event: EventInterface) =>
+            event._id &&
+            typeof event._id === "string" &&
+            event._id.trim() !== "" &&
+            event.title &&
+            event.dates &&
+            event.dates.length > 0
         );
-        
+
         setResults(validEvents.slice(0, 6)); // Limita a 6 resultados válidos
       } else {
         setResults([]);
@@ -130,17 +132,21 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
 
   const handleResultClick = (event: EventInterface) => {
     // Validar se o evento tem um ID válido
-    if (!event._id || typeof event._id !== 'string' || event._id.trim() === '') {
-      console.error('Evento com ID inválido:', event);
+    if (
+      !event._id ||
+      typeof event._id !== "string" ||
+      event._id.trim() === ""
+    ) {
+      console.error("Evento com ID inválido:", event);
       return;
     }
-    
+
     // Validar se o evento tem dados mínimos necessários
     if (!event.title || !event.dates || event.dates.length === 0) {
-      console.error('Evento com dados incompletos:', event);
+      console.error("Evento com dados incompletos:", event);
       return;
     }
-    
+
     navigate(`/evento/${event._id}`);
     setIsOpen(false);
     setQuery("");
@@ -228,55 +234,78 @@ const SearchDropdown: React.FC<SearchDropdownProps> = ({
                       {truncateTextTo30Chars(event.title)}
                     </h3>
 
-                                         <div className="flex items-center gap-4 text-xs text-gray-600 mb-2">
-                       <div className="flex items-center gap-1">
-                         <MapPin size={12} />
-                         <span className="truncate">{event.venueName || "Local não informado"}</span>
-                       </div>
-                       <div className="flex items-center gap-1">
-                         <Calendar size={12} />
-                         <span>{event.dates && event.dates.length > 0 && event.dates[0] ? formatDate(event.dates[0].startDate) : "Data não informada"}</span>
-                       </div>
-                       <div className="flex items-center gap-1">
-                         <Clock size={12} />
-                         <span>{event.dates && event.dates.length > 0 && event.dates[0] && event.dates[0].startTime ? formatTime(event.dates[0].startTime) : "Horário não informado"}</span>
-                       </div>
-                     </div>
+                    <div className="flex items-center gap-4 text-xs text-gray-600 mb-2">
+                      <div className="flex items-center gap-1">
+                        <MapPin size={12} />
+                        <span className="truncate">
+                          {(event.venueName.slice(0, 20)) ||
+                            "Local não informado"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Calendar size={12} />
+                        <span>
+                          {event.dates &&
+                          event.dates.length > 0 &&
+                          event.dates[0]
+                            ? formatDate(event.dates[0].startDate)
+                            : "Data não informada"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Clock size={12} />
+                        <span>
+                          {event.dates &&
+                          event.dates.length > 0 &&
+                          event.dates[0] &&
+                          event.dates[0].startTime
+                            ? formatTime(event.dates[0].startTime)
+                            : "Horário não informado"}
+                        </span>
+                      </div>
+                    </div>
 
-                                         <div className="flex items-center justify-between">
-                       <span className="text-xs text-gray-500 capitalize">
-                         {event.category}
-                       </span>
-                       {event.batches && event.batches.length > 0 && event.batches[0] && event.batches[0].tickets ? (
-                         <div className="flex items-center gap-1 text-xs text-gray-500">
-                           <Users size={12} />
-                           <span>
-                             {event.batches[0].tickets.length} tipos de ingresso
-                           </span>
-                         </div>
-                       ) : null}
-                     </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-500 capitalize">
+                        {event.category}
+                      </span>
+                      {event.batches &&
+                      event.batches.length > 0 &&
+                      event.batches[0] &&
+                      event.batches[0].tickets ? (
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                          <Users size={12} />
+                          <span>
+                            {event.batches[0].tickets.length} tipos de ingresso
+                          </span>
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
 
-                                     {/* Preço */}
-                   <div className="flex-shrink-0 text-right">
-                     {event.isFree ? (
-                       <span className="text-green-600 font-semibold text-sm">
-                         Grátis
-                       </span>
-                     ) : event.batches && event.batches.length > 0 && event.batches[0] && event.batches[0].tickets && event.batches[0].tickets.length > 0 ? (
-                       <span className="text-[#02488C] font-semibold text-sm">
-                         A partir de R${" "}
-                         {Math.min(
-                           ...event.batches[0].tickets.map((t) => t.price)
-                         )}
-                       </span>
-                     ) : (
-                       <span className="text-gray-500 font-semibold text-sm">
-                         Preço não informado
-                       </span>
-                     )}
-                   </div>
+                  {/* Preço */}
+                  <div className="flex-shrink-0 text-right">
+                    {event.isFree ? (
+                      <span className="text-green-600 font-semibold text-sm">
+                        Grátis
+                      </span>
+                    ) : event.batches &&
+                      event.batches.length > 0 &&
+                      event.batches[0] &&
+                      event.batches[0].tickets &&
+                      event.batches[0].tickets.length > 0 ? (
+                      <span className="text-[#02488C] font-semibold text-sm">
+                        A partir de R${" "}
+                        {Math.min(
+                          ...event.batches[0].tickets.map((t) => t.price)
+                        )}
+                      </span>
+                    ) : (
+                      <span className="text-gray-500 font-semibold text-sm">
+                        Indisponíveis
+                      </span>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
