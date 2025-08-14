@@ -402,20 +402,20 @@ export default function EventArrivalsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-slate-600">Carregando evento...</p>
+          <p className="text-gray-600">Carregando evento...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Header aprimorado */}
-      <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-20 shadow-sm ">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex sm:flex-row flex-col">
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b sticky top-0 z-20 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="sm:flex sm:flex-row flex flex-col sm:items-start justify-between gap-5">
             <div className="flex justify-between gap-4">
               <div className="relative">
@@ -427,10 +427,10 @@ export default function EventArrivalsPage() {
                 )}
               </div>
               <div>
-                <h1 className="text-xl font-bold text-slate-900">
+                <h1 className="text-xl font-bold text-gray-900">
                   {eventData?.title}
                 </h1>
-                <div className="flex items-center gap-4 text-sm text-slate-500">
+                <div className="flex items-center gap-4 text-sm text-gray-500">
                   <div className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
                     <span>{formatDate(eventData?.dates[0].startDate || "")}</span>
@@ -468,11 +468,7 @@ export default function EventArrivalsPage() {
                     setIsLive(true);
                   }
                 }}
-                className={`gap-2 ${
-                  isConfigMode
-                    ? "bg-blue-600 hover:bg-blue-700"
-                    : "bg-green-600 hover:bg-green-700"
-                }`}
+                className="gap-2 bg-[#02488C] hover:bg-[#02488C]/90"
               >
                 <Settings size={16} />
                 {isConfigMode ? "Iniciar Monitoramento" : "Configurar"}
@@ -482,7 +478,7 @@ export default function EventArrivalsPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {isConfigMode ? (
           <Tabs defaultValue="display" className="space-y-6">
             <div className="flex items-center justify-between">
@@ -546,7 +542,7 @@ export default function EventArrivalsPage() {
                           <p className="font-medium">
                             Mostrar horário de chegada
                           </p>
-                          <p className="text-sm text-slate-500">
+                          <p className="text-sm text-gray-500">
                             Exibe quando cada participante chegou
                           </p>
                         </div>
@@ -572,7 +568,7 @@ export default function EventArrivalsPage() {
                         onChange={(e) => setCommonParameter(e.target.value)}
                         className="w-full"
                       />
-                      <p className="text-sm text-slate-500 mt-2">
+                      <p className="text-sm text-gray-500 mt-2">
                         Este texto aparecerá em todos os cards dos participantes
                       </p>
                     </CardContent>
@@ -587,7 +583,7 @@ export default function EventArrivalsPage() {
                         Campos Personalizados
                       </CardTitle>
                       <div className="flex justify-between items-center">
-                        <p className="text-sm text-slate-500">
+                        <p className="text-sm text-gray-500">
                           {selectedFields.length} de{" "}
                           {eventData?.customFields.length || 0} campos
                           selecionados
@@ -619,7 +615,7 @@ export default function EventArrivalsPage() {
                     <CardContent>
                       <div className="space-y-3">
                         {eventData?.customFields.length === 0 ? (
-                          <div className="text-center p-6 text-slate-500">
+                          <div className="text-center p-6 text-gray-500">
                             Nenhum campo personalizado definido para este evento
                           </div>
                         ) : (
@@ -629,12 +625,12 @@ export default function EventArrivalsPage() {
                               className={`flex items-center justify-between p-3 border rounded-lg transition-colors ${
                                 selectedFields.includes(field.label)
                                   ? "border-blue-300 bg-blue-50"
-                                  : "hover:bg-slate-50"
+                                  : "hover:bg-gray-50"
                               }`}
                             >
                               <div>
                                 <p className="font-medium">{field.label}</p>
-                                <p className="text-sm text-slate-500">
+                                <p className="text-sm text-gray-500">
                                   Tipo: {field.type}
                                 </p>
                               </div>
@@ -674,7 +670,7 @@ export default function EventArrivalsPage() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6">
+                      <div className="bg-gradient-to-br from-gray-50 to-white rounded-lg p-6">
                         {cardStyle === "grid" ? (
                           <div className="text-center">
                             <Avatar className="w-16 h-16 mx-auto mb-4">
@@ -682,7 +678,7 @@ export default function EventArrivalsPage() {
                                 AS
                               </AvatarFallback>
                             </Avatar>
-                            <h3 className="font-bold text-lg mb-3">
+                            <h3 className="font-bold text-lg mb-3 text-gray-900">
                               Ana Silva
                             </h3>
                             <div className="space-y-2">
@@ -696,7 +692,7 @@ export default function EventArrivalsPage() {
                                 .map((field) => (
                                   <div
                                     key={field._id}
-                                    className="text-sm text-slate-600 bg-slate-50 rounded-lg p-2"
+                                    className="text-sm text-gray-600 bg-gray-50 rounded-lg p-2"
                                   >
                                     <span className="font-medium">
                                       {field.label}:
@@ -716,7 +712,7 @@ export default function EventArrivalsPage() {
                               )}
                             </div>
                             {showArrivalTime && (
-                              <p className="text-sm text-slate-500 mt-4">
+                              <p className="text-sm text-gray-500 mt-4">
                                 Chegou às 10:15
                               </p>
                             )}
@@ -729,8 +725,8 @@ export default function EventArrivalsPage() {
                               </AvatarFallback>
                             </Avatar>
                             <div className="flex-1">
-                              <h3 className="font-bold">Ana Silva</h3>
-                              <p className="text-sm text-slate-500">
+                              <h3 className="font-bold text-gray-900">Ana Silva</h3>
+                              <p className="text-sm text-gray-500">
                                 ana@email.com
                               </p>
 
@@ -743,7 +739,7 @@ export default function EventArrivalsPage() {
                                 .map((field) => (
                                   <p
                                     key={field._id}
-                                    className="text-sm text-slate-500"
+                                    className="text-sm text-gray-500"
                                   >
                                     <span className="font-medium">
                                       {field.label}:
@@ -758,7 +754,7 @@ export default function EventArrivalsPage() {
                             </div>
                             <div className="flex flex-col items-end gap-2">
                               {showArrivalTime && (
-                                <p className="text-sm text-slate-500">10:15</p>
+                                <p className="text-sm text-gray-500">10:15</p>
                               )}
                               {commonParameter && (
                                 <Badge className="bg-amber-100 text-amber-800 border-amber-200 text-xs">
@@ -786,8 +782,8 @@ export default function EventArrivalsPage() {
                       <Users className="h-5 w-5 text-blue-600" />
                     </div>
                     <div>
-                      <p className="text-sm text-slate-500">Total Presentes</p>
-                      <p className="text-2xl font-bold text-slate-900">
+                      <p className="text-sm text-gray-500">Total Presentes</p>
+                      <p className="text-2xl font-bold text-gray-900">
                         {arrivals.length}
                       </p>
                     </div>
@@ -802,7 +798,7 @@ export default function EventArrivalsPage() {
                       <TrendingUp className="h-5 w-5 text-green-600" />
                     </div>
                     <div>
-                      <p className="text-sm text-slate-500">Status</p>
+                      <p className="text-sm text-gray-500">Status</p>
                       <p className="text-lg font-semibold text-green-600">
                         {isLive ? "Ao Vivo" : "Pausado"}
                       </p>
@@ -818,8 +814,8 @@ export default function EventArrivalsPage() {
                       <Clock className="h-5 w-5 text-purple-600" />
                     </div>
                     <div>
-                      <p className="text-sm text-slate-500">Última Chegada</p>
-                      <p className="text-lg font-semibold text-slate-900">
+                      <p className="text-sm text-gray-500">Última Chegada</p>
+                      <p className="text-lg font-semibold text-gray-900">
                         {arrivals.length > 0
                           ? formatTime(arrivals[0].arrivalTime)
                           : "--:--"}
@@ -836,8 +832,8 @@ export default function EventArrivalsPage() {
                       <Calendar className="h-5 w-5 text-orange-600" />
                     </div>
                     <div>
-                      <p className="text-sm text-slate-500">Evento</p>
-                      <p className="text-lg font-semibold text-slate-900">
+                      <p className="text-sm text-gray-500">Evento</p>
+                      <p className="text-lg font-semibold text-gray-900">
                         {eventData?.isFree ? "Gratuito" : "Pago"}
                       </p>
                     </div>
@@ -847,10 +843,10 @@ export default function EventArrivalsPage() {
             </div>
 
             {/* Controles */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+            <div className="bg-white rounded-lg shadow-sm border p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
                     placeholder="Buscar participantes..."
                     value={searchTerm}
@@ -859,7 +855,7 @@ export default function EventArrivalsPage() {
                   />
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-slate-500">Tempo real:</span>
+                  <span className="text-sm text-gray-500">Tempo real:</span>
                   <Switch checked={isLive} onCheckedChange={setIsLive} />
                 </div>
               </div>
@@ -877,14 +873,14 @@ export default function EventArrivalsPage() {
                   </Button>
 
                   {showExportMenu && (
-                    <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-slate-200 rounded-lg shadow-lg z-10">
+                    <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                       <div className="p-2">
                         <button
                           onClick={() => {
                             exportToCSV();
                             setShowExportMenu(false);
                           }}
-                          className="w-full text-left px-3 py-2 text-sm hover:bg-slate-100 rounded-md flex items-center gap-2"
+                          className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded-md flex items-center gap-2"
                         >
                           <Download className="h-4 w-4" />
                           Exportar CSV
@@ -894,13 +890,13 @@ export default function EventArrivalsPage() {
                             exportToExcel();
                             setShowExportMenu(false);
                           }}
-                          className="w-full text-left px-3 py-2 text-sm hover:bg-slate-100 rounded-md flex items-center gap-2"
+                          className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded-md flex items-center gap-2"
                         >
                           <Download className="h-4 w-4" />
                           Exportar Excel
                         </button>
-                        <div className="border-t border-slate-200 my-2"></div>
-                        <div className="px-3 py-2 text-xs text-slate-500">
+                        <div className="border-t border-gray-200 my-2"></div>
+                        <div className="px-3 py-2 text-xs text-gray-500">
                           {filteredArrivals.length} participante
                           {filteredArrivals.length !== 1 ? "s" : ""}
                         </div>
@@ -928,13 +924,13 @@ export default function EventArrivalsPage() {
             {filteredArrivals.length === 0 ? (
               <Card className="text-center py-20">
                 <CardContent>
-                  <UserCheck className="h-16 w-16 text-slate-400 mx-auto mb-4" />
-                  <h2 className="text-2xl font-bold text-slate-900 mb-2">
+                  <UserCheck className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     {searchTerm
                       ? "Nenhum resultado encontrado"
                       : "Aguardando participantes"}
                   </h2>
-                  <p className="text-slate-500">
+                  <p className="text-gray-500">
                     {searchTerm
                       ? "Tente ajustar os termos de busca"
                       : "Os participantes aparecerão aqui conforme chegam ao evento"}
@@ -970,7 +966,7 @@ export default function EventArrivalsPage() {
                             </AvatarFallback>
                           </Avatar>
 
-                          <h3 className="font-bold text-lg mb-3 text-slate-900">
+                          <h3 className="font-bold text-lg mb-3 text-gray-900">
                             {arrival.fields?.name ||
                               arrival.user?.name ||
                               "Sem nome"}
@@ -993,7 +989,7 @@ export default function EventArrivalsPage() {
                               .map(([key, value]) => (
                                 <div
                                   key={key}
-                                  className="text-sm text-slate-600 bg-slate-50 rounded-lg p-2"
+                                  className="text-sm text-gray-600 bg-gray-50 rounded-lg p-2"
                                 >
                                   <span className="font-medium">{key}:</span>{" "}
                                   {value || "Não informado"}
@@ -1008,7 +1004,7 @@ export default function EventArrivalsPage() {
                           </div>
 
                           {showArrivalTime && (
-                            <div className="mt-4 text-sm text-slate-500 bg-slate-50 rounded-lg p-2">
+                            <div className="mt-4 text-sm text-gray-500 bg-gray-50 rounded-lg p-2">
                               Chegou às {formatTime(arrival.arrivalTime)}
                             </div>
                           )}
@@ -1029,13 +1025,13 @@ export default function EventArrivalsPage() {
                           </Avatar>
 
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-bold text-slate-900 truncate">
+                            <h3 className="font-bold text-gray-900 truncate">
                               {arrival.fields?.name ||
                                 arrival.user?.name ||
                                 "Sem nome"}
                             </h3>
                             {arrival.user?.email && (
-                              <p className="text-sm text-slate-500 truncate">
+                              <p className="text-sm text-gray-500 truncate">
                                 {arrival.user.email}
                               </p>
                             )}
@@ -1050,7 +1046,7 @@ export default function EventArrivalsPage() {
                               .map(([key, value]) => (
                                 <p
                                   key={key}
-                                  className="text-sm text-slate-500 truncate"
+                                  className="text-sm text-gray-500 truncate"
                                 >
                                   <span className="font-medium">{key}:</span>{" "}
                                   {value || "Não informado"}
@@ -1060,7 +1056,7 @@ export default function EventArrivalsPage() {
 
                           <div className="flex flex-col items-end gap-2">
                             {showArrivalTime && (
-                              <p className="text-sm text-slate-500">
+                              <p className="text-sm text-gray-500">
                                 {formatTime(arrival.arrivalTime)}
                               </p>
                             )}
