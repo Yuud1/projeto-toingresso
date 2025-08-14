@@ -116,11 +116,29 @@ export default function MyTickets() {
   const filteredTickets = useMemo(() => {
     if (!tickets) return [];
 
-    if (activeTab === "ativo") {
-      return tickets.filter((ticket) => ticket.used === false);
-    } else {
-      return tickets.filter((ticket) => ticket.used === true);
-    }
+    const byStatus = activeTab === "ativo"
+      ? tickets.filter((ticket) => ticket.used === false)
+      : tickets.filter((ticket) => ticket.used === true);
+
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return byStatus;
+
+    return byStatus.filter((ticket) => {
+      const eventTitle = ticket.eventTitle?.toLowerCase() || ticket.Event?.title?.toLowerCase() || "";
+      const venue = ticket.Event?.venueName?.toLowerCase() || "";
+      const ownerEmail = ticket.Owner?.email?.toLowerCase() || "";
+      const city = ticket.Event?.city?.toLowerCase() || "";
+      const state = ticket.Event?.state?.toLowerCase() || "";
+      const neighborhood = ticket.Event?.neighborhood?.toLowerCase() || "";
+      return (
+        eventTitle.includes(query) ||
+        venue.includes(query) ||
+        ownerEmail.includes(query) ||
+        city.includes(query) ||
+        state.includes(query) ||
+        neighborhood.includes(query)
+      );
+    });
   }, [tickets, activeTab, searchQuery]);
 
   // Early return após todos os hooks
@@ -303,7 +321,7 @@ export default function MyTickets() {
               )}
             </div>
           ) : (
-                                                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                                                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredTickets.map((ticket) => {
                 const event = ticket.Event;
                 console.log(event);
