@@ -16,7 +16,6 @@ import {
   Download,
   Mail,
   Phone,
-  MapPin,
 } from "lucide-react"
 
 const PolicySection = ({
@@ -384,7 +383,7 @@ export default function PrivacyPolicy() {
                     <Mail className="text-[#02488C]" size={20} />
                     <div>
                       <p className="font-semibold text-sm">E-mail</p>
-                      <p className="text-sm text-gray-600">dpo@empresa.com</p>
+                      <p className="text-sm text-gray-600">toingresso@gmail.com</p>
                     </div>
                   </div>
 
@@ -392,23 +391,12 @@ export default function PrivacyPolicy() {
                     <Phone className="text-[#02488C]" size={20} />
                     <div>
                       <p className="font-semibold text-sm">Telefone</p>
-                      <p className="text-sm text-gray-600">(11) 1234-5678</p>
+                      <p className="text-sm text-gray-600">(63) 99282-5487</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                  <MapPin className="text-[#02488C] mt-1" size={20} />
-                  <div>
-                    <p className="font-semibold text-sm">Endereço</p>
-                    <p className="text-sm text-gray-600">
-                      Rua das Empresas, 123 - Sala 456
-                      <br />
-                      São Paulo, SP - CEP 01234-567
-                    </p>
-                  </div>
-                </div>
-
+                
                 <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                   <p className="text-sm text-gray-700">
                     <strong>Autoridade Nacional de Proteção de Dados (ANPD):</strong> Você também pode entrar em contato

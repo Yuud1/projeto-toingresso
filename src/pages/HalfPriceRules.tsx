@@ -589,7 +589,7 @@ export default function HalfPriceRules() {
                 <div className="p-3 bg-green-50 rounded-md border border-green-200 mt-4">
                   <p className="text-sm">
                     <strong>Ainda tem dúvidas?</strong> Entre em contato com nosso suporte através do e-mail
-                    suporte@empresa.com ou pelo telefone (11) 1234-5678.
+                    toingresso@gmail.com ou pelo telefone (63) 99282-5487.
                   </p>
                 </div>
               </div>

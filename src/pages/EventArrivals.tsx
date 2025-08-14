@@ -45,8 +45,6 @@ const previewUpdateAnimation = `
   }
 `;
 
-
-
 // Novas interfaces para resolver problemas de any
 interface ParticipantData {
   user?: UserInterface;
@@ -60,7 +58,7 @@ interface ApiResponse {
 }
 
 interface SocketUserData {
-  user?: UserInterface
+  user?: UserInterface;
   fields?: Record<string, string>;
   arrivedAt?: string;
   subscribedAt?: string;
@@ -74,8 +72,8 @@ export default function EventArrivalsPage() {
   // Estados principais
   const [arrivals, setArrivals] = useState<ArrivalInterface[]>([]);
   const [eventData, setEventData] = useState<EventInterface>();
-  const [loading, setLoading] = useState(true);    
-  
+  const [loading, setLoading] = useState(true);
+
   // Estados de configuração
   const [isConfigMode, setIsConfigMode] = useState(true);
   const [selectedFields, setSelectedFields] = useState<string[]>([]);
@@ -140,14 +138,12 @@ export default function EventArrivalsPage() {
         const token = localStorage.getItem("token");
 
         const response = await axios.get(
-          `${baseUrl}${
-            import.meta.env.VITE_GET_ARRIVALS_PARTICIPANTS
-          }/${id}`,
+          `${baseUrl}${import.meta.env.VITE_GET_ARRIVALS_PARTICIPANTS}/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        
+
         const data: ApiResponse = response.data;
 
         if (data.participants) {
@@ -155,14 +151,22 @@ export default function EventArrivalsPage() {
           // A API pode retornar participantes com ou sem campos personalizados
           // - Com fields: { user: {...}, fields: {...}, arrivedAt: "..." }
           // - Sem fields: { user: {...}, arrivedAt: "..." }
-          const normalizedArrivals = data.participants.map((participant: ParticipantData) => ({
-            userId: participant.user?._id,
-            user: participant.user,
-            fields: participant.fields || {}, // Se não tiver fields, usar objeto vazio
-            subscribedAt: participant.arrivedAt || participant.subscribedAt || new Date().toISOString(),
-            arrivalTime: participant.arrivedAt || participant.subscribedAt || new Date().toISOString(),          
-          }));
-          
+          const normalizedArrivals = data.participants.map(
+            (participant: ParticipantData) => ({
+              userId: participant.user?._id,
+              user: participant.user,
+              fields: participant.fields || {}, // Se não tiver fields, usar objeto vazio
+              subscribedAt:
+                participant.arrivedAt ||
+                participant.subscribedAt ||
+                new Date().toISOString(),
+              arrivalTime:
+                participant.arrivedAt ||
+                participant.subscribedAt ||
+                new Date().toISOString(),
+            })
+          );
+
           setArrivals(normalizedArrivals);
         }
       } catch (error) {
@@ -177,27 +181,31 @@ export default function EventArrivalsPage() {
   useEffect(() => {
     if (!isConfigMode && isLive) {
       socket.emit("registerChekcout", id);
-      
-      socket.on("new_user_checked_in", (userData: SocketUserData) => {                
-        
+
+      socket.on("new_user_checked_in", (userData: SocketUserData) => {
         try {
           // Normalizar os dados recebidos do socket da mesma forma que a API
-          const normalizedUserData: ArrivalInterface = {          
+          const normalizedUserData: ArrivalInterface = {
             userId: userData.user?._id,
             user: userData.user,
             fields: userData.fields || {}, // Se não tiver fields, usar objeto vazio
-            subscribedAt: userData.arrivedAt || userData.subscribedAt || new Date().toISOString(),
-            arrivalTime: userData.arrivedAt || userData.subscribedAt || new Date().toISOString(),
+            subscribedAt:
+              userData.arrivedAt ||
+              userData.subscribedAt ||
+              new Date().toISOString(),
+            arrivalTime:
+              userData.arrivedAt ||
+              userData.subscribedAt ||
+              new Date().toISOString(),
           };
-          
-          
+
           setArrivals((prev) => [normalizedUserData, ...prev]);
         } catch (error) {
           console.error("Erro ao processar dados do socket:", error);
           console.error("Dados que causaram erro:", userData);
         }
       });
-      
+
       // Adicionar listener para erros do socket
       socket.on("connect_error", (error) => {
         console.error("Erro de conexão do socket:", error);
@@ -207,6 +215,7 @@ export default function EventArrivalsPage() {
     return () => {
       socket.off("new_user_checked_in");
       socket.off("connect_error");
+      socket.off("disconnect");
     };
   }, [isConfigMode, isLive, id]);
 
@@ -276,7 +285,9 @@ export default function EventArrivalsPage() {
       const row = [
         arrival.fields?.name || arrival.user?.name || "Sem nome",
         arrival.user?.email || "Sem email",
-        ...selectedFields.map((field) => arrival.fields?.[field] || "Não informado"),
+        ...selectedFields.map(
+          (field) => arrival.fields?.[field] || "Não informado"
+        ),
         ...(commonParameter ? [commonParameter] : []),
         ...(showArrivalTime ? [formatTime(arrival.arrivalTime)] : []),
         formatDate(arrival.subscribedAt),
@@ -341,7 +352,10 @@ export default function EventArrivalsPage() {
           <td>${arrival.fields?.name || arrival.user?.name || "Sem nome"}</td>
           <td>${arrival.user?.email || "Sem email"}</td>
           ${selectedFields
-            .map((field) => `<td>${arrival.fields?.[field] || "Não informado"}</td>`)
+            .map(
+              (field) =>
+                `<td>${arrival.fields?.[field] || "Não informado"}</td>`
+            )
             .join("")}
           ${commonParameter ? `<td>${commonParameter}</td>` : ""}
           ${
@@ -433,7 +447,9 @@ export default function EventArrivalsPage() {
                 <div className="flex items-center gap-4 text-sm text-gray-500">
                   <div className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
-                    <span>{formatDate(eventData?.dates[0].startDate || "")}</span>
+                    <span>
+                      {formatDate(eventData?.dates[0].startDate || "")}
+                    </span>
                   </div>
                   <div className="flex items-center gap-1">
                     <MapPin className="h-4 w-4" />
@@ -698,7 +714,7 @@ export default function EventArrivalsPage() {
                                       {field.label}:
                                     </span>{" "}
                                     {field.type === "email"
-                                      ? "exemplo@email.com"                                      
+                                      ? "exemplo@email.com"
                                       : field.type === "number"
                                       ? "123"
                                       : "Valor de exemplo"}
@@ -725,7 +741,9 @@ export default function EventArrivalsPage() {
                               </AvatarFallback>
                             </Avatar>
                             <div className="flex-1">
-                              <h3 className="font-bold text-gray-900">Ana Silva</h3>
+                              <h3 className="font-bold text-gray-900">
+                                Ana Silva
+                              </h3>
                               <p className="text-sm text-gray-500">
                                 ana@email.com
                               </p>
@@ -745,7 +763,7 @@ export default function EventArrivalsPage() {
                                       {field.label}:
                                     </span>{" "}
                                     {field.type === "email"
-                                      ? "exemplo@email.com"                                      
+                                      ? "exemplo@email.com"
                                       : field.type === "number"
                                       ? "123"
                                       : "Valor de exemplo"}
